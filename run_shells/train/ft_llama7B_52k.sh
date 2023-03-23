@@ -17,15 +17,18 @@ cd ../../
 # 这两个参数，这两个参数是在A100机器上训练的。
 #----------------------------------------------------------
 
-your_random_port=9800
-your_output_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/opt"
+your_random_port=9801
+#your_path_to_hf_converted_llama_ckpt_and_tokenizer="decapoda-research/llama-7b-hf"
+your_path_to_hf_converted_llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/llama-7b-hf"
+your_output_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/llama-7b-hf_train_out"
 
+CUDA_VISIBLE_DEVICES=4,5,6,7 \
 torchrun --nproc_per_node=4 --master_port=${your_random_port} train.py \
-    --model_name_or_path "facebook/opt-6.7b" \
+    --model_name_or_path "${your_path_to_hf_converted_llama_ckpt_and_tokenizer}" \
     --data_path ./alpaca_data.json \
     --output_dir ${your_output_dir} \
     --num_train_epochs 3 \
-    --per_device_train_batch_size 1 \
+    --per_device_train_batch_size 4 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 8 \
     --evaluation_strategy "no" \
@@ -38,4 +41,4 @@ torchrun --nproc_per_node=4 --master_port=${your_random_port} train.py \
     --lr_scheduler_type "cosine" \
     --logging_steps 1 \
     --fsdp "full_shard auto_wrap" \
-    --fsdp_transformer_layer_cls_to_wrap 'OPTDecoderLayer'
+    --fsdp_transformer_layer_cls_to_wrap 'LlamaDecoderLayer'
