@@ -15,6 +15,7 @@
 import copy
 import logging
 import json
+import setproctitle
 from dataclasses import dataclass, field
 from typing import Optional, Dict, Sequence
 
@@ -189,6 +190,7 @@ def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer, dat
 
 
 def train():
+    setproctitle.setproctitle("stanford_alpaca")
     parser = transformers.HfArgumentParser((ModelArguments, DataArguments, TrainingArguments))
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 
