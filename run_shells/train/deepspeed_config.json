@@ -1,4 +1,4 @@
-{
+ {
     "zero_optimization": {
         "stage": 3,
         "contiguous_gradients": true,
