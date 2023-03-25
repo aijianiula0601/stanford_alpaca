@@ -40,7 +40,8 @@ def load_model(model_name, eight_bit=0, device_map="auto"):
     generator = model.generate
 
 
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/new_llama_7b"
+# model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/new_llama_7b"
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/llama-7b-hf_train_out"
 load_model(model_dir)
 
 # temp_list = (list(range(10) + 1) * 0.1

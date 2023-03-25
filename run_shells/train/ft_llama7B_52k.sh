@@ -38,7 +38,7 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} train.py \
     --gradient_accumulation_steps 8 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 1000 \
+    --save_steps 50 \
     --save_total_limit 2 \
     --learning_rate 2e-5 \
     --weight_decay 0. \
