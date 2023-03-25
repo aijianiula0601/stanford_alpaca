@@ -24,8 +24,8 @@ def load_model(model_name, eight_bit=0, device_map="auto"):
     gpu_count = torch.cuda.device_count()
     print('gpu_count', gpu_count)
 
-    tokenizer = transformers.LLaMATokenizer.from_pretrained(model_name)
-    model = transformers.LLaMAForCausalLM.from_pretrained(
+    tokenizer = transformers.AutoTokenizer.from_pretrained(model_name)
+    model = transformers.AutoModelForCausalLM.from_pretrained(
         model_name,
         # device_map=device_map,
         # device_map="auto",
@@ -40,7 +40,8 @@ def load_model(model_name, eight_bit=0, device_map="auto"):
     generator = model.generate
 
 
-load_model("/mnt/cephfs/zhuchengqi/git/LLM/point-alpaca/result")
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/new_llama_7b"
+load_model(model_dir)
 
 # temp_list = (list(range(10) + 1) * 0.1
 temp_list = [round(0.1 * char, 2) for char in list(range(1, 11))]
@@ -60,7 +61,6 @@ def bot(history, temperature=0.5, background=""):
 
         generated_text = ""
         gen_in = tokenizer(fulltext, return_tensors="pt").input_ids.cuda()
-        in_tokens = len(gen_in)
         with torch.no_grad():
             generated_ids = generator(
                 gen_in,
