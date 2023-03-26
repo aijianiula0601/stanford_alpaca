@@ -123,4 +123,4 @@ with gr.Blocks() as demo:
     clear.click(lambda: None, None, chatbot, queue=False)
 
 # To create a public link, set `share=True` in `launch()`.
-demo.launch(server_name="202.168.100.178", server_port=8093)
+demo.launch(server_name="202.168.100.165", server_port=8093)
