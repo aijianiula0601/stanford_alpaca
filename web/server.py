@@ -65,7 +65,7 @@ def bot(history, temperature=0.5, background=""):
         with torch.no_grad():
             generated_ids = generator(
                 gen_in,
-                max_new_tokens=200,
+                max_new_tokens=256,
                 use_cache=True,
                 pad_token_id=tokenizer.eos_token_id,
                 num_return_sequences=1,
