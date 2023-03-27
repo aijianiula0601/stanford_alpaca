@@ -41,25 +41,25 @@ def load_model(model_name, eight_bit=0, device_map="auto"):
 
 
 # model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/new_llama_7b"
-# model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/llama-7b-hf_train_out/checkpoint-250"
-# model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/llama-7b-hf_train_out_v1/checkpoint-450"
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/llama-7b-hf_train_out_v1/checkpoint-500"
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/llama-7b-hf_train_out/checkpoint-250"
 load_model(model_dir)
 
 # temp_list = (list(range(10) + 1) * 0.1
 temp_list = [round(0.1 * char, 2) for char in list(range(1, 11))]
 
 
-def user(user_message, history):
-    return "", history + [["Human: " + user_message, None]]
+def user(user_message, history, roleA="Boy"):
+    human_invitation = roleA + ": "
+    return "", history + [[human_invitation + user_message, None]], roleA
 
 
-def bot(history, temperature=0.5, background=""):
-    invitation = "Assistant: "
-    human_invitation = "Human: "
+def bot(history, temperature=0.5, max_gen_len=256, background="", roleA="Boy", roleB="Girl"):
+    invitation = roleB + ": "
+    human_invitation = roleA + ": "
     if history[-1][0] != "":
 
-        fulltext = background + "\n" + "\n".join([i for item in history for i in item][:-1]) + "\n" + invitation
+        fulltext = "system: " + background + "\n" + "\n".join(
+            [i for item in history for i in item][:-1]) + "\n" + invitation
         # print(fulltext)
 
         generated_text = ""
@@ -67,7 +67,7 @@ def bot(history, temperature=0.5, background=""):
         with torch.no_grad():
             generated_ids = generator(
                 gen_in,
-                max_new_tokens=256,
+                max_new_tokens=max_gen_len,
                 use_cache=True,
                 pad_token_id=tokenizer.eos_token_id,
                 num_return_sequences=1,
@@ -90,13 +90,13 @@ def bot(history, temperature=0.5, background=""):
         history[-1][-1] = (invitation + response)
 
         print("\n".join([i for item in history for i in item]))
-        return history, temperature, background
+        return history, temperature, max_gen_len, background, roleA, roleB
     else:
         print("\n".join([i for item in history for i in item]))
         # history_show_list = [char.strip() for char in history]
         # history_show = "\n".join(history)
 
-        return history, temperature, background
+        return history, temperature, max_gen_len, background, roleA, roleB
 
 
 # --------------------------------------------------------
@@ -105,11 +105,15 @@ def bot(history, temperature=0.5, background=""):
 
 with gr.Blocks() as demo:
     with gr.Row():
-        gr.Markdown("# Fine-tune llama 7B 体验页面")
+        gr.Markdown("# llama 7B Alpaca English")
     with gr.Row():
         with gr.Column():
             selected_temp = gr.Slider(0, 1, value=0.5, label="Temperature超参,调的越小越容易输出常见字",
                                       interactive=True)
+            max_gen_len = gr.Slider(100, 1000, value=256, label="最大生成字符数", interactive=True)
+            with gr.Row():
+                user_name = gr.Textbox(lines=1, placeholder="设置我的名字， ...", label="设置用户名")
+                bot_name = gr.Textbox(lines=1, placeholder="设置聊天对象的名字 ...", label="设置角色名")
             background = gr.Textbox(lines=5, placeholder="设置聊天背景 ...只能用英文", label="背景")
             msg = gr.Textbox(placeholder="输入内容(Enter确定)", label="输入")
 
@@ -117,12 +121,13 @@ with gr.Blocks() as demo:
             clear = gr.Button("清空聊天记录")
             chatbot = gr.Chatbot(label="聊天记录")
 
-    msg.submit(user, [msg, chatbot],
-               [msg, chatbot], queue=False).then(
-        bot, [chatbot, selected_temp, background],
-        [chatbot, selected_temp, background]
+    msg.submit(user, [msg, chatbot, user_name],
+               [msg, chatbot, user_name], queue=False).then(
+        bot, [chatbot, selected_temp, max_gen_len, background, bot_name],
+        [chatbot, selected_temp, max_gen_len, background, bot_name]
     )
     clear.click(lambda: None, None, chatbot, queue=False)
 
 # To create a public link, set `share=True` in `launch()`.
-demo.launch(server_name="202.168.100.165", server_port=8094)
+# demo.launch(server_name="0.0.0.0", server_port=8094)
+demo.launch(server_name="202.168.100.165", server_port=8093)
