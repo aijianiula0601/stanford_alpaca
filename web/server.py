@@ -41,7 +41,9 @@ def load_model(model_name, eight_bit=0, device_map="auto"):
 
 
 # model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/new_llama_7b"
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/llama-7b-hf_train_out/checkpoint-250"
+# model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/llama-7b-hf_train_out/checkpoint-250"
+# model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/llama-7b-hf_train_out_v1/checkpoint-450"
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/llama-7b-hf_train_out_v1/checkpoint-500"
 load_model(model_dir)
 
 # temp_list = (list(range(10) + 1) * 0.1
@@ -103,7 +105,7 @@ def bot(history, temperature=0.5, background=""):
 
 with gr.Blocks() as demo:
     with gr.Row():
-        gr.Markdown("# llama 7B Alpaca English")
+        gr.Markdown("# Fine-tune llama 7B 体验页面")
     with gr.Row():
         with gr.Column():
             selected_temp = gr.Slider(0, 1, value=0.5, label="Temperature超参,调的越小越容易输出常见字",
@@ -123,4 +125,4 @@ with gr.Blocks() as demo:
     clear.click(lambda: None, None, chatbot, queue=False)
 
 # To create a public link, set `share=True` in `launch()`.
-demo.launch(server_name="202.168.100.165", server_port=8093)
+demo.launch(server_name="202.168.100.165", server_port=8094)

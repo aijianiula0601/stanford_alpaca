@@ -23,7 +23,7 @@ your_random_port=11223
 
 your_path_to_hf_converted_llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/new_llama_7b"
 
-your_output_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/llama-7b-hf_train_out_v1"
+your_output_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/llama-7b-hf_train_out_v2"
 
 #data_json="./alpaca_data.json"
 data_json="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/alpaca_data_cleaned.json"
@@ -39,7 +39,7 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} train.py \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
     --save_steps 50 \
-    --save_total_limit 2 \
+    --save_total_limit 1000 \
     --learning_rate 2e-5 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \
