@@ -14,7 +14,11 @@ generator = None
 PROMPT_DICT = {
     "conversion": (
         # "The following is a chat message between {role_a} and {role_b}. Question and answer, forbid the output of multiple rounds. {background}\n\n"
-        "{background}. The following is a chat message between {role_a} and {role_b}. Question and answer, forbid the output of multiple rounds.\n\n"
+        "{background}. The following is a chat message between {role_a} and {role_b} using English Language. Question and answer, forbid the output of multiple rounds.\n\n"
+        # "{background}. Their conversations are in a question-and-answer format that prohibits multiple rounds of conversation. Here is a conversation between {role_a} and {role_b}:\n\n"
+        "{history}"
+    ),
+    "no_conversion": (
         "Current conversation:\n\n"
         "{history}"
     )
@@ -144,7 +148,7 @@ def bot(history, temperature=0.5, max_gen_len=256, memory_len=-1, background="",
 
 with gr.Blocks() as demo:
     with gr.Row():
-        gr.Markdown("# llama 7B Alpaca English")
+        gr.Markdown("# fine-tune llama 7B Alpaca English")
     with gr.Row():
         with gr.Column():
             selected_temp = gr.Slider(0, 1, value=0.5, label="Temperature超参,调的越小越容易输出常见字",
