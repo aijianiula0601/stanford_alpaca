@@ -65,13 +65,16 @@ load_model(model_dir)
 # temp_list = (list(range(10) + 1) * 0.1
 temp_list = [round(0.1 * char, 2) for char in list(range(1, 11))]
 
+USER_ROLE_NAME = "Human"
+BOT_ROLE_NAME = "Ai"
 
-def user(user_message, history, role_a="Human"):
+
+def user(user_message, history, role_a=USER_ROLE_NAME):
     human_invitation = role_a + ": "
     return "", history + [[human_invitation + user_message, None]], role_a
 
 
-def bot(history, temperature=0.5, max_gen_len=256, memory_len=-1, background="", role_a="Human", role_b="Ai"):
+def bot(history, temperature=0.5, max_gen_len=256, memory_len=-1, background="", role_a=USER_ROLE_NAME, role_b=BOT_ROLE_NAME):
     human_invitation = role_a + ": "
     ai_invitation = role_b + ": "
 
@@ -156,8 +159,8 @@ with gr.Blocks() as demo:
             max_gen_len = gr.Slider(100, 1000, value=256, label="最大生成字符数", interactive=True)
             memory_len = gr.Slider(-1, 500, value=-1, label="最大记忆聊天轮次，默认无限记忆", interactive=True)
             with gr.Row():
-                user_name = gr.Textbox(lines=1, placeholder="设置我的名字， ...", label="设置用户名")
-                bot_name = gr.Textbox(lines=1, placeholder="设置聊天对象的名字 ...", label="设置角色名")
+                user_name = gr.Textbox(lines=1, placeholder="设置我的名字， ...", label="设置用户名", value=USER_ROLE_NAME)
+                bot_name = gr.Textbox(lines=1, placeholder="设置聊天对象的名字 ...", label="设置角色名", value=BOT_ROLE_NAME)
             background = gr.Textbox(lines=5, placeholder="设置聊天背景 ...只能用英文", label="背景")
             msg = gr.Textbox(placeholder="输入内容(Enter确定)", label="输入")
 
