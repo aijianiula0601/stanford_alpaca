@@ -25,7 +25,7 @@ your_output_dir="${base_dir}/train_output"
 #data_json="${base_dir}/prepared_debug_personality.json"
 data_json="${base_dir}/prepared_train_personality.json"
 
-torchrun --nproc_per_node=1 --master_port=${your_random_port} test_models/persona_chat/train_persona_chat.py \
+torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/persona_chat/train_persona_chat.py \
     --model_name_or_path "${your_path_to_hf_converted_llama_ckpt_and_tokenizer}" \
     --data_path ${data_json} \
     --output_dir ${your_output_dir} \
