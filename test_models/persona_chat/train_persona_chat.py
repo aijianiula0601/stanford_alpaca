@@ -11,7 +11,8 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-
+import os
+import sys
 import copy
 import logging
 import json
@@ -20,6 +21,11 @@ from dataclasses import dataclass, field
 from typing import Optional, Dict, Sequence
 
 import torch
+
+pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+print(f"--pdj:{pdj}")
+sys.path.append(pdj)
+
 import transformers
 from torch.utils.data import Dataset
 from transformers import Trainer

@@ -59,7 +59,7 @@ def qas_to_history_str(qas_list):
     return "\n".join(qas_str)
 
 
-def get_prompt_input(example):
+def get_prompt_input_random_qa(example):
     history_len = random.randint(0, len(example['qas']) - 1)
     if history_len > 0:
         cut_qas = example['qas'][:history_len]
@@ -82,7 +82,7 @@ def get_prompt_input(example):
     return prompt_input, target_answer
 
 
-prompt_input, target_answer = get_prompt_input(example)
+prompt_input, target_answer = get_prompt_input_random_qa(example)
 print(f"prompt_input:\n{prompt_input}")
 print(f"target_answer:\n{target_answer}")
 

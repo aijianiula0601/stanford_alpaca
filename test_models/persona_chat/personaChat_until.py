@@ -1,3 +1,5 @@
+import os
+import sys
 import json
 import random
 import copy
@@ -6,6 +8,11 @@ import json
 from typing import Optional, Dict, Sequence
 
 import torch
+
+pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+print(f"--pdj:{pdj}")
+sys.path.append(pdj)
+
 import transformers
 from torch.utils.data import Dataset
 
@@ -115,13 +122,49 @@ def preprocess(
     return dict(input_ids=input_ids, labels=labels)
 
 
+def _tokenize_fn_example(example_str: str, tokenizer: transformers.PreTrainedTokenizer) -> Dict:
+    """Tokenize a list of strings."""
+    tokenized = tokenizer(
+        example_str,
+        return_tensors="pt",
+        padding="longest",
+        max_length=tokenizer.model_max_length,
+        truncation=True,
+    )
+    input_id = label = tokenized.input_ids[0]
+    input_id_len = label_len = tokenized.input_ids.ne(tokenizer.pad_token_id).sum().item()
+    return dict(
+        input_id=input_id,
+        label=label,
+        input_id_lens=input_id_len,
+        label_len=label_len,
+    )
+
+
+def preprocess_example(
+        source: str,
+        target: str,
+        tokenizer: transformers.PreTrainedTokenizer,
+) -> Dict:
+    """Preprocess the data by tokenizing."""
+    example = source + target
+    example_tokenized, source_tokenized = _tokenize_fn_example(example, tokenizer), _tokenize_fn_example(source,
+                                                                                                         tokenizer)
+    input_id = example_tokenized["input_id"]
+    label = copy.deepcopy(input_id)
+    source_len = source_tokenized["input_id_len"]
+    label[:source_len] = IGNORE_INDEX
+
+    return dict(input_id=input_id, label=label)
+
+
 class SupervisedDataset(Dataset):
     """Dataset for supervised fine-tuning."""
 
     def __init__(self, data_path: str, tokenizer: transformers.PreTrainedTokenizer):
         super(SupervisedDataset, self).__init__()
         logging.warning("Loading data...")
-        list_data_dict = json.load(open(data_path))
+        self.list_data_dict = json.load(open(data_path))
 
         logging.warning("Formatting inputs...")
         prompt_input, prompt_no_input = PROMPT_DICT["prompt_input"], PROMPT_DICT["prompt_no_input"]
@@ -138,9 +181,13 @@ class SupervisedDataset(Dataset):
         self.labels = data_dict["labels"]
 
     def __len__(self):
-        return len(self.input_ids)
+        return len(self.list_data_dict)
 
     def __getitem__(self, i) -> Dict[str, torch.Tensor]:
+        source, target = get_prompt_input(self.list_data_dict[i])
+
+        input_id = preprocess_example(source, target, self)
+
         return dict(input_ids=self.input_ids[i], labels=self.labels[i])
 
 
@@ -152,8 +199,9 @@ if __name__ == '__main__':
     # print(f"target_answer:\n{target_answer}")
 
     base_dir = "/mnt/cephfs/hjh/common_dataset/nlp/qa/en/personaChat"
-    data_path = f"{base_dir}/prepared_personality.json"
+    data_path = f"{base_dir}/prepared_personality_debug.json"
     model_name_or_path = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/new_llama_7b"
+    print("tokenizer loading...")
 
     tokenizer = transformers.AutoTokenizer.from_pretrained(
         model_name_or_path,
