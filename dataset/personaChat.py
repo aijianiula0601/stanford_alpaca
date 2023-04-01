@@ -4,16 +4,17 @@ from pathlib import Path
 import json
 import os
 
-PROMPT_DICT = {
-    "background_chat": (
-        "Let's play a role-playing dialogue. Here is your profile information:\n"
-        "{background}\n"
-        "Here is a conversation between {role_a} and {role_b}\n"
+background_prompt_dic = {
+    "history": (
+        "Let's play a role-playing dialogue. It will describe your profile information using the first person perspective:\n"
+        "{profile_information}\n"
+        "Your profile information has been described. Below is a history of the conversion:\n"
         "{history}"
     ),
-    "no_background_chat": (
-        "Here is a conversation between {role_a} and {role_b}, do not generate multiple rounds of reply.\n"
-        "{history}"
+    "no_history": (
+        "Let's play a role-playing dialogue. It will describe your profile information using the first person perspective:\n"
+        "{profile_information}\n"
+        "Your profile information has been described.\n"
     )
 }
 
@@ -69,10 +70,11 @@ f.close()
 
 os.system(f"rm -rf {save_f}")
 json.dump(personaChat_list, fp=open(save_f, 'w', encoding='utf-8'))
-# print(f"save to:{save_f}")
+print(f"对话组数：{len(personaChat_list)}")  # 8939
+print(f"save to:{save_f}")
 
-jd = json.load(open(save_f, "r"))
-print(json.dumps(jd[1]))
+# jd = json.load(open(save_f, "r"))
+# print(json.dumps(jd[1]))
 
 # ---------------------------------
 # 命令执行：
