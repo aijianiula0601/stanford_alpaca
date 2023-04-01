@@ -17,6 +17,7 @@ data_f = f"{base_dir}/personality.csv"
 
 save_f = f"{base_dir}/prepared_personality.json"
 train_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/personaChat/prepared_train_personality.json"
+dev_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/personaChat/prepared_debug_personality.json"
 
 jd_list = json.load(open(save_f, "r"))
 
@@ -32,3 +33,6 @@ for i in tqdm(range(0, 20)):
 print(f"len:{len(train_jd)}")
 json.dump(train_jd, fp=open(train_f, 'w'))
 print(f"save to:{train_f}")
+
+json.dump(train_jd[:100], fp=open(dev_f, 'w'))
+print(f"save to:{dev_f}")

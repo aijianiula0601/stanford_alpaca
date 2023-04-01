@@ -134,7 +134,7 @@ class SupervisedDataset(Dataset):
 
     def __init__(self, data_path: str, tokenizer: transformers.PreTrainedTokenizer):
         super(SupervisedDataset, self).__init__()
-        logging.warning("Loading data...")
+        logging.warning(f"===={data_path},Loading data...")
         list_data_dict = json.load(open(data_path))
 
         logging.warning("Formatting inputs...")
@@ -144,6 +144,8 @@ class SupervisedDataset(Dataset):
 
         logging.warning("Tokenizing inputs... This may take some time...")
         data_dict = preprocess(sources, targets, tokenizer)
+
+        print(f"Tokenize done! len_input_ids:{len(data_dict['input_ids'])}, len_labels:{len(data_dict['labels'])}")
 
         self.input_ids = data_dict["input_ids"]
         self.labels = data_dict["labels"]

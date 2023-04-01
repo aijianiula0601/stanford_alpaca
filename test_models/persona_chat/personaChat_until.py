@@ -1,20 +1,4 @@
-import os
-import sys
 import json
-import random
-import copy
-import logging
-import json
-from typing import Optional, Dict, Sequence
-
-import torch
-
-pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-print(f"--pdj:{pdj}")
-sys.path.append(pdj)
-
-import transformers
-from torch.utils.data import Dataset
 
 IGNORE_INDEX = -100
 DEFAULT_PAD_TOKEN = "[PAD]"
@@ -44,9 +28,6 @@ PROMPT_DICT = {
     ),
 
 }
-
-base_dir = "/mnt/cephfs/hjh/common_dataset/nlp/qa/en/personaChat"
-save_f = f"{base_dir}/prepared_personality.json"
 
 
 def qas_to_history_str(qas_list):
