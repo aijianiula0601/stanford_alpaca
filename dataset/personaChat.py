@@ -55,7 +55,7 @@ with open(data_f, encoding='utf-8-sig') as f:
 f.close()
 
 os.system(f"rm -rf {save_f}")
-json.dump(personaChat_list, fp=open(save_f, 'w', encoding='utf-8'))
+json.dump(personaChat_list, fp=open(save_f, 'w'))
 print(f"对话组数：{len(personaChat_list)}")  # 8939
 # print(f"save to:{save_f}")
 

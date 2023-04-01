@@ -29,36 +29,13 @@ sys.path.append(pdj)
 import transformers
 from torch.utils.data import Dataset
 from transformers import Trainer
+from test_models.persona_chat.personaChat_until import get_prompt_input
 
 IGNORE_INDEX = -100
 DEFAULT_PAD_TOKEN = "[PAD]"
 DEFAULT_EOS_TOKEN = "</s>"
 DEFAULT_BOS_TOKEN = "</s>"
 DEFAULT_UNK_TOKEN = "</s>"
-
-background_prompt_dic = {
-    "history_instruction": (
-        "Let's play a role-playing dialogue. It will describe your profile information using the first person perspective:\n"
-        "{profile_information}\n"
-        "Your profile information has been described. Below is a history of the question and answer:\n"
-        "{history}\n"
-        "Please respond according to the question.\n"
-    ),
-    "no_history_instruction": (
-        "Let's play a role-playing dialogue. It will describe your profile information using the first person perspective:\n"
-        "{profile_information}\n"
-        "Your profile information has been described. Please respond according to the question\n"
-    )
-}
-
-PROMPT_DICT = {
-    "prompt_input": (
-        "Below is an instruction that describes a task, paired with an input that provides further context. "
-        "Write a response that appropriately completes the request.\n\n"
-        "### Instruction:\n{instruction}\n\n Question:\n{question}\n\n Answer:"
-    ),
-
-}
 
 
 @dataclass
@@ -161,12 +138,9 @@ class SupervisedDataset(Dataset):
         list_data_dict = json.load(open(data_path))
 
         logging.warning("Formatting inputs...")
-        prompt_input, prompt_no_input = PROMPT_DICT["prompt_input"], PROMPT_DICT["prompt_no_input"]
-        sources = [
-            prompt_input.format_map(example) if example.get("input", "") != "" else prompt_no_input.format_map(example)
-            for example in list_data_dict
-        ]
-        targets = [f"{example['output']}{tokenizer.eos_token}" for example in list_data_dict]
+        sources_targets_list = [get_prompt_input(example) for example in list_data_dict]
+        sources = [st[0] for st in sources_targets_list]
+        targets = [f"{st[1]}{tokenizer.eos_token}" for st in sources_targets_list]
 
         logging.warning("Tokenizing inputs... This may take some time...")
         data_dict = preprocess(sources, targets, tokenizer)
