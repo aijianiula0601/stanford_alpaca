@@ -26,7 +26,7 @@ sudo nvidia-docker run --privileged=true --gpus all --name sda  --network host -
 -v /home/huangjiahong.dracu:/home/huangjiahong.dracu \
 -v /mnt/cephfs:/mnt/cephfs \
 --shm-size=1024m \
-wenetorg/wenet-mini:latest  \
+sda:latest  \
 /bin/bash
 ```
 
