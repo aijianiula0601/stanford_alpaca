@@ -29,17 +29,29 @@ DEFAULT_PAD_TOKEN = "[PAD]"
 DEFAULT_EOS_TOKEN = "</s>"
 DEFAULT_BOS_TOKEN = "</s>"
 DEFAULT_UNK_TOKEN = "</s>"
+
+background_prompt_dic = {
+    "history_instruction": (
+        "Let's play a role-playing dialogue. It will describe your profile information using the first person perspective:\n"
+        "{profile_information}\n"
+        "Your profile information has been described. Below is a history of the question and answer:\n"
+        "{history}\n"
+        "Please respond according to the question.\n"
+    ),
+    "no_history_instruction": (
+        "Let's play a role-playing dialogue. It will describe your profile information using the first person perspective:\n"
+        "{profile_information}\n"
+        "Your profile information has been described. Please respond according to the question\n"
+    )
+}
+
 PROMPT_DICT = {
     "prompt_input": (
         "Below is an instruction that describes a task, paired with an input that provides further context. "
         "Write a response that appropriately completes the request.\n\n"
-        "### Instruction:\n{instruction}\n\n### Input:\n{input}\n\n### Response:"
+        "### Instruction:\n{instruction}\n\n Question:\n{question}\n\n Answer:"
     ),
-    "prompt_no_input": (
-        "Below is an instruction that describes a task. "
-        "Write a response that appropriately completes the request.\n\n"
-        "### Instruction:\n{instruction}\n\n### Response:"
-    ),
+
 }
 
 

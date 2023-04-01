@@ -1,15 +1,7 @@
-import json
+import random
 
-# f = "/Users/jiahong/Downloads/coqa-train-v1.0.json"
-#
-# data = json.load(open(f))
-#
-# print(json.dumps(data['data'][0]))
+a = [1, 2, 3]
 
-f = "/Users/jiahong/Downloads/personality.csv"
-
-import pandas as pd
-
-df = pd.read_csv(f)
-print(df.head())
-print(df.values[:2])
+history_len = random.randint(0, len(a) - 1)
+print(history_len)
+print(a[:history_len])
