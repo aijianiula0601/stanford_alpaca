@@ -29,7 +29,7 @@ sys.path.append(pdj)
 import transformers
 from torch.utils.data import Dataset
 from transformers import Trainer
-from test_models.persona_chat.personaChat_until import get_prompt_input
+from test_models.empathetic_dialogues.data_until import get_prompt_input
 
 IGNORE_INDEX = -100
 DEFAULT_PAD_TOKEN = "[PAD]"

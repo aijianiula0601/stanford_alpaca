@@ -7,16 +7,12 @@ DEFAULT_BOS_TOKEN = "</s>"
 DEFAULT_UNK_TOKEN = "</s>"
 background_prompt_dic = {
     "history_instruction": (
-        "Let's play a role-playing dialogue. It will describe your profile information using the first person perspective:\n"
-        "{profile_information}\n"
-        "Your profile information has been described. Below is a history of the question and answer:\n"
+        "Let's have an open conversation. Below is a history of the question and answer:\n"
         "{history}\n"
         "Please respond according to the question.\n"
     ),
     "no_history_instruction": (
-        "Let's play a role-playing dialogue. It will describe your profile information using the first person perspective:\n"
-        "{profile_information}\n"
-        "Your profile information has been described. Please respond according to the question\n"
+        "Let's have an open conversation. Please respond according to the question\n"
     )
 }
 
@@ -46,7 +42,7 @@ def get_prompt_input(example):
     if history_len > 0:
         cut_qas = example['qas'][:history_len]
         qa_str = qas_to_history_str(cut_qas)
-        cut_example = {"profile_information": example['profile_information'], "history": qa_str}
+        cut_example = {"history": qa_str}
         instruction_dic = {"instruction": background_prompt_dic['history_instruction'].format_map(cut_example),
                            "question": example['qas'][history_len]['question']}
 
@@ -54,8 +50,7 @@ def get_prompt_input(example):
         target_answer = example['qas'][history_len]['answer']
     else:
         # 没有选择history
-        cut_example = {"profile_information": example['profile_information']}
-        instruction_dic = {"instruction": background_prompt_dic['no_history_instruction'].format_map(cut_example),
+        instruction_dic = {"instruction": background_prompt_dic['no_history_instruction'],
                            "question": example['qas'][0]['question']}
 
         prompt_input = PROMPT_DICT['prompt_input'].format_map(instruction_dic)
@@ -65,7 +60,7 @@ def get_prompt_input(example):
 
 
 if __name__ == '__main__':
-    example_str = """{"profile_information": "i love to bake cakes. i have a twin brother. my favorite book is david copperfield. i m really short.", "qas": [{"question": "hello how are you tonight", "answer": "i am okay . i wish i was more tired though . you ?", "turn_i": 0}, {"question": "my children let me down so i have been better", "answer": "what did they do that disappointed you ?", "turn_i": 1}, {"question": "married ugly people i am with miss usa", "answer": "wow . that is too bad . i do not have kids . i have brothers , twins .", "turn_i": 2}, {"question": "wow that is cool are ou a twin too or just them", "answer": "no , just them . it was lonely growing up . do you have siblings ?", "turn_i": 3}, {"question": "no i do not have any it was boring growing up", "answer": "yeah . i always bake cookies when i am bored . do you have a hobby ?", "turn_i": 4}, {"question": "i have maids so i do not have to bake", "answer": "i love baking . maids huh ? fancy . are you rich ?", "turn_i": 5}, {"question": "i am a little rich i suppose", "answer": "i wish i was . what do you do for a living ?", "turn_i": 6}]}"""
+    example_str = """{"context": "sentimental", "prompt": "I remember going to the fireworks with my best friend. There was a lot of people_comma_ but it only felt like us in the world.", "conv_id": "hit:0_conv:1", "qas": [{"question": "I remember going to see the fireworks with my best friend. It was the first time we ever spent time alone together. Although there was a lot of people_comma_ we felt like the only people in the world.", "turn_id": 0, "answer": "Was this a friend you were in love with_comma_ or just a best friend?"}, {"question": "This was a best friend. I miss her.", "turn_id": 1, "answer": "Where has she gone?"}, {"question": "We no longer talk.", "turn_id": 2, "answer": "Oh was this something that happened because of an argument?"}]}"""
     example = json.loads(example_str)
     prompt_input, target_answer = get_prompt_input(example)
     print(f"prompt_input:\n{prompt_input}")

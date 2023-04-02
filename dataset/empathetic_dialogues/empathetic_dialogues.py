@@ -65,10 +65,15 @@ for row in clean_csv_data_list:
 
 clean_jd_list = []
 for jd in jd_list:
-    if jd["conv_id"] not in dirty_conv_id_list:
-        clean_jd_list.append(jd)
+    # 去掉脏数据，去掉没有回答的数据
+    if jd["conv_id"] not in dirty_conv_id_list and "answer" in jd["qas"][-1].keys():
+        if len(jd["qas"]) > 0:
+            clean_jd_list.append(jd)
 
 os.system(f"rm -rf {save_f}")
 json.dump(clean_jd_list, fp=open(save_f, 'w'))
 print(f"对话组数：{len(clean_jd_list)},脏数据:{len(dirty_conv_id_list)}")
 print(f"save to:{save_f}")
+print("")
+print(json.dumps(clean_jd_list[0]))
+print("")
