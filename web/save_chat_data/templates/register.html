@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #F5F5F5;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #333;
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        form {
+            width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #FFF;
+            border-radius: 5px;
+            box-shadow: 0 0 10px #CCC;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        input[type=text], input[type=password] {
+            width: 92%;
+            padding: 10px;
+            border: 1px solid #CCC;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+
+        input[type=submit] {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: #FFF;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        input[type=submit]:hover {
+            background-color: #3E8E41;
+        }
+    </style>
+</head>
+<body>
+<h1>Register</h1>
+<form method="POST" action="/register">
+    <label for="username">Username:</label>
+    <input type="text" name="username" id="username" required>
+    <label for="password1">Password:</label>
+    <input type="password" name="password1" id="password1" required>
+    <label for="password2">Confirm Password:</label>
+    <input type="password" name="password2" id="password2" required>
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+    <input type="submit" value="Register">
+</form>
+</body>
+</html>
