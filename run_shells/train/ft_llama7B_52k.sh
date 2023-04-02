@@ -18,10 +18,10 @@ cd ../../
 #----------------------------------------------------------
 
 your_random_port=11223
-#your_path_to_hf_converted_llama_ckpt_and_tokenizer="decapoda-research/llama-7b-hf"
-#your_path_to_hf_converted_llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/llama-7b-hf"
+#pretrained_model_output_dir="decapoda-research/llama-7b-hf"
+#pretrained_model_output_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/llama-7b-hf"
 
-your_path_to_hf_converted_llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/new_llama_7b"
+pretrained_model_output_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/stable_transformer_converted_7B"
 
 your_output_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/llama-7b-hf_train_out_v2"
 
@@ -29,7 +29,7 @@ your_output_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/llama-7
 data_json="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/alpaca_data_cleaned.json"
 
 torchrun --nproc_per_node=8 --master_port=${your_random_port} train.py \
-    --model_name_or_path "${your_path_to_hf_converted_llama_ckpt_and_tokenizer}" \
+    --model_name_or_path "${pretrained_model_output_dir}" \
     --data_path ${data_json} \
     --output_dir ${your_output_dir} \
     --num_train_epochs 10 \
