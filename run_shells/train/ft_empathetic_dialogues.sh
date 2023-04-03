@@ -21,16 +21,14 @@ your_random_port=11223
 #pretrained_model_output_dir="decapoda-research/llama-7b-hf"
 #pretrained_model_output_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/llama-7b-hf"
 
-#pretrained_model_output_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/new_llama_7b"
-pretrained_model_output_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/stable_transformer_converted_7B"
+pretrained_model_output_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/new_llama_7b"
 
 
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/empathetic_dialogues"
 your_output_dir="${base_dir}/train_output"
 data_json="${base_dir}/train.json"
 
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
-torchrun --nproc_per_node=4 --master_port=${your_random_port} test_models/empathetic_dialogues/train.py \
+torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/empathetic_dialogues/train.py \
     --model_name_or_path "${pretrained_model_output_dir}" \
     --data_path ${data_json} \
     --output_dir ${your_output_dir} \
