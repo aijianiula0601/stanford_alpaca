@@ -12,13 +12,7 @@ USERNAME_KEY = "username"
 
 @app.route("/check_login", methods=["GET"])
 def check_login():
-    data = {LOGIN_KEY: False}
-
-    if LOGIN_KEY in session and USERNAME_KEY in session:
-        data = {LOGIN_KEY: True, USERNAME_KEY: session[USERNAME_KEY]}
-        return jsonify(data)
-
-    return jsonify(data)
+    return redirect(url_for("profile"))
 
 
 def label_login(username):
@@ -53,9 +47,13 @@ def login():
 @app.route('/profile')
 def profile():
     # 从 session 中获取信息
-    username = session.get(USERNAME_KEY, None)
-    logged_in = session.get(LOGIN_KEY, False)
-    data = {LOGIN_KEY: logged_in, USERNAME_KEY: username}
+    data = {LOGIN_KEY: False}
+
+    if LOGIN_KEY in session and USERNAME_KEY in session:
+        data = {LOGIN_KEY: True, USERNAME_KEY: session[USERNAME_KEY]}
+
+        return jsonify(data)
+
     return jsonify(data)
 
 

@@ -38,6 +38,6 @@ outputs = gr.inputs.Textbox(lines=5, label="显示")
 
 interface = gr.Interface(fn=handle_input_text, inputs=inputs, outputs=outputs, title=f"测试",
                          show_error=True)
-
+gr.close_all()
 # 启动 Gradio 界面
 interface.launch(server_port=8089)
