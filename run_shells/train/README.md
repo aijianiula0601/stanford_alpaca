@@ -36,6 +36,11 @@ sda:latest  \
     使用环境sda: conda activate sda 
 
 
+4.transformer环境
+
+    不要手动安装transformer环境，如果已经pip安装，卸载。解压lib/transformers.zip后，在主目录进行软连接。
+    
+    ln -s ../transformers/src/transformers .
 
 
 ## 训练

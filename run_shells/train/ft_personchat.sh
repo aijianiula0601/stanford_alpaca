@@ -21,7 +21,7 @@ your_random_port=11223
 your_path_to_hf_converted_llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/new_llama_7b"
 
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/personaChat"
-your_output_dir="${base_dir}/train_output"
+your_output_dir="${base_dir}/debug"
 #data_json="${base_dir}/prepared_debug_personality.json"
 data_json="${base_dir}/prepared_train_personality.json"
 
