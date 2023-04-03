@@ -32,8 +32,8 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/empath
     --model_name_or_path "${pretrained_model_output_dir}" \
     --data_path ${data_json} \
     --output_dir ${your_output_dir} \
-    --num_train_epochs 3 \
-    --per_device_train_batch_size 32 \
+    --num_train_epochs 5 \
+    --per_device_train_batch_size 64 \
     --per_device_eval_batch_size 8 \
     --gradient_accumulation_steps 8 \
     --evaluation_strategy "no" \
