@@ -19,7 +19,7 @@ import json
 import setproctitle
 from dataclasses import dataclass, field
 from typing import Optional, Dict, Sequence
-
+from torch.utils.data import Dataset
 import torch
 
 pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -27,7 +27,6 @@ print(f"--pdj:{pdj}")
 sys.path.append(pdj)
 
 import transformers
-from torch.utils.data import Dataset
 from transformers import Trainer
 from test_models.empathetic_dialogues.data_until import get_prompt_input
 
