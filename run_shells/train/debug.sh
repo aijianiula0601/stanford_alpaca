@@ -25,19 +25,20 @@ your_random_port=11223
 pretrained_model_output_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/stable_transformer_converted_7B"
 
 
-base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/empathetic_dialogues"
+base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca"
 your_output_dir="${base_dir}/debug_output"
-data_json="${base_dir}/debug.json"
 
-CUDA_VISIBLE_DEVICES=0 \
-torchrun --nproc_per_node=1 --master_port=${your_random_port} test_models/empathetic_dialogues/train.py \
+data_json="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/alpaca_data_cleaned.json"
+
+
+torchrun --nproc_per_node=8 --master_port=${your_random_port} train.py \
     --model_name_or_path "${pretrained_model_output_dir}" \
     --data_path ${data_json} \
     --output_dir ${your_output_dir} \
     --num_train_epochs 3 \
-    --per_device_train_batch_size 4 \
-    --per_device_eval_batch_size 1 \
-    --gradient_accumulation_steps 4 \
+    --per_device_train_batch_size 16 \
+    --per_device_eval_batch_size 8 \
+    --gradient_accumulation_steps 8 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
     --save_steps 1000 \
