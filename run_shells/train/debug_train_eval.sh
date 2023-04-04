@@ -25,18 +25,17 @@ your_output_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/debug_o
 rm -rf ${your_output_dir}
 mkdir -p ${your_output_dir}
 
-#data_json="./alpaca_data.json"
 train_data_json="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/debug_alpaca_data_cleaned.json"
 eval_data_json="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/debug_alpaca_data_cleaned.json"
 
-data_json="${train_data_json}|${eval_data_json}"
+data_paths="${train_data_json}|${eval_data_json}"
 
 
-torchrun --nproc_per_node=1 --master_port=${your_random_port} train_eval.py \
+torchrun --nproc_per_node=6 --master_port=${your_random_port} train_eval.py \
     --model_name_or_path "${your_path_to_hf_converted_llama_ckpt_and_tokenizer}" \
-    --data_path "${data_json}" \
+    --data_path "${data_paths}" \
     --output_dir ${your_output_dir} \
-    --num_train_epochs 3 \
+    --num_train_epochs 10 \
     --per_device_train_batch_size 16 \
     --per_device_eval_batch_size 16 \
     --gradient_accumulation_steps 8 \
