@@ -19,7 +19,8 @@ your_random_port=11225
 your_path_to_hf_converted_llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/new_llama_7b"
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/alpace_cot"
 your_output_dir="${base_dir}/ft_output_train_dev"
-
+rm -rf ${your_output_dir}
+mkdir -p ${your_output_dir}
 
 train_data_json="${base_dir}/train_alpaca_cot_merged.json"
 eval_data_json="${base_dir}/dev_alpaca_cot_merged.json"

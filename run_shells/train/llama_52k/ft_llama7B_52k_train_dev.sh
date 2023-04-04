@@ -23,6 +23,8 @@ your_path_to_hf_converted_llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record
 
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k"
 your_output_dir="${base_dir}/ft_52_train_dev_outputs"
+rm -rf ${your_output_dir}
+mkdir -p ${your_output_dir}
 
 train_data_json="${base_dir}/train_alpaca_data_cleaned.json"
 eval_data_json="${base_dir}/dev_alpaca_data_cleaned.json"
@@ -46,7 +48,7 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} train_eval.py \
     --save_steps 50 \
     --eval_steps 50 \
     --save_total_limit 10 \
-    --dataloader_num_workers 8 \
+    --dataloader_num_workers 4 \
     --learning_rate 2e-5 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \
