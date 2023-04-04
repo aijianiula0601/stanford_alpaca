@@ -1,13 +1,17 @@
 import json
 import random
 
-base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/alpace_cot"
-data_json = f"{base_dir}/alpaca_cot_merged.json"
+base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k"
+data_json = f"{base_dir}/alpaca_data_cleaned.json"
 
-train_f = f"{base_dir}/train_alpaca_cot_merged.json"
-dev_f = f"{base_dir}/dev_alpaca_cot_merged.json"
+train_f = f"{base_dir}/train_alpaca_data_cleaned.json"
+dev_f = f"{base_dir}/dev_alpaca_data_cleaned.json"
 
 jd_list = json.load(open(data_json, "r"))
+
+
+print(f"all:{len(jd_list)}")
+
 random.shuffle(jd_list)
 dev_num = 1000
 
