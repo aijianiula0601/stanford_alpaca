@@ -11,40 +11,45 @@ cd ../../
 
 
 #----------------------------------------------------------
-# 在v100中训练，需要去掉：
-#   --bf16 True
-#   --tf32 True
-# 这两个参数，这两个参数是在A100机器上训练的。
+# 训练来之 alpaca_cot的数据，共74k
 #----------------------------------------------------------
 
-your_random_port=11223
-#your_path_to_hf_converted_llama_ckpt_and_tokenizer="decapoda-research/llama-7b-hf"
-#your_path_to_hf_converted_llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/llama-7b-hf"
+your_random_port=11225
 
 your_path_to_hf_converted_llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/new_llama_7b"
+base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/alpace_cot"
+your_output_dir="${base_dir}/ft_output_train_dev"
 
-your_output_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/debug_output"
-rm -rf ${your_output_dir}
-mkdir -p ${your_output_dir}
 
-data_json="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/debug_alpaca_data_cleaned.json"
+train_data_json="${base_dir}/train_alpaca_cot_merged.json"
+eval_data_json="${base_dir}/dev_alpaca_cot_merged.json"
 
-torchrun --nproc_per_node=1 --master_port=${your_random_port} train.py \
+data_paths="${train_data_json}|${eval_data_json}"
+
+
+#-----------------
+# 根据steps来保存
+#-----------------
+torchrun --nproc_per_node=8 --master_port=${your_random_port} train_eval.py \
     --model_name_or_path "${your_path_to_hf_converted_llama_ckpt_and_tokenizer}" \
-    --data_path ${data_json} \
+    --data_path ${data_paths} \
     --output_dir ${your_output_dir} \
     --num_train_epochs 10 \
-    --per_device_train_batch_size 2 \
-    --per_device_eval_batch_size 2 \
+    --per_device_train_batch_size 16 \
+    --per_device_eval_batch_size 16 \
     --gradient_accumulation_steps 8 \
-    --evaluation_strategy "no" \
+    --do_eval \
+    --evaluation_strategy "steps" \
     --save_strategy "steps" \
     --save_steps 10 \
-    --save_total_limit 2 \
+    --eval_steps 10 \
+    --save_total_limit 20 \
+    --dataloader_num_workers 8 \
     --learning_rate 2e-5 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \
     --lr_scheduler_type "cosine" \
+    --logging_strategy "steps" \
     --logging_steps 1 \
     --report_to "tensorboard" \
     --gradient_checkpointing True \
