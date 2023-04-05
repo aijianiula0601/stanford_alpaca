@@ -37,15 +37,14 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} train_eval.py \
     --output_dir ${your_output_dir} \
     --num_train_epochs 10 \
     --per_device_train_batch_size 16 \
-    --per_device_eval_batch_size 16 \
+    --per_device_eval_batch_size 8 \
     --gradient_accumulation_steps 8 \
     --do_eval \
     --evaluation_strategy "steps" \
     --save_strategy "steps" \
-    --save_steps 10 \
-    --eval_steps 10 \
+    --save_steps 50 \
+    --eval_steps 50 \
     --save_total_limit 20 \
-    --dataloader_num_workers 8 \
     --learning_rate 2e-5 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \

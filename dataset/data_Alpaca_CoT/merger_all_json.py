@@ -17,10 +17,10 @@ from tqdm import tqdm
 # strategyqa_train.json
 # ---------------------------------------------------------------------------------
 
+base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/alpace_cot/dataset"
 
-json_dir = "/Users/jiahong/PycharmProjects/nlp/Alpaca-CoT/data/formatted_cot_data"
-
-merger_json_f = "/Users/jiahong/Downloads/alpaca_cot_merged.json"
+json_dir = f"{base_dir}/formatted_cot_data"
+merger_json_f = f"{base_dir}/alpaca_cot_merged.json"
 
 js_data_list = []
 for js_f in tqdm([str(f) for f in Path(json_dir).glob("*.json")]):
