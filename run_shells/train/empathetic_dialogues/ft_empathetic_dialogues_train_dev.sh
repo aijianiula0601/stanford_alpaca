@@ -6,7 +6,7 @@ curdir=$(pwd)
 echo "curdir:$curdir"
 cd "$curdir" || exit
 
-cd ../../
+cd ../../../
 
 
 
@@ -31,7 +31,7 @@ data_paths="${train_data_json}|${eval_data_json}"
 #-----------------
 # 根据steps来保存
 #-----------------
-torchrun --nproc_per_node=8 --master_port=${your_random_port} train_eval.py \
+torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/empathetic_dialogues/train_eval.py \
     --model_name_or_path "${your_path_to_hf_converted_llama_ckpt_and_tokenizer}" \
     --data_path ${data_paths} \
     --output_dir ${your_output_dir} \
@@ -53,6 +53,6 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} train_eval.py \
     --logging_steps 1 \
     --report_to "tensorboard" \
     --gradient_checkpointing True \
-    --deepspeed ${curdir}/deepspeed_config.json \
+    --deepspeed run_shells/train/deepspeed_config.json \
     --fp16 True
 

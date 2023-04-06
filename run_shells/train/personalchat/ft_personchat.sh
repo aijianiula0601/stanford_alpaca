@@ -6,7 +6,7 @@ curdir=$(pwd)
 echo "curdir:$curdir"
 cd "$curdir" || exit
 
-cd ../../
+cd ../../../
 
 
 
@@ -44,5 +44,5 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/person
     --logging_steps 1 \
     --report_to "tensorboard" \
     --gradient_checkpointing True \
-    --deepspeed ${curdir}/deepspeed_config.json \
+    --deepspeed run_shells/train/deepspeed_config.json \
     --fp16 True

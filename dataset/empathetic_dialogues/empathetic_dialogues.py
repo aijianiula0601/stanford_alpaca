@@ -4,9 +4,11 @@ import os
 import copy
 
 base_dir = "/mnt/cephfs/hjh/common_dataset/nlp/qa/en/empathetic_dialogues"
-data_f = f"{base_dir}/test.csv"
+data_f = f"{base_dir}/valid.csv"
 
-save_f = f"{base_dir}/prepared_test.json"
+save_f = f"{base_dir}/prepared_valid.json"
+
+valid_dirty_conv_id_list = ["hit:4299_conv:8599", "hit:5003_conv:10007", "hit:10142_conv:20284", "hit:10931_conv:21862"]
 
 i = 0
 global_conv_id = None
@@ -33,6 +35,8 @@ with open(data_f, encoding='utf-8-sig') as f:
         #     clean_csv_data_list.append(row)
 
         # 如果是valid和test数据，不用判断，直接加入，所以注释掉上面的if else代码
+        if conv_id in valid_dirty_conv_id_list:
+            continue
         clean_csv_data_list.append(row)
 
 print(f"原始:{len(clean_csv_data_list)},脏数据:{len(dirty_conv_id_list)}")
@@ -70,9 +74,8 @@ for row in clean_csv_data_list:
 clean_jd_list = []
 for jd in jd_list:
     # 去掉脏数据，去掉没有回答的数据
-    if jd["conv_id"] not in dirty_conv_id_list and "answer" in jd["qas"][-1].keys():
-        if len(jd["qas"]) > 0:
-            clean_jd_list.append(jd)
+    if jd["conv_id"] not in dirty_conv_id_list and len(jd["qas"]) > 0 and "answer" in jd["qas"][-1].keys():
+        clean_jd_list.append(jd)
 
 os.system(f"rm -rf {save_f}")
 json.dump(clean_jd_list, fp=open(save_f, 'w'))

@@ -6,7 +6,7 @@ curdir=$(pwd)
 echo "curdir:$curdir"
 cd "$curdir" || exit
 
-cd ../../
+cd ../../../
 
 
 

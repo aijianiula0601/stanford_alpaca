@@ -1,14 +1,14 @@
 import json
 import random
 
-base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k"
-data_json = f"{base_dir}/alpaca_data_cleaned.json"
+base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/personaChat"
 
-train_f = f"{base_dir}/train_alpaca_data_cleaned.json"
-dev_f = f"{base_dir}/dev_alpaca_data_cleaned.json"
+data_json = f"{base_dir}/my_prepared_personality.json"
+
+train_f = f"{base_dir}/train.json"
+dev_f = f"{base_dir}/dev.json"
 
 jd_list = json.load(open(data_json, "r"))
-
 
 print(f"all:{len(jd_list)}")
 

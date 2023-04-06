@@ -30,6 +30,10 @@ def qas_to_history_str(qas_list):
     qas_str = []
     for qa in qas_list:
         question = qa['question']
+
+        if "answer" not in qa:
+            print(f"-==========error:{qas_list}")
+
         answer = qa['answer']
 
         qas_str.append(f"Question: {question}\nAnswer: {answer}")

@@ -16,7 +16,7 @@ base_dir = "/mnt/cephfs/hjh/common_dataset/nlp/qa/en/personaChat"
 data_f = f"{base_dir}/personality.csv"
 
 save_f = f"{base_dir}/prepared_personality.json"
-train_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/personaChat/prepared_train_personality.json"
+train_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/personaChat/my_prepared_personality.json"
 dev_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/personaChat/prepared_debug_personality.json"
 
 jd_list = json.load(open(save_f, "r"))
