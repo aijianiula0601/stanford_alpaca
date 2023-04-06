@@ -4,9 +4,9 @@ import os
 import copy
 
 base_dir = "/mnt/cephfs/hjh/common_dataset/nlp/qa/en/empathetic_dialogues"
-data_f = f"{base_dir}/train.csv"
+data_f = f"{base_dir}/test.csv"
 
-save_f = f"{base_dir}/prepared_train.json"
+save_f = f"{base_dir}/prepared_test.json"
 
 i = 0
 global_conv_id = None
@@ -26,10 +26,14 @@ with open(data_f, encoding='utf-8-sig') as f:
         prompt = row[3]
         utterance = row[5]
 
-        if len(row) != 8:
-            dirty_conv_id_list.append(conv_id)
-        else:
-            clean_csv_data_list.append(row)
+        # train.csv数据，需要这个if else代码
+        # if len(row) != 8:
+        #     dirty_conv_id_list.append(conv_id)
+        # else:
+        #     clean_csv_data_list.append(row)
+
+        # 如果是valid和test数据，不用判断，直接加入，所以注释掉上面的if else代码
+        clean_csv_data_list.append(row)
 
 print(f"原始:{len(clean_csv_data_list)},脏数据:{len(dirty_conv_id_list)}")
 clean_csv_data_list = list(filter(lambda row: row[0].strip() not in dirty_conv_id_list, clean_csv_data_list))

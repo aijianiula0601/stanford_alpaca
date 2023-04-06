@@ -15,6 +15,7 @@ cd ../../
 #   --bf16 True
 #   --tf32 True
 # 这两个参数，这两个参数是在A100机器上训练的。
+# 得在上一层目录执行：bash /empathetic_dialogues/ft_empathetic_dialogues.sh
 #----------------------------------------------------------
 
 your_random_port=11223

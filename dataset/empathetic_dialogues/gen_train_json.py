@@ -15,8 +15,9 @@ from tqdm import tqdm
 base_dir = "/mnt/cephfs/hjh/common_dataset/nlp/qa/en/empathetic_dialogues"
 data_f = f"{base_dir}/prepared_train.json"
 
-train_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/empathetic_dialogues/train.json"
-debug_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/empathetic_dialogues/debug.json"
+save_base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/empathetic_dialogues"
+train_f = f"{save_base_dir}/train.json"
+debug_f = f"{save_base_dir}/debug.json"
 
 jd_list = json.load(open(data_f, "r"))
 
