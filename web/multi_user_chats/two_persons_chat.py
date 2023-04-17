@@ -1,6 +1,10 @@
 import os
 import sys
+import threading
+
 import gradio as gr
+import time
+import random
 
 pdj = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(pdj)
@@ -9,28 +13,47 @@ ROLE_A_NAME = "Human"
 ROLE_B_NAME = "Ai"
 ROLE_A_START_QUESTION = "hi"
 
-
-def role_a(user_message, history, role_a=ROLE_A_NAME):
-    human_invitation = role_a + ": "
-    return "", history + [[human_invitation + user_message, None]], role_a
+global_i = 0
 
 
-def role_b(history, temperature=1.0, background="", role_a=ROLE_A_NAME,
-           role_b=ROLE_B_NAME):
-    human_invitation = role_a + ": "
-    ai_invitation = role_b + ": "
-
-    return history, temperature, background, role_a, role_b
+def role_a_chat(user_message, history):
+    return user_message + f"{global_i}", history + [[user_message + f"{global_i}", None]]
 
 
-def toggle(button):
-    if button == "Start":
-        button = "Stop"
-        print("Starting operation...")
+def role_b_chat(history):
+    global global_i
+    bot_message = random.choice(["Yes", "No"]) + f"{global_i}"
+    global_i += 1
+    history[-1][1] = bot_message
+
+    return history
+
+
+click_state = "start"
+
+
+def toggle(user_message, chatbot):
+    global click_state
+    if click_state == "start":
+        user_message, history = role_a_chat(user_message, chatbot)
+        history = role_b_chat(history)
+        chatbot += history[len(chatbot):]
+        return chatbot
     else:
-        button = "Start"
-        print("Stopping operation...")
-    return button
+        return chatbot
+
+
+def stop_click(btn):
+    global click_state
+
+    if btn == "Start":
+        btn = "Stop"
+        click_state = "stop"
+    else:
+        btn = "Start"
+        click_state = "start"
+
+    return btn
 
 
 # --------------------------------------------------------
@@ -55,14 +78,16 @@ with gr.Blocks() as demo:
                                          value=ROLE_A_START_QUESTION + "," + user_name.value, label="roleA首问题",
                                          interactive=True)
             with gr.Row():
-                btn = gr.Button("Start")
+                start_btn = gr.Button("Start")
+                stop_btn = gr.Button("Start")
 
         with gr.Column():
             clear = gr.Button("清空聊天记录")
+            gr_chatbot = gr.Chatbot(label="聊天记录")
 
-            chatbot = gr.Chatbot(label="聊天记录")
+    start_btn.click(toggle, [role_a_question, gr_chatbot], gr_chatbot, every=2, queue=True)
+    stop_btn.click(stop_click, inputs=[stop_btn], outputs=[stop_btn])
+    clear.click(lambda: None, None, gr_chatbot)
 
-    btn.click(toggle, btn, btn)
-    clear.click(lambda: None, None, chatbot, queue=False)
-
-demo.launch(server_name="0.0.0.0", server_port=8094)
+demo.queue()
+demo.launch(server_name="0.0.0.0", server_port=random.randint(8000, 9000))

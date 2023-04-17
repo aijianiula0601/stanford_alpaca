@@ -18,21 +18,22 @@ cd ../../../
 #----------------------------------------------------------
 
 your_random_port=11223
-your_path_to_hf_converted_llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/new_llama_7b"
+#llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/new_llama_7b"
+llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/junshi_llama-7b"
 
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun"
-your_output_dir="${base_dir}/ft_outs"
+output_dir="${base_dir}/ft_outs"
 data_json="${base_dir}/gpt4_shared_data.json"
 
-rm -rf ${your_output_dir}
-mkdir -p ${your_output_dir}
+rm -rf ${output_dir}
+mkdir -p ${output_dir}
 
 torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/multi_turn_chat/train.py \
-    --model_name_or_path "${your_path_to_hf_converted_llama_ckpt_and_tokenizer}" \
+    --model_name_or_path "${llama_ckpt_and_tokenizer}" \
     --data_path ${data_json} \
-    --output_dir ${your_output_dir} \
+    --output_dir ${output_dir} \
     --num_train_epochs 5 \
-    --per_device_train_batch_size 16 \
+    --per_device_train_batch_size 8 \
     --per_device_eval_batch_size 8 \
     --gradient_accumulation_steps 8 \
     --evaluation_strategy "no" \
