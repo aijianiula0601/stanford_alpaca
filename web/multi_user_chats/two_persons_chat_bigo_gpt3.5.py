@@ -1,9 +1,7 @@
 import os
 import sys
-import threading
 
 import gradio as gr
-import time
 import random
 
 pdj = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -29,32 +27,11 @@ def role_b_chat(history):
     return history
 
 
-click_state = "start"
-
-
 def toggle(user_message, chatbot):
-    global click_state
-    print("-------=-click_state:", click_state)
-    if click_state == "start":
-        user_message, history = role_a_chat(user_message, chatbot)
-        history = role_b_chat(history)
-        chatbot += history[len(chatbot):]
-        return chatbot
-    else:
-        return chatbot
-
-
-def stop_click(btn):
-    global click_state
-
-    if btn == "Start":
-        btn = "Stop"
-        click_state = "stop"
-    else:
-        btn = "Start"
-        click_state = "start"
-
-    return btn
+    user_message, history = role_a_chat(user_message, chatbot)
+    history = role_b_chat(history)
+    chatbot += history[len(chatbot):]
+    return user_message, chatbot
 
 
 # --------------------------------------------------------
@@ -76,16 +53,16 @@ with gr.Blocks() as demo:
             background_role_a = gr.Textbox(lines=5, placeholder="设置聊天背景 ...只能用英文", label="roleA背景")
             background_role_b = gr.Textbox(lines=5, placeholder="设置聊天背景 ...只能用英文", label="roleB背景")
             role_a_question = gr.Textbox(placeholder="输入RoleA首次提出的问题",
-                                         value=ROLE_A_START_QUESTION + "," + user_name.value, label="roleA首问题",
+                                         value=ROLE_A_START_QUESTION + "," + user_name.value, label="roleA问题",
                                          interactive=True)
             with gr.Row():
-                btn = gr.Button("Stop")
+                btn = gr.Button("点击生成一轮对话")
 
         with gr.Column():
             clear = gr.Button("清空聊天记录")
             gr_chatbot = gr.Chatbot(label="聊天记录")
 
-    btn.click(stop_click, inputs=[role_a_question, gr_chatbot], outputs=[gr_chatbot])
+    btn.click(toggle, inputs=[role_a_question, gr_chatbot], outputs=[role_a_question, gr_chatbot])
 
     clear.click(lambda: None, None, gr_chatbot)
 
