@@ -34,6 +34,7 @@ click_state = "start"
 
 def toggle(user_message, chatbot):
     global click_state
+    print("-------=-click_state:", click_state)
     if click_state == "start":
         user_message, history = role_a_chat(user_message, chatbot)
         history = role_b_chat(history)
@@ -78,15 +79,15 @@ with gr.Blocks() as demo:
                                          value=ROLE_A_START_QUESTION + "," + user_name.value, label="roleA首问题",
                                          interactive=True)
             with gr.Row():
-                start_btn = gr.Button("Start")
-                stop_btn = gr.Button("Start")
+                stop_btn = gr.Button("Stop")
 
         with gr.Column():
             clear = gr.Button("清空聊天记录")
             gr_chatbot = gr.Chatbot(label="聊天记录")
 
-    start_btn.click(toggle, [role_a_question, gr_chatbot], gr_chatbot, every=2, queue=True)
+    role_a_question.submit(toggle, [role_a_question, gr_chatbot], gr_chatbot, every=2, queue=True)
     stop_btn.click(stop_click, inputs=[stop_btn], outputs=[stop_btn])
+
     clear.click(lambda: None, None, gr_chatbot)
 
 demo.queue()
