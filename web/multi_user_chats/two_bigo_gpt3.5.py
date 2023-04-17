@@ -3,6 +3,11 @@ import time
 
 import openai
 
+# -------------------------------------
+# 链接：
+# https://platform.openai.com/docs/guides/chat/introduction
+# -------------------------------------
+
 openai.api_type = "azure"
 openai.api_base = "https://bigo-chatgpt.openai.azure.com/"
 openai.api_version = "2023-03-15-preview"
@@ -13,17 +18,21 @@ gpt_config = {'engine': 'bigo-gpt35',
               'role': 'user',
               }
 
+messages = [
+    {"role": "system",
+     "content": "Let's play a role game. Alice and Kervin are classmate. You are Kervin. I am Alice."},
+    {"role": "user", "content": "hi, Kervin"},
+    {"role": "assistant", "content": "I am fine, how about you?"},
+    {"role": "user", "content": "Where are you?"},
+    {"role": "assistant", "content": "I am at home, what about you?"},
+    {"role": "user", "content": "Let's go to the library. Will you come with me?"}
+]
 
-def chat_with_chatgpt(prompt, role_a_name, role_b_name):
-    response = openai.Completion.create(
-        model="text-davinci-003",
-        prompt=prompt,
-        temperature=0.9,
-        max_tokens=150,
-        top_p=1,
-        frequency_penalty=0.0,
-        presence_penalty=0.6,
-        stop=[f" {role_a_name}:", f" {role_b_name}:"]
+
+def chat_with_chatgpt(messages):
+    response = openai.ChatCompletion.create(
+        engine='bigo-gpt35',
+        messages=messages
     )
     response_text = response.choices[0].message.content
     return response_text
@@ -40,11 +49,13 @@ def get_input_api_data(background, history=[]):
     return data_list
 
 
-background_post_text = "The following is a conversation with {role_name_a} and {role_name_a} "
+background_pre_text = "Let's play a role game."
+background_post_text = "You are {role_name_a}. I am {role_name_b} "
 
 
 def get_background(background, role_name_a, role_name_b):
-    return background.format_map({"role_name_a": role_name_a, "role_name_b": role_name_b})
+    bk_post = background_post_text.format_map({"role_name_a": role_name_a, "role_name_b": role_name_b})
+    return f"{background_pre_text} {background} {bk_post}"
 
 
 if __name__ == '__main__':
@@ -61,20 +72,14 @@ if __name__ == '__main__':
     start_question = input("输入初始问题(角色A提问)：")
     print(f"{role_A_name}:", start_question)
 
-    role_a_question = start_question
     history = [start_question]
 
-    # role_b_input_api_data = get_input_api_data(get_background(backgroundB, role_B_name, role_A_name),
-    #                                            history=[])
-    # role_b_question = chat_with_chatgpt(role_b_input_api_data, user=role_B_name)
-    # print("role_b_question:", role_b_question)
-
-    while True:
-        role_b_input_api_data = get_input_api_data(get_background(backgroundB, role_B_name, role_A_name),
+    for i in range(2):
+        role_b_input_api_data = get_input_api_data(background=get_background(backgroundB, role_B_name, role_A_name),
                                                    history=history)
 
-        print("---role_b_input_api_data:", role_b_input_api_data)
-        role_b_question = chat_with_chatgpt(role_b_input_api_data, user=role_A_name)
+        # print("---role_b_input_api_data:", role_b_input_api_data)
+        role_b_question = chat_with_chatgpt(role_b_input_api_data)
         print(f"{role_B_name}:", role_b_question)
         history.append(role_b_question)
         time.sleep(3)
@@ -82,9 +87,9 @@ if __name__ == '__main__':
         print("=" * 20)
 
         role_a_input_api_data = get_input_api_data(get_background(backgroundA, role_A_name, role_B_name),
-                                                   history=history)
-        print("---role_a_input_api_data:", role_a_input_api_data)
-        role_a_question = chat_with_chatgpt(role_a_question, user=role_B_name)
+                                                   history=history[1:])
+        # print("---role_a_input_api_data:", role_a_input_api_data)
+        role_a_question = chat_with_chatgpt(role_a_input_api_data)
         print(f"{role_A_name}:", role_a_question)
         history.append(role_a_question)
         print("-" * 100)
