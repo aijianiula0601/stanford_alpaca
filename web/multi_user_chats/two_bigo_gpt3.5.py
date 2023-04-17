@@ -74,7 +74,7 @@ if __name__ == '__main__':
 
     history = [start_question]
 
-    for i in range(2):
+    while True:
         role_b_input_api_data = get_input_api_data(background=get_background(backgroundB, role_B_name, role_A_name),
                                                    history=history)
 
@@ -83,8 +83,8 @@ if __name__ == '__main__':
         print(f"{role_B_name}:", role_b_question)
         history.append(role_b_question)
         time.sleep(3)
-
-        print("=" * 20)
+        print()
+        print("-" * 100)
 
         role_a_input_api_data = get_input_api_data(get_background(backgroundA, role_A_name, role_B_name),
                                                    history=history[1:])
@@ -92,6 +92,3 @@ if __name__ == '__main__':
         role_a_question = chat_with_chatgpt(role_a_input_api_data)
         print(f"{role_A_name}:", role_a_question)
         history.append(role_a_question)
-        print("-" * 100)
-        print()
-        print()
