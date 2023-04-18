@@ -71,7 +71,7 @@ with gr.Blocks() as demo:
             background_role_a = gr.Textbox(lines=5, placeholder="设置聊天背景 ...只能用英文", label="roleA背景")
             background_role_b = gr.Textbox(lines=5, placeholder="设置聊天背景 ...只能用英文", label="roleB背景")
             role_a_question = gr.Textbox(placeholder="输入RoleA首次提出的问题",
-                                         value=ROLE_A_START_QUESTION + ", " + bot_name.value, label="roleA问题",
+                                         value=ROLE_A_START_QUESTION + ", " + bot_name.value + '!', label="roleA问题",
                                          interactive=True)
 
         with gr.Column():
@@ -86,4 +86,4 @@ with gr.Blocks() as demo:
     clear.click(lambda: None, None, gr_chatbot)
 
 demo.queue()
-demo.launch(server_name="0.0.0.0", server_port=random.randint(8000, 9000))
+demo.launch(server_name="202.168.100.165", server_port=8988)
