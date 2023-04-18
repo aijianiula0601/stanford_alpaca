@@ -71,7 +71,7 @@ with gr.Blocks() as demo:
             background_role_a = gr.Textbox(lines=5, placeholder="设置聊天背景 ...只能用英文", label="roleA背景")
             background_role_b = gr.Textbox(lines=5, placeholder="设置聊天背景 ...只能用英文", label="roleB背景")
             role_a_question = gr.Textbox(placeholder="输入RoleA首次提出的问题",
-                                         value=ROLE_A_START_QUESTION + "," + bot_name.value, label="roleA问题",
+                                         value=ROLE_A_START_QUESTION + ", " + bot_name.value, label="roleA问题",
                                          interactive=True)
 
         with gr.Column():
@@ -79,6 +79,7 @@ with gr.Blocks() as demo:
             gr_chatbot = gr.Chatbot(label="聊天记录")
             clear = gr.Button("清空聊天记录")
 
+    bot_name.change(lambda x: ROLE_A_START_QUESTION + ", " + x + "!", bot_name, role_a_question)
     btn.click(toggle, inputs=[role_a_question, gr_chatbot, background_role_a, background_role_b, user_name, bot_name],
               outputs=[role_a_question, gr_chatbot])
 
