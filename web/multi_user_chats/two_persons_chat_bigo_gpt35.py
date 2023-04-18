@@ -1,11 +1,8 @@
 import os
 import sys
-
+import json
 import gradio as gr
 import random
-
-pdj = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(pdj)
 
 from two_bigo_gpt35 import *
 
@@ -57,6 +54,31 @@ def clear_f(bot_name):
     return None, ROLE_A_START_QUESTION + ", " + bot_name + "!"
 
 
+# 预先设定的角色
+prepared_role_a_dic = json.load(open("prepared_background.json"))
+prepared_role_a_dic["None"] = {"role_name": "Human", "background": ""}
+prepared_role_a_dic[""] = {"role_name": "Human", "background": ""}
+role_a_list = list(prepared_role_a_dic.keys())
+prepared_role_b_dic = json.load(open("prepared_background.json"))
+prepared_role_b_dic["None"] = {"role_name": "Ai", "background": ""}
+prepared_role_b_dic[""] = {"role_name": "Ai", "background": ""}
+role_b_list = list(prepared_role_b_dic.keys())
+
+
+def update_select_role_a(role_key, bot_name):
+    return prepared_role_a_dic[role_key]["role_name"], \
+           prepared_role_a_dic[role_key]["background"], \
+           None, \
+           ROLE_A_START_QUESTION + ", " + bot_name + "!"
+
+
+def update_select_role_b(role_key, bot_name):
+    return prepared_role_b_dic[role_key]["role_name"], \
+           prepared_role_b_dic[role_key]["background"], \
+           None, \
+           ROLE_A_START_QUESTION + ", " + bot_name + "!"
+
+
 # --------------------------------------------------------
 # 页面构建
 # --------------------------------------------------------
@@ -68,6 +90,11 @@ with gr.Blocks() as demo:
         with gr.Column():
             selected_temp = gr.Slider(0, 1, value=0.9, label="Temperature超参,调的越小越容易输出常见字",
                                       interactive=True)
+            with gr.Row():
+                select_role_a = gr.Dropdown(choices=role_a_list, value="None", label="请选择一个角色A",
+                                            interactive=True)
+                select_role_b = gr.Dropdown(choices=role_b_list, value="None", label="请选择一个角色B",
+                                            interactive=True)
             with gr.Row():
                 user_name = gr.Textbox(lines=1, placeholder="设置我的名字， ...", label="roleA名字",
                                        value=ROLE_A_NAME, interactive=True)
@@ -85,6 +112,10 @@ with gr.Blocks() as demo:
             clear = gr.Button("清空聊天记录")
 
     bot_name.change(lambda x: ROLE_A_START_QUESTION + ", " + x + "!", bot_name, role_a_question)
+    select_role_a.change(update_select_role_a, [select_role_a, bot_name],
+                         [user_name, background_role_a, gr_chatbot, role_a_question])
+    select_role_b.change(update_select_role_b, [select_role_b, bot_name],
+                         [bot_name, background_role_b, gr_chatbot, role_a_question])
     btn.click(toggle,
               inputs=[role_a_question, selected_temp, gr_chatbot, background_role_a, background_role_b, user_name,
                       bot_name],
@@ -93,5 +124,5 @@ with gr.Blocks() as demo:
     clear.click(clear_f, [bot_name], [gr_chatbot, role_a_question])
 
 demo.queue()
-# demo.launch(server_name="0.0.0.0", server_port=8988)
-demo.launch(server_name="202.168.100.165", server_port=8988)
+demo.launch(server_name="0.0.0.0", server_port=8988)
+# demo.launch(server_name="202.168.100.165", server_port=8988)

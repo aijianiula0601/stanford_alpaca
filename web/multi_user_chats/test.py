@@ -1,5 +1,6 @@
-print(1 % 2)
+import json
 
-a = "dasdffda"
+prepared_background_list = json.load(open("prepared_background.json"))
 
-print(a.lstrip("da"))
+role_list = [None] + list(prepared_background_list.keys())
+print(role_list)
