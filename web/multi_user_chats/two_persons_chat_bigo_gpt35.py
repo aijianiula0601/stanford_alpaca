@@ -14,12 +14,12 @@ ROLE_B_NAME = "Ai"
 ROLE_A_START_QUESTION = "hi"
 
 
-def get_history(history=[]):
+def get_history(role_a_name, role_b_name, history=[]):
     rh = []
     for qa in history:
-        rh.append(qa[0])
+        rh.append(qa[0].lstrip(f"{role_a_name}: "))
         if qa[1] is not None:
-            rh.append(qa[1])
+            rh.append(qa[1].lstrip(f"{role_b_name}: "))
 
     return rh
 
@@ -28,20 +28,20 @@ def role_ab_chat(user_message, history, background_a, background_b, role_a_name,
     # -------------------
     # role_b回答
     # -------------------
-    history = history + [[user_message, None]]
+    history = history + [[f"{role_a_name}: " + user_message, None]]
     role_b_input_api_data = get_input_api_data(background=get_background(background_a, role_b_name, role_a_name),
-                                               history=get_history(history))
+                                               history=get_history(role_a_name, role_b_name, history))
     role_b_question = chat_with_chatgpt(role_b_input_api_data)
-    print(f"{role_b_name}:", role_b_question)
-    history[-1][-1] = role_b_question
+    print(f"{role_b_name}: ", role_b_question)
+    history[-1][-1] = f"{role_b_name}: " + role_b_question
     print("-" * 100)
     # -------------------
     # role_a回答
     # -------------------
     role_a_input_api_data = get_input_api_data(background=get_background(background_b, role_a_name, role_b_name),
-                                               history=get_history(history)[1:])
+                                               history=get_history(role_a_name, role_b_name, history)[1:])
     role_a_question = chat_with_chatgpt(role_a_input_api_data)
-    print(f"{role_a_name}:", role_a_question)
+    print(f"{role_a_name}: ", role_a_question)
 
     return role_a_question, history
 
@@ -73,12 +73,11 @@ with gr.Blocks() as demo:
             role_a_question = gr.Textbox(placeholder="输入RoleA首次提出的问题",
                                          value=ROLE_A_START_QUESTION + "," + bot_name.value, label="roleA问题",
                                          interactive=True)
-            with gr.Row():
-                btn = gr.Button("点击生成一轮对话")
 
         with gr.Column():
-            clear = gr.Button("清空聊天记录")
+            btn = gr.Button("点击生成一轮对话")
             gr_chatbot = gr.Chatbot(label="聊天记录")
+            clear = gr.Button("清空聊天记录")
 
     btn.click(toggle, inputs=[role_a_question, gr_chatbot, background_role_a, background_role_b, user_name, bot_name],
               outputs=[role_a_question, gr_chatbot])

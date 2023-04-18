@@ -1,2 +1,5 @@
+print(1 % 2)
 
-print(1%2)
+a = "dasdffda"
+
+print(a.lstrip("da"))
