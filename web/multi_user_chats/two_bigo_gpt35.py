@@ -56,7 +56,7 @@ background_post_text = "You are {role_name_a}. I am {role_name_b} "
 
 def get_background(background, role_name_a, role_name_b):
     bk_post = background_post_text.format_map({"role_name_a": role_name_a, "role_name_b": role_name_b})
-    return f"{background_pre_text} {background} {bk_post}"
+    return f"{background_pre_text}\n{background}\n{bk_post}"
 
 
 if __name__ == '__main__':
