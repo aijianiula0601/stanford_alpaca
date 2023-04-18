@@ -29,9 +29,10 @@ messages = [
 ]
 
 
-def chat_with_chatgpt(messages):
+def chat_with_chatgpt(messages, selected_temp=0.95):
     response = openai.ChatCompletion.create(
         engine='bigo-gpt35',
+        temperature=selected_temp,
         messages=messages
     )
     response_text = response.choices[0].message.content

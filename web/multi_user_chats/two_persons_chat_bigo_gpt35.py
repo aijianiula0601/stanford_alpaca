@@ -24,14 +24,14 @@ def get_history(role_a_name, role_b_name, history=[]):
     return rh
 
 
-def role_ab_chat(user_message, history, background_a, background_b, role_a_name, role_b_name):
+def role_ab_chat(selected_temp, user_message, history, background_a, background_b, role_a_name, role_b_name):
     # -------------------
     # role_b回答
     # -------------------
     history = history + [[f"{role_a_name}: " + user_message, None]]
     role_b_input_api_data = get_input_api_data(background=get_background(background_a, role_b_name, role_a_name),
                                                history=get_history(role_a_name, role_b_name, history))
-    role_b_question = chat_with_chatgpt(role_b_input_api_data)
+    role_b_question = chat_with_chatgpt(role_b_input_api_data, selected_temp)
     print(f"{role_b_name}: ", role_b_question)
     history[-1][-1] = f"{role_b_name}: " + role_b_question
     print("-" * 100)
@@ -40,14 +40,15 @@ def role_ab_chat(user_message, history, background_a, background_b, role_a_name,
     # -------------------
     role_a_input_api_data = get_input_api_data(background=get_background(background_b, role_a_name, role_b_name),
                                                history=get_history(role_a_name, role_b_name, history)[1:])
-    role_a_question = chat_with_chatgpt(role_a_input_api_data)
+    role_a_question = chat_with_chatgpt(role_a_input_api_data, selected_temp)
     print(f"{role_a_name}: ", role_a_question)
 
     return role_a_question, history
 
 
-def toggle(user_message, chatbot, background_a, background_b, role_a_name, role_b_name):
-    user_message, history = role_ab_chat(user_message, chatbot, background_a, background_b, role_a_name, role_b_name)
+def toggle(user_message, selected_temp, chatbot, background_a, background_b, role_a_name, role_b_name):
+    user_message, history = role_ab_chat(selected_temp, user_message, chatbot, background_a, background_b, role_a_name,
+                                         role_b_name)
     chatbot += history[len(chatbot):]
     return user_message, chatbot
 
@@ -61,7 +62,7 @@ with gr.Blocks() as demo:
         gr.Markdown("# gpt3.5两个接口互相调用demo")
     with gr.Row():
         with gr.Column():
-            selected_temp = gr.Slider(0, 1, value=0.5, label="Temperature超参,调的越小越容易输出常见字",
+            selected_temp = gr.Slider(0, 1, value=0.9, label="Temperature超参,调的越小越容易输出常见字",
                                       interactive=True)
             with gr.Row():
                 user_name = gr.Textbox(lines=1, placeholder="设置我的名字， ...", label="roleA名字",
@@ -80,7 +81,9 @@ with gr.Blocks() as demo:
             clear = gr.Button("清空聊天记录")
 
     bot_name.change(lambda x: ROLE_A_START_QUESTION + ", " + x + "!", bot_name, role_a_question)
-    btn.click(toggle, inputs=[role_a_question, gr_chatbot, background_role_a, background_role_b, user_name, bot_name],
+    btn.click(toggle,
+              inputs=[role_a_question, selected_temp, gr_chatbot, background_role_a, background_role_b, user_name,
+                      bot_name],
               outputs=[role_a_question, gr_chatbot])
 
     clear.click(lambda: None, None, gr_chatbot)
