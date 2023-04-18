@@ -53,6 +53,10 @@ def toggle(user_message, selected_temp, chatbot, background_a, background_b, rol
     return user_message, chatbot
 
 
+def clear_f(bot_name):
+    return None, ROLE_A_START_QUESTION + ", " + bot_name + "!"
+
+
 # --------------------------------------------------------
 # 页面构建
 # --------------------------------------------------------
@@ -86,7 +90,8 @@ with gr.Blocks() as demo:
                       bot_name],
               outputs=[role_a_question, gr_chatbot])
 
-    clear.click(lambda: None, None, gr_chatbot)
+    clear.click(clear_f, [bot_name], [gr_chatbot, role_a_question])
 
 demo.queue()
+# demo.launch(server_name="0.0.0.0", server_port=8988)
 demo.launch(server_name="202.168.100.165", server_port=8988)
