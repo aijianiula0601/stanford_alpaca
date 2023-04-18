@@ -7,29 +7,47 @@ import random
 pdj = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(pdj)
 
+from two_bigo_gpt35 import *
+
 ROLE_A_NAME = "Human"
 ROLE_B_NAME = "Ai"
 ROLE_A_START_QUESTION = "hi"
 
-global_i = 0
+
+def get_history(history=[]):
+    rh = []
+    for qa in history:
+        rh.append(qa[0])
+        if qa[1] is not None:
+            rh.append(qa[1])
+
+    return rh
 
 
-def role_a_chat(user_message, history):
-    return user_message + f"{global_i}", history + [[user_message + f"{global_i}", None]]
+def role_ab_chat(user_message, history, background_a, background_b, role_a_name, role_b_name):
+    # -------------------
+    # role_b回答
+    # -------------------
+    history = history + [[user_message, None]]
+    role_b_input_api_data = get_input_api_data(background=get_background(background_a, role_b_name, role_a_name),
+                                               history=get_history(history))
+    role_b_question = chat_with_chatgpt(role_b_input_api_data)
+    print(f"{role_b_name}:", role_b_question)
+    history[-1][-1] = role_b_question
+    print("-" * 100)
+    # -------------------
+    # role_a回答
+    # -------------------
+    role_a_input_api_data = get_input_api_data(background=get_background(background_b, role_a_name, role_b_name),
+                                               history=get_history(history)[1:])
+    role_a_question = chat_with_chatgpt(role_a_input_api_data)
+    print(f"{role_a_name}:", role_a_question)
+
+    return role_a_question, history
 
 
-def role_b_chat(history):
-    global global_i
-    bot_message = random.choice(["Yes", "No"]) + f"{global_i}"
-    global_i += 1
-    history[-1][1] = bot_message
-
-    return history
-
-
-def toggle(user_message, chatbot):
-    user_message, history = role_a_chat(user_message, chatbot)
-    history = role_b_chat(history)
+def toggle(user_message, chatbot, background_a, background_b, role_a_name, role_b_name):
+    user_message, history = role_ab_chat(user_message, chatbot, background_a, background_b, role_a_name, role_b_name)
     chatbot += history[len(chatbot):]
     return user_message, chatbot
 
@@ -53,7 +71,7 @@ with gr.Blocks() as demo:
             background_role_a = gr.Textbox(lines=5, placeholder="设置聊天背景 ...只能用英文", label="roleA背景")
             background_role_b = gr.Textbox(lines=5, placeholder="设置聊天背景 ...只能用英文", label="roleB背景")
             role_a_question = gr.Textbox(placeholder="输入RoleA首次提出的问题",
-                                         value=ROLE_A_START_QUESTION + "," + user_name.value, label="roleA问题",
+                                         value=ROLE_A_START_QUESTION + "," + bot_name.value, label="roleA问题",
                                          interactive=True)
             with gr.Row():
                 btn = gr.Button("点击生成一轮对话")
@@ -62,7 +80,8 @@ with gr.Blocks() as demo:
             clear = gr.Button("清空聊天记录")
             gr_chatbot = gr.Chatbot(label="聊天记录")
 
-    btn.click(toggle, inputs=[role_a_question, gr_chatbot], outputs=[role_a_question, gr_chatbot])
+    btn.click(toggle, inputs=[role_a_question, gr_chatbot, background_role_a, background_role_b, user_name, bot_name],
+              outputs=[role_a_question, gr_chatbot])
 
     clear.click(lambda: None, None, gr_chatbot)
 
