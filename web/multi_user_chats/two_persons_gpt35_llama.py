@@ -55,7 +55,7 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     if role_a_model_name == "gpt3.5":
         role_a_question = chat_with_chatgpt(role_a_input_api_data, selected_temp)
     elif role_a_model_name == "llama":
-        role_a_question = llama_respond(role_b_input_api_data,
+        role_a_question = llama_respond(role_a_input_api_data,
                                         role_dict={"user": role_b_name, "assistant": role_a_name},
                                         role_dict_real={"user": role_a_name, "assistant": role_b_name},
                                         temperature=selected_temp)
@@ -164,5 +164,5 @@ with gr.Blocks() as demo:
     clear.click(clear_f, [bot_name], [gr_chatbot, role_a_question])
 
 demo.queue()
-# demo.launch(server_name="0.0.0.0", server_port=8990)
-demo.launch(server_name="202.168.100.165", server_port=8990)
+demo.launch(server_name="0.0.0.0", server_port=8990)
+# demo.launch(server_name="202.168.100.165", server_port=8990)
