@@ -30,13 +30,15 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     history = history + [[f"{role_a_name}: " + user_message, None]]
     role_b_input_api_data = get_input_api_data(background=get_background(background_a, role_b_name, role_a_name),
                                                history=get_history(role_a_name, role_b_name, history))
-    print("----role_b_input_api_data:", role_b_input_api_data)
+    # print("----role_b_input_api_data:", role_b_input_api_data)
     if role_b_model_name == "gpt3.5":
         role_b_question = chat_with_chatgpt(role_b_input_api_data, selected_temp)
     elif role_b_model_name == "llama":
         role_b_question = llama_respond(role_b_input_api_data,
                                         role_dict={"user": role_a_name, "assistant": role_b_name},
+                                        role_dict_real={"user": role_a_name, "assistant": role_b_name},
                                         temperature=selected_temp)
+        print("---role_dic:", {"user": role_a_name, "assistant": role_b_name})
     else:
         raise Exception("-----Error选择的模型不存在！！！！")
 
@@ -48,14 +50,17 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     # -------------------
     role_a_input_api_data = get_input_api_data(background=get_background(background_b, role_a_name, role_b_name),
                                                history=get_history(role_a_name, role_b_name, history)[1:])
-    print("----role_a_input_api_data:", role_a_input_api_data)
+    # print("----role_a_input_api_data:", role_a_input_api_data)
 
     if role_a_model_name == "gpt3.5":
         role_a_question = chat_with_chatgpt(role_a_input_api_data, selected_temp)
     elif role_a_model_name == "llama":
         role_a_question = llama_respond(role_b_input_api_data,
                                         role_dict={"user": role_b_name, "assistant": role_a_name},
+                                        role_dict_real={"user": role_a_name, "assistant": role_b_name},
                                         temperature=selected_temp)
+        print("---role_dic:", {"user": role_b_name, "assistant": role_a_name})
+
     else:
         raise Exception("-----Error选择的模型不存在！！！！")
 
@@ -113,7 +118,7 @@ models_list = ["gpt3.5", "llama"]
 
 with gr.Blocks() as demo:
     with gr.Row():
-        gr.Markdown("# gpt3.5两个接口互相调用demo")
+        gr.Markdown("# 两个LLM模型互相对话demo")
     with gr.Row():
         with gr.Column():
             selected_temp = gr.Slider(0, 1, value=0.9, label="Temperature超参,调的越小越容易输出常见字",

@@ -18,11 +18,13 @@ PROMPT_DICT = {
 }
 
 
-def llama_respond(message_list, role_dict, temperature=0.6):
+def llama_respond(message_list, role_dict, role_dict_real, temperature=0.6):
     '''message-list第一个数值是背景，
-    后面需要在role_dict里要做好配置，我最后会回复role_dict['assistant']角色的答案'''
+    后面需要在role_dict里要做好配置，我最后会回复role_dict['assistant']角色的答案;
+    role_dict_real用于映射history里的内容'''
     background = message_list[0]["content"]
-    history_list = [role_dict[char["role"]] + ": " + char["content"] for char in message_list[1:]]
+    # history_list = [char["role"]+ ": " + char["content"] for char in message_list[1:]]
+    history_list = [role_dict_real[char["role"]] + ": " + char["content"] for char in message_list[1:]]
 
     cur_history = {"background": background,
                    "role_a": role_dict['user'],
@@ -32,34 +34,66 @@ def llama_respond(message_list, role_dict, temperature=0.6):
 
     request_data = json.dumps({
         "history": prompt_input,
-        "temperature": temperature,
+        "temperature": 0.6,
         "max_gen_len": 256,
         "background": "",
         "role_a": role_dict['user'],
         "role_b": role_dict['assistant'],
     })
+
     response = requests.post("http://202.168.100.182:805/api/llama", data=request_data)
     json_data = json.loads(response.text)
     text_respond = json_data["result"]
-    text_respond = text_respond.strip().split(role_dict['user'])[0]
+    # print("REAL Respond", text_respond)
+    text_respond = text_respond.strip().split(role_dict['user'] + ": ")[0]
     return text_respond.strip()
 
 
 if __name__ == '__main__':
-    message_list_orign = [
-        {"role": "system",
-         "content": "Let's play a role game. Alice and Kervin are classmate. You are Kervin. I am Alice."},
-        {"role": "user", "content": "hi, Kervin"},
-        {"role": "assistant", "content": "I am fine, how about you?"},
-        {"role": "user", "content": "Where are you?"},
-        {"role": "assistant", "content": "I am at home, what about you?"},
-        {"role": "user", "content": "Let's go to the library. Will you come with me?"}
-    ]
+    #------------
+    # role_a
+    #------------
+    message_list_org = [{'role': 'system',
+                         'content': "Let's play a role game.\nAlice and Kervin are classmate.\nYou are Kervin. I am Alice "},
+                        {'role': 'user', 'content': 'hi, Kervin!'}]
 
-    role_dict = {
-        "user": "Alice",
-        "assistant": "Kervin"
-    }
+    role_dict_real = {'user': 'Alice', 'assistant': 'Kervin'}
+    role_dict = {'user': 'Alice', 'assistant': 'Kervin'}
 
-    rs = llama_respond(message_list_orign, role_dict)
-    print(rs)
+    # print(llama_respond(message_list_org, role_dict, role_dict_real))
+
+    #------------
+    # role_b
+    #------------
+    message_list_org = [{'role': 'system',
+                         'content': "Let's play a role game.\nAlice and Kervin are classmate.\nYou are Alice. I am Kervin "},
+                        {'role': 'user', 'content': 'Hi there, Alice! How are you?'}]
+
+    role_dict = {'user': 'Kervin', 'assistant': 'Alice'}
+    # print(llama_respond(message_list_org, role_dict, role_dict_real))
+
+    #------------
+    # role_a
+    #------------
+    message_list_org = [{'role': 'system',
+                         'content': "Let's play a role game.\nAlice and Kervin are classmate.\nYou are Kervin. I am Alice "},
+                        {'role': 'user', 'content': 'hi, Kervin!'},
+                        {'role': 'assistant', 'content': 'Hi there, Alice! How are you?'},
+                        {'role': 'user', 'content': '🤩 Hi Kervin! It’s so nice to see you!'}
+                        ]
+
+    # ------------
+    # role_b
+    # ------------
+    role_dict = {'user': 'Alice', 'assistant': 'Kervin'}
+    print(llama_respond(message_list_org, role_dict, role_dict_real))
+
+    message_list_org = [{'role': 'system',
+                         'content': "Let's play a role game.\nAlice and Kervin are classmate.\nYou are Alice. I am Kervin."},
+                        {'role': 'user', 'content': 'Hi there, Alice! How are you?'},
+                        {'role': 'assistant', 'content': '🤩 Hi Kervin! It’s so nice to see you!'}
+                        ]
+
+    role_dict = {'user': 'Kervin', 'assistant': 'Alice'}
+    print(llama_respond(message_list_org, role_dict, role_dict_real))
+
