@@ -37,7 +37,7 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     history = history + [[f"{role_a_name}: " + user_message, None]]
     role_b_input_api_data = get_input_api_data(background=get_background(background_b, role_b_name, role_a_name),
                                                history=get_history(role_a_name, role_b_name, history))
-    print("----role_b_input_api_data:", role_b_input_api_data)
+    # print("----role_b_input_api_data:", role_b_input_api_data)
     if role_b_model_name == "gpt3.5":
         role_b_question = chat_with_chatgpt(role_b_input_api_data, selected_temp)
     elif role_b_model_name == "llama":
@@ -57,7 +57,7 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     # -------------------
     role_a_input_api_data = get_input_api_data(background=get_background(background_a, role_a_name, role_b_name),
                                                history=get_history(role_a_name, role_b_name, history)[1:])
-    print("----role_a_input_api_data:", role_a_input_api_data)
+    # print("----role_a_input_api_data:", role_a_input_api_data)
 
     if role_a_model_name == "gpt3.5":
         role_a_question = chat_with_chatgpt(role_a_input_api_data, selected_temp)
