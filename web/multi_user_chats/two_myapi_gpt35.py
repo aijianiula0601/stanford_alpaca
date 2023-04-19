@@ -8,7 +8,14 @@ import openai
 # https://platform.openai.com/docs/guides/chat/introduction
 # -------------------------------------
 
-openai.api_key = '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'
+# 俊仕
+# openai.api_key='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'
+# 程琦
+# openai.api_key = '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'
+# 陈江
+# openai.api_key = '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'
+# 庞永强
+openai.api_key = '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'
 
 messages = [
     {"role": "system",
