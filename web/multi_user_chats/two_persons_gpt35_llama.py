@@ -38,7 +38,7 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
                                         role_dict={"user": role_a_name, "assistant": role_b_name},
                                         role_dict_real={"user": role_a_name, "assistant": role_b_name},
                                         temperature=selected_temp)
-        print("---role_dic:", {"user": role_a_name, "assistant": role_b_name})
+        # print("---role_dic:", {"user": role_a_name, "assistant": role_b_name})
     else:
         raise Exception("-----Error选择的模型不存在！！！！")
 
@@ -59,7 +59,7 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
                                         role_dict={"user": role_b_name, "assistant": role_a_name},
                                         role_dict_real={"user": role_a_name, "assistant": role_b_name},
                                         temperature=selected_temp)
-        print("---role_dic:", {"user": role_b_name, "assistant": role_a_name})
+        # print("---role_dic:", {"user": role_b_name, "assistant": role_a_name})
 
     else:
         raise Exception("-----Error选择的模型不存在！！！！")
