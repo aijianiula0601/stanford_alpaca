@@ -4,7 +4,7 @@ import json
 import gradio as gr
 import random
 
-from two_bigo_gpt35 import *
+from two_myapi_gpt35 import *
 from llama_api_test import llama_respond
 
 
@@ -171,5 +171,5 @@ with gr.Blocks() as demo:
     clear.click(clear_f, [bot_name], [gr_chatbot, role_a_question])
 
 demo.queue()
-demo.launch(server_name="0.0.0.0", server_port=8991)
-# demo.launch(server_name="202.168.100.165", server_port=8990)
+# demo.launch(server_name="0.0.0.0", server_port=8991)
+demo.launch(server_name="202.168.100.165", server_port=8991)
