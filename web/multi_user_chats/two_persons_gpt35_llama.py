@@ -40,7 +40,6 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     elif role_b_model_name == "llama":
         role_b_question = llama_respond(role_b_input_api_data,
                                         role_dict={"user": role_a_name, "assistant": role_b_name},
-                                        role_dict_real={"user": role_a_name, "assistant": role_b_name},
                                         temperature=selected_temp)
         # print("---role_dic:", {"user": role_a_name, "assistant": role_b_name})
     else:
@@ -61,7 +60,6 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     elif role_a_model_name == "llama":
         role_a_question = llama_respond(role_a_input_api_data,
                                         role_dict={"user": role_b_name, "assistant": role_a_name},
-                                        role_dict_real={"user": role_a_name, "assistant": role_b_name},
                                         temperature=selected_temp)
         # print("---role_dic:", {"user": role_b_name, "assistant": role_a_name})
 
@@ -111,6 +109,10 @@ def update_select_role_b(role_key, bot_name):
            ROLE_A_START_QUESTION + ", " + bot_name + "!"
 
 
+def update_select_model(bot_name):
+    return None, ROLE_A_START_QUESTION + ", " + bot_name + "!"
+
+
 # --------------------------------------------------------
 # 模型选择
 # --------------------------------------------------------
@@ -154,8 +156,8 @@ with gr.Blocks() as demo:
             clear = gr.Button("清空聊天记录")
 
     bot_name.change(lambda x: ROLE_A_START_QUESTION + ", " + x + "!", bot_name, role_a_question)
-    select_role_a_model.change(lambda: None, None, gr_chatbot, queue=False)
-    select_role_b_model.change(lambda: None, None, gr_chatbot, queue=False)
+    select_role_a_model.change(update_select_model, [bot_name], [gr_chatbot, role_a_question], queue=False)
+    select_role_b_model.change(update_select_model, [bot_name], [gr_chatbot, role_a_question], queue=False)
     select_role_a.change(update_select_role_a, [select_role_a, bot_name],
                          [user_name, background_role_a, gr_chatbot, role_a_question])
     select_role_b.change(update_select_role_b, [select_role_b, bot_name],
