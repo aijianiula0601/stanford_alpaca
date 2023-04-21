@@ -1,8 +1,8 @@
 # Note: you need to be using OpenAI Python v0.27.0 for the code below to work
 import openai
 
-openai.api_key = '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'
-
+# 庞永强账号
+openai.api_key = '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'
 
 response = openai.ChatCompletion.create(
     model='gpt-3.5-turbo',

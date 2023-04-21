@@ -4,12 +4,13 @@ import json
 import gradio as gr
 import random
 
-from two_bigo_gpt35 import *
+from two_myapi_gpt35 import *
 from llama_api_test import llama_respond
 
-# ---------------------------------------------------
-# 让A模型生成的时候，模型A知道提问者的人设，不知道自己的人设
-# ---------------------------------------------------
+# -----------------------------------------------------------------------------------
+# 跟two_persons_gpt35_llama.py的区别是：
+# 两个人设合并后再送到模型
+# -----------------------------------------------------------------------------------
 
 ROLE_A_NAME = "Human"
 ROLE_B_NAME = "Ai"
@@ -32,9 +33,10 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     # role_b回答
     # -------------------
     history = history + [[f"{role_a_name}: " + user_message, None]]
-    role_b_input_api_data = get_input_api_data(background=get_background(background_a, role_b_name, role_a_name),
-                                               history=get_history(role_a_name, role_b_name, history))
-    # print("----role_b_input_api_data:", role_b_input_api_data)
+    role_b_input_api_data = get_input_api_data(
+        background=get_background(' '.join([background_a, background_b]), role_b_name, role_a_name),
+        history=get_history(role_a_name, role_b_name, history))
+    print("----role_b_input_api_data:", role_b_input_api_data)
     if role_b_model_name == "gpt3.5":
         role_b_question = chat_with_chatgpt(role_b_input_api_data, selected_temp)
     elif role_b_model_name == "llama":
@@ -42,7 +44,7 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
                                         role_dict={"user": role_a_name, "assistant": role_b_name},
                                         role_dict_real={"user": role_a_name, "assistant": role_b_name},
                                         temperature=selected_temp)
-        # print("---role_dic:", {"user": role_a_name, "assistant": role_b_name})
+        print("---role_dic:", {"user": role_a_name, "assistant": role_b_name})
     else:
         raise Exception("-----Error选择的模型不存在！！！！")
 
@@ -52,9 +54,10 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     # -------------------
     # role_a回答
     # -------------------
-    role_a_input_api_data = get_input_api_data(background=get_background(background_b, role_a_name, role_b_name),
-                                               history=get_history(role_a_name, role_b_name, history)[1:])
-    # print("----role_a_input_api_data:", role_a_input_api_data)
+    role_a_input_api_data = get_input_api_data(
+        background=get_background(' '.join([background_a, background_b]), role_a_name, role_b_name),
+        history=get_history(role_a_name, role_b_name, history)[1:])
+    print("----role_a_input_api_data:", role_a_input_api_data)
 
     if role_a_model_name == "gpt3.5":
         role_a_question = chat_with_chatgpt(role_a_input_api_data, selected_temp)
@@ -168,5 +171,5 @@ with gr.Blocks() as demo:
     clear.click(clear_f, [bot_name], [gr_chatbot, role_a_question])
 
 demo.queue()
-demo.launch(server_name="0.0.0.0", server_port=8990)
-# demo.launch(server_name="202.168.100.165", server_port=8990)
+demo.launch(server_name="0.0.0.0", server_port=8992)
+# demo.launch(server_name="202.168.100.165", server_port=8991)

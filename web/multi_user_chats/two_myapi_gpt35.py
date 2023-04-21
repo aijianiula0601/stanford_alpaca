@@ -15,7 +15,7 @@ import openai
 # 陈江
 # openai.api_key = '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'
 # 庞永强
-openai.api_key = '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'
+openai.api_key = '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'
 
 messages = [
     {"role": "system",
