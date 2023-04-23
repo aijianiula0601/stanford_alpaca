@@ -47,7 +47,7 @@ background_pre_text = "Let's play a role game."
 # Question and answer, forbid the output of multiple rounds. \
 # after 4 rounds chat, {role_name_a} will send a Invitation with http link: Would you like to join my live-room for deeper communication?"
 
-background_post_text = "After three times, {role_name_a} will invite others into the studio. You are {role_name_a}. I am {role_name_b}. Let's have a conversation. Ask me questions first. You go."
+background_post_text = "You are {role_name_a}. I am {role_name_b}. Let's have a conversation. Ask me questions first. You go."
 
 
 def get_background(background, role_name_a, role_name_b):
