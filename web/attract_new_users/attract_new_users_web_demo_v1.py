@@ -5,6 +5,7 @@ import json
 import gradio as gr
 import random
 from typing import Tuple
+import copy
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -45,25 +46,26 @@ def role_anchor_user_chat(selected_temp, user_message, history, background_ancho
     # 主播模型回答
     # -------------------
     if len(history) > 0:
-        if len(history) == 2:
-            history[-1][
-                1] = f"{user_name}: {user_message} {fist_que}" if user_message is not None else None and user_message.strip() != ""
-        else:
-            history[-1][
-                1] = f"{user_name}: {user_message}" if user_message is not None else None and user_message.strip() != ""
+        history[-1][
+            1] = f"{user_name}: {user_message}" if user_message is not None else None and user_message.strip() != ""
 
     history = history + [[None, None]]
 
-    print("====history:", history)
-
     messages_history = []
-    for qa in history:
+    for i, qa in enumerate(history):
+        cur_qa = copy.deepcopy(qa)
         if qa[0] is not None:
             if isinstance(qa[0], Tuple):
-                continue
-        messages_history.append(qa)
+                cur_qa = [None, qa[1]]
+        if i == 1 and qa[1] is not None:
+            cur_qa[-1] = f"{qa[1]} {fist_que}"
+        messages_history.append(cur_qa)
+
+    print("---messages_history:", messages_history)
 
     role_b_input_api_data = get_input_api_data(background_anchor, user_name, anchor_name, messages_history)
+
+    print("-----role_b_input_api_data:", role_b_input_api_data)
 
     anchor_question = chat_with_chatgpt(role_b_input_api_data, selected_temp)
 
@@ -73,11 +75,6 @@ def role_anchor_user_chat(selected_temp, user_message, history, background_ancho
 
     history[-1][0] = f"{anchor_question}"
     history.append([(random.sample(image_path_list, k=1)[0], None), None])
-
-    # if len(history) >= 2:
-    #     history[1][1] = history[1][1].replace(fist_que, "")
-
-    # print("----history:", history)
 
     return history
 
@@ -157,5 +154,5 @@ with gr.Blocks() as demo:
     clear.click(lambda: None, None, gr_chatbot)
 
 demo.queue()
-demo.launch(server_name="0.0.0.0", server_port=random.randint(8000, 9000))
+demo.launch(server_name="0.0.0.0", server_port=8994)
 # demo.launch(server_name="202.168.100.165", server_port=8990)
