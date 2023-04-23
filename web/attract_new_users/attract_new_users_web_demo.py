@@ -1,15 +1,14 @@
 import os
 import sys
+from pathlib import Path
 import json
 import gradio as gr
 import random
+from typing import Tuple
 
-pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-print("----pdj:", pdj)
-sys.path.append(pdj)
+cur_dir = os.path.dirname(os.path.abspath(__file__))
 
 from bigo_anchor_gpt35_api import *
-from web.multi_user_chats.llama_api_test import llama_respond
 
 imageUrlList = {
     "主播NatySnow": "https://img.like.video/asia_live/4hd/0OZEWB.png", \
@@ -22,44 +21,53 @@ imageUrlList = {
     "霸道总裁": "https://img.like.video/asia_live/4hd/0DP6QW.png", \
     "外星人帅哥教授": "https://img.like.video/asia_live/4hd/2LEYAR.png"}
 
+img_dir = f"{cur_dir}/imgs"
+image_path_list = [str(f) for f in Path(img_dir).glob("*")]
 
-def role_anchor_user_chat(selected_temp, user_message, history, background_anchor, user_name, anchor_name,
-                          role_anchor_model_name):
+
+def role_anchor_user_chat(selected_temp, user_message, history, background_anchor, user_name, anchor_name):
     # -------------------
     # 主播模型回答
     # -------------------
+
+    print("----user_message:", user_message)
     if len(history) > 0:
-        history[-1][
-            1] = f"{user_name}: {user_message}" if user_message is not None else None and user_message.strip() != ""
+
+        if isinstance(history[-1][0], Tuple):
+            history[-2][
+                1] = f"{user_name}: {user_message}" if user_message is not None else None and user_message.strip() != ""
+        else:
+            history[-1][
+                1] = f"{user_name}: {user_message}" if user_message is not None else None and user_message.strip() != ""
+
     history = history + [[None, None]]
 
+    print("----history:", history)
+
+    messages_history = []
+    for qa in history:
+        if qa[0] is not None:
+            if isinstance(qa[0], Tuple):
+                continue
+        messages_history.append(qa)
+
+    print("----messages_history:", messages_history)
+
     role_b_input_api_data = get_input_api_data(get_background(background_anchor, anchor_name, user_name), user_name,
-                                               anchor_name, history)
+                                               anchor_name, messages_history)
+
     print("----role_b_input_api_data:", role_b_input_api_data)
 
-    if role_anchor_model_name == "gpt3.5":
-        anchor_question = chat_with_chatgpt(role_b_input_api_data, selected_temp)
-    elif role_anchor_model_name == "llama":
-        anchor_question = llama_respond(role_b_input_api_data,
-                                        role_dict={"user": user_name, "assistant": anchor_name},
-                                        temperature=selected_temp)
-    else:
-        raise Exception("-----Error选择的模型不存在！！！！")
+    anchor_question = chat_with_chatgpt(role_b_input_api_data, selected_temp)
 
-    print(f"{anchor_name}({role_anchor_model_name}): ", anchor_question)
+    print(f"{anchor_name}: ", anchor_question)
+    print("-" * 100)
+    print(f"{user_name}: ", user_message)
 
     history[-1][0] = f"{anchor_name}: {anchor_question}"
+    history.append([(random.sample(image_path_list, k=1)[0], None), None])
 
     return history
-
-
-def toggle(user_message, selected_temp, chatbot, background_anchor, user_name, anchor_name,
-           role_anchor_model_name):
-    history = role_anchor_user_chat(selected_temp, user_message, chatbot, background_anchor,
-                                    user_name, anchor_name, role_anchor_model_name)
-
-    print("-" * 100)
-    return None, history
 
 
 # --------------------------------------------------------
@@ -84,6 +92,16 @@ models_list = ["gpt3.5", "llama"]
 
 ROLE_HUMAN_NAME = "Jack"
 ROLE_AI_NAME = anchor_name_list[0]
+
+
+def toggle(user_message, selected_temp, chatbot, background_anchor, user_name, anchor_name):
+    history = role_anchor_user_chat(selected_temp, user_message, chatbot, background_anchor,
+                                    user_name, anchor_name)
+
+    print("-" * 100)
+    return None, history
+
+
 # --------------------------------------------------------
 # 页面构建
 # --------------------------------------------------------
@@ -95,9 +113,7 @@ with gr.Blocks() as demo:
         with gr.Column():
             selected_temp = gr.Slider(0, 1, value=0.9, label="Temperature超参,调的越小越容易输出常见字",
                                       interactive=True)
-            with gr.Row():
-                select_anchor_model = gr.Dropdown(choices=models_list, value=models_list[0], label="选择角色A的模型",
-                                                  interactive=True)
+
             with gr.Row():
                 image_fig = gr.Image(imageUrlList[ROLE_AI_NAME], label="虚拟人头像").style(height=128, width=128)
                 select_anchor = gr.Dropdown(choices=anchor_name_list, value=ROLE_AI_NAME, label="选择一个主播",
@@ -116,17 +132,14 @@ with gr.Blocks() as demo:
             gr_chatbot = gr.Chatbot(label="聊天记录")
             clear = gr.Button("清空聊天记录")
 
-    select_anchor_model.change(lambda: None, None, gr_chatbot, queue=False)
     select_anchor.change(update_select_role, [select_anchor],
                          [anchor_name, background_anchor, gr_chatbot])
     btn.click(toggle,
-              inputs=[user_question, selected_temp, gr_chatbot, background_anchor, user_name, anchor_name,
-                      select_anchor_model],
+              inputs=[user_question, selected_temp, gr_chatbot, background_anchor, user_name, anchor_name],
               outputs=[user_question, gr_chatbot])
 
     user_question.submit(toggle,
-                         inputs=[user_question, selected_temp, gr_chatbot, background_anchor, user_name, anchor_name,
-                                 select_anchor_model],
+                         inputs=[user_question, selected_temp, gr_chatbot, background_anchor, user_name, anchor_name],
                          outputs=[user_question, gr_chatbot])
 
     clear.click(lambda: None, None, gr_chatbot)

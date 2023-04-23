@@ -31,9 +31,7 @@ def chat_with_chatgpt(messages, selected_temp=0.95):
 
 def get_input_api_data(background, user_name, anchor_name, history=[]):
     data_list = [{'role': 'system', 'content': background}]
-    print(f"-----===history:{history}")
     for qa in history:
-        print("------qa:", qa)
         if qa[0] is not None:
             data_list.append({'role': 'assistant', 'content': qa[0].lstrip(f"{anchor_name}: ")})
         if qa[1] is not None:
@@ -43,7 +41,13 @@ def get_input_api_data(background, user_name, anchor_name, history=[]):
 
 
 background_pre_text = "Let's play a role game."
-background_post_text = "You are {role_name_a}. I am {role_name_b}. Let's have a conversation. Ask me questions first. You go."
+
+# background_post_text = "{role_name_a} can always attract others tightly at the beginning of the chat.  \
+# The following is a chat between {role_name_b} and {role_name_a} using English Language. \
+# Question and answer, forbid the output of multiple rounds. \
+# after 4 rounds chat, {role_name_a} will send a Invitation with http link: Would you like to join my live-room for deeper communication?"
+
+background_post_text = "After three times, {role_name_a} will invite others into the studio. You are {role_name_a}. I am {role_name_b}. Let's have a conversation. Ask me questions first. You go."
 
 
 def get_background(background, role_name_a, role_name_b):
