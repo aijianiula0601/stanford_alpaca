@@ -15,6 +15,7 @@ import os
 import sys
 import copy
 import logging
+from tqdm import tqdm
 import json
 import setproctitle
 from dataclasses import dataclass, field
@@ -28,12 +29,15 @@ import torch
 import transformers
 from torch.utils.data import Dataset
 from transformers import Trainer
+from test_models.multi_turns_conversation.data_utils import get_dataset_prompt
 
 IGNORE_INDEX = -100
 DEFAULT_PAD_TOKEN = "[PAD]"
 DEFAULT_EOS_TOKEN = "</s>"
 DEFAULT_BOS_TOKEN = "</s>"
 DEFAULT_UNK_TOKEN = "</s>"
+DEFAULT_SEGMENT_TOKEN = "\n\n###"
+
 PROMPT_DICT = {
     "prompt_input": (
         "Below is an instruction that describes a task, paired with an input that provides further context. "
@@ -124,39 +128,107 @@ def _tokenize_fn(strings: Sequence[str], tokenizer: transformers.PreTrainedToken
     )
 
 
+def _tokenize_string(text, tokenizer: transformers.PreTrainedTokenizer):
+    tokenized = tokenizer(
+        text,
+        return_tensors="pt",
+        padding="longest",
+        max_length=tokenizer.model_max_length,
+        truncation=True,
+    )
+    tokenized_ids = tokenized.input_ids[0]
+    tokenized_ids_len = tokenized.input_ids.ne(tokenizer.pad_token_id).sum().item()
+    return tokenized_ids, tokenized_ids_len
+
+
+def _prompt_input(background):
+    return background
+
+
+def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrainedTokenizer, token_max_len: int):
+    """
+    :param token_max_len: limit number of token ids
+    :param conversation_dic: example:{
+        "background":"---",
+        "human_name":"a",
+        "bot_name":"b",
+        "qas":{
+            "turn_0":{"question":"---","answer":"---"},
+            ...
+            "turn_n":{"question":"---","answer":"---"}
+        }
+    }
+    :param tokenizer: tokenizer model
+    :return: dic
+    """
+    dataset_name = conversation_dic['dataset_name']
+    default_segment_token_ids, default_segment_token_ids_len = _tokenize_string(DEFAULT_SEGMENT_TOKEN, tokenizer)
+
+    ignor_token_index_list = []
+    turn_n = len(conversation_dic["qas"])
+    human_name = conversation_dic['human_name']
+    bot_name = conversation_dic['bot_name']
+    header = get_dataset_prompt(dataset_name, human_name, bot_name, background=conversation_dic['background'])
+    input_ids, header_ids_len = _tokenize_string(header, tokenizer)
+
+    for i in range(turn_n):
+        cur_turn_qa = conversation_dic['qas'][f'turn_{i}']
+        cur_question_string = human_name + ": " + cur_turn_qa["question"]
+        cur_question_string_token_ids, cur_question_string_token_ids_len = _tokenize_string(cur_question_string,
+                                                                                            tokenizer)
+        cur_answer_string = bot_name + ": " + cur_turn_qa["answer"]
+        cur_answer_string_token_ids, cur_answer_string_token_ids_len = _tokenize_string(cur_answer_string, tokenizer)
+
+        if header_ids_len + default_segment_token_ids_len + cur_question_string_token_ids_len + default_segment_token_ids_len + cur_answer_string_token_ids_len > token_max_len:
+            break
+
+        input_ids.extend(default_segment_token_ids)
+        input_ids.extend(cur_question_string_token_ids)
+        header_ids_len += default_segment_token_ids_len + cur_question_string_token_ids_len
+        ignor_start_index = header_ids_len - 1
+
+        input_ids.extend(default_segment_token_ids)
+        input_ids.extend(cur_answer_string_token_ids)
+        header_ids_len += default_segment_token_ids_len
+        ignor_end_index = header_ids_len
+
+        ignor_token_index_list.append((ignor_start_index, ignor_end_index))
+
+        header_ids_len += cur_answer_string_token_ids_len
+
+    label_ids = copy.deepcopy(input_ids)
+    for ignor_start_i, ignor_end_i in ignor_token_index_list:
+        label_ids[ignor_start_i:ignor_end_i] = IGNORE_INDEX
+
+    return input_ids, label_ids
+
+
 def preprocess(
-        sources: Sequence[str],
-        targets: Sequence[str],
+        examples: Sequence[Dict],
         tokenizer: transformers.PreTrainedTokenizer,
+        token_max_len: int
 ) -> Dict:
     """Preprocess the data by tokenizing."""
-    examples = [s + t for s, t in zip(sources, targets)]
-    examples_tokenized, sources_tokenized = [_tokenize_fn(strings, tokenizer) for strings in (examples, sources)]
-    input_ids = examples_tokenized["input_ids"]
-    labels = copy.deepcopy(input_ids)
-    for label, source_len in zip(labels, sources_tokenized["input_ids_lens"]):
-        label[:source_len] = IGNORE_INDEX
-    return dict(input_ids=input_ids, labels=labels)
+    input_ids_list = []
+    labels_list = []
+
+    for example in tqdm(examples):
+        input_ids, labels = _preprocess_example(example, tokenizer, token_max_len)
+        input_ids_list.append(input_ids)
+        labels_list.append(labels)
+
+    return dict(input_ids=input_ids_list, labels=labels_list)
 
 
 class SupervisedDataset(Dataset):
     """Dataset for supervised fine-tuning."""
 
-    def __init__(self, data_path: str, tokenizer: transformers.PreTrainedTokenizer):
+    def __init__(self, data_path: str, tokenizer: transformers.PreTrainedTokenizer, token_max_len: int):
         super(SupervisedDataset, self).__init__()
         logging.warning("Loading data...")
         list_data_dict = json.load(open(data_path))
 
-        logging.warning("Formatting inputs...")
-        prompt_input, prompt_no_input = PROMPT_DICT["prompt_input"], PROMPT_DICT["prompt_no_input"]
-        sources = [
-            prompt_input.format_map(example) if example.get("input", "") != "" else prompt_no_input.format_map(example)
-            for example in list_data_dict
-        ]
-        targets = [f"{example['output']}{tokenizer.eos_token}" for example in list_data_dict]
-
-        logging.warning("Tokenizing inputs... This may take some time...")
-        data_dict = preprocess(sources, targets, tokenizer)
+        data_dict = preprocess(list_data_dict, tokenizer, token_max_len)
 
         self.input_ids = data_dict["input_ids"]
         self.labels = data_dict["labels"]
@@ -187,9 +259,9 @@ class DataCollatorForSupervisedDataset(object):
         )
 
 
-def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer, data_args) -> Dict:
+def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer, data_args, token_max_len) -> Dict:
     """Make dataset and collator for supervised fine-tuning."""
-    train_dataset = SupervisedDataset(tokenizer=tokenizer, data_path=data_args.data_path)
+    train_dataset = SupervisedDataset(tokenizer=tokenizer, data_path=data_args.data_path, token_max_len=token_max_len)
     data_collator = DataCollatorForSupervisedDataset(tokenizer=tokenizer)
     return dict(train_dataset=train_dataset, eval_dataset=None, data_collator=data_collator)
 
@@ -226,7 +298,8 @@ def train():
             }
         )
 
-    data_module = make_supervised_data_module(tokenizer=tokenizer, data_args=data_args)
+    data_module = make_supervised_data_module(tokenizer=tokenizer, data_args=data_args,
+                                              token_max_len=training_args.model_max_length)
     trainer = Trainer(model=model, tokenizer=tokenizer, args=training_args, **data_module)
     trainer.train()
     trainer.save_state()

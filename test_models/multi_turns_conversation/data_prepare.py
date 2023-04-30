@@ -1,5 +1,6 @@
 import os
 import json
+import random
 
 HUMAN_NAME_KEY = "human_name"
 BOT_NAME_KEY = "bot_name"
@@ -7,12 +8,15 @@ BACKGROUND_KEY = "background"
 QAS_KEY = "qas"
 QUESTION_KEY = "question"
 ANSWER_KEY = "answer"
+DATASET_KEY = "dataset_name"
 
 # ------------------------------------------------------------
 # stanford_52k
 # ------------------------------------------------------------
 
 org_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/train_alpaca_data_cleaned.json"
+dataset_name = "stanford_52k"
+
 stanford_52k_data = []
 for d in json.load(open(org_f)):
     human_name = "Instruction"
@@ -22,6 +26,7 @@ for d in json.load(open(org_f)):
     stanford_52k_data.append(
         {BACKGROUND_KEY: background,
          HUMAN_NAME_KEY: human_name, BOT_NAME_KEY: bot_name,
+         DATASET_KEY: dataset_name,
          QAS_KEY: {
              "turn_0": {QUESTION_KEY: d['instruction'] + f"\n\n### Input:\n{background}", ANSWER_KEY: d["output"]}}
          })
@@ -32,6 +37,8 @@ for d in json.load(open(org_f)):
 # soda
 # ------------------------------------------------------------
 org_f = "/mnt/cephfs/hjh/common_dataset/nlp/chat/soda/soda_train_name.json"
+dataset_name = "soda"
+
 soda_data = []
 for turns_data in json.load(open(org_f)):
     background = None
@@ -51,7 +58,10 @@ for turns_data in json.load(open(org_f)):
             turn_i += 1
 
     assert background is not None
-    soda_data.append({BACKGROUND_KEY: background, HUMAN_NAME_KEY: human_name, BOT_NAME_KEY: bot_name, QAS_KEY: qas})
+    soda_data.append(
+        {BACKGROUND_KEY: background,
+         DATASET_KEY: dataset_name, HUMAN_NAME_KEY: human_name, BOT_NAME_KEY: bot_name,
+         QAS_KEY: qas})
 
 # print(json.dumps(soda_data))
 
@@ -61,6 +71,7 @@ for turns_data in json.load(open(org_f)):
 
 org_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun/gpt4_shared_data.json"
 gpt4_data = []
+dataset_name = "gpt4"
 
 skip_n = 0
 all_n = 0
@@ -84,7 +95,9 @@ for turns_data in json.load(open(org_f)):
                 qas[f"turn_{turn_i}"][ANSWER_KEY] = td['value']
                 turn_i += 1
 
-        gpt4_data.append({BACKGROUND_KEY: background, HUMAN_NAME_KEY: human_name, BOT_NAME_KEY: bot_name, QAS_KEY: qas})
+        gpt4_data.append(
+            {BACKGROUND_KEY: background, DATASET_KEY: dataset_name, HUMAN_NAME_KEY: human_name, BOT_NAME_KEY: bot_name,
+             QAS_KEY: qas})
     except Exception as e:
         # print(e, f"data:{json.dumps(turns_data)}")
         # print("-" * 100)
@@ -99,6 +112,7 @@ for turns_data in json.load(open(org_f)):
 
 org_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/personaChat/train.json"
 persona_chat_data = []
+dataset_name = "gpt4"
 for example in json.load(open(org_f)):
     background = example['profile_information']
     human_name = "human"
@@ -108,7 +122,8 @@ for example in json.load(open(org_f)):
         cur_qas[f"turn_{i}"] = {QUESTION_KEY: qa['question'], ANSWER_KEY: qa['answer']}
 
     persona_chat_data.append(
-        {BACKGROUND_KEY: background, HUMAN_NAME_KEY: human_name, BOT_NAME_KEY: bot_name, QAS_KEY: cur_qas})
+        {BACKGROUND_KEY: background, DATASET_KEY: dataset_name, HUMAN_NAME_KEY: human_name, BOT_NAME_KEY: bot_name,
+         QAS_KEY: cur_qas})
 
 # print(json.dumps(persona_chat_data))
 
@@ -117,6 +132,7 @@ for example in json.load(open(org_f)):
 # ------------------------------------------------------------
 org_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/empathetic_dialogues/train.json"
 empathetic_dialogues_data = []
+dataset_name = "empathetic_dialogues"
 
 for example in json.load(open(org_f)):
     background = ''
@@ -127,7 +143,8 @@ for example in json.load(open(org_f)):
         cur_qas[f"turn_{i}"] = {QUESTION_KEY: qa['question'], ANSWER_KEY: qa['answer']}
 
     empathetic_dialogues_data.append(
-        {BACKGROUND_KEY: background, HUMAN_NAME_KEY: human_name, BOT_NAME_KEY: bot_name, QAS_KEY: cur_qas})
+        {BACKGROUND_KEY: background, DATASET_KEY: dataset_name, HUMAN_NAME_KEY: human_name, BOT_NAME_KEY: bot_name,
+         QAS_KEY: cur_qas})
 
 # print(json.dumps(empathetic_dialogues_data))
 
@@ -137,12 +154,8 @@ for example in json.load(open(org_f)):
 
 save_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/multi_dataset_qas.json"
 
-data = {"soda": soda_data,
-        "gpt4": gpt4_data,
-        "persona_chat": persona_chat_data,
-        "empathetic_dialogues": empathetic_dialogues_data,
-        "stanford_52k": stanford_52k_data
-        }
+data = soda_data + gpt4_data + persona_chat_data + empathetic_dialogues_data + stanford_52k_data
+random.shuffle(data)
 
 json.dump(data, fp=open(save_f, 'w'))
 print(f"save to:{save_f}")
