@@ -169,7 +169,9 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
     human_name = conversation_dic['human_name']
     bot_name = conversation_dic['bot_name']
     header = get_dataset_prompt(dataset_name, human_name, bot_name, background=conversation_dic['background'])
-    input_ids, header_ids_len = _tokenize_string(header, tokenizer)
+    head_ids, header_ids_len = _tokenize_string(header, tokenizer)
+
+    input_ids_tensor_list = [head_ids]
 
     for i in range(turn_n):
         cur_turn_qa = conversation_dic['qas'][f'turn_{i}']
@@ -182,13 +184,13 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
         if header_ids_len + default_segment_token_ids_len + cur_question_string_token_ids_len + default_segment_token_ids_len + cur_answer_string_token_ids_len > token_max_len:
             break
 
-        input_ids.extend(default_segment_token_ids)
-        input_ids.extend(cur_question_string_token_ids)
+        input_ids_tensor_list.append(default_segment_token_ids)
+        input_ids_tensor_list.append(cur_question_string_token_ids)
         header_ids_len += default_segment_token_ids_len + cur_question_string_token_ids_len
         ignor_start_index = header_ids_len - 1
 
-        input_ids.extend(default_segment_token_ids)
-        input_ids.extend(cur_answer_string_token_ids)
+        input_ids_tensor_list.append(default_segment_token_ids)
+        input_ids_tensor_list.append(cur_answer_string_token_ids)
         header_ids_len += default_segment_token_ids_len
         ignor_end_index = header_ids_len
 
@@ -196,6 +198,7 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
 
         header_ids_len += cur_answer_string_token_ids_len
 
+    input_ids = torch.cat(input_ids_tensor_list, dim=0)
     label_ids = copy.deepcopy(input_ids)
     for ignor_start_i, ignor_end_i in ignor_token_index_list:
         label_ids[ignor_start_i:ignor_end_i] = IGNORE_INDEX

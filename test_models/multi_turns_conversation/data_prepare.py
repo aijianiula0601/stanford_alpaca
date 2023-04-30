@@ -1,6 +1,7 @@
 import os
 import json
 import random
+from tqdm import tqdm
 
 HUMAN_NAME_KEY = "human_name"
 BOT_NAME_KEY = "bot_name"
@@ -34,10 +35,10 @@ for d in json.load(open(org_f)):
 # print(json.dumps(stanford_52k))
 
 # ------------------------------------------------------------
-# soda
+# sota
 # ------------------------------------------------------------
 org_f = "/mnt/cephfs/hjh/common_dataset/nlp/chat/soda/soda_train_name.json"
-dataset_name = "soda"
+dataset_name = "sota"
 
 soda_data = []
 for turns_data in json.load(open(org_f)):
@@ -56,6 +57,13 @@ for turns_data in json.load(open(org_f)):
             assert bot_name == td['from']
             qas[f"turn_{turn_i}"][ANSWER_KEY] = td['value']
             turn_i += 1
+
+    turn_n = len(qas)
+    if QUESTION_KEY not in qas[f"turn_{turn_n - 1}"] or ANSWER_KEY not in qas[f"turn_{turn_n - 1}"]:
+        qas.pop(f"turn_{turn_n - 1}")
+
+    if len(qas) < 1:
+        continue
 
     assert background is not None
     soda_data.append(
@@ -94,6 +102,13 @@ for turns_data in json.load(open(org_f)):
                 assert bot_name == td['from']
                 qas[f"turn_{turn_i}"][ANSWER_KEY] = td['value']
                 turn_i += 1
+
+        turn_n = len(qas)
+        if QUESTION_KEY not in qas[f"turn_{turn_n - 1}"] or ANSWER_KEY not in qas[f"turn_{turn_n - 1}"]:
+            qas.pop(f"turn_{turn_n - 1}")
+
+        if len(qas) < 1:
+            continue
 
         gpt4_data.append(
             {BACKGROUND_KEY: background, DATASET_KEY: dataset_name, HUMAN_NAME_KEY: human_name, BOT_NAME_KEY: bot_name,
@@ -153,9 +168,33 @@ for example in json.load(open(org_f)):
 # ============================================================
 
 save_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/multi_dataset_qas.json"
+debug_save_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/debug_multi_dataset_qas.json"
 
 data = soda_data + gpt4_data + persona_chat_data + empathetic_dialogues_data + stanford_52k_data
 random.shuffle(data)
 
-json.dump(data, fp=open(save_f, 'w'))
+checked_data = []
+
+skip_n = 0
+all_n = 0
+for item in data:
+    all_n += 1
+    try:
+        assert BACKGROUND_KEY in item
+        assert HUMAN_NAME_KEY in item
+        assert BOT_NAME_KEY in item
+        assert QAS_KEY in item
+        for turn_i in item[QAS_KEY]:
+            assert QUESTION_KEY in item[QAS_KEY][turn_i]
+            assert ANSWER_KEY in item[QAS_KEY][turn_i]
+        checked_data.append(item)
+    except Exception as e:
+        skip_n += 1
+        print(e, f"item:{json.dumps(item)}")
+
+json.dump(checked_data, fp=open(save_f, 'w'))
 print(f"save to:{save_f}")
+print(f"skip:{skip_n},all_n:{all_n}")
+
+json.dump(checked_data[:100], fp=open(debug_save_f, 'w'))
+print(f"save to:{debug_save_f}")
