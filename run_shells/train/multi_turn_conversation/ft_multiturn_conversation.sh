@@ -32,14 +32,14 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/multi_
     --data_path ${data_json} \
     --output_dir ${output_dir} \
     --num_train_epochs 5 \
-    --per_device_train_batch_size 8 \
-    --per_device_eval_batch_size 8 \
-    --gradient_accumulation_steps 8 \
+    --per_device_train_batch_size 6 \
+    --per_device_eval_batch_size 6 \
+    --gradient_accumulation_steps 6 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
     --save_steps 100 \
     --model_max_length 2048 \
-    --save_total_limit 20 \
+    --save_total_limit 100 \
     --learning_rate 2e-5 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \
