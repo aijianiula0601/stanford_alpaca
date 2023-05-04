@@ -29,7 +29,8 @@ mkdir -p ${your_output_dir}
 
 data_json="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/alpaca_data_cleaned.json"
 
-torchrun --nproc_per_node=8 --master_port=${your_random_port} train.py \
+CUDA_VISIBLE_DEVICES=4,5,6,7 \
+torchrun --nproc_per_node=4 --master_port=${your_random_port} train.py \
     --model_name_or_path "${your_path_to_hf_converted_llama_ckpt_and_tokenizer}" \
     --data_path ${data_json} \
     --output_dir ${your_output_dir} \

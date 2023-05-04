@@ -4,7 +4,7 @@ import json
 import gradio as gr
 import random
 
-from two_myapi_gpt35 import *
+from two_bigo_gpt35 import *
 from llama_api_test import llama_respond
 
 # -----------------------------------------------------------------------------------
