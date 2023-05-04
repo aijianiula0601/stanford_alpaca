@@ -116,25 +116,29 @@ print('load model done!!!')
 print('-' * 100)
 
 
-def bot(prompt_input, temperature=0.7, max_gen_len=256, background="", role_a="Human", role_b="Ai", chatdemo=""):
-    print('===  before generator ===')
+def bot(prompt_input, temperature=0.7, max_gen_len=256, stop_text=None):
+    assert stop_text is not None, "stop text is None!!!"
+    print("-" * 50 + "prompt input:" + '-' * 50)
     params = {
         "prompt": prompt_input,
         "temperature": temperature,
         "max_new_tokens": max_gen_len,
-        "stop": role_a,
+        "stop": stop_text,
     }
     print(prompt_input)
+    print("-" * 100)
 
     skip_echo_len = len(prompt_input.replace("</s>", " ")) + 1
     stream = generate_stream(model, tokenizer, params, "cuda")
-    pre = 0
     generated_text = None
     for outputs in stream:
         generated_text = outputs[skip_echo_len:].strip()
         generated_text = generated_text.split(" ")
     generated_text = " ".join(generated_text)
-    print("----REAL Respond：", generated_text)
+    print("-" * 50 + "model generate text" + '-' * 50)
+    print(generated_text)
+    print("-" * 100)
+
     return generated_text.strip()
 
 
@@ -156,9 +160,7 @@ def receive():
     if 'history' not in params or not isinstance(params['history'], str) \
             or 'temperature' not in params or not isinstance(params['temperature'], float) \
             or 'max_gen_len' not in params or not isinstance(params['max_gen_len'], int) \
-            or 'background' not in params or not isinstance(params['background'], str) \
-            or 'role_a' not in params or not isinstance(params['role_a'], str) \
-            or 'role_b' not in params or not isinstance(params['role_b'], str):
+            or 'stop_text' not in params or not isinstance(params['stop_text'], str):
         logger.error("Invalid json request.")
         res = {
             "status": 400,
@@ -173,11 +175,9 @@ def receive():
     history = params.get('history', "")
     temperature = params.get('temperature', 0)
     max_gen_len = params.get('max_gen_len', "")
-    background = params.get('background', "")
-    role_a = params.get('role_a', 0)
-    role_b = params.get('role_b', 0)
+    stop_text = params.get('stop_text', 0)
 
-    result = bot(history, temperature, max_gen_len, background, role_a, role_b)
+    result = bot(history, temperature, max_gen_len, stop_text)
 
     res = {
         "status": 200,

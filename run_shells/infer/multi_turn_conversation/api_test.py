@@ -4,7 +4,6 @@ import os
 import sys
 import gradio as gr
 
-# from utils import stringQ2B, post_filter
 pdj = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(pdj)
 
@@ -16,10 +15,10 @@ PROMPT_DICT = {
     )
 }
 
-DEFAULT_SEGMENT_TOKEN = "\n\n###"
+DEFAULT_SEGMENT_TOKEN = "\n\n### "
 
 
-def llama_respond(message_list, role_dict, temperature=0.8):
+def llama_respond(message_list, role_dict, temperature=0.6):
     """
     message-list第一个数值是背景，
     后面需要在role_dict里要做好配置，我最后会回复role_dict['assistant']角色的答案;
@@ -42,17 +41,13 @@ def llama_respond(message_list, role_dict, temperature=0.8):
         "history": prompt_input,
         "temperature": temperature,
         "max_gen_len": 256,
-        "background": "",
-        "role_a": role_dict['user'],
-        "role_b": role_dict['assistant'],
+        "stop_text": DEFAULT_SEGMENT_TOKEN.strip(),
     })
 
     # response = requests.post("http://202.168.100.178:5000/api", data=request_data)
     response = requests.post("http://127.0.0.1:5000/api", data=request_data)
     json_data = json.loads(response.text)
     text_respond = json_data["result"]
-    print("----REAL Respond: ", text_respond)
-    print("=" * 100)
     text_respond = text_respond.strip().split(DEFAULT_SEGMENT_TOKEN + role_dict['user'] + ": ")[0]
     return text_respond.strip()
 
