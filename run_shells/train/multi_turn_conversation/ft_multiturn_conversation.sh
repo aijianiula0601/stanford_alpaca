@@ -24,7 +24,6 @@ base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversatio
 output_dir="${base_dir}/ft_outs"
 data_json="${base_dir}/multi_dataset_qas.json"
 
-rm -rf ${output_dir}
 mkdir -p ${output_dir}
 
 torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/multi_turns_conversation/train.py \

@@ -36,20 +36,7 @@ DEFAULT_PAD_TOKEN = "[PAD]"
 DEFAULT_EOS_TOKEN = "</s>"
 DEFAULT_BOS_TOKEN = "</s>"
 DEFAULT_UNK_TOKEN = "</s>"
-DEFAULT_SEGMENT_TOKEN = "\n\n###"
-
-PROMPT_DICT = {
-    "prompt_input": (
-        "Below is an instruction that describes a task, paired with an input that provides further context. "
-        "Write a response that appropriately completes the request.\n\n"
-        "### Instruction:\n{instruction}\n\n### Input:\n{input}\n\n### Response:"
-    ),
-    "prompt_no_input": (
-        "Below is an instruction that describes a task. "
-        "Write a response that appropriately completes the request.\n\n"
-        "### Instruction:\n{instruction}\n\n### Response:"
-    ),
-}
+DEFAULT_SEGMENT_TOKEN = "\n###"
 
 
 @dataclass
@@ -164,7 +151,6 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
     dataset_name = conversation_dic['dataset_name']
     default_segment_token_ids, default_segment_token_ids_len = _tokenize_string(DEFAULT_SEGMENT_TOKEN, tokenizer)
 
-    ignor_token_index_list = []
     turn_n = len(conversation_dic["qas"])
     human_name = conversation_dic['human_name']
     bot_name = conversation_dic['bot_name']
@@ -184,24 +170,18 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
         if header_ids_len + default_segment_token_ids_len + cur_question_string_token_ids_len + default_segment_token_ids_len + cur_answer_string_token_ids_len > token_max_len:
             break
 
+        # question
         input_ids_tensor_list.append(default_segment_token_ids)
         input_ids_tensor_list.append(cur_question_string_token_ids)
         header_ids_len += default_segment_token_ids_len + cur_question_string_token_ids_len
-        ignor_start_index = header_ids_len - 1
 
+        # answer
         input_ids_tensor_list.append(default_segment_token_ids)
         input_ids_tensor_list.append(cur_answer_string_token_ids)
-        header_ids_len += default_segment_token_ids_len
-        ignor_end_index = header_ids_len
-
-        ignor_token_index_list.append((ignor_start_index, ignor_end_index))
-
-        header_ids_len += cur_answer_string_token_ids_len
+        header_ids_len += default_segment_token_ids_len + cur_answer_string_token_ids_len
 
     input_ids = torch.cat(input_ids_tensor_list, dim=0)
     label_ids = copy.deepcopy(input_ids)
-    for ignor_start_i, ignor_end_i in ignor_token_index_list:
-        label_ids[ignor_start_i:ignor_end_i] = IGNORE_INDEX
 
     return input_ids, label_ids
 

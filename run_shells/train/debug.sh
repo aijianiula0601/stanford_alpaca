@@ -24,7 +24,6 @@ your_random_port=11223
 your_path_to_hf_converted_llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/new_llama_7b"
 
 your_output_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/debug_output"
-rm -rf ${your_output_dir}
 mkdir -p ${your_output_dir}
 
 data_json="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/alpaca_data_cleaned.json"

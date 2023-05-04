@@ -18,28 +18,29 @@ cd ../../../
 #----------------------------------------------------------
 
 your_random_port=11223
-#llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/new_llama_7b"
 llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/junshi_llama-7b"
 
-base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun"
-output_dir="${base_dir}/ft_outs"
-data_json="${base_dir}/gpt4_shared_data.json"
+base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation"
+output_dir="${base_dir}/ft_outs_nomask"
+data_json="${base_dir}/multi_dataset_qas.json"
 
 mkdir -p ${output_dir}
 
-torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/multi_turn_chat/train.py \
+
+CUDA_VISIBLE_DEVICES=4,5,6,7 \
+torchrun --nproc_per_node=4 --master_port=${your_random_port} test_models/multi_turns_conversation/train_nomsk.py \
     --model_name_or_path "${llama_ckpt_and_tokenizer}" \
     --data_path ${data_json} \
     --output_dir ${output_dir} \
     --num_train_epochs 5 \
-    --per_device_train_batch_size 8 \
-    --per_device_eval_batch_size 8 \
-    --gradient_accumulation_steps 8 \
+    --per_device_train_batch_size 6 \
+    --per_device_eval_batch_size 6 \
+    --gradient_accumulation_steps 6 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 50 \
+    --save_steps 100 \
     --model_max_length 2048 \
-    --save_total_limit 1000 \
+    --save_total_limit 100 \
     --learning_rate 2e-5 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \
