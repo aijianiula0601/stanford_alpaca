@@ -89,6 +89,9 @@ def generate_stream(model, tokenizer, params, device,
 
         output_ids.append(token)
 
+        output = tokenizer.decode(output_ids, skip_special_tokens=True)
+        print('-' * 100)
+
         if token == tokenizer.eos_token_id:
             stopped = True
         else:
@@ -110,7 +113,7 @@ def generate_stream(model, tokenizer, params, device,
 
 
 print("loading model ... ")
-model_dir = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs/checkpoint-3300'
+model_dir = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs/checkpoint-4000'
 load_model(model_dir)
 print('load model done!!!')
 print('-' * 100)

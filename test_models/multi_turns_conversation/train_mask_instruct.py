@@ -182,6 +182,7 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
 
     input_ids = torch.cat(input_ids_tensor_list, dim=0)
     label_ids = copy.deepcopy(input_ids)
+    label_ids[:len(head_ids)] = IGNORE_INDEX
 
     return input_ids, label_ids
 
@@ -250,7 +251,7 @@ def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer, dat
 
 
 def train():
-    setproctitle.setproctitle("stanford_alpaca")
+    setproctitle.setproctitle("stanford_alpaca_mask_instruct")
     parser = transformers.HfArgumentParser((ModelArguments, DataArguments, TrainingArguments))
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 
