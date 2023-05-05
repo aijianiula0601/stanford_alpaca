@@ -36,7 +36,7 @@ DEFAULT_PAD_TOKEN = "[PAD]"
 DEFAULT_EOS_TOKEN = "</s>"
 DEFAULT_BOS_TOKEN = "</s>"
 DEFAULT_UNK_TOKEN = "</s>"
-DEFAULT_SEGMENT_TOKEN = "\n###"
+DEFAULT_SEGMENT_TOKEN = "### "
 
 
 @dataclass
@@ -161,10 +161,10 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
 
     for i in range(turn_n):
         cur_turn_qa = conversation_dic['qas'][f'turn_{i}']
-        cur_question_string = human_name + ": " + cur_turn_qa["question"]
+        cur_question_string = human_name + ": " + cur_turn_qa["question"] + DEFAULT_EOS_TOKEN
         cur_question_string_token_ids, cur_question_string_token_ids_len = _tokenize_string(cur_question_string,
                                                                                             tokenizer)
-        cur_answer_string = bot_name + ": " + cur_turn_qa["answer"]
+        cur_answer_string = bot_name + ": " + cur_turn_qa["answer"] + DEFAULT_EOS_TOKEN
         cur_answer_string_token_ids, cur_answer_string_token_ids_len = _tokenize_string(cur_answer_string, tokenizer)
 
         if header_ids_len + default_segment_token_ids_len + cur_question_string_token_ids_len + default_segment_token_ids_len + cur_answer_string_token_ids_len > token_max_len:
