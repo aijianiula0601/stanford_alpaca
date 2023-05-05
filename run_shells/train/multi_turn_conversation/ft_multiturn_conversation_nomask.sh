@@ -27,8 +27,7 @@ data_json="${base_dir}/multi_dataset_qas.json"
 mkdir -p ${output_dir}
 
 
-CUDA_VISIBLE_DEVICES=4,5,6,7 \
-torchrun --nproc_per_node=4 --master_port=${your_random_port} test_models/multi_turns_conversation/train_nomsk.py \
+torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/multi_turns_conversation/train_nomsk.py \
     --model_name_or_path "${llama_ckpt_and_tokenizer}" \
     --data_path ${data_json} \
     --output_dir ${output_dir} \
