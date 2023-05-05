@@ -12,7 +12,7 @@ logging.getLogger().setLevel(logging.WARNING)
 import os
 import sys
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 import torch
 
 pdj = "/mnt/cephfs/zhuchengqi/git/LLM/bigo_stanford_alpaca/eval/transformers_jh/src"
@@ -89,8 +89,11 @@ def generate_stream(model, tokenizer, params, device,
 
         output_ids.append(token)
 
-        output = tokenizer.decode(output_ids, skip_special_tokens=True)
-        print('-' * 100)
+        output_tmp = tokenizer.decode(output_ids, skip_special_tokens=True)
+        print("-" * 100)
+        print(f"------i:{i} output_ids:", output_ids[len(input_ids):])
+        print(f"------i:{i} output:", output_tmp[len(prompt):])
+        print("-" * 100)
 
         if token == tokenizer.eos_token_id:
             stopped = True
@@ -100,6 +103,10 @@ def generate_stream(model, tokenizer, params, device,
         if i % stream_interval == 0 or i == max_new_tokens - 1 or stopped:
             output = tokenizer.decode(output_ids, skip_special_tokens=True)
             pos = output.rfind(stop_str, l_prompt)
+            print("-" * 50 + "output:" + "-" * 50)
+            print(output)
+            print("-" * 100)
+
             if pos != -1:
                 output = output[:pos]
                 stopped = True
@@ -121,7 +128,6 @@ print('-' * 100)
 
 def bot(prompt_input, temperature=0.7, max_gen_len=256, stop_text=None):
     assert stop_text is not None, "stop text is None!!!"
-    print("-" * 50 + "prompt input:" + '-' * 50)
     params = {
         "prompt": prompt_input,
         "temperature": temperature,
@@ -194,4 +200,4 @@ def receive():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
