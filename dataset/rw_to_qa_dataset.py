@@ -52,9 +52,30 @@ def process_f(org_f: str):
 
 base_dir = "/mnt/cephfs/hjh/common_dataset/nlp/rm"
 
-train_f = f"{base_dir}/train-00000-of-00001-2a1df75c6bce91ab.parquet"
 test_f = f"{base_dir}/test-00000-of-00001-8c7c51afc6d45980.parquet"
+train_f = f"{base_dir}/train-00000-of-00001-2a1df75c6bce91ab.parquet"
+
+rm_static_train_data = process_f(train_f)
+random.shuffle(rm_static_train_data)
+print("-----:", len(rm_static_train_data))
 
 test_data = process_f(train_f)
 random.shuffle(test_data)
 print(json.dumps(test_data))
+
+# ------------------------------------------------------------
+# full-hh-rlhf
+# ------------------------------------------------------------
+
+base_dir = "/mnt/cephfs/hjh/common_dataset/nlp/rl/full-hh-rlhf"
+
+test_f = f"{base_dir}/test-00000-of-00001-ec71e9262143a91c.parquet"
+train_f = f"{base_dir}/train-00000-of-00001-8349d0765e6718df.parquet"
+
+full_hh_rlhf_train_data = process_f(train_f)
+random.shuffle(full_hh_rlhf_train_data)
+print(json.dumps(full_hh_rlhf_train_data))
+
+# ------------------------------------------------------------
+#
+# ------------------------------------------------------------
