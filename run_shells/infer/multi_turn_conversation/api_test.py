@@ -27,14 +27,11 @@ def llama_respond(message_list, role_dict, temperature=0.6):
     history_list = [DEFAULT_SEGMENT_TOKEN + role_dict[char["role"]] + ": " + char["content"] for char in
                     message_list[1:]]
 
-    cur_history = {"background": background,
-                   "role_a": role_dict['user'],
-                   "role_b": role_dict['assistant'],
-                   "history": "\n".join([item for item in history_list]) + "\n" + DEFAULT_SEGMENT_TOKEN + role_dict[
-                       'assistant'] + ": "}
+    map_dic = {"background": background, "role_a": role_dict['user'], "role_b": role_dict['assistant'],
+               "history": " ".join([item for item in history_list])}
 
-    prompt_input = PROMPT_DICT["conversion"].format_map(cur_history)
-    print("prompt_input:\n", prompt_input)
+    prompt_input = PROMPT_DICT["conversion"].format_map(map_dic)
+    print("prompt_input:\n\n", prompt_input)
 
     request_data = json.dumps({
         "prompt_input": prompt_input,
