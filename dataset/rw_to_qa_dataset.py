@@ -20,12 +20,12 @@ FROM_KEY = "from"
 VALUE_KEY = "value"
 
 
-def process_f(org_f: str):
-    data = pq.read_table(org_f, columns=['prompt', 'response'])
+def process_f(org_f, columns=['prompt', 'response'], if_check=True):
+    data = pq.read_table(org_f, columns=columns)
 
     all_dialogue_data = []
     for i, row in data.to_pandas().iterrows():
-        line = row['prompt'].strip() + " " + row['response']
+        line = row[columns[0]].strip() + " " + row[columns[1]]
         cleaned_line = []
         for d in line.split("\n"):
             if d.strip("\n").strip() == "":
@@ -47,35 +47,73 @@ def process_f(org_f: str):
         assert len(cur_qas_split_list) % 2 == 0, f"Error cur_qa_list:{cur_qas_list}"
         all_dialogue_data.append(cur_qas_list)
 
+    if if_check:
+        print(f"checking file:{org_f}")
+        all_example = 0
+        skip_example = 0
+        new_all_dialogue_data = []
+        for qas in all_dialogue_data:
+            all_example += 1
+            flag = True
+            for item in qas:
+                if item[VALUE_KEY].replace("\n", "").strip() == "":
+                    flag = False
+                    skip_example += 1
+                    break
+            if flag:
+                new_all_dialogue_data.append(qas)
+        print(f"checked done! org examples:{all_example},skip examples:{skip_example}")
+        all_dialogue_data = new_all_dialogue_data
+
     return all_dialogue_data
 
 
-base_dir = "/mnt/cephfs/hjh/common_dataset/nlp/rm"
-
-test_f = f"{base_dir}/test-00000-of-00001-8c7c51afc6d45980.parquet"
-train_f = f"{base_dir}/train-00000-of-00001-2a1df75c6bce91ab.parquet"
-
-rm_static_train_data = process_f(train_f)
-random.shuffle(rm_static_train_data)
-print("-----:", len(rm_static_train_data))
-
-test_data = process_f(train_f)
-random.shuffle(test_data)
-print(json.dumps(test_data))
+# base_dir = "/mnt/cephfs/hjh/common_dataset/nlp/rm"
+#
+# test_f = f"{base_dir}/test-00000-of-00001-8c7c51afc6d45980.parquet"
+# train_f = f"{base_dir}/train-00000-of-00001-2a1df75c6bce91ab.parquet"
+#
+# rm_static_train_data = process_f(train_f)
+# random.shuffle(rm_static_train_data)
+# print("-----:", len(rm_static_train_data))
+#
+# test_data = process_f(test_f)
+# random.shuffle(test_data)
+# print(json.dumps(test_data))
 
 # ------------------------------------------------------------
 # full-hh-rlhf
 # ------------------------------------------------------------
 
-base_dir = "/mnt/cephfs/hjh/common_dataset/nlp/rl/full-hh-rlhf"
-
-test_f = f"{base_dir}/test-00000-of-00001-ec71e9262143a91c.parquet"
-train_f = f"{base_dir}/train-00000-of-00001-8349d0765e6718df.parquet"
-
-full_hh_rlhf_train_data = process_f(train_f)
-random.shuffle(full_hh_rlhf_train_data)
-print(json.dumps(full_hh_rlhf_train_data))
-
-# ------------------------------------------------------------
+# base_dir = "/mnt/cephfs/hjh/common_dataset/nlp/rl/full-hh-rlhf"
 #
+# test_f = f"{base_dir}/test-00000-of-00001-ec71e9262143a91c.parquet"
+# train_f = f"{base_dir}/train-00000-of-00001-8349d0765e6718df.parquet"
+#
+# full_hh_rlhf_train_data = process_f(train_f)
+# random.shuffle(full_hh_rlhf_train_data)
+# print(json.dumps(full_hh_rlhf_train_data))
+
 # ------------------------------------------------------------
+# synthetic-instruct-gptj-pairwise
+# ------------------------------------------------------------
+
+# base_dir = "/mnt/cephfs/hjh/common_dataset/nlp/rm/synthetic-instruct-gptj-pairwise"
+# org_f = f"{base_dir}/train-00000-of-00001-1e5d57b93c448e7a.parquet"
+#
+# synthetic_instruct_gptj_pairwise_data = []
+# data = pq.read_table(org_f, columns=['prompt', 'chosen'])
+# for i, row in data.to_pandas().iterrows():
+#     synthetic_instruct_gptj_pairwise_data.append(
+#         [{FROM_KEY: HUMAN_NAME, VALUE_KEY: row['prompt']}, {FROM_KEY: ASSISTANT_NAME, VALUE_KEY: row['chosen']}])
+# print(json.dumps(synthetic_instruct_gptj_pairwise_data))
+
+# ------------------------------------------------------------
+# yitingxie/rlhf-reward-datasets
+# ------------------------------------------------------------
+
+# base_dir = "/mnt/cephfs/hjh/common_dataset/nlp/rl/rlhf-reward-datasets"
+# train_f = f"{base_dir}/train-00000-of-00001-2ea3039ca4da89f8.parquet"
+# rlhf_reward_datasets_data = process_f(train_f, columns=['prompt', 'chosen'])
+# random.shuffle(rlhf_reward_datasets_data)
+# print(json.dumps(rlhf_reward_datasets_data))
