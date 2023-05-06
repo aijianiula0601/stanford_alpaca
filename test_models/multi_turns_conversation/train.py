@@ -184,25 +184,23 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
         cur_answer_string = cur_turn_qa["answer"]
         cur_answer_string_token_ids, cur_answer_string_token_ids_len = _tokenize_string(cur_answer_string, tokenizer)
 
-        if header_ids_len + default_segment_token_ids_len + cur_question_string_token_ids_len + default_segment_token_ids_len + cur_answer_string_token_ids_len > token_max_len:
+        if header_ids_len + default_segment_token_ids_len + cur_question_string_token_ids_len + default_segment_token_ids_len + bot_name_token_ids_len + cur_answer_string_token_ids_len > token_max_len:
             break
 
         # question
         input_ids_tensor_list.append(default_segment_token_ids)
         input_ids_tensor_list.append(cur_question_string_token_ids)
-        header_ids_len += default_segment_token_ids_len + cur_question_string_token_ids_len + bot_name_token_ids_len
+        header_ids_len += default_segment_token_ids_len + cur_question_string_token_ids_len + default_segment_token_ids_len + bot_name_token_ids_len
         ignore_start_index = header_ids_len - 1
 
         # answer
-        input_ids_tensor_list.append(bot_name_token_ids)
         input_ids_tensor_list.append(default_segment_token_ids)
+        input_ids_tensor_list.append(bot_name_token_ids)
         input_ids_tensor_list.append(cur_answer_string_token_ids)
-        header_ids_len += default_segment_token_ids_len
+        header_ids_len += cur_answer_string_token_ids_len
         ignore_end_index = header_ids_len
 
         ignore_token_index_list.append((ignore_start_index, ignore_end_index))
-
-        header_ids_len += cur_answer_string_token_ids_len
 
     input_ids = torch.cat(input_ids_tensor_list, dim=0)
     label_ids = copy.deepcopy(input_ids)
