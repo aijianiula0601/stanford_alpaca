@@ -37,7 +37,7 @@ def llama_respond(message_list, role_dict, temperature=0.6):
     print("prompt_input:\n", prompt_input)
 
     request_data = json.dumps({
-        "history": prompt_input,
+        "prompt_input": prompt_input,
         "temperature": temperature,
         "max_gen_len": 256,
         "stop_text": DEFAULT_SEGMENT_TOKEN.strip(),

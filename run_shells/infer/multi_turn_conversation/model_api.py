@@ -49,8 +49,7 @@ def load_model(model_name, eight_bit=0, device_map="auto"):
 
 
 @torch.inference_mode()
-def generate_stream(model, tokenizer, params, device,
-                    context_len=2048, stream_interval=2):
+def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=2, device="cuda"):
     prompt = params["prompt"]
     l_prompt = len(prompt)
     temperature = float(params.get("temperature", 1.0))
@@ -120,7 +119,7 @@ def generate_stream(model, tokenizer, params, device,
 
 
 print("loading model ... ")
-model_dir = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs/checkpoint-4000'
+model_dir = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs/checkpoint-1000'
 load_model(model_dir)
 print('load model done!!!')
 print('-' * 100)
@@ -138,7 +137,7 @@ def bot(prompt_input, temperature=0.7, max_gen_len=256, stop_text=None):
     print("-" * 100)
 
     skip_echo_len = len(prompt_input.replace("</s>", " ")) + 1
-    stream = generate_stream(model, tokenizer, params, "cuda")
+    stream = generate_stream(model, tokenizer, params)
     generated_text = None
     for outputs in stream:
         generated_text = outputs[skip_echo_len:].strip()
@@ -157,47 +156,28 @@ def receive():
         params = orjson.loads(request.data)
     except orjson.JSONDecodeError:
         logger.error("Invalid json format in request data: [{}].".format(request.data))
-        res = {
-            "status": 400,
-            "error_msg": "Invalid json format in request data.",
-            "server_info": "",
-        }
-        return Response(orjson.dumps(res),
-                        mimetype="application/json;charset=UTF-8",
-                        status=200)
+        res = {"status": 400, "error_msg": "Invalid json format in request data.", "server_info": "", }
+        return Response(orjson.dumps(res), mimetype="application/json;charset=UTF-8", status=200)
 
-    if 'history' not in params or not isinstance(params['history'], str) \
+    if 'prompt_input' not in params or not isinstance(params['prompt_input'], str) \
             or 'temperature' not in params or not isinstance(params['temperature'], float) \
             or 'max_gen_len' not in params or not isinstance(params['max_gen_len'], int) \
             or 'stop_text' not in params or not isinstance(params['stop_text'], str):
         logger.error("Invalid json request.")
-        res = {
-            "status": 400,
-            "error_msg": "Invalid json request.",
-            "server_info": "",
-        }
-        return Response(orjson.dumps(res),
-                        mimetype="application/json;charset=UTF-8",
-                        status=200)
+        res = {"status": 400, "error_msg": "Invalid json request.", "server_info": "", }
+        return Response(orjson.dumps(res), mimetype="application/json;charset=UTF-8", status=200)
 
     print('[http/receive]requests:', params)
-    history = params.get('history', "")
+    prompt_input = params.get('prompt_input', "")
     temperature = params.get('temperature', 0)
     max_gen_len = params.get('max_gen_len', "")
     stop_text = params.get('stop_text', 0)
 
-    result = bot(history, temperature, max_gen_len, stop_text)
+    result = bot(prompt_input, temperature, max_gen_len, stop_text)
 
-    res = {
-        "status": 200,
-        "result": result,
-        "error_msg": "",
-        "server_info": "",
-    }
-    return Response(orjson.dumps(res),
-                    mimetype="application/json;charset=UTF-8",
-                    status=200)
+    res = {"status": 200, "result": result, "error_msg": "", "server_info": ""}
+    return Response(orjson.dumps(res), mimetype="application/json;charset=UTF-8", status=200)
 
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True)
