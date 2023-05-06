@@ -170,6 +170,7 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
     bot_name = conversation_dic['bot_name']
     header = get_dataset_prompt(dataset_name, human_name, bot_name, background=conversation_dic['background'])
     head_ids, header_ids_len = _tokenize_string(header, tokenizer)
+    bot_name_token_ids, bot_name_token_ids_len = _tokenize_string(bot_name + ": ", tokenizer)
 
     input_ids_tensor_list = [head_ids]
 
@@ -180,7 +181,7 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
         cur_question_string_token_ids, cur_question_string_token_ids_len = _tokenize_string(cur_question_string,
                                                                                             tokenizer)
         # answer
-        cur_answer_string = bot_name + ": " + cur_turn_qa["answer"]
+        cur_answer_string = cur_turn_qa["answer"]
         cur_answer_string_token_ids, cur_answer_string_token_ids_len = _tokenize_string(cur_answer_string, tokenizer)
 
         if header_ids_len + default_segment_token_ids_len + cur_question_string_token_ids_len + default_segment_token_ids_len + cur_answer_string_token_ids_len > token_max_len:
@@ -189,10 +190,11 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
         # question
         input_ids_tensor_list.append(default_segment_token_ids)
         input_ids_tensor_list.append(cur_question_string_token_ids)
-        header_ids_len += default_segment_token_ids_len + cur_question_string_token_ids_len
+        header_ids_len += default_segment_token_ids_len + cur_question_string_token_ids_len + bot_name_token_ids_len
         ignore_start_index = header_ids_len - 1
 
         # answer
+        input_ids_tensor_list.append(bot_name_token_ids)
         input_ids_tensor_list.append(default_segment_token_ids)
         input_ids_tensor_list.append(cur_answer_string_token_ids)
         header_ids_len += default_segment_token_ids_len
