@@ -4,8 +4,13 @@ import json
 import gradio as gr
 import random
 
-from two_bigo_gpt35 import *
-from llama_api_test import llama_respond
+pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+print("pdj:", pdj)
+sys.path.append(pdj)
+
+from web.multi_user_chats.two_bigo_gpt35 import *
+from web.multi_user_chats.llama_api_test import llama_respond
+from run_shells.infer.multi_turn_conversation.api_test import llama_respond as gpt4_sota_personal_chat_not_mask_respond
 
 # -----------------------------------------------------------------------------------
 # 跟two_persons_gpt35_llama.py的区别是：
@@ -42,12 +47,22 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     elif role_b_model_name == "llama":
         role_b_question = llama_respond(role_b_input_api_data,
                                         role_dict={"user": role_a_name, "assistant": role_b_name},
-                                        # role_dict_real={"user": role_a_name, "assistant": role_b_name},
                                         temperature=selected_temp)
+    elif role_b_model_name == "gpt4_sota_personal_chat_not_mask":
+        role_b_input_api_data = get_input_api_data(background=background_b,
+                                                   history=get_history(role_a_name, role_b_name, history))
+        print("-" * 100)
+        print("role_b_input_api_data:")
+        print(role_b_input_api_data)
+        print("-" * 100)
+        role_b_question = gpt4_sota_personal_chat_not_mask_respond(role_b_input_api_data,
+                                                                   role_dict={"user": role_a_name,
+                                                                              "assistant": role_b_name},
+                                                                   temperature=selected_temp)
+
+
     else:
         raise Exception("-----Error选择的模型不存在！！！！")
-
-    # print("---role_dic:", {"user": role_a_name, "assistant": role_b_name})
 
     print(f"{role_b_name}({role_b_model_name}): ", role_b_question)
     history[-1][-1] = f"{role_b_name}: " + role_b_question
@@ -57,15 +72,21 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     # -------------------
     role_a_input_api_data = get_input_api_data(background=get_background(background_a, role_a_name, role_b_name),
                                                history=get_history(role_a_name, role_b_name, history)[1:])
-    # print("----role_a_input_api_data:", role_a_input_api_data)
 
     if role_a_model_name == "gpt3.5":
         role_a_question = chat_with_chatgpt(role_a_input_api_data, selected_temp)
     elif role_a_model_name == "llama":
         role_a_question = llama_respond(role_a_input_api_data,
                                         role_dict={"user": role_b_name, "assistant": role_a_name},
-                                        # role_dict_real={"user": role_a_name, "assistant": role_b_name},
                                         temperature=selected_temp)
+    elif role_a_model_name == "gpt4_sota_personal_chat_not_mask":
+        role_a_input_api_data = get_input_api_data(background=background_a,
+                                                   history=get_history(role_a_name, role_b_name, history)[1:])
+        role_a_question = gpt4_sota_personal_chat_not_mask_respond(role_a_input_api_data,
+                                                                   role_dict={"user": role_b_name,
+                                                                              "assistant": role_a_name},
+                                                                   temperature=selected_temp)
+
     else:
         raise Exception("-----Error选择的模型不存在！！！！")
 
@@ -90,11 +111,11 @@ def clear_f(bot_name):
 # --------------------------------------------------------
 # 预先设定的角色
 # --------------------------------------------------------
-prepared_role_a_dic = json.load(open("prepared_background.json"))
+prepared_role_a_dic = json.load(open(f"{pdj}/web/multi_user_chats/prepared_background.json"))
 prepared_role_a_dic["None"] = {"role_name": "Human", "background": ""}
 prepared_role_a_dic[""] = {"role_name": "Human", "background": ""}
 role_a_list = list(prepared_role_a_dic.keys())
-prepared_role_b_dic = json.load(open("prepared_background.json"))
+prepared_role_b_dic = json.load(open(f"{pdj}/web/multi_user_chats/prepared_background.json"))
 prepared_role_b_dic["None"] = {"role_name": "Ai", "background": ""}
 prepared_role_b_dic[""] = {"role_name": "Ai", "background": ""}
 role_b_list = list(prepared_role_b_dic.keys())
@@ -121,7 +142,7 @@ def update_select_model(bot_name):
 # --------------------------------------------------------
 # 模型选择
 # --------------------------------------------------------
-models_list = ["gpt3.5", "llama"]
+models_list = ["gpt3.5", "llama", "gpt4_sota_personal_chat_not_mask"]
 
 # --------------------------------------------------------
 # 页面构建

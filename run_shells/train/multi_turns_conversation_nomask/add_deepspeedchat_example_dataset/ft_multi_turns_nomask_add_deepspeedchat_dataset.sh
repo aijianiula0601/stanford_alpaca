@@ -25,8 +25,7 @@ output_dir="${base_dir}/ft_out_nomask_add_deepspeedexample_dataset"
 data_json="${base_dir}/train.json"
 
 
-CUDA_VISIBLE_DEVICES=4,5,6,7 \
-torchrun --nproc_per_node=4 --master_port=${training_random_port} test_models/multi_turns_conversation_nomask/train_multi_round_old_withPrompt.py  \
+torchrun --nproc_per_node=8 --master_port=${training_random_port} test_models/multi_turns_conversation_nomask/train_multi_round_old_withPrompt.py  \
     --model_name_or_path "${org_model_dir}" \
     --data_path ${data_json}  \
     --output_dir ${output_dir} \

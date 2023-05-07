@@ -134,6 +134,10 @@ def llama_respond(message_list, role_dict, role_dict_real, temp):
                    "history": "###".join([item for item in history_list]) + "###" + role_dict['assistant'] + ":"}
     cur_history['history'] = '###' + cur_history['history']
     prompt_input = PROMPT_DICT["conversion"].format_map(cur_history)
+    print("-"*100)
+    print("prompt_input:")
+    print(prompt_input)
+    print("-"*100)
 
     params = {
         "prompt": prompt_input,
@@ -166,7 +170,8 @@ if __name__ == '__main__':
     # ]
 
     print("-" * 50 + "loading model" + "-" * 50)
-    model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs/checkpoint-1000"
+    # model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs/checkpoint-1000"
+    model_dir = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multi_turns_conversation_nomask/ft_out_nomask/checkpoint-1400'
     load_model(model_dir)
     print(f"load model:{model_dir}")
     print("-" * 100)
