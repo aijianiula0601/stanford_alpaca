@@ -15,7 +15,7 @@ def persona_chat_prompt(human_name, bot_name, background):
 
 
 def empathetic_dialogues_prompt(human_name, bot_name, background):
-    return f"Here is a conversation between {human_name} and {bot_name}.\\n"
+    return f"Here is a conversation between {human_name} and {bot_name}.\n"
 
 
 def stanford_52k_prompt(human_name, bot_name, background=""):

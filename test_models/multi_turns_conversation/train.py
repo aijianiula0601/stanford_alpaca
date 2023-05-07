@@ -274,7 +274,7 @@ def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer, dat
 
 
 def train():
-    setproctitle.setproctitle("stanford_alpaca")
+    setproctitle.setproctitle("stanford_alpaca_fix_mask_bug")
     parser = transformers.HfArgumentParser((ModelArguments, DataArguments, TrainingArguments))
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 
