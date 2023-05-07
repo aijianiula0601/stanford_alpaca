@@ -22,7 +22,7 @@ training_random_port=11326
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multi_turns_conversation_nomask/add_deepspeedchat_example_dataset"
 org_model_dir="${base_dir}/llama-7b/"
 output_dir="${base_dir}/ft_out_nomask_add_deepspeedexample_dataset"
-data_json="${base_dir}/multi_dataset_qas.json"
+data_json="${base_dir}/train.json"
 
 
 CUDA_VISIBLE_DEVICES=4,5,6,7 \
