@@ -314,7 +314,7 @@ def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer,
 
 
 def train():
-    setproctitle.setproctitle("multi_turns_nomask")
+    setproctitle.setproctitle("multi_turns_nomask_add_deepspeedexample_dataset")
     parser = transformers.HfArgumentParser(
         (ModelArguments, DataArguments, TrainingArguments))
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
