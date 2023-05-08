@@ -4,6 +4,7 @@ import sys
 import random
 from pandas import read_parquet
 import pyarrow.parquet as pq
+from tqdm import tqdm
 
 # ------------------------------------------------------------
 # 把deepspeedExample中的数据集处理为qa格式
@@ -122,12 +123,38 @@ save_f = f"{base_dir}/add_deepspeedchat_example_dataset/train.json"
 deepspeedchat_example_dataset_data = rm_static_train_data + full_hh_rlhf_train_data + synthetic_instruct_gptj_pairwise_data + rlhf_reward_datasets_data
 
 org_multi_turns_f = f"{base_dir}/multi_dataset_qas.json"
-
 org_multi_turns_data = json.load(open(org_multi_turns_f))
-
 all_data = deepspeedchat_example_dataset_data + org_multi_turns_data
 random.shuffle(all_data)
 
-print(f"examples:{len(all_data)}")
-json.dump(all_data, fp=open(save_f, 'w'))
+# ============================================================
+# 检查是否有value为空
+# ============================================================
+print("checking...")
+skip_qas_n = 0
+all_qas_n = 0
+checked_data = []
+for qas in tqdm(all_data):
+    all_qas_n += 1
+    flag = False
+    for item in qas:
+        if item["value"].replace("\n", "").strip() == "":
+            skip_qas_n += 1
+            flag = True
+            break
+    if flag:
+        continue
+    checked_data.append(qas)
+
+print(f"check done! all examples:{all_qas_n},skip examples:{skip_qas_n}")
+
+
+print(f"examples:{len(checked_data)}")
+json.dump(checked_data, fp=open(save_f, 'w'))
 print(f"save to:{save_f}")
+
+print("rechecking ...")
+for qas in tqdm(json.load(open(save_f))):
+    for item in qas:
+        assert item["value"].replace("\n", "").strip() != "", f"Error qas:\n{json.dumps(qas)}"
+print("done!")
