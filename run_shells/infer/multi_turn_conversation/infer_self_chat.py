@@ -53,7 +53,7 @@ def load_model(model_name, eight_bit=0, device_map="auto"):
 # model_dir = "/mnt/cephfs/liujunshi_data/Projects/bigo_stanford_alpaca/finetune_out_gpt4_share_sex_soda_cot_multi/checkpoint-4000/"
 
 # model_dir = "/mnt/cephfs/liujunshi_data/Projects/bigo_stanford_alpaca/finetune_out_gpt4_share_sex_soda_cot_multi/checkpoint-4000/"
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs/checkpoint-1400"
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/tmp/finetune_out_gpt4_share_sex_soda_cot_multi/checkpoint-4000"
 load_model(model_dir)
 print('model type', type(model))
 
@@ -145,7 +145,6 @@ def llama_respond(message_list, role_dict, role_dict_real, temp):
     后面需要在role_dict里要做好配置，我最后会回复role_dict['assistant']角色的答案;
     role_dict_real用于映射history里的内容'''
     background = message_list[0]["content"]
-    # history_list = [char["role"]+ ": " + char["content"] for char in message_list[1:]]
     history_list = [role_dict_real[char["role"]] + ": " + char["content"] for char in message_list[1:]]
 
     cur_history = {"background": background,
@@ -154,18 +153,6 @@ def llama_respond(message_list, role_dict, role_dict_real, temp):
                    "history": "###".join([item for item in history_list]) + "###" + role_dict['assistant'] + ":"}
     cur_history['history'] = '###' + cur_history['history']
     prompt_input = PROMPT_DICT["conversion"].format_map(cur_history)
-    # print('='*80)
-    # print(prompt_input)
-    # print('='*80)
-
-    # request_data = json.dumps({
-    #     "history": prompt_input,
-    #     "temperature": 0.6,
-    #     "max_gen_len": 256,
-    #     "background": "",
-    #     "role_a": role_dict['user']+": ",
-    #     "role_b": role_dict['assistant'],
-    # })
 
     params = {
         "prompt": prompt_input,
@@ -183,11 +170,6 @@ def llama_respond(message_list, role_dict, role_dict_real, temp):
 
     generated_text = " ".join(generated_text)
 
-    # response = requests.post("http://202.168.100.182:807/api/llama", data=request_data)
-    # json_data = json.loads(response.text)
-    # text_respond = json_data["result"]
-    # print("REAL Respond", text_respond)
-    # text_respond = text_respond.strip().split(role_dict['user']+": ")[0]
     return generated_text.strip()
 
 
@@ -222,23 +204,16 @@ if __name__ == '__main__':
                 "user": "Alice",
                 "assistant": "Kervin"
             }
-            # , "如果作为机器人一定要给到human input"
             assert (len(message_list) % 2 == 0)
         else:
             role_dict = {
                 "assistant": "Alice",
                 "user": "Kervin"
             }
-            # , "如果作为human一定要给到assistant input"
             assert (len(message_list) % 2 == 1)
         temp = 0  # (random.random()-0.5)/10
         text_respond = llama_respond(message_list, role_dict, role_dict_real, temp)
-        # text_respond = text_respond.split('\n')[0]
         print(ind, text_respond.strip())
-        # if ACTOR_ASSISTANT:
-        #     print(ind, role_dict['assistant'], text_respond.strip())
-        # else:
-        #     print(ind, role_dict['user'], text_respond.strip())
 
         if text_respond == "":
             text_respond = "sound great!"

@@ -16,41 +16,57 @@ PROMPT_DICT = {
         "the background is {background}The following is a Conversation between {role_a} and {role_b} using English Language. Conversation and background are highly correlated. Current conversation."
         "{history}"
     ),
+    "conversion_v1": (
+        "Here is a conversation between {role_a} and {role_b} with English Language. Answer the questions of {role_a} based on the background.\n"
+        "background:{background}\n"
+        "\n### {role_a}: <question>"
+        "\n### {role_b}: <answer>"
+        "{history}"
+    ),
 }
 
 DEFAULT_SEGMENT_TOKEN = "### "
 
 
-def llama_respond(message_list, role_dict, temperature=0.6):
-    """
-    message-list第一个数值是背景，
+def gpt4_sota_personal_chat_not_mask_respond(message_list, role_dict, temperature=0.6):
+    '''message-list第一个数值是背景，
     后面需要在role_dict里要做好配置，我最后会回复role_dict['assistant']角色的答案;
-    role_dict_real用于映射history里的内容
-    """
+    role_dict_real用于映射history里的内容'''
+    CONTEXT_PROMPT_DICT = {
+        "conversion": (
+            # "The following is a chat message between {role_a} and {role_b}. Question and answer, forbid the output of multiple rounds. {background}\n\n"
+            "the background is {background}The following is a Conversation between {role_a} and {role_b} using English Language. Conversation and background are highly correlated. Current conversation."
+            "{history}"
+        ),
+        "summarize": ("How would you summarize {role_a}'s core characteristics given the"
+                      + " following statements:\n"
+                      + "{role_a_background}"
+                      + "as accurately as possible."
+                      # + "Do not embellish."
+                      + "\n\nSummary: ")
+    }
     background = message_list[0]["content"]
-    history_list = [DEFAULT_SEGMENT_TOKEN + role_dict[char["role"]] + ": " + char["content"] for char in
-                    message_list[1:]]
+    history_list = [role_dict[char["role"]] + ": " + char["content"] for char in message_list[1:]]
 
-    map_dic = {"background": background, "role_a": role_dict['user'], "role_b": role_dict['assistant'],
-               "history": " ".join(
-                   [item for item in history_list]) + DEFAULT_SEGMENT_TOKEN + role_dict['assistant'] + ": "}
+    cur_history = {"background": background,
+                   "role_a": role_dict['user'],
+                   "role_b": role_dict['assistant'],
+                   "history": "###".join([item for item in history_list]) + "###" + role_dict['assistant'] + ":"}
+    cur_history['history'] = '###' + cur_history['history']
+    prompt_input = CONTEXT_PROMPT_DICT["conversion"].format_map(cur_history)
 
-    prompt_input = PROMPT_DICT["conversion"].format_map(map_dic)
-    print("prompt_input:\n\n", prompt_input)
-    print("-" * 100)
-
+    print("Prompt\n", prompt_input)
     request_data = json.dumps({
         "prompt_input": prompt_input,
         "temperature": temperature,
         "max_gen_len": 256,
-        "stop_text": DEFAULT_SEGMENT_TOKEN.strip(),
+        "stop_text": "###"
     })
-
-    # response = requests.post("http://202.168.100.178:5000/api", data=request_data)
+    # response = requests.post("http://202.168.100.181:825/api/llama", data=request_data)
     response = requests.post("http://127.0.0.1:5000/api", data=request_data)
+
     json_data = json.loads(response.text)
     text_respond = json_data["result"]
-    text_respond = text_respond.strip().split(DEFAULT_SEGMENT_TOKEN + role_dict['user'] + ": ")[0]
     return text_respond.strip()
 
 
@@ -76,6 +92,6 @@ if __name__ == '__main__':
 
     role_dict = {'user': 'Emily', 'assistant': 'Audrey'}
 
-    rs = llama_respond(message_list_org, role_dict)
+    rs = gpt4_sota_personal_chat_not_mask_respond(message_list_org, role_dict)
 
     print(rs)

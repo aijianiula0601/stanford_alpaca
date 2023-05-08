@@ -10,7 +10,7 @@ sys.path.append(pdj)
 
 from web.multi_user_chats.two_bigo_gpt35 import *
 from web.multi_user_chats.llama_api_test import llama_respond
-from run_shells.infer.multi_turn_conversation.api_test import llama_respond as gpt4_sota_personal_chat_not_mask_respond
+from run_shells.infer.multi_turn_conversation.api_test import gpt4_sota_personal_chat_not_mask_respond
 
 # -----------------------------------------------------------------------------------
 # 跟two_persons_gpt35_llama.py的区别是：
@@ -51,10 +51,13 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     elif role_b_model_name == "gpt4_sota_personal_chat_not_mask":
         role_b_input_api_data = get_input_api_data(background=background_b,
                                                    history=get_history(role_a_name, role_b_name, history))
-        print("-" * 100)
+        print("=" * 100)
+        print("message_list:")
+        print(get_history(role_a_name, role_b_name, history))
+        print('-' * 50)
         print("role_b_input_api_data:")
         print(role_b_input_api_data)
-        print("-" * 100)
+        print("=" * 100)
         role_b_question = gpt4_sota_personal_chat_not_mask_respond(role_b_input_api_data,
                                                                    role_dict={"user": role_a_name,
                                                                               "assistant": role_b_name},
@@ -196,5 +199,5 @@ with gr.Blocks() as demo:
     clear.click(clear_f, [bot_name], [gr_chatbot, role_a_question])
 
 demo.queue()
-demo.launch(server_name="0.0.0.0", server_port=8991)
+demo.launch(server_name="0.0.0.0", server_port=8991, debug=True)
 # demo.launch(server_name="202.168.100.165", server_port=8991)
