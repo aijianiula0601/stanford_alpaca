@@ -48,7 +48,7 @@ def gpt4_sota_personal_chat_not_mask_respond(message_list, role_dict, temperatur
                    "role_b": role_dict['assistant'],
                    "history": "###".join([item for item in history_list]) + "###" + role_dict['assistant'] + ":"}
     cur_history['history'] = '###' + cur_history['history']
-    prompt_input = PROMPT_DICT["conversion_v1"].format_map(cur_history)
+    prompt_input = PROMPT_DICT["conversion"].format_map(cur_history)
 
     print("Prompt\n", prompt_input)
     request_data = json.dumps({
