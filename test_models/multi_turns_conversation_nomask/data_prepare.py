@@ -1,6 +1,7 @@
 import os
 import json
 import random
+from tqdm import tqdm
 
 FROM_KEY = "from"
 VALUE_KEY = "value"
@@ -40,11 +41,44 @@ os.system(f"mkdir -p {save_base_dir}")
 save_f = f"{save_base_dir}/multi_dataset_qas.json"
 debug_save_f = f"{save_base_dir}/debug_multi_dataset_qas.json"
 
-data = all_json_data_list + empathetic_dialogues_data_list
-random.shuffle(data)
+merged_data = all_json_data_list + empathetic_dialogues_data_list
+random.shuffle(merged_data)
 
-json.dump(data, fp=open(save_f, 'w'))
+# ============================================================
+# 检查是否有value为空
+# ============================================================
+
+print("checking...")
+skip_qas_n = 0
+all_qas_n = 0
+checked_data = []
+for qas in tqdm(merged_data):
+    all_qas_n += 1
+    flag = False
+    for item in qas:
+        if item["value"].replace("\n", "").strip() == "":
+            skip_qas_n += 1
+            flag = True
+            break
+    if flag:
+        continue
+    checked_data.append(qas)
+
+print(f"check done! all examples:{all_qas_n},skip examples:{skip_qas_n}")
+
+# ============================================================
+# 写入文件
+# ============================================================
+
+print("saving to file...")
+json.dump(checked_data, fp=open(save_f, 'w'))
 print(f"save to:{save_f}")
 
-json.dump(data[:100], fp=open(debug_save_f, 'w'))
+json.dump(checked_data[:100], fp=open(debug_save_f, 'w'))
 print(f"save to:{debug_save_f}")
+
+print("rechecking ...")
+for qas in tqdm(json.load(open(save_f))):
+    for item in qas:
+        assert item["value"].replace("\n", "").strip() != "", f"Error qas:\n{json.dumps(qas)}"
+print("done!")
