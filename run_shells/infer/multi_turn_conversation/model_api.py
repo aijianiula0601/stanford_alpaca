@@ -166,7 +166,7 @@ def receive():
         res = {"status": 400, "error_msg": "Invalid json request.", "server_info": "", }
         return Response(orjson.dumps(res), mimetype="application/json;charset=UTF-8", status=200)
 
-    print('[http/receive]requests:', params)
+    # print('[http/receive]requests:', params)
     prompt_input = params.get('prompt_input', "")
     temperature = params.get('temperature', 0)
     max_gen_len = params.get('max_gen_len', "")

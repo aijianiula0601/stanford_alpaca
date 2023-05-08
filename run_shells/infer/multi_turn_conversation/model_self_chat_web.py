@@ -22,6 +22,11 @@ ROLE_A_NAME = "Human"
 ROLE_B_NAME = "Ai"
 ROLE_A_START_QUESTION = "hi"
 
+# --------------------------------------------------------
+# 模型选择
+# --------------------------------------------------------
+models_list = ["gpt3.5", "llama", "mask_instruct"]
+
 
 def get_history(role_a_name, role_b_name, history=[]):
     rh = []
@@ -42,13 +47,13 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     role_b_input_api_data = get_input_api_data(background=get_background(background_b, role_b_name, role_a_name),
                                                history=get_history(role_a_name, role_b_name, history))
     # print("----role_b_input_api_data:", role_b_input_api_data)
-    if role_b_model_name == "gpt3.5":
+    if role_b_model_name == models_list[0]:
         role_b_question = chat_with_chatgpt(role_b_input_api_data, selected_temp)
-    elif role_b_model_name == "llama":
+    elif role_b_model_name == models_list[1]:
         role_b_question = llama_respond(role_b_input_api_data,
                                         role_dict={"user": role_a_name, "assistant": role_b_name},
                                         temperature=selected_temp)
-    elif role_b_model_name == "gpt4_sota_personal_chat_not_mask":
+    elif role_b_model_name == models_list[2]:
         role_b_input_api_data = get_input_api_data(background=background_b,
                                                    history=get_history(role_a_name, role_b_name, history))
         print("=" * 100)
@@ -76,13 +81,13 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     role_a_input_api_data = get_input_api_data(background=get_background(background_a, role_a_name, role_b_name),
                                                history=get_history(role_a_name, role_b_name, history)[1:])
 
-    if role_a_model_name == "gpt3.5":
+    if role_a_model_name == models_list[0]:
         role_a_question = chat_with_chatgpt(role_a_input_api_data, selected_temp)
-    elif role_a_model_name == "llama":
+    elif role_a_model_name == models_list[1]:
         role_a_question = llama_respond(role_a_input_api_data,
                                         role_dict={"user": role_b_name, "assistant": role_a_name},
                                         temperature=selected_temp)
-    elif role_a_model_name == "gpt4_sota_personal_chat_not_mask":
+    elif role_a_model_name == models_list[2]:
         role_a_input_api_data = get_input_api_data(background=background_a,
                                                    history=get_history(role_a_name, role_b_name, history)[1:])
         role_a_question = gpt4_sota_personal_chat_not_mask_respond(role_a_input_api_data,
@@ -141,11 +146,6 @@ def update_select_role_b(role_key, bot_name):
 def update_select_model(bot_name):
     return None, ROLE_A_START_QUESTION + ", " + bot_name + "!"
 
-
-# --------------------------------------------------------
-# 模型选择
-# --------------------------------------------------------
-models_list = ["gpt3.5", "llama", "gpt4_sota_personal_chat_not_mask"]
 
 # --------------------------------------------------------
 # 页面构建
