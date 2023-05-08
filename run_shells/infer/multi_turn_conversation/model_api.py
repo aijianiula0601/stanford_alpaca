@@ -133,7 +133,7 @@ def bot(prompt_input, temperature=0.7, max_gen_len=256, stop_text=None):
         "stop": stop_text,
     }
     print(prompt_input)
-    print("-" * 100)
+    print("-" * 200)
 
     skip_echo_len = len(prompt_input.replace("</s>", " ")) + 1
     stream = generate_stream(model, tokenizer, params)
@@ -144,7 +144,7 @@ def bot(prompt_input, temperature=0.7, max_gen_len=256, stop_text=None):
     generated_text = " ".join(generated_text)
     print("-" * 50 + "model generate text" + '-' * 50)
     print(generated_text)
-    print("-" * 100)
+    print("-" * 200)
 
     return generated_text.strip()
 

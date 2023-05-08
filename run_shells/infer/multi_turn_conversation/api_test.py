@@ -37,7 +37,7 @@ PROMPT_DICT = {
 DEFAULT_SEGMENT_TOKEN = "### "
 
 
-def gpt4_sota_personal_chat_not_mask_respond(message_list, role_dict, temperature=0.6):
+def mask_instruct(message_list, role_dict, temperature=0.6):
     '''message-list第一个数值是背景，
     后面需要在role_dict里要做好配置，我最后会回复role_dict['assistant']角色的答案;
     role_dict_real用于映射history里的内容'''
@@ -50,7 +50,7 @@ def gpt4_sota_personal_chat_not_mask_respond(message_list, role_dict, temperatur
     cur_history['history'] = '###' + cur_history['history']
     prompt_input = PROMPT_DICT["conversion"].format_map(cur_history)
 
-    print("Prompt\n", prompt_input)
+    print("Prompt:\n", prompt_input)
     request_data = json.dumps({
         "prompt_input": prompt_input,
         "temperature": temperature,
@@ -87,6 +87,6 @@ if __name__ == '__main__':
 
     role_dict = {'user': 'Emily', 'assistant': 'Audrey'}
 
-    rs = gpt4_sota_personal_chat_not_mask_respond(message_list_org, role_dict)
+    rs = mask_instruct(message_list_org, role_dict)
 
     print(rs)

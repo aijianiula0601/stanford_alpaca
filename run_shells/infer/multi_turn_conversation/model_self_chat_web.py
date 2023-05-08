@@ -10,7 +10,7 @@ sys.path.append(pdj)
 
 from web.multi_user_chats.two_bigo_gpt35 import *
 from web.multi_user_chats.llama_api_test import llama_respond
-from run_shells.infer.multi_turn_conversation.api_test import gpt4_sota_personal_chat_not_mask_respond
+from run_shells.infer.multi_turn_conversation.api_test import mask_instruct
 
 # -----------------------------------------------------------------------------------
 # 跟two_persons_gpt35_llama.py的区别是：
@@ -63,10 +63,10 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
         print("role_b_input_api_data:")
         print(role_b_input_api_data)
         print("=" * 100)
-        role_b_question = gpt4_sota_personal_chat_not_mask_respond(role_b_input_api_data,
-                                                                   role_dict={"user": role_a_name,
+        role_b_question = mask_instruct(role_b_input_api_data,
+                                        role_dict={"user": role_a_name,
                                                                               "assistant": role_b_name},
-                                                                   temperature=selected_temp)
+                                        temperature=selected_temp)
 
 
     else:
@@ -90,10 +90,10 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     elif role_a_model_name == models_list[2]:
         role_a_input_api_data = get_input_api_data(background=background_a,
                                                    history=get_history(role_a_name, role_b_name, history)[1:])
-        role_a_question = gpt4_sota_personal_chat_not_mask_respond(role_a_input_api_data,
-                                                                   role_dict={"user": role_b_name,
+        role_a_question = mask_instruct(role_a_input_api_data,
+                                        role_dict={"user": role_b_name,
                                                                               "assistant": role_a_name},
-                                                                   temperature=selected_temp)
+                                        temperature=selected_temp)
 
     else:
         raise Exception("-----Error选择的模型不存在！！！！")
