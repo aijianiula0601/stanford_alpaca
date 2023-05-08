@@ -21,7 +21,7 @@ training_random_port=11226
 
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multi_turns_conversation_nomask"
 org_model_dir="${base_dir}/llama-7b/"
-output_dir="${base_dir}/ft_out_nomask"
+output_dir="${base_dir}/ft_out_nomask_fix_empty_value_bug"
 data_json="${base_dir}/multi_dataset_qas.json"
 
 torchrun --nproc_per_node=8 --master_port=${training_random_port} test_models/multi_turns_conversation_nomask/train_multi_round_old_withPrompt.py  \
@@ -45,5 +45,4 @@ torchrun --nproc_per_node=8 --master_port=${training_random_port} test_models/mu
     --deepspeed run_shells/train/deepspeed_config.json \
     --fp16 True \
     --model_max_length 2048 \
-    --gradient_checkpointing True \
-    --lazy_preprocess True 
+    --gradient_checkpointing True
