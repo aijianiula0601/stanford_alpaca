@@ -36,7 +36,7 @@ DEFAULT_PAD_TOKEN = "[PAD]"
 DEFAULT_EOS_TOKEN = "</s>"
 DEFAULT_BOS_TOKEN = "</s>"
 DEFAULT_UNK_TOKEN = "</s>"
-DEFAULT_SEGMENT_TOKEN = "\n\n###"
+DEFAULT_SEGMENT_TOKEN = "###"
 
 PROMPT_DICT = {
     "prompt_input": (
