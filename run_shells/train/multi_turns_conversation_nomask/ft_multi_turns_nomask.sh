@@ -24,12 +24,12 @@ org_model_dir="${base_dir}/llama-7b/"
 output_dir="${base_dir}/ft_out_nomask_fix_empty_value_bug"
 data_json="${base_dir}/multi_dataset_qas.json"
 
-torchrun --nproc_per_node=8 --master_port=${training_random_port} test_models/multi_turns_conversation_nomask/train_multi_round_old_withPrompt.py  \
+torchrun --nproc_per_node=4 --master_port=${training_random_port} test_models/multi_turns_conversation_nomask/train_multi_round_old_withPrompt.py  \
     --model_name_or_path "${org_model_dir}" \
     --data_path ${data_json}  \
     --output_dir ${output_dir} \
     --num_train_epochs 3 \
-    --per_device_train_batch_size 6 \
+    --per_device_train_batch_size 8 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 4 \
     --evaluation_strategy "no" \
