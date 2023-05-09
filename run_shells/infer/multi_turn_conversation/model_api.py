@@ -51,10 +51,12 @@ def load_model(model_name, eight_bit=0, device_map="auto"):
 @torch.inference_mode()
 def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=2, device="cuda"):
     prompt = params["prompt"]
-    l_prompt = len(prompt)
+    prompt_len = len(prompt)
     temperature = float(params.get("temperature", 1.0))
     max_new_tokens = int(params.get("max_new_tokens", 256))
-    stop_str = params.get("stop", None)
+    stop_words_list = params.get("stop_words_list", [])
+    stop_words_list.append("\n")
+    stop_words_list.append("</s>")
 
     input_ids = tokenizer(prompt).input_ids
     output_ids = list(input_ids)
@@ -95,14 +97,12 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
 
         if i % stream_interval == 0 or i == max_new_tokens - 1 or stopped:
             output = tokenizer.decode(output_ids, skip_special_tokens=True)
-            pos = output.rfind(stop_str, l_prompt)
-            pos1 = output.rfind('\n', l_prompt)
-            if pos != -1:
-                output = output[:pos]
-                stopped = True
-            if pos1 != -1:
-                output = output[:pos1]
-                stopped = True
+            for stop_str in stop_words_list:
+                pos = output.lower().rfind(stop_str.lower(), prompt_len)
+                if pos != -1:
+                    output = output[:pos]
+                    stopped = True
+                    break
             yield output
 
         if stopped:
@@ -117,20 +117,21 @@ print("loading model ... ")
 # model_dir = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multi_turns_conversation_nomask/ft_out_nomask/checkpoint-1600'
 # model_dir='/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs_mask_instruct/checkpoint-1400'
 # model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/tmp/finetune_out_gpt4_share_sex_soda_cot_multi/checkpoint-4000/"
-# model_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs_mask_instruct/checkpoint-1400"
-model_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs_mask_instruct/checkpoint-1500"
+# model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs_mask_instruct/checkpoint-1400"
+# model_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs_mask_instruct/checkpoint-1500"
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs_mask_instruct/checkpoint-1200"
 load_model(model_dir)
 print('load model done!!!')
 print('-' * 100)
 
 
-def bot(prompt_input, temperature=0.7, max_gen_len=256, stop_text=None):
-    assert stop_text is not None, "stop text is None!!!"
+def bot(prompt_input, temperature=0.7, max_gen_len=256, stop_words_list=None):
+    assert stop_words_list is not None, "stop text is None!!!"
     params = {
         "prompt": prompt_input,
         "temperature": temperature,
         "max_new_tokens": max_gen_len,
-        "stop": stop_text,
+        "stop_words_list": stop_words_list,
     }
     print(prompt_input)
     print("-" * 200)
@@ -161,7 +162,7 @@ def receive():
     if 'prompt_input' not in params or not isinstance(params['prompt_input'], str) \
             or 'temperature' not in params or not isinstance(params['temperature'], float) \
             or 'max_gen_len' not in params or not isinstance(params['max_gen_len'], int) \
-            or 'stop_text' not in params or not isinstance(params['stop_text'], str):
+            or 'stop_words_list' not in params or not isinstance(params['stop_words_list'], list):
         logger.error("Invalid json request.")
         res = {"status": 400, "error_msg": "Invalid json request.", "server_info": "", }
         return Response(orjson.dumps(res), mimetype="application/json;charset=UTF-8", status=200)
@@ -170,9 +171,9 @@ def receive():
     prompt_input = params.get('prompt_input', "")
     temperature = params.get('temperature', 0)
     max_gen_len = params.get('max_gen_len', "")
-    stop_text = params.get('stop_text', 0)
+    stop_words_list = params.get('stop_words_list', [])
 
-    result = bot(prompt_input, temperature, max_gen_len, stop_text)
+    result = bot(prompt_input, temperature, max_gen_len, stop_words_list)
 
     res = {"status": 200, "result": result, "error_msg": "", "server_info": ""}
     return Response(orjson.dumps(res), mimetype="application/json;charset=UTF-8", status=200)

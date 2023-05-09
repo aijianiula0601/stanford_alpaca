@@ -33,7 +33,7 @@ PROMPT_DICT = {
     ),
     "conversion_v4": (
         "Background:{background} "
-        "The following is a conversation with {role_b}. {role_b} should speak in a tone consistent with the identity introduced in the background."
+        "The following is a conversation with {role_b}. {role_b} should speak in a tone consistent with the identity introduced in the background. Give the state of the action and expressions appropriately"
         "{history}"
     )
 }
@@ -59,13 +59,13 @@ def mask_instruct(message_list, role_dict, temperature=0.6):
         "prompt_input": prompt_input,
         "temperature": temperature,
         "max_gen_len": 256,
-        "stop_text": DEFAULT_SEGMENT_TOKEN.strip()
+        "stop_words_list": [DEFAULT_SEGMENT_TOKEN.strip(), role_dict['user'] + ":"]
     })
     response = requests.post("http://127.0.0.1:5000/api", data=request_data)
 
     json_data = json.loads(response.text)
     text_respond = json_data["result"]
-    return text_respond.strip()
+    return text_respond.replace("#", "").strip()
 
 
 if __name__ == '__main__':
