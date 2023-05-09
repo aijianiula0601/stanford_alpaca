@@ -31,6 +31,11 @@ PROMPT_DICT = {
         "\n### {role_b}: <answer>"
         "{history}"
     ),
+    "conversion_v4": (
+        "Background:{background} "
+        "The following is a conversation with {role_b}. {role_b} should speak in a tone consistent with the identity introduced in the background."
+        "{history}"
+    )
 }
 
 DEFAULT_SEGMENT_TOKEN = "###"
@@ -48,7 +53,7 @@ def mask_instruct(message_list, role_dict, temperature=0.6):
                    "role_b": role_dict['assistant'],
                    "history": DEFAULT_SEGMENT_TOKEN + DEFAULT_SEGMENT_TOKEN.join(
                        [item for item in history_list]) + DEFAULT_SEGMENT_TOKEN + role_dict['assistant'] + ":"}
-    prompt_input = PROMPT_DICT["conversion"].format_map(message_dic)
+    prompt_input = PROMPT_DICT["conversion_v4"].format_map(message_dic)
 
     request_data = json.dumps({
         "prompt_input": prompt_input,
