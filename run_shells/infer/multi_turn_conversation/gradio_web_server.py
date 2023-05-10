@@ -10,7 +10,7 @@ sys.path.append(pdj)
 
 from web.multi_user_chats.two_bigo_gpt35 import *
 from web.multi_user_chats.llama_api_test import llama_respond
-from run_shells.infer.multi_turn_conversation.api_test import mask_instruct
+from run_shells.infer.multi_turn_conversation.flask_sever_test import mask_instruct
 
 # -----------------------------------------------------------------------------------
 # 跟two_persons_gpt35_llama.py的区别是：
@@ -65,7 +65,7 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
         print("=" * 100)
         role_b_question = mask_instruct(role_b_input_api_data,
                                         role_dict={"user": role_a_name,
-                                                                              "assistant": role_b_name},
+                                                   "assistant": role_b_name},
                                         temperature=selected_temp)
 
 
@@ -92,7 +92,7 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
                                                    history=get_history(role_a_name, role_b_name, history)[1:])
         role_a_question = mask_instruct(role_a_input_api_data,
                                         role_dict={"user": role_b_name,
-                                                                              "assistant": role_a_name},
+                                                   "assistant": role_a_name},
                                         temperature=selected_temp)
 
     else:
