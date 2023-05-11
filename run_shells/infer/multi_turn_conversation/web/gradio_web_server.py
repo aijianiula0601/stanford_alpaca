@@ -2,15 +2,14 @@ import os
 import sys
 import json
 import gradio as gr
-import random
 
-pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 print("pdj:", pdj)
 sys.path.append(pdj)
 
 from web.multi_user_chats.two_bigo_gpt35 import *
 from web.multi_user_chats.llama_api_test import llama_respond
-from run_shells.infer.multi_turn_conversation.flask_sever_test import mask_instruct
+from run_shells.infer.multi_turn_conversation.web.flask_sever_test import mask_instruct
 
 # -----------------------------------------------------------------------------------
 # 跟two_persons_gpt35_llama.py的区别是：
@@ -159,9 +158,9 @@ with gr.Blocks() as demo:
             selected_temp = gr.Slider(0, 1, value=0.9, label="Temperature超参,调的越小越容易输出常见字",
                                       interactive=True)
             with gr.Row():
-                select_role_a_model = gr.Dropdown(choices=models_list, value=models_list[0], label="选择角色A的模型",
+                select_role_a_model = gr.Dropdown(choices=models_list, value=models_list[2], label="选择角色A的模型",
                                                   interactive=True)
-                select_role_b_model = gr.Dropdown(choices=models_list, value=models_list[0], label="选择角色B的模型",
+                select_role_b_model = gr.Dropdown(choices=models_list, value=models_list[2], label="选择角色B的模型",
                                                   interactive=True)
             with gr.Row():
                 select_role_a = gr.Dropdown(choices=role_a_list, value="None", label="请选择一个角色A",

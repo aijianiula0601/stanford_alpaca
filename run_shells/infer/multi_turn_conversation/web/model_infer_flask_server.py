@@ -12,7 +12,7 @@ logging.getLogger().setLevel(logging.WARNING)
 import os
 import sys
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "7"
 import torch
 
 pdj = "/mnt/cephfs/zhuchengqi/git/LLM/bigo_stanford_alpaca/eval/transformers_jh/src"
@@ -180,4 +180,4 @@ def receive():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=False, port=7000)

@@ -3,7 +3,7 @@ import json
 import os
 import sys
 
-pdj = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(pdj)
 
 PROMPT_DICT = {
@@ -61,7 +61,7 @@ def mask_instruct(message_list, role_dict, temperature=0.6):
         "max_gen_len": 256,
         "stop_words_list": [DEFAULT_SEGMENT_TOKEN.strip(), role_dict['user'] + ":"]
     })
-    response = requests.post("http://127.0.0.1:5000/api", data=request_data)
+    response = requests.post("http://127.0.0.1:7000/api", data=request_data)
 
     json_data = json.loads(response.text)
     text_respond = json_data["result"]
