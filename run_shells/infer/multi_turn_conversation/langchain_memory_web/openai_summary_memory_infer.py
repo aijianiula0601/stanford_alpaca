@@ -64,15 +64,19 @@ if __name__ == '__main__':
     Summary of conversation:
     {history}
     Current conversation:
-    Emily: {input}
-    Audrey:"""
+    {human_name}: {input}
+    {bot_name}:""".format_map(
+        {'history': '{history}',
+         'input': '{input}',
+         'human_name': role_dict['user'],
+         'bot_name': role_dict['assistant']})
     PROMPT = PromptTemplate(input_variables=["history", "input"], template=template)
 
     llm = LLamaLLM(role_dict=role_dict)
 
     # summary_memory = ConversationSummaryMemory(llm=OpenAI(), input_key="input", human_prefix="Emily", ai_prefix="Audrey")
     summary_memory = ConversationSummaryBufferMemory(llm=OpenAI(), max_token_limit=40, input_key="input",
-                                                     human_prefix="Emily", ai_prefix="Audrey")
+                                                     human_prefix=role_dict['user'], ai_prefix=role_dict['assistant'])
 
     conversation = ConversationChain(
         llm=llm,
