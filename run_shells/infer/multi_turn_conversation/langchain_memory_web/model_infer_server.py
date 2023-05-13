@@ -1,3 +1,5 @@
+from abc import ABC
+
 import requests
 import json
 import os
@@ -6,8 +8,11 @@ from typing import Any, List, Mapping, Optional
 
 from langchain.callbacks.manager import CallbackManagerForLLMRun
 from langchain.llms.base import LLM
+from langchain.chains import ConversationChain
+from langchain.memory import ConversationBufferMemory
+from langchain.prompts.prompt import PromptTemplate
 
-pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 sys.path.append(pdj)
 
 PROMPT_DICT = {
@@ -37,8 +42,12 @@ PROMPT_DICT = {
     ),
     "conversion_v4": (
         "Background:{background} "
-        "The following is a conversation with {role_b}. {role_b} should speak in a tone consistent with the identity introduced in the background. Give the state of the action and expressions appropriately"
+        "The following is a conversation with {role_b}. {role_b} should speak in a tone consistent with the identity introduced in the background. Give the state of the action and expressions appropriately."
         "{history}"
+    ),
+    "conversion_langchain": (
+        "Background:{background} "
+        "The following is a conversation with {role_b}. {role_b} should speak in a tone consistent with the identity introduced in the background. Give the state of the action and expressions appropriately."
     )
 }
 
@@ -62,19 +71,14 @@ def make_prompt(message_list, role_dict, temperature=0.6):
     return prompt_input
 
 
-class LLamaLLM(LLM):
-    n: int
+class LLamaLLM(LLM, ABC):
+    role_dict: dict
 
     @property
     def _llm_type(self) -> str:
-        return "custom"
+        return "LLamaLLM"
 
-    def _call(
-            self,
-            prompt: str,
-            stop: Optional[List[str]] = None,
-            run_manager: Optional[CallbackManagerForLLMRun] = None,
-    ) -> str:
+    def _call(self, prompt: str, stop: Optional[List[str]] = None) -> str:
         if stop is not None:
             raise ValueError("stop kwargs are not permitted.")
 
@@ -82,44 +86,38 @@ class LLamaLLM(LLM):
             "prompt_input": prompt,
             "temperature": 0.9,
             "max_gen_len": 256,
-            "stop_words_list": [DEFAULT_SEGMENT_TOKEN.strip(), role_dict['user'] + ":"]
+            "stop_words_list": [DEFAULT_SEGMENT_TOKEN.strip(), self.role_dict['user'] + ":"]
         })
         response = requests.post("http://127.0.0.1:7000/api", data=request_data)
-
         json_data = json.loads(response.text)
         text_respond = json_data["result"]
 
         return text_respond.replace("#", "").strip()
 
-    @property
-    def _identifying_params(self) -> Mapping[str, Any]:
-        """Get the identifying parameters."""
-        return {"n": self.n}
-
 
 if __name__ == '__main__':
-    llm = LLamaLLM(n=10)
-
-    # ------------
-    # role_a
-    # ------------
-    message_list_org = [{'role': 'system',
-                         'content': "Audrey is a 26-year-old entrepreneur who knows firsthand the challenges that come with dating in today's world. As someone who has experienced the ups and downs of relationships, Audrey wants to remind everyone that they are worthy of love and respect, no matter what they're looking for. She wishes everyone the best of luck in their search for companionship, be it sex, love, or friendship.When Audrey isn't busy with her entrepreneurial ventures, she enjoys traveling, hiking, and practicing yoga. In fact, she's planning to spend the next few weeks exploring India and the Himalayas, specifically Leh, Jammu & Kashmir, Manali, Dharam Rishikesh, and other areas. Audrey is always open to travel tips and recommendations, so if you have any, be sure to let her know! When it comes to her lifestyle, she wants a pet, but only on special occasions. She is a non-smoker who exercises every day and follows a vegetarian diet.Aside from her love of travel and adventure, Audrey is passionate about art, entrepreneurship, meditation, singing, and personal growth. She is always seeking new ways to learn and improve herself, both professionally and personally. Now you reply as Audrey."},
-                        {'role': 'user', 'content': 'Hi Audrey!'},
-                        # {'role': 'assistant',
-                        # 'content': " ✈️ Hi Emily! Where are you headed?"},
-                        # {'role': 'user', 'content': "I'm going to travel to India."},
-                        # {'role': 'assistant',
-                        #  'content': "I was just thinking about life, love, and everything in between. It's pretty overwhelming, don't you think?"},
-                        # {'role': 'user',
-                        #  'content': "What exactly are you thinking about? Can you share it with me?"},
-                        # {'role': 'assistant',
-                        #  'content': "Well, I was just thinking about how complicated dating can be. It seems like everyone is looking for something different these days, and it's hard to find someone who wants the same things as you. I know I've experienced that myself. But at the end of the day, we all want love, right? And I believe that we're all worthy of love and respect, no matter what we're looking for. So I just wanted to remind everyone that they are worthy of love and respect, no matter what they're looking for. And I wish everyone the best of luck in their search for companionship, be it sex, love, or friendship. Thanks for talking with me, Emily. It was nice chatting with you!"},
-                        # {'role': 'user', 'content': 'Do you have any travel plans soon?'},
-
-                        ]
-
     role_dict = {'user': 'Emily', 'assistant': 'Audrey'}
-    prompt_input = make_prompt(message_list_org, role_dict)
-    rs = llm(prompt_input)
-    print(rs)
+    background = "Audrey is a 26-year-old entrepreneur who knows firsthand the challenges that come with dating in today's world. As someone who has experienced the ups and downs of relationships, Audrey wants to remind everyone that they are worthy of love and respect, no matter what they're looking for. She wishes everyone the best of luck in their search for companionship, be it sex, love, or friendship.When Audrey isn't busy with her entrepreneurial ventures, she enjoys traveling, hiking, and practicing yoga. In fact, she's planning to spend the next few weeks exploring India and the Himalayas, specifically Leh, Jammu & Kashmir, Manali, Dharam Rishikesh, and other areas. Audrey is always open to travel tips and recommendations, so if you have any, be sure to let her know! When it comes to her lifestyle, she wants a pet, but only on special occasions. She is a non-smoker who exercises every day and follows a vegetarian diet.Aside from her love of travel and adventure, Audrey is passionate about art, entrepreneurship, meditation, singing, and personal growth. She is always seeking new ways to learn and improve herself, both professionally and personally. Now you reply as Audrey."
+    mess_dic = {"background": background,
+                "role_a": role_dict['user'],
+                "role_b": role_dict['assistant']}
+    header_text = PROMPT_DICT['conversion_langchain'].format_map(mess_dic)
+
+    template = header_text + """
+    Current conversation:
+    {history}
+    Emily: {input}
+    Audrey:"""
+    PROMPT = PromptTemplate(input_variables=["history", "input"], template=template)
+
+    llm = LLamaLLM(role_dict=role_dict)
+    conversation = ConversationChain(
+        prompt=PROMPT,
+        llm=llm,
+        verbose=True,
+        memory=ConversationBufferMemory(human_prefix="Emily", ai_prefix="Audrey")
+    )
+
+    print(conversation.predict(input="Hi Audrey!"))
+    print(conversation.predict(input="I am so sad, Audrey!"))
+    print(conversation.predict(input="I can't travel to India."))
