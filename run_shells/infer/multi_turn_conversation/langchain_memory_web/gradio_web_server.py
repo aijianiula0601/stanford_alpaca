@@ -24,7 +24,7 @@ ROLE_A_START_QUESTION = "hi"
 # --------------------------------------------------------
 # 模型选择
 # --------------------------------------------------------
-models_list = ["gpt3.5", "llama", "mask_instruct"]
+models_list = ["gpt3.5", "llama", "mask_instruct", "openai_memory"]
 
 
 def get_history(role_a_name, role_b_name, history=[]):
