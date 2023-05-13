@@ -64,11 +64,10 @@ class LLamaMemoryInfer:
             "{history}\n"
             "Current conversation:\n"
             "{human_name}: {input}\n"
-            "{bot_name}:").format_map(
-            {'history': '{history}',
-             'input': '{input}',
-             'human_name': role_dict['user'],
-             'bot_name': role_dict['assistant']})
+            "{bot_name}:").format_map({'history': '{history}',
+                                       'input': '{input}',
+                                       'human_name': role_dict['user'],
+                                       'bot_name': role_dict['assistant']})
 
         PROMPT = PromptTemplate(input_variables=["history", "input"], template=template)
 
