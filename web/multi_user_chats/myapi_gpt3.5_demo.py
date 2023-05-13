@@ -2,7 +2,7 @@
 import openai
 
 # 庞永强账号
-openai.api_key = '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'
+openai.api_key = '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'
 
 response = openai.ChatCompletion.create(
     model='gpt-3.5-turbo',
