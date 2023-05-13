@@ -6,6 +6,7 @@ import os
 import sys
 from typing import Any, List, Mapping, Optional
 
+from langchain.llms import OpenAI
 from langchain.callbacks.manager import CallbackManagerForLLMRun
 from langchain.llms.base import LLM
 from langchain.chains import ConversationChain
@@ -69,7 +70,7 @@ if __name__ == '__main__':
 
     llm = LLamaLLM(role_dict=role_dict)
 
-    summary_memory = ConversationSummaryMemory(llm=llm, input_key="input", human_prefix="Emily", ai_prefix="Audrey")
+    summary_memory = ConversationSummaryMemory(llm=OpenAI(), input_key="input", human_prefix="Emily", ai_prefix="Audrey")
 
     conversation = ConversationChain(
         llm=llm,
