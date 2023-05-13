@@ -6,10 +6,12 @@ import os
 import sys
 from typing import Any, List, Mapping, Optional
 
+from langchain.llms import OpenAI
 from langchain.callbacks.manager import CallbackManagerForLLMRun
 from langchain.llms.base import LLM
 from langchain.chains import ConversationChain
-from langchain.memory import ConversationBufferMemory, CombinedMemory, ConversationSummaryMemory
+from langchain.memory import ConversationBufferMemory, CombinedMemory, ConversationSummaryMemory, \
+    ConversationSummaryBufferMemory
 from langchain.prompts.prompt import PromptTemplate
 
 pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
@@ -76,7 +78,10 @@ if __name__ == '__main__':
         ai_prefix="Audrey"
     )
 
-    summary_memory = ConversationSummaryMemory(llm=llm, input_key="input", human_prefix="Emily", ai_prefix="Audrey")
+    summary_memory = ConversationSummaryBufferMemory(llm=OpenAI(),
+                                                     max_token_limit=40,
+                                                     input_key="input", human_prefix="Emily",
+                                                     ai_prefix="Audrey")
     # Combined
     memory = CombinedMemory(memories=[conv_memory, summary_memory])
 
@@ -88,5 +93,11 @@ if __name__ == '__main__':
     )
 
     print(conversation.predict(input="Hi Audrey!"))
+    print('-' * 100)
     print(conversation.predict(input="I am so sad, Audrey!"))
+    print('-' * 100)
     print(conversation.predict(input="I can't travel to India."))
+    print('-' * 100)
+    print(conversation.predict(input="Are you going on a trip?"))
+    print('-' * 100)
+    print(conversation.predict(input="When are you going to go? How can I get there?"))
