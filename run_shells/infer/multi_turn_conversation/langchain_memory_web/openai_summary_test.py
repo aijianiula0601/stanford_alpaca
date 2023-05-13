@@ -1,7 +1,7 @@
 # Note: you need to be using OpenAI Python v0.27.0 for the code below to work
 import openai
 
-# export OPENAI_API_KEY='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'
+# export OPENAI_API_KEY='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'
 
 from langchain.llms import OpenAI
 from langchain.chains import ConversationChain

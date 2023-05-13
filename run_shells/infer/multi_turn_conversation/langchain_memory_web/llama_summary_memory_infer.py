@@ -59,6 +59,10 @@ if __name__ == '__main__':
                 "role_b": role_dict['assistant']}
     header_text = PROMPT_DICT['conversion'].format_map(mess_dic)
 
+    # ----------------------------------------------------------------
+    # llm
+    # ----------------------------------------------------------------
+
     template = header_text + """
     Summary of conversation:
     {history}
@@ -69,7 +73,47 @@ if __name__ == '__main__':
 
     llm = LLamaLLM(role_dict=role_dict)
 
-    summary_memory = ConversationSummaryMemory(llm=llm, input_key="input", human_prefix="Emily", ai_prefix="Audrey")
+    # ----------------------------------------------------------------
+    # summary_memory
+    # ----------------------------------------------------------------
+
+    _DEFAULT_SUMMARIZER_TEMPLATE = """Progressively summarize the lines of conversation provided, adding onto the previous summary returning a new summary.
+
+    EXAMPLE
+    Current summary:
+    The {human_name} asks what the {bot_name} thinks of artificial intelligence. The {bot_name} thinks artificial intelligence is a force for good.
+
+    New lines of conversation:
+    {human_name}: Why do you think artificial intelligence is a force for good?
+    {bot_name}: Because artificial intelligence will help humans reach their full potential.
+
+    New summary:
+    The {human_name} asks what the {bot_name} thinks of artificial intelligence. The {bot_name} thinks artificial intelligence is a force for good because it will help humans reach their full potential.
+    END OF EXAMPLE
+
+    Current summary:
+    {summary}
+
+    New lines of conversation:
+    {new_lines}
+
+    New summary:""".format_map({'human_name': role_dict["user"],
+                                'bot_name': role_dict['assistant'],
+                                'summary': '{summary}',
+                                'new_lines': '{new_lines}'
+                                })
+
+    SUMMARY_PROMPT = PromptTemplate(
+        input_variables=["summary", "new_lines"], template=_DEFAULT_SUMMARIZER_TEMPLATE
+    )
+
+    summary_memory = ConversationSummaryBufferMemory(llm=llm,
+                                                     max_token_limit=40,
+                                                     prompt=SUMMARY_PROMPT,
+                                                     memory_key="history",
+                                                     input_key="input",
+                                                     human_prefix="Emily",
+                                                     ai_prefix="Audrey")
 
     conversation = ConversationChain(
         llm=llm,
@@ -79,6 +123,11 @@ if __name__ == '__main__':
     )
 
     print(conversation.predict(input="Hi Audrey!"))
+    print('-' * 100)
     print(conversation.predict(input="I am so sad, Audrey!"))
+    print('-' * 100)
     print(conversation.predict(input="I can't travel to India."))
-    print(conversation.predict(input="yes, Are you going on a trip?"))
+    print('-' * 100)
+    print(conversation.predict(input="Are you going on a trip?"))
+    print('-' * 100)
+    print(conversation.predict(input="When are you going to go? How can I get there?"))
