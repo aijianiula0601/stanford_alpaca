@@ -6,6 +6,7 @@ import os
 import sys
 from typing import Any, List, Mapping, Optional
 
+import openai
 from langchain.llms import OpenAI
 from langchain.callbacks.manager import CallbackManagerForLLMRun
 from langchain.llms.base import LLM
@@ -13,6 +14,8 @@ from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferMemory, CombinedMemory, ConversationSummaryMemory, \
     ConversationSummaryBufferMemory
 from langchain.prompts.prompt import PromptTemplate
+
+openai_api_key = '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'
 
 pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 sys.path.append(pdj)
@@ -30,6 +33,7 @@ DEFAULT_EOS_TOKEN = "</s>"
 
 class LLamaLLM(LLM, ABC):
     role_dict: dict
+    temperature: str
 
     @property
     def _llm_type(self) -> str:
@@ -41,7 +45,7 @@ class LLamaLLM(LLM, ABC):
 
         request_data = json.dumps({
             "prompt_input": prompt,
-            "temperature": 0.9,
+            "temperature": self.temperature,
             "max_gen_len": 256,
             "stop_words_list": [DEFAULT_SEGMENT_TOKEN.strip(), self.role_dict['user'] + ":"]
         })
@@ -53,7 +57,7 @@ class LLamaLLM(LLM, ABC):
 
 
 class LLamaMemoryInfer:
-    def init(self, background: str, role_dict: dict, max_token_limit: int = 40):
+    def init(self, background: str, role_dict: dict, max_token_limit: int = 40, temperature: float = 0.9):
         assert 'user' in role_dict and 'assistant' in role_dict
         mess_dic = {"background": background,
                     "role_a": role_dict['user'],
@@ -71,8 +75,9 @@ class LLamaMemoryInfer:
 
         PROMPT = PromptTemplate(input_variables=["history", "input"], template=template)
 
-        llm = LLamaLLM(role_dict=role_dict)
-        self.summary_memory = ConversationSummaryBufferMemory(llm=OpenAI(), max_token_limit=max_token_limit,
+        llm = LLamaLLM(role_dict=role_dict, temperature=temperature)
+        self.summary_memory = ConversationSummaryBufferMemory(llm=OpenAI(api_key=openai_api_key),
+                                                              max_token_limit=max_token_limit,
                                                               input_key="input",
                                                               human_prefix=role_dict['user'],
                                                               ai_prefix=role_dict['assistant'])
