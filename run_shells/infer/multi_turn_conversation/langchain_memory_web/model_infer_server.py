@@ -16,36 +16,7 @@ pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.di
 sys.path.append(pdj)
 
 PROMPT_DICT = {
-
     "conversion": (
-        # "The following is a chat message between {role_a} and {role_b}. Question and answer, forbid the output of multiple rounds. {background}\n\n"
-        "the background is {background}The following is a Conversation between {role_a} and {role_b} using English Language. Conversation and background are highly correlated. Current conversation."
-        "{history}"
-    ),
-    "conversion_v1": (
-        "the background is {background}The following is a Conversation between {role_a} and {role_b} using English Language. "
-        "Conversation and background are highly correlated. "
-        "Answer questions as {role_b} and ask questions proactively. Speak in a tone that fits the background of {role_b}. "
-        "Current conversation."
-        "{history}"
-    ),
-    "conversion_v2": (
-        "Here is a conversation between {role_a} and {role_b} related to the description below. {background} \n\n"
-        "{history}"
-    ),
-    "conversion_v3": (
-        "Here is a conversation between {role_a} and {role_b} with English Language. Answer the questions of {role_a} based on the background.\n"
-        "background:{background}\n"
-        "\n### {role_a}: <question>"
-        "\n### {role_b}: <answer>"
-        "{history}"
-    ),
-    "conversion_v4": (
-        "Background:{background} "
-        "The following is a conversation with {role_b}. {role_b} should speak in a tone consistent with the identity introduced in the background. Give the state of the action and expressions appropriately."
-        "{history}"
-    ),
-    "conversion_langchain": (
         "Background:{background} "
         "The following is a conversation with {role_b}. {role_b} should speak in a tone consistent with the identity introduced in the background. Give the state of the action and expressions appropriately."
     )
@@ -53,22 +24,6 @@ PROMPT_DICT = {
 
 DEFAULT_SEGMENT_TOKEN = "###"
 DEFAULT_EOS_TOKEN = "</s>"
-
-
-def make_prompt(message_list, role_dict, temperature=0.6):
-    '''message-list第一个数值是背景，
-    后面需要在role_dict里要做好配置，我最后会回复role_dict['assistant']角色的答案;
-    role_dict_real用于映射history里的内容'''
-    background = message_list[0]["content"]
-    history_list = [role_dict[char["role"]] + ": " + char["content"] for char in message_list[1:]]
-    message_dic = {"background": background,
-                   "role_a": role_dict['user'],
-                   "role_b": role_dict['assistant'],
-                   "history": DEFAULT_SEGMENT_TOKEN + DEFAULT_SEGMENT_TOKEN.join(
-                       [item for item in history_list]) + DEFAULT_SEGMENT_TOKEN + role_dict['assistant'] + ":"}
-    prompt_input = PROMPT_DICT["conversion_v4"].format_map(message_dic)
-
-    return prompt_input
 
 
 class LLamaLLM(LLM, ABC):
@@ -101,7 +56,7 @@ if __name__ == '__main__':
     mess_dic = {"background": background,
                 "role_a": role_dict['user'],
                 "role_b": role_dict['assistant']}
-    header_text = PROMPT_DICT['conversion_langchain'].format_map(mess_dic)
+    header_text = PROMPT_DICT['conversion'].format_map(mess_dic)
 
     template = header_text + """
     Current conversation:
