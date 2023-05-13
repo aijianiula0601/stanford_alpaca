@@ -70,7 +70,9 @@ if __name__ == '__main__':
 
     llm = LLamaLLM(role_dict=role_dict)
 
-    summary_memory = ConversationSummaryMemory(llm=OpenAI(), input_key="input", human_prefix="Emily", ai_prefix="Audrey")
+    # summary_memory = ConversationSummaryMemory(llm=OpenAI(), input_key="input", human_prefix="Emily", ai_prefix="Audrey")
+    summary_memory = ConversationSummaryBufferMemory(llm=OpenAI(), max_token_limit=40, input_key="input",
+                                                     human_prefix="Emily", ai_prefix="Audrey")
 
     conversation = ConversationChain(
         llm=llm,
@@ -80,6 +82,11 @@ if __name__ == '__main__':
     )
 
     print(conversation.predict(input="Hi Audrey!"))
+    print('-' * 100)
     print(conversation.predict(input="I am so sad, Audrey!"))
+    print('-' * 100)
     print(conversation.predict(input="I can't travel to India."))
-    print(conversation.predict(input="yes, Are you going on a trip?"))
+    print('-' * 100)
+    print(conversation.predict(input="Are you going on a trip?"))
+    print('-' * 100)
+    print(conversation.predict(input="When are you going to go? How can I get there?"))
