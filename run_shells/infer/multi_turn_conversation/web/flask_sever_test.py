@@ -33,7 +33,7 @@ PROMPT_DICT = {
     ),
     "conversion_v4": (
         "Background:{background} "
-        "The following is a conversation with {role_b}. {role_b} should speak in a tone consistent with the identity introduced in the background. Give the state of the action and expressions appropriately"
+        "The following is a conversation with {role_b}. {role_b} should speak in a tone consistent with the identity introduced in the background. Give the state of the action and expressions appropriately."
         "{history}"
     )
 }
