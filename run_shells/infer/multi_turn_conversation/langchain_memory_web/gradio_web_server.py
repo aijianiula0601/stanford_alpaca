@@ -10,6 +10,7 @@ sys.path.append(pdj)
 from web.multi_user_chats.two_bigo_gpt35 import *
 from web.multi_user_chats.llama_api_test import llama_respond
 from run_shells.infer.multi_turn_conversation.web.flask_sever_test import mask_instruct
+from run_shells.infer.multi_turn_conversation.langchain_memory_web.openai_summary_memory_infer import *
 
 # -----------------------------------------------------------------------------------
 # 跟two_persons_gpt35_llama.py的区别是：
@@ -20,6 +21,8 @@ from run_shells.infer.multi_turn_conversation.web.flask_sever_test import mask_i
 ROLE_A_NAME = "Human"
 ROLE_B_NAME = "Ai"
 ROLE_A_START_QUESTION = "hi"
+USER_KEY = "user"
+ASSISTANT_KEY = "assistant"
 
 # --------------------------------------------------------
 # 模型选择
@@ -38,14 +41,23 @@ def get_history(role_a_name, role_b_name, history=[]):
 
 
 def role_ab_chat(selected_temp, user_message, history, background_a, background_b, role_a_name, role_b_name,
-                 role_a_model_name, role_b_model_name):
+                 role_a_model_name, role_b_model_name, memory_infer_role_a=None, memory_infer_role_b=None):
+    # 采用memory机制的实例
+    if memory_infer_role_a is None:
+        memory_infer_role_a = LLamaMemoryInfer()
+        memory_infer_role_a.init(background="", role_dict={USER_KEY: role_a_name, ASSISTANT_KEY: role_b_name},
+                                 temperature=selected_temp)
+    if memory_infer_role_b is None:
+        memory_infer_role_b = LLamaMemoryInfer()
+        memory_infer_role_b.init(background="", role_dict={USER_KEY: ROLE_B_NAME, ASSISTANT_KEY: ROLE_A_NAME},
+                                 temperature=selected_temp)
+
     # -------------------
     # role_b回答
     # -------------------
     history = history + [[f"{role_a_name}: " + user_message, None]]
     role_b_input_api_data = get_input_api_data(background=get_background(background_b, role_b_name, role_a_name),
                                                history=get_history(role_a_name, role_b_name, history))
-    # print("----role_b_input_api_data:", role_b_input_api_data)
     if role_b_model_name == models_list[0]:
         role_b_question = chat_with_chatgpt(role_b_input_api_data, selected_temp)
     elif role_b_model_name == models_list[1]:
@@ -55,6 +67,11 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     elif role_b_model_name == models_list[2]:
         role_b_input_api_data = get_input_api_data(background=background_b,
                                                    history=get_history(role_a_name, role_b_name, history))
+        role_b_question = mask_instruct(role_b_input_api_data,
+                                        role_dict={"user": role_a_name,
+                                                   "assistant": role_b_name},
+                                        temperature=selected_temp)
+
         print("=" * 100)
         print("message_list:")
         print(get_history(role_a_name, role_b_name, history))
@@ -62,10 +79,13 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
         print("role_b_input_api_data:")
         print(role_b_input_api_data)
         print("=" * 100)
-        role_b_question = mask_instruct(role_b_input_api_data,
-                                        role_dict={"user": role_a_name,
-                                                   "assistant": role_b_name},
-                                        temperature=selected_temp)
+
+
+    elif role_b_model_name == models_list[3]:
+        role_b_input_api_data = get_input_api_data(background=background_b,
+                                                   history=get_history(role_a_name, role_b_name, history))
+
+
 
 
     else:
@@ -97,16 +117,17 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     else:
         raise Exception("-----Error选择的模型不存在！！！！")
 
-    # print("---role_dic:", {"user": role_b_name, "assistant": role_a_name})
-
     print(f"{role_a_name}({role_a_model_name}): ", role_a_question)
-    return role_a_question, history
+    return role_a_question, history, memory_infer_role_a, memory_infer_role_b
 
 
 def toggle(user_message, selected_temp, chatbot, background_a, background_b, role_a_name, role_b_name,
            role_a_model_name, role_b_model_name):
-    user_message, history = role_ab_chat(selected_temp, user_message, chatbot, background_a, background_b, role_a_name,
-                                         role_b_name, role_a_model_name, role_b_model_name)
+    user_message, history, memory_infer_role_a, memory_infer_role_b = role_ab_chat(selected_temp, user_message, chatbot,
+                                                                                   background_a, background_b,
+                                                                                   role_a_name,
+                                                                                   role_b_name, role_a_model_name,
+                                                                                   role_b_model_name)
     chatbot += history[len(chatbot):]
     return user_message, chatbot
 
@@ -152,7 +173,7 @@ def update_select_model(bot_name):
 
 with gr.Blocks() as demo:
     with gr.Row():
-        gr.Markdown("# 两个LLM模型互相对话demo")
+        gr.Markdown("# 两个模型互相对话demo")
     with gr.Row():
         with gr.Column():
             selected_temp = gr.Slider(0, 1, value=0.9, label="Temperature超参,调的越小越容易输出常见字",
@@ -178,6 +199,7 @@ with gr.Blocks() as demo:
             role_a_question = gr.Textbox(placeholder="输入RoleA首次提出的问题",
                                          value=ROLE_A_START_QUESTION + ", " + bot_name.value + '!', label="roleA问题",
                                          interactive=True)
+            gr.E
         with gr.Column():
             btn = gr.Button("点击生成一轮对话")
             gr_chatbot = gr.Chatbot(label="聊天记录")
@@ -198,5 +220,5 @@ with gr.Blocks() as demo:
     clear.click(clear_f, [bot_name], [gr_chatbot, role_a_question])
 
 demo.queue()
-demo.launch(server_name="0.0.0.0", server_port=8991, debug=True)
+demo.launch(server_name="0.0.0.0", server_port=8992, debug=True)
 # demo.launch(server_name="202.168.100.165", server_port=8991)
