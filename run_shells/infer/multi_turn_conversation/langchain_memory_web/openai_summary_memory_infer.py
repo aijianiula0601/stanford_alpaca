@@ -15,7 +15,7 @@ from langchain.memory import ConversationBufferMemory, CombinedMemory, Conversat
     ConversationSummaryBufferMemory
 from langchain.prompts.prompt import PromptTemplate
 
-openai_api_key = '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'
+openai_api_key = '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'
 
 pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 sys.path.append(pdj)
@@ -33,7 +33,7 @@ DEFAULT_EOS_TOKEN = "</s>"
 
 class LLamaLLM(LLM, ABC):
     role_dict: dict
-    temperature: str
+    temperature: float
 
     @property
     def _llm_type(self) -> str:
@@ -76,7 +76,7 @@ class LLamaMemoryInfer:
         PROMPT = PromptTemplate(input_variables=["history", "input"], template=template)
 
         llm = LLamaLLM(role_dict=role_dict, temperature=temperature)
-        self.summary_memory = ConversationSummaryBufferMemory(llm=OpenAI(api_key=openai_api_key),
+        self.summary_memory = ConversationSummaryBufferMemory(llm=OpenAI(openai_api_key=openai_api_key),
                                                               max_token_limit=max_token_limit,
                                                               input_key="input",
                                                               human_prefix=role_dict['user'],
@@ -101,7 +101,7 @@ if __name__ == '__main__':
     background = "Audrey is a 26-year-old entrepreneur who knows firsthand the challenges that come with dating in today's world. As someone who has experienced the ups and downs of relationships, Audrey wants to remind everyone that they are worthy of love and respect, no matter what they're looking for. She wishes everyone the best of luck in their search for companionship, be it sex, love, or friendship.When Audrey isn't busy with her entrepreneurial ventures, she enjoys traveling, hiking, and practicing yoga. In fact, she's planning to spend the next few weeks exploring India and the Himalayas, specifically Leh, Jammu & Kashmir, Manali, Dharam Rishikesh, and other areas. Audrey is always open to travel tips and recommendations, so if you have any, be sure to let her know! When it comes to her lifestyle, she wants a pet, but only on special occasions. She is a non-smoker who exercises every day and follows a vegetarian diet.Aside from her love of travel and adventure, Audrey is passionate about art, entrepreneurship, meditation, singing, and personal growth. She is always seeking new ways to learn and improve herself, both professionally and personally. Now you reply as Audrey."
 
     llama_memory_infer = LLamaMemoryInfer()
-    llama_memory_infer.init(background, role_dict)
+    llama_memory_infer.init(background, role_dict, temperature=0.9)
 
     print(llama_memory_infer.infer(user_input="Hi Audrey!"))
     print('-' * 100)
