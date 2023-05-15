@@ -2,6 +2,7 @@ import logging
 import orjson
 import requests
 from flask import Flask, request, Response
+import setproctitle
 
 app = Flask(__name__)
 
@@ -11,9 +12,20 @@ logging.getLogger().setLevel(logging.WARNING)
 
 import os
 import sys
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import torch
+
+setproctitle.setproctitle("llama_mask_instruct")
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "6,7"
+# 自动识别机器上的gpu
+worker_id = int(os.environ.get('APP_WORKER_ID', 1))
+devices = os.environ.get('CUDA_VISIBLE_DEVICES', '')
+if not devices:
+    print('current environment did not get CUDA_VISIBLE_DEVICES env ,so use the default')
+rand_max = 9527
+gpu_index = (worker_id + rand_max) % torch.cuda.device_count()
+print('current worker id  {} set the gpu id :{}'.format(worker_id, gpu_index))
+torch.cuda.set_device(int(gpu_index))
 
 pdj = "/mnt/cephfs/zhuchengqi/git/LLM/bigo_stanford_alpaca/eval/transformers_jh/src"
 sys.path.append(pdj)
@@ -23,16 +35,18 @@ model = None
 tokenizer = None
 generator = None
 
-logger = logging.getLogger()
+from logger import MyLogger
+
+logger = MyLogger.__call__().get_logger()
 
 
 def load_model(model_name, eight_bit=0, device_map="auto"):
     global model, tokenizer, generator
 
-    print("Loading " + model_name + "...")
+    logger.info("Loading " + model_name + "...")
     # config
     gpu_count = torch.cuda.device_count()
-    print('gpu_count', gpu_count)
+    logger.info('gpu_count', gpu_count)
 
     tokenizer = transformers.AutoTokenizer.from_pretrained(model_name, use_fast=False)
     model = transformers.AutoModelForCausalLM.from_pretrained(
@@ -112,7 +126,7 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
     return output
 
 
-print("loading model ... ")
+logger.info("loading model ... ")
 # model_dir = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs/checkpoint-1000'
 # model_dir = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multi_turns_conversation_nomask/ft_out_nomask/checkpoint-1600'
 # model_dir='/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs_mask_instruct/checkpoint-1400'
@@ -121,8 +135,8 @@ print("loading model ... ")
 # model_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs_mask_instruct/checkpoint-1500"
 model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs_mask_instruct/checkpoint-1200"
 load_model(model_dir)
-print('load model done!!!')
-print('-' * 100)
+logger.info('load model done!!!')
+logger.info('-' * 100)
 
 
 def bot(prompt_input, temperature=0.7, max_gen_len=256, stop_words_list=None):
@@ -133,8 +147,8 @@ def bot(prompt_input, temperature=0.7, max_gen_len=256, stop_words_list=None):
         "max_new_tokens": max_gen_len,
         "stop_words_list": stop_words_list,
     }
-    print(prompt_input)
-    print("-" * 200)
+    logger.info(prompt_input)
+    logger.info("-" * 200)
 
     skip_echo_len = len(prompt_input.replace("</s>", " ")) + 1
     stream = generate_stream(model, tokenizer, params)
@@ -143,9 +157,9 @@ def bot(prompt_input, temperature=0.7, max_gen_len=256, stop_words_list=None):
         generated_text = outputs[skip_echo_len:].strip()
         generated_text = generated_text.split(" ")
     generated_text = " ".join(generated_text)
-    print("-" * 50 + "model generate text" + '-' * 50)
-    print(generated_text)
-    print("-" * 200)
+    logger.info("-" * 50 + "model generate text" + '-' * 50)
+    logger.info(generated_text)
+    logger.info("-" * 200)
 
     return generated_text.strip()
 
@@ -167,7 +181,7 @@ def receive():
         res = {"status": 400, "error_msg": "Invalid json request.", "server_info": "", }
         return Response(orjson.dumps(res), mimetype="application/json;charset=UTF-8", status=200)
 
-    # print('[http/receive]requests:', params)
+    # logger.info('[http/receive]requests:', params)
     prompt_input = params.get('prompt_input', "")
     temperature = params.get('temperature', 0)
     max_gen_len = params.get('max_gen_len', "")
