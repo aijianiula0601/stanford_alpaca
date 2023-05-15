@@ -16,7 +16,7 @@ import torch
 
 setproctitle.setproctitle("llama_mask_instruct")
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "6,7"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2,3"
 # 自动识别机器上的gpu
 worker_id = int(os.environ.get('APP_WORKER_ID', 1))
 devices = os.environ.get('CUDA_VISIBLE_DEVICES', '')
