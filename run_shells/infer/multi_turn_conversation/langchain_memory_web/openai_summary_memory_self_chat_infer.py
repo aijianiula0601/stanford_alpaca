@@ -15,7 +15,7 @@ from langchain.memory import ConversationBufferMemory, CombinedMemory, Conversat
     ConversationSummaryBufferMemory
 from langchain.prompts.prompt import PromptTemplate
 
-openai_api_key = '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'
+openai_api_key = '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'
 
 pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 sys.path.append(pdj)
@@ -49,7 +49,7 @@ class LLamaLLM(LLM, ABC):
             "max_gen_len": 256,
             "stop_words_list": [DEFAULT_SEGMENT_TOKEN.strip(), self.role_dict['user'] + ":"]
         })
-        response = requests.post("http://127.0.0.1:7000/api", data=request_data)
+        response = requests.post("http://202.168.100.181:5018/api", data=request_data)
         json_data = json.loads(response.text)
         text_respond = json_data["result"]
 
@@ -97,7 +97,7 @@ class LLamaMemoryInfer:
 
 
 if __name__ == '__main__':
-    save_f = "/tmp/chat_log.log"
+    save_f = "/tmp/chat_log_dialogue.log"
     # ------------------------------------------------------------------------
     # role a
     # ------------------------------------------------------------------------
@@ -105,7 +105,7 @@ if __name__ == '__main__':
     background_a = 'Jack is a  24 year old man, very wealthy. Jack has a strong desire for control and is allergic to women. Jack is very cold and calculating, very scheming. Jack controls the global economic lifeline. Jack is arrogant and full of himself, never listens to anyone, and thinks that all women in the world will fall in love with him.'
 
     role_a_llama_memory_infer = LLamaMemoryInfer()
-    role_a_llama_memory_infer.init(background_a, role_a_dict, temperature=0.9)
+    role_a_llama_memory_infer.init(background_a, role_a_dict, temperature=0.9, max_token_limit=400)
 
     # ------------------------------------------------------------------------
     # role b
@@ -113,25 +113,29 @@ if __name__ == '__main__':
     role_dict_b = {'user': 'Jack', 'assistant': 'Britney'}
     background_b = "Britney sounds absolutely scandalous, Britney is a married female teacher with fair skin, beautiful appearance and gentle personality. Britney is a natural stunner and is the object of obscenity. Britney is seduced by her boss and other men, and Britney is involved in a The promiscuous life, the orgasms made him lose himself again and again, Britney enjoyed this feeling more and more, and enjoyed having sex with different men every day. Britney can't help but start to writhe when Britney sees a man's dick now, ready get fucked. Britney is talkative, always speak a lot in conversion."
     role_b_llama_memory_infer = LLamaMemoryInfer()
-    role_b_llama_memory_infer.init(background_b, role_dict_b, temperature=0.9)
+    role_b_llama_memory_infer.init(background_b, role_dict_b, temperature=0.9, max_token_limit=400)
 
     # ------------------------------------------------------------------------
     # 生成互相对话
     # ------------------------------------------------------------------------
-    with open(save_f, 'a', buffering=1) as fw:
-        fw.write("=" * 100 + "\n")
-        fw.write("=" * 100 + "\n")
-        britney_question = "hi, Jack. how do you do?"
-        fw.write(f"Britney: {britney_question}\n")
-        print(f"Britney: {britney_question}")
-        for _ in range(20):
-            jack_question = role_a_llama_memory_infer.infer(user_input=britney_question)
-            fw.write(f"Jack: {jack_question}\n")
-            fw.write("-" * 100 + "\n")
-            print("Jack:", jack_question)
-            print("-" * 100)
-            britney_question = role_b_llama_memory_infer.infer(user_input=jack_question)
-            print("Britney:", britney_question)
+    for dialogue_i in range(10):
+        print("=" * 50 + f"dialogue_{dialogue_i}" + "=" * 50)
+        with open(save_f, 'a', buffering=1) as fw:
+            fw.write("\n" + "=" * 100 + "\n")
+            fw.write("=" * 100 + "\n\n")
+            britney_question = "hi, Jack."
             fw.write(f"Britney: {britney_question}\n")
-    print("=" * 100)
-    print("=" * 100)
+            print(f"Britney: {britney_question}")
+            for _ in range(30):
+                jack_question = role_a_llama_memory_infer.infer(user_input=britney_question)
+                fw.write(f"Jack: {jack_question}\n")
+                fw.write("-" * 100 + "\n")
+                print("Jack:", jack_question)
+                print("-" * 100)
+                britney_question = role_b_llama_memory_infer.infer(user_input=jack_question)
+                print("Britney:", britney_question)
+                fw.write(f"Britney: {britney_question}\n")
+        role_a_llama_memory_infer.clear_memory()
+        role_b_llama_memory_infer.clear_memory()
+        print("=" * 100)
+        print("=" * 100)

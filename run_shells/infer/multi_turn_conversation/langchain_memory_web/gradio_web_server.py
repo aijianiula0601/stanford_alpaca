@@ -199,7 +199,6 @@ with gr.Blocks() as demo:
             role_a_question = gr.Textbox(placeholder="输入RoleA首次提出的问题",
                                          value=ROLE_A_START_QUESTION + ", " + bot_name.value + '!', label="roleA问题",
                                          interactive=True)
-            gr.E
         with gr.Column():
             btn = gr.Button("点击生成一轮对话")
             gr_chatbot = gr.Chatbot(label="聊天记录")
