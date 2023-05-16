@@ -16,7 +16,7 @@ import torch
 
 setproctitle.setproctitle("llama_mask_instruct")
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "2,3"
+os.environ["CUDA_VISIBLE_DEVICES"] = "6,7"
 # 自动识别机器上的gpu
 worker_id = int(os.environ.get('APP_WORKER_ID', 1))
 devices = os.environ.get('CUDA_VISIBLE_DEVICES', '')
@@ -46,7 +46,7 @@ def load_model(model_name, eight_bit=0, device_map="auto"):
     logger.info("Loading " + model_name + "...")
     # config
     gpu_count = torch.cuda.device_count()
-    logger.info('gpu_count', gpu_count)
+    logger.info(f'gpu_count:{gpu_count}')
 
     tokenizer = transformers.AutoTokenizer.from_pretrained(model_name, use_fast=False)
     model = transformers.AutoModelForCausalLM.from_pretrained(
