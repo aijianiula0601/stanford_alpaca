@@ -14,16 +14,20 @@
 #    limitations under the License.
 
 import sys
-sys.path.append('./lib/transformers_jh/src/')
-
+import os
 import copy
 from dataclasses import dataclass, field
 import json
 import logging
 import pathlib
+import setproctitle
 from typing import Dict, Optional, Sequence
 
 import torch
+
+pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+print(f"--pdj:{pdj}")
+sys.path.append(pdj)
 
 import transformers
 from torch.utils.data import Dataset
@@ -60,7 +64,7 @@ class TrainingArguments(transformers.TrainingArguments):
         default=512,
         metadata={
             "help":
-            "Maximum sequence length. Sequences will be right padded (and possibly truncated)."
+                "Maximum sequence length. Sequences will be right padded (and possibly truncated)."
         },
     )
 
@@ -79,9 +83,9 @@ def safe_save_model_for_hf_trainer(trainer: transformers.Trainer,
 
 
 def smart_tokenizer_and_embedding_resize(
-    special_tokens_dict: Dict,
-    tokenizer: transformers.PreTrainedTokenizer,
-    model: transformers.PreTrainedModel,
+        special_tokens_dict: Dict,
+        tokenizer: transformers.PreTrainedTokenizer,
+        model: transformers.PreTrainedModel,
 ):
     """Resize tokenizer and embedding.
 
@@ -156,18 +160,18 @@ def _add_speaker_and_signal(header, source, get_conversation=True):
     """Add speaker and start/end signal on each round."""
     BEGIN_SIGNAL = "### "
     END_SIGNAL = "\n"
-    
+
     # unknown_role = "unknown"  # use default unknown role
 
     if "narrative" in source[0]:
-        #如果是对话，会将对应的
+        # 如果是对话，会将对应的
         role_a = source[0]["from"].lower()
         role_b = source[1]["from"].lower()
-        prompt_head = "Here is a conversation between {role_a} and {role_b} related to the description below. "\
-            .format_map({"role_a":role_a, "role_b":role_b})
-            
+        prompt_head = "Here is a conversation between {role_a} and {role_b} related to the description below. " \
+            .format_map({"role_a": role_a, "role_b": role_b})
+
         header = prompt_head + source[0]["narrative"] + "\n\n"
-    
+
     conversation = header
     roles = {
         "human": conversation_lib.default_conversation.roles[0],  # human role
@@ -176,11 +180,11 @@ def _add_speaker_and_signal(header, source, get_conversation=True):
     for sentence in source:
         sentence_from = sentence["from"].lower()
         sentence["value"] = (
-            BEGIN_SIGNAL
-            + roles.get(sentence_from, sentence_from) #如果不在human gpt中就用实际的
-            + ": "
-            + sentence["value"]
-            + END_SIGNAL
+                BEGIN_SIGNAL
+                + roles.get(sentence_from, sentence_from)  # 如果不在human gpt中就用实际的
+                + ": "
+                + sentence["value"]
+                + END_SIGNAL
         )
         if get_conversation:
             conversation += sentence["value"]
@@ -188,8 +192,8 @@ def _add_speaker_and_signal(header, source, get_conversation=True):
 
 
 def preprocess(
-    sources: Sequence[str],
-    tokenizer: transformers.PreTrainedTokenizer,
+        sources: Sequence[str],
+        tokenizer: transformers.PreTrainedTokenizer,
 ) -> Dict:
     """
     Given a list of sources, each is a conversation list. This transform:
@@ -311,6 +315,7 @@ def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer,
 
 
 def train():
+    setproctitle.setproctitle("chengqi_no_mask")
     parser = transformers.HfArgumentParser(
         (ModelArguments, DataArguments, TrainingArguments))
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
@@ -332,7 +337,7 @@ def train():
             tokenizer=tokenizer,
             model=model,
         )
-    #if "llama" in model_args.model_name_or_path:
+    # if "llama" in model_args.model_name_or_path:
     tokenizer.add_special_tokens({
         "eos_token": DEFAULT_EOS_TOKEN,
         "bos_token": DEFAULT_BOS_TOKEN,
@@ -342,9 +347,9 @@ def train():
     data_module = make_supervised_data_module(tokenizer=tokenizer,
                                               data_args=data_args)
     trainer = Trainer(model=model,
-                    tokenizer=tokenizer,
-                    args=training_args,
-                    **data_module)
+                      tokenizer=tokenizer,
+                      args=training_args,
+                      **data_module)
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
         trainer.train(resume_from_checkpoint=True)
