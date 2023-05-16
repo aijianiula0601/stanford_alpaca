@@ -43,7 +43,7 @@ logger = MyLogger.__call__().get_logger()
 def load_model(model_name, eight_bit=0, device_map="auto"):
     global model, tokenizer, generator
 
-    logger.info("Loading " + model_name + "...")
+    logger.info("Loading " + model_name)
     # config
     gpu_count = torch.cuda.device_count()
     logger.info(f'gpu_count:{gpu_count}')
@@ -133,7 +133,7 @@ logger.info("loading model ... ")
 # model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/tmp/finetune_out_gpt4_share_sex_soda_cot_multi/checkpoint-4000/"
 # model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs_mask_instruct/checkpoint-1400"
 # model_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs_mask_instruct/checkpoint-1500"
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs_mask_instruct/checkpoint-1200"
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs_mask_instruct/checkpoint-1000"
 load_model(model_dir)
 logger.info('load model done!!!')
 logger.info('-' * 100)
@@ -194,4 +194,4 @@ def receive():
 
 
 if __name__ == '__main__':
-    app.run(debug=False, port=7000)
+    app.run(debug=False, port=5018)
