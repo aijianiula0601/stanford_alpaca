@@ -20,7 +20,9 @@ your_random_port=11226
 #your_path_to_hf_converted_llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/ft_52k/llama-7b-hf"
 
 # your_path_to_hf_converted_llama_ckpt_and_tokenizer="/mnt/cephfs/zhuchengqi/git/LLM/bigo_stanford_alpaca/finetune_out_gpt4_shared_10_multi/break_check800"
-your_path_to_hf_converted_llama_ckpt_and_tokenizer="/mnt/cephfs/zhuchengqi/data/aigc/LLM/model_tmp/llama-7b/"
+#your_path_to_hf_converted_llama_ckpt_and_tokenizer="/mnt/cephfs/zhuchengqi/data/aigc/LLM/model_tmp/llama-7b/"
+your_path_to_hf_converted_llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/junshi_llama-7b"
+
 # your_path_to_hf_converted_llama_ckpt_and_tokenizer="./trained_models/finetune_out_gpt4_shared/checkpoint-1400"
 
 save_base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/chengqi_no_mask"
@@ -43,16 +45,16 @@ torchrun --nproc_per_node=8 \
   --gradient_accumulation_steps 4 \
   --evaluation_strategy "no" \
   --save_strategy "steps" \
-  --save_steps 200 \
-  --save_total_limit 10 \
+  --save_steps 100 \
+  --model_max_length 2048 \
+  --save_total_limit 100 \
   --learning_rate 2e-5 \
   --weight_decay 0. \
   --warmup_ratio 0.03 \
   --lr_scheduler_type "cosine" \
   --logging_steps 1 \
   --report_to "tensorboard" \
-  --deepspeed ${curdir}/deepspeed_config.json \
-  --fp16 True \
-  --model_max_length 2048 \
   --gradient_checkpointing True \
+  --deepspeed run_shells/train/deepspeed_config.json \
+  --fp16 True \
   --lazy_preprocess True
