@@ -54,28 +54,29 @@ def process_data(qas_data, save_f, end_string_list=[], header_key=None):
     json.dump(new_data, open(save_f, 'w'))
     print(f"save to:{save_f}")
 
+    return new_data
+
 
 # -----------------
 # sex
 # -----------------
-# f = "/mnt/cephfs/zhuchengqi/git/LLM/bigo_stanford_alpaca/datasets/sexy_840_15.json"
-# save_f = f"{base_dir}/sexy.json"
-# data_list = json.load(open(f))
-#
-# end_string_list = ["They start a conversation:", "The conversation started"]
-#
-# process_data(data_list, save_f, end_string_list, header_key='handPrompt')
+f = "/mnt/cephfs/zhuchengqi/git/LLM/bigo_stanford_alpaca/datasets/sexy_840_15.json"
+save_f = f"{base_dir}/sexy.json"
+data_list = json.load(open(f))
+
+end_string_list = ["They start a conversation:", "The conversation started"]
+
+new_sex_data_list = process_data(data_list, save_f, end_string_list, header_key='handPrompt')
 
 # -----------------
 # bigolive
 # -----------------
 
-# f = "/mnt/cephfs/zhuchengqi/git/LLM/bigo_stanford_alpaca/datasets/live0512_filter2.json"
-# save_f = f"{base_dir}/bigolive.json"
-# data_list = json.load(open(f))
-#
-# process_data(data_list, save_f, header_key=None)
+f = "/mnt/cephfs/zhuchengqi/git/LLM/bigo_stanford_alpaca/datasets/live0512_filter2.json"
+save_f = f"{base_dir}/bigolive.json"
+data_list = json.load(open(f))
 
+new_biglive_data_list = process_data(data_list, save_f, header_key=None)
 
 # -----------------
 # soda
@@ -85,4 +86,13 @@ f = "/mnt/cephfs/hjh/common_dataset/nlp/chat/soda/soda_train_name.json"
 save_f = f"{base_dir}/sota.json"
 data_list = json.load(open(f))
 
-process_data(data_list, save_f, header_key=None)
+new_soda_data_list = process_data(data_list, save_f, header_key=None)
+
+# -----------------
+# merge
+# -----------------
+
+save_f = f"{base_dir}/merge_data.json"
+all_data = new_soda_data_list + new_biglive_data_list + new_sex_data_list
+json.dump(all_data, open(save_f))
+print(f"save to:{save_f}")
