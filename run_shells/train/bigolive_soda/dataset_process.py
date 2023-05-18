@@ -94,5 +94,5 @@ new_soda_data_list = process_data(data_list, save_f, header_key=None)
 
 save_f = f"{base_dir}/merge_data.json"
 all_data = new_soda_data_list + new_biglive_data_list + new_sex_data_list
-json.dump(all_data, open(save_f))
+json.dump(all_data, open(save_f, 'w'))
 print(f"save to:{save_f}")
