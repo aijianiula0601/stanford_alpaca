@@ -1,0 +1,30 @@
+{
+  "\u70ed\u7231\u745c\u4f3d\u7684\u5973\u7a0b\u5e8f\u733f": [
+    {
+      "review_id": "KoArQTWQubkzF5jHMZ74A2",
+      "question_id": 1,
+      "answer1_id": "Hf9qaUs2egPZEsnAhwZcFX",
+      "answer2_id": "Hf9qaUs2egPZEsnAhwZcFX",
+      "reviewer_id": 1,
+      "metadata": {},
+      "text": "7 7\n\nBoth Assistant 1 and Assistant 2 provided helpful, relevant, and accurate responses with a good level of detail. They both suggested prioritizing tasks, using a planner, avoiding distractions, taking breaks, and delegating or eliminating tasks. The sources they cited were also credible. However, their responses were quite similar and did not offer any unique or innovative suggestions. Additionally, they did not provide any specific examples or personal experiences to illustrate their points. Overall, both assistants provided solid advice for improving time management skills, but could have been more creative and engaging in their responses.",
+      "score": [
+        7.0,
+        7.0
+      ]
+    },
+    {
+      "review_id": "caSDj8gUmyPzzgJsTZvxuQ",
+      "question_id": 2,
+      "answer1_id": "iuF7saeriuQmJMHPJmjbVJ",
+      "answer2_id": "iuF7saeriuQmJMHPJmjbVJ",
+      "reviewer_id": 1,
+      "metadata": {},
+      "text": "8 9\n\nBoth assistants provided helpful, relevant, and accurate responses to the user's questions. They both covered the common sources of stress, the negative effects of stress on health, and effective ways to manage stress. Assistant 2 provided slightly more detailed responses and had a more conversational tone, which made the interaction feel more engaging. However, both assistants provided valuable information and would be useful resources for someone looking to manage their stress.",
+      "score": [
+        8.0,
+        9.0
+      ]
+    }
+  ]
+}

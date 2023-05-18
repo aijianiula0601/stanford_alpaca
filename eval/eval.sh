@@ -1,0 +1,1 @@
+python eval_gpt_review.py -q tables/question.jsonl -a tables/answer_llama_context.jsonl tables/answer_llama.jsonl -p tables/prompt.jsonl -r tables/reviewer.jsonl -o tables/review_llama_vs_context.jsonl -c tables/role.json

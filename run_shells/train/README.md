@@ -23,25 +23,21 @@ sudo nvidia-docker run --privileged=true --gpus all --name sda  --network host -
 -v /etc/localtime:/etc/localtime \
 -w /workspace \
 -v /data1/hjh:/workspace/hjh \
--v /home/huangjiahong.dracu:/home/huangjiahong.dracu \
--v /mnt/cephfs:/mnt/cephfs \
 --shm-size=1024m \
 sda:latest  \
 /bin/bash
 ```
 
+自行修改相应的映射目录
 
 3.进入容器
 
     使用环境sda: conda activate sda 
 
 
-4.transformer环境
+## 权值转换
 
-    不要手动安装transformer环境，如果已经pip安装，卸载。解压lib/transformers.zip后，在主目录进行软连接。
-    
-    ln -s ../transformers/src/transformers .
-
+    sh llama7Bhf_convert_weight.sh
 
 ## 训练
 

@@ -22,7 +22,7 @@ from dataclasses import dataclass, field
 from typing import Optional, Dict, Sequence
 from torch.utils.data import Dataset
 
-sys.path.append('./lib/transformers/src/')
+sys.path.append('./lib/transformers_old/src/')
 import transformers
 from transformers import Trainer
 
