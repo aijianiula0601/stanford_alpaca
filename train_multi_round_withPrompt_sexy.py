@@ -20,6 +20,7 @@ import copy
 from dataclasses import dataclass, field
 import json
 import logging
+import setproctitle
 import pathlib
 from typing import Dict, Optional, Sequence
 
@@ -319,6 +320,7 @@ def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer,
 
 
 def train():
+    setproctitle.setproctitle("chengqi_bigolive_soda")
     parser = transformers.HfArgumentParser(
         (ModelArguments, DataArguments, TrainingArguments))
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
