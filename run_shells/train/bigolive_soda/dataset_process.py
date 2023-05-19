@@ -95,6 +95,10 @@ new_soda_data_list = process_data(data_list, save_f, header_key="narrative")
 # -----------------
 
 save_f = f"{base_dir}/merge_data.json"
+debug_save_f = f"{base_dir}/debug_merge_data.json"
 all_data = new_soda_data_list + new_biglive_data_list + new_sex_data_list
+random.shuffle(all_data)
 json.dump(all_data, open(save_f, 'w'))
 print(f"save to:{save_f}")
+json.dump(all_data[:50], open(debug_save_f, 'w'))
+print(f"save to:{debug_save_f}")
