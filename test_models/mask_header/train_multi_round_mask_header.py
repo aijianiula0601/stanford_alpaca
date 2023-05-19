@@ -1,4 +1,3 @@
-# Adopted from tatsu-lab@stanford_alpaca. Below is the original copyright:
 #    Copyright 2023 Rohan Taori, Ishaan Gulrajani, Tianyi Zhang, Yann Dubois, Xuechen Li
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,38 +11,35 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-
-# import sys
-# sys.path.append('./lib/transformers_jh/src/')
-
-import copy
-import sys
 import os
-from dataclasses import dataclass, field
-import json
+import sys
+import copy
 import logging
+from tqdm import tqdm
+import json
 import setproctitle
-import pathlib
-from typing import Dict, Optional, Sequence
-
-import torch
+from dataclasses import dataclass, field
+from typing import Optional, Dict, Sequence
 
 pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+print(f"--pdj:{pdj}")
 sys.path.append(pdj)
 
+import torch
 import transformers
 from torch.utils.data import Dataset
 from transformers import Trainer
-
-import conversation as conversation_lib
-
-# TODO: import and use code from ../data/dataset.py
 
 IGNORE_INDEX = -100
 DEFAULT_PAD_TOKEN = "[PAD]"
 DEFAULT_EOS_TOKEN = "</s>"
 DEFAULT_BOS_TOKEN = "</s>"
 DEFAULT_UNK_TOKEN = "</s>"
+DEFAULT_SEGMENT_TOKEN = "### "
+
+PROMPT_DICT = {
+    "header": "Here is a conversation between {role_a} and {role_b} related to the description below. \n\n",
+}
 
 
 @dataclass
@@ -53,9 +49,7 @@ class ModelArguments:
 
 @dataclass
 class DataArguments:
-    data_path: str = field(default=None,
-                           metadata={"help": "Path to the training data."})
-    lazy_preprocess: bool = False
+    data_path: str = field(default=None, metadata={"help": "Path to the training data."})
 
 
 @dataclass
@@ -64,22 +58,15 @@ class TrainingArguments(transformers.TrainingArguments):
     optim: str = field(default="adamw_torch")
     model_max_length: int = field(
         default=512,
-        metadata={
-            "help":
-                "Maximum sequence length. Sequences will be right padded (and possibly truncated)."
-        },
+        metadata={"help": "Maximum sequence length. Sequences will be right padded (and possibly truncated)."},
     )
 
 
-def safe_save_model_for_hf_trainer(trainer: transformers.Trainer,
-                                   output_dir: str):
+def safe_save_model_for_hf_trainer(trainer: transformers.Trainer, output_dir: str):
     """Collects the state dict and dump to disk."""
     state_dict = trainer.model.state_dict()
     if trainer.args.should_save:
-        cpu_state_dict = {
-            key: value.cpu()
-            for key, value in state_dict.items()
-        }
+        cpu_state_dict = {key: value.cpu() for key, value in state_dict.items()}
         del state_dict
         trainer._save(output_dir, state_dict=cpu_state_dict)  # noqa
 
@@ -100,17 +87,14 @@ def smart_tokenizer_and_embedding_resize(
         input_embeddings = model.get_input_embeddings().weight.data
         output_embeddings = model.get_output_embeddings().weight.data
 
-        input_embeddings_avg = input_embeddings[:-num_new_tokens].mean(
-            dim=0, keepdim=True)
-        output_embeddings_avg = output_embeddings[:-num_new_tokens].mean(
-            dim=0, keepdim=True)
+        input_embeddings_avg = input_embeddings[:-num_new_tokens].mean(dim=0, keepdim=True)
+        output_embeddings_avg = output_embeddings[:-num_new_tokens].mean(dim=0, keepdim=True)
 
         input_embeddings[-num_new_tokens:] = input_embeddings_avg
         output_embeddings[-num_new_tokens:] = output_embeddings_avg
 
 
-def _tokenize_fn(strings: Sequence[str],
-                 tokenizer: transformers.PreTrainedTokenizer) -> Dict:
+def _tokenize_fn(strings: Sequence[str], tokenizer: transformers.PreTrainedTokenizer) -> Dict:
     """Tokenize a list of strings."""
     tokenized_list = [
         tokenizer(
@@ -119,14 +103,12 @@ def _tokenize_fn(strings: Sequence[str],
             padding="longest",
             max_length=tokenizer.model_max_length,
             truncation=True,
-        ) for text in strings
+        )
+        for text in strings
     ]
-    input_ids = labels = [
-        tokenized.input_ids[0] for tokenized in tokenized_list
-    ]
+    input_ids = labels = [tokenized.input_ids[0] for tokenized in tokenized_list]
     input_ids_lens = labels_lens = [
-        tokenized.input_ids.ne(tokenizer.pad_token_id).sum().item()
-        for tokenized in tokenized_list
+        tokenized.input_ids.ne(tokenizer.pad_token_id).sum().item() for tokenized in tokenized_list
     ]
     return dict(
         input_ids=input_ids,
@@ -136,118 +118,113 @@ def _tokenize_fn(strings: Sequence[str],
     )
 
 
-def _mask_targets(target, tokenized_lens, speakers, header_len, s_ids, tokenizer):
-    cur_idx = header_len
-    target[: cur_idx] = IGNORE_INDEX
-
-    tgt_len = target.shape[0]
-    for tokenized_len, speaker, s_id in zip(tokenized_lens, speakers, s_ids):
-        if cur_idx >= tgt_len:
-            break
-        elif cur_idx + tokenized_len < tgt_len:
-            # Check whether the mask is applied to the correct position
-            if not torch.equal(target[cur_idx + 2:cur_idx + tokenized_len],
-                               s_id[2:]):
-                logging.warning("a sentence mismatches the corresponding piece "
-                                "in the conversation")
-                logging.warning(tokenizer.decode(target[cur_idx + 2:cur_idx + tokenized_len]))
-                logging.warning(tokenizer.decode(s_id[2:]))
-                logging.warning("===========================================")
-        if speaker == "human":
-            target[cur_idx:cur_idx + tokenized_len] = IGNORE_INDEX
-        cur_idx += tokenized_len
+def _tokenize_string(text, tokenizer: transformers.PreTrainedTokenizer):
+    tokenized = tokenizer(
+        text,
+        return_tensors="pt",
+        padding="longest",
+        max_length=tokenizer.model_max_length,
+        truncation=True,
+    )
+    tokenized_ids = tokenized.input_ids[0]
+    tokenized_ids_len = tokenized.input_ids.ne(tokenizer.pad_token_id).sum().item()
+    return tokenized_ids, tokenized_ids_len
 
 
-def _add_speaker_and_signal(header, source, get_conversation=True):
-    """Add speaker and start/end signal on each round."""
-    BEGIN_SIGNAL = "### "
-    END_SIGNAL = "\n"
+def _prompt_input(background):
+    return background
 
-    # unknown_role = "unknown"  # use default unknown role
 
-    if "narrative" in source[0]:
-        # 如果是对话，会将对应的
-        role_a = source[0]["from"].lower()
-        role_b = source[1]["from"].lower()
-        prompt_head = "Here is a conversation between {role_a} and {role_b} related to the description below. " \
-            .format_map({"role_a": role_a, "role_b": role_b})
-        header = prompt_head + source[0]["narrative"] + "\n\n"
-    elif "handPrompt" in source[0]:
-        header = source[0]["handPrompt"] + "\n\n"
-    else:
-        role_a = source[0]["from"].lower()
-        if role_a == "talka":
-            role_b = source[1]["from"].lower()
-            prompt_head = "Here is a conversation on the internet between {role_a} and {role_b}, , they want to get to know each other. " \
-                .format_map({"role_a": role_a, "role_b": role_b})
-            header = prompt_head + "\n\n"
-
-    conversation = header
-    roles = {
-        "human": conversation_lib.default_conversation.roles[0],  # human role
-        "gpt": conversation_lib.default_conversation.roles[1],  # gpt role
+def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrainedTokenizer, token_max_len: int):
+    """
+    :param token_max_len: limit number of token ids
+    :param conversation_dic: example:{
+        "background":"---",
+        "human_name":"a",
+        "bot_name":"b",
+        "qas":{
+            "turn_0":{"question":"---","answer":"---"},
+            ...
+            "turn_n":{"question":"---","answer":"---"}
+        }
     }
-    for sentence in source:
-        sentence_from = sentence["from"].lower()
-        sentence["value"] = (
-                BEGIN_SIGNAL
-                + roles.get(sentence_from, sentence_from)  # 如果不在human gpt中就用实际的
-                + ": "
-                + sentence["value"]
-                + END_SIGNAL
-        )
-        if get_conversation:
-            conversation += sentence["value"]
-    return conversation, header
+    :param tokenizer: tokenizer model
+    :return: dic
+    """
+    default_segment_token_ids, default_segment_token_ids_len = _tokenize_string(DEFAULT_SEGMENT_TOKEN, tokenizer)
+
+    ignore_token_index_list = []
+    turn_n = len(conversation_dic["qas"])
+    human_name = conversation_dic['human_name']
+    bot_name = conversation_dic['bot_name']
+    header = PROMPT_DICT['header']
+    head_ids, header_ids_len = _tokenize_string(header, tokenizer)
+    bot_name_token_ids, bot_name_token_ids_len = _tokenize_string(bot_name + ": ", tokenizer)
+
+    input_ids_tensor_list = [head_ids]
+
+    for i in range(turn_n):
+        cur_turn_qa = conversation_dic['qas'][f'turn_{i}']
+        # question
+        cur_question_string = human_name + ": " + cur_turn_qa["question"]
+        cur_question_string_token_ids, cur_question_string_token_ids_len = _tokenize_string(cur_question_string,
+                                                                                            tokenizer)
+        # answer
+        cur_answer_string = cur_turn_qa["answer"]
+        cur_answer_string_token_ids, cur_answer_string_token_ids_len = _tokenize_string(cur_answer_string, tokenizer)
+
+        if header_ids_len + default_segment_token_ids_len + cur_question_string_token_ids_len + default_segment_token_ids_len + bot_name_token_ids_len + cur_answer_string_token_ids_len > token_max_len:
+            break
+
+        # question
+        input_ids_tensor_list.append(default_segment_token_ids)
+        input_ids_tensor_list.append(cur_question_string_token_ids)
+        header_ids_len += default_segment_token_ids_len + cur_question_string_token_ids_len + default_segment_token_ids_len + bot_name_token_ids_len
+        ignore_start_index = header_ids_len - 1
+
+        # answer
+        input_ids_tensor_list.append(default_segment_token_ids)
+        input_ids_tensor_list.append(bot_name_token_ids)
+        input_ids_tensor_list.append(cur_answer_string_token_ids)
+        header_ids_len += cur_answer_string_token_ids_len
+        ignore_end_index = header_ids_len
+
+        ignore_token_index_list.append((ignore_start_index, ignore_end_index))
+
+    input_ids = torch.cat(input_ids_tensor_list, dim=0)
+    label_ids = copy.deepcopy(input_ids)
+    for ignore_start_i, ignore_end_i in ignore_token_index_list:
+        label_ids[ignore_start_i:ignore_end_i] = IGNORE_INDEX
+
+    return input_ids, label_ids
 
 
 def preprocess(
-        sources: Sequence[str],
+        examples: Sequence[Dict],
         tokenizer: transformers.PreTrainedTokenizer,
+        token_max_len: int
 ) -> Dict:
-    """
-    Given a list of sources, each is a conversation list. This transform:
-    1. Add signal '### ' at the beginning each sentence, with end signal '\n';
-    2. Concatenate conversations together;
-    3. Tokenize the concatenated conversation;
-    4. Make a deepcopy as the target. Mask human words with IGNORE_INDEX.
-    """
-    # add end signal and concatenate together
-    conversations = []
-    header = f"{conversation_lib.default_conversation.system}\n\n"
-    for source in sources:
-        conversation, header = _add_speaker_and_signal(header, source)
-        conversations.append(conversation)
-    # tokenize conversations
-    conversations_tokenized = _tokenize_fn(conversations, tokenizer)
-    input_ids = conversations_tokenized["input_ids"]
-    targets = copy.deepcopy(input_ids)
-    header_len = _tokenize_fn([header], tokenizer)["input_ids_lens"][0]
-    for target, source in zip(targets, sources):
-        tokenized_sentence = _tokenize_fn([s["value"] for s in source], tokenizer)
-        tokenized_lens = tokenized_sentence["input_ids_lens"]
-        # Currently, "###" is tokenized into 2 tokens in the whole conversation,
-        # and 1 token in a single sentence, so we do not need to use the line below.
-        # tokenized_lens = [l-1 for l in tokenized_lens]
-        speakers = [sentence["from"] for sentence in source]
-        ids = tokenized_sentence["input_ids"]
-        _mask_targets(target, tokenized_lens, speakers, header_len, ids, tokenizer)
+    """Preprocess the data by tokenizing."""
+    input_ids_list = []
+    labels_list = []
 
-    return dict(input_ids=input_ids, labels=targets)
+    for example in tqdm(examples):
+        input_ids, labels = _preprocess_example(example, tokenizer, token_max_len)
+        input_ids_list.append(input_ids)
+        labels_list.append(labels)
+
+    return dict(input_ids=input_ids_list, labels=labels_list)
 
 
 class SupervisedDataset(Dataset):
     """Dataset for supervised fine-tuning."""
 
-    def __init__(self, data_path: str,
-                 tokenizer: transformers.PreTrainedTokenizer):
+    def __init__(self, data_path: str, tokenizer: transformers.PreTrainedTokenizer, token_max_len: int):
         super(SupervisedDataset, self).__init__()
         logging.warning("Loading data...")
-        list_data_dict = json.load(open(data_path, "r"))
+        list_data_dict = json.load(open(data_path))
 
-        logging.warning("Formatting inputs...")
-        sources = [example for example in list_data_dict]
-        data_dict = preprocess(sources, tokenizer)
+        data_dict = preprocess(list_data_dict, tokenizer, token_max_len)
 
         self.input_ids = data_dict["input_ids"]
         self.labels = data_dict["labels"]
@@ -259,35 +236,6 @@ class SupervisedDataset(Dataset):
         return dict(input_ids=self.input_ids[i], labels=self.labels[i])
 
 
-class LazySupervisedDataset(Dataset):
-    """Dataset for supervised fine-tuning."""
-
-    def __init__(self, data_path: str,
-                 tokenizer: transformers.PreTrainedTokenizer):
-        super(LazySupervisedDataset, self).__init__()
-        logging.warning("Loading data...")
-        list_data_dict = json.load(open(data_path, "r"))
-
-        logging.warning("Formatting inputs...Skip in lazy mode")
-        self.tokenizer = tokenizer
-        self.list_data_dict = list_data_dict
-
-    def __len__(self):
-        return len(self.list_data_dict)
-
-    def __getitem__(self, i) -> Dict[str, torch.Tensor]:
-        sources = self.list_data_dict[i]
-        if isinstance(i, int):
-            sources = [sources]
-        data_dict = preprocess(
-            copy.deepcopy(sources),
-            self.tokenizer)
-        if isinstance(i, int):
-            data_dict = dict(input_ids=data_dict["input_ids"][0],
-                             labels=data_dict["labels"][0])
-        return data_dict
-
-
 @dataclass
 class DataCollatorForSupervisedDataset(object):
     """Collate examples for supervised fine-tuning."""
@@ -295,15 +243,11 @@ class DataCollatorForSupervisedDataset(object):
     tokenizer: transformers.PreTrainedTokenizer
 
     def __call__(self, instances: Sequence[Dict]) -> Dict[str, torch.Tensor]:
-        input_ids, labels = tuple([instance[key] for instance in instances]
-                                  for key in ("input_ids", "labels"))
+        input_ids, labels = tuple([instance[key] for instance in instances] for key in ("input_ids", "labels"))
         input_ids = torch.nn.utils.rnn.pad_sequence(
-            input_ids,
-            batch_first=True,
-            padding_value=self.tokenizer.pad_token_id)
-        labels = torch.nn.utils.rnn.pad_sequence(labels,
-                                                 batch_first=True,
-                                                 padding_value=IGNORE_INDEX)
+            input_ids, batch_first=True, padding_value=self.tokenizer.pad_token_id
+        )
+        labels = torch.nn.utils.rnn.pad_sequence(labels, batch_first=True, padding_value=IGNORE_INDEX)
         return dict(
             input_ids=input_ids,
             labels=labels,
@@ -311,24 +255,18 @@ class DataCollatorForSupervisedDataset(object):
         )
 
 
-def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer,
-                                data_args) -> Dict:
+def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer, data_args, token_max_len) -> Dict:
     """Make dataset and collator for supervised fine-tuning."""
-    dataset_cls = (LazySupervisedDataset
-                   if data_args.lazy_preprocess else SupervisedDataset)
-    train_dataset = dataset_cls(tokenizer=tokenizer,
-                                data_path=data_args.data_path)
+    train_dataset = SupervisedDataset(tokenizer=tokenizer, data_path=data_args.data_path, token_max_len=token_max_len)
     data_collator = DataCollatorForSupervisedDataset(tokenizer=tokenizer)
-    return dict(train_dataset=train_dataset,
-                eval_dataset=None,
-                data_collator=data_collator)
+    return dict(train_dataset=train_dataset, eval_dataset=None, data_collator=data_collator)
 
 
 def train():
-    setproctitle.setproctitle("chengqi_bigolive_soda")
-    parser = transformers.HfArgumentParser(
-        (ModelArguments, DataArguments, TrainingArguments))
+    setproctitle.setproctitle("bigolive")
+    parser = transformers.HfArgumentParser((ModelArguments, DataArguments, TrainingArguments))
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
+
     model = transformers.AutoModelForCausalLM.from_pretrained(
         model_args.model_name_or_path,
         cache_dir=training_args.cache_dir,
@@ -347,27 +285,21 @@ def train():
             tokenizer=tokenizer,
             model=model,
         )
-    # if "llama" in model_args.model_name_or_path:
-    tokenizer.add_special_tokens({
-        "eos_token": DEFAULT_EOS_TOKEN,
-        "bos_token": DEFAULT_BOS_TOKEN,
-        "unk_token": DEFAULT_UNK_TOKEN,
-    })
+    if "llama" in model_args.model_name_or_path:
+        tokenizer.add_special_tokens(
+            {
+                "eos_token": DEFAULT_EOS_TOKEN,
+                "bos_token": DEFAULT_BOS_TOKEN,
+                "unk_token": DEFAULT_UNK_TOKEN,
+            }
+        )
 
-    data_module = make_supervised_data_module(tokenizer=tokenizer,
-                                              data_args=data_args)
-    trainer = Trainer(model=model,
-                      tokenizer=tokenizer,
-                      args=training_args,
-                      **data_module)
-
-    if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
-        trainer.train(resume_from_checkpoint=True)
-    else:
-        trainer.train()
+    data_module = make_supervised_data_module(tokenizer=tokenizer, data_args=data_args,
+                                              token_max_len=training_args.model_max_length)
+    trainer = Trainer(model=model, tokenizer=tokenizer, args=training_args, **data_module)
+    trainer.train()
     trainer.save_state()
-    safe_save_model_for_hf_trainer(trainer=trainer,
-                                   output_dir=training_args.output_dir)
+    safe_save_model_for_hf_trainer(trainer=trainer, output_dir=training_args.output_dir)
 
 
 if __name__ == "__main__":
