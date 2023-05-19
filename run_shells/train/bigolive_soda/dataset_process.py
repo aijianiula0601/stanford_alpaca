@@ -88,7 +88,7 @@ f = "/mnt/cephfs/hjh/common_dataset/nlp/chat/soda/soda_train_name.json"
 save_f = f"{base_dir}/sota.json"
 data_list = json.load(open(f))
 
-new_soda_data_list = process_data(data_list, save_f, header_key=None)
+new_soda_data_list = process_data(data_list, save_f, header_key="narrative")
 
 # -----------------
 # merge
