@@ -72,11 +72,13 @@ new_sex_data_list = process_data(data_list, save_f, end_string_list, header_key=
 # bigolive
 # -----------------
 
-f = "/mnt/cephfs/zhuchengqi/git/LLM/bigo_stanford_alpaca/datasets/live0512_filter2.json"
+# f = "/mnt/cephfs/zhuchengqi/git/LLM/bigo_stanford_alpaca/datasets/live0512_filter2.json"
+# 城琦调用gpt来给聊天记录增加background
+f = "/mnt/cephfs/zhuchengqi/git/LLM/bigo_stanford_alpaca/datasets/live0512_filter2_back_2w.json"
 save_f = f"{base_dir}/bigolive.json"
 data_list = json.load(open(f))
 
-new_biglive_data_list = process_data(data_list, save_f, header_key=None)
+new_biglive_data_list = process_data(data_list, save_f, header_key="background")
 
 # -----------------
 # soda
