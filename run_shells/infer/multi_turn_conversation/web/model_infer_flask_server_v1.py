@@ -16,7 +16,7 @@ import torch
 
 setproctitle.setproctitle("llama_mask_instruct_fix_mask")
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 # 自动识别机器上的gpu
 worker_id = int(os.environ.get('APP_WORKER_ID', 1))
 devices = os.environ.get('CUDA_VISIBLE_DEVICES', '')
@@ -137,7 +137,7 @@ logger.info("loading model ... ")
 
 # mask_header_question
 model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs_fix_mask_bug/checkpoint-1000"
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs_fix_mask_bug/checkpoint-1600"
+# model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs_fix_mask_bug/checkpoint-1600"
 
 load_model(model_dir)
 logger.info('load model done!!!')
