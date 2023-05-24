@@ -165,7 +165,7 @@ def preprocess(
     input_ids_list = []
     labels_list = []
 
-    for example in tqdm(examples):
+    for example in examples:
         input_ids, labels = _preprocess_example(example, tokenizer, token_max_len)
         input_ids_list.append(input_ids)
         labels_list.append(labels)
