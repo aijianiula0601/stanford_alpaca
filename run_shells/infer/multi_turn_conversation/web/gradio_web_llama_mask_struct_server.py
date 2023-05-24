@@ -197,6 +197,12 @@ with gr.Blocks() as demo:
 
     clear.click(clear_f, [bot_name], [gr_chatbot, role_a_question])
 
+    role_a_question.submit(toggle,
+                           inputs=[role_a_question, selected_temp, gr_chatbot, background_role_a, background_role_b,
+                                   user_name,
+                                   bot_name, select_role_a_model, select_role_b_model],
+                           outputs=[role_a_question, gr_chatbot])
+
 demo.queue()
 demo.launch(server_name="0.0.0.0", server_port=8991, debug=True)
 # demo.launch(server_name="202.168.100.165", server_port=8991)
