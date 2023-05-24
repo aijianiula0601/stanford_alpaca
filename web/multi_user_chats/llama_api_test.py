@@ -40,7 +40,8 @@ def llama_respond(message_list, role_dict, temperature=0.6):
         "role_b": role_dict['assistant'],
     })
 
-    response = requests.post("http://202.168.100.181:805/api/llama", data=request_data)
+    # response = requests.post("http://202.168.100.181:805/api/llama", data=request_data)
+    response = requests.post("http://202.168.100.251:5019/api/llama", data=request_data)
     json_data = json.loads(response.text)
     text_respond = json_data["result"]
     # print("REAL Respond", text_respond)
