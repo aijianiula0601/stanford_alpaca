@@ -22,8 +22,8 @@ your_random_port=11224
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_sex"
 llama_ckpt_and_tokenizer="${base_dir}/llama-7b-hf"
 output_dir="${base_dir}/ft_literotica"
-data_json="/mnt/cephfs/hjh/common_dataset/nlp/text/sex/debug_Literotica_sammple_100.json"
-#data_json="/mnt/cephfs/hjh/common_dataset/nlp/text/sex/Literotica_sammple_10w.json"
+#data_json="/mnt/cephfs/hjh/common_dataset/nlp/text/sex/debug_Literotica_sammple_100.json"
+data_json="/mnt/cephfs/hjh/common_dataset/nlp/text/sex/Literotica_sammple_20w.json"
 
 mkdir -p ${output_dir}
 
@@ -49,4 +49,5 @@ torchrun --nproc_per_node=4 --master_port=${your_random_port} test_models/pretra
     --report_to "tensorboard" \
     --gradient_checkpointing True \
     --deepspeed run_shells/train/deepspeed_config.json \
-    --fp16 True
+    --fp16 True \
+    --lazy_preprocess True

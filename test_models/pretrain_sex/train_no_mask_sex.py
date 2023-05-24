@@ -46,6 +46,7 @@ class ModelArguments:
 @dataclass
 class DataArguments:
     data_path: str = field(default=None, metadata={"help": "Path to the training data."})
+    lazy_preprocess: bool = False
 
 
 @dataclass
@@ -192,6 +193,36 @@ class SupervisedDataset(Dataset):
         return dict(input_ids=self.input_ids[i], labels=self.labels[i])
 
 
+class LazySupervisedDataset(Dataset):
+    """Dataset for supervised fine-tuning."""
+
+    def __init__(self, data_path: str,
+                 tokenizer: transformers.PreTrainedTokenizer, token_max_len):
+        super(LazySupervisedDataset, self).__init__()
+        logging.warning("Loading data...")
+        list_data_dict = json.load(open(data_path, "r"))
+        self.token_max_len = token_max_len
+
+        logging.warning("Formatting inputs...Skip in lazy mode")
+        self.tokenizer = tokenizer
+        self.list_data_dict = list_data_dict
+
+    def __len__(self):
+        return len(self.list_data_dict)
+
+    def __getitem__(self, i) -> Dict[str, torch.Tensor]:
+        sources = self.list_data_dict[i]
+        if isinstance(i, int):
+            sources = [sources]
+        data_dict = preprocess(
+            copy.deepcopy(sources),
+            self.tokenizer, self.token_max_len)
+        if isinstance(i, int):
+            data_dict = dict(input_ids=data_dict["input_ids"][0],
+                             labels=data_dict["labels"][0])
+        return data_dict
+
+
 @dataclass
 class DataCollatorForSupervisedDataset(object):
     """Collate examples for supervised fine-tuning."""
@@ -213,7 +244,8 @@ class DataCollatorForSupervisedDataset(object):
 
 def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer, data_args, token_max_len) -> Dict:
     """Make dataset and collator for supervised fine-tuning."""
-    train_dataset = SupervisedDataset(tokenizer=tokenizer, data_path=data_args.data_path, token_max_len=token_max_len)
+    dataset_cls = (LazySupervisedDataset if data_args.lazy_preprocess else SupervisedDataset)
+    train_dataset = dataset_cls(tokenizer=tokenizer, data_path=data_args.data_path, token_max_len=token_max_len)
     data_collator = DataCollatorForSupervisedDataset(tokenizer=tokenizer)
     return dict(train_dataset=train_dataset, eval_dataset=None, data_collator=data_collator)
 
