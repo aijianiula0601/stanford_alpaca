@@ -14,9 +14,9 @@ import os
 import sys
 import torch
 
-setproctitle.setproctitle("llama_mask_instruct")
+setproctitle.setproctitle("llama_mask_instruct_fix_mask")
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 # 自动识别机器上的gpu
 worker_id = int(os.environ.get('APP_WORKER_ID', 1))
 devices = os.environ.get('CUDA_VISIBLE_DEVICES', '')
@@ -133,7 +133,12 @@ logger.info("loading model ... ")
 # model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/tmp/finetune_out_gpt4_share_sex_soda_cot_multi/checkpoint-4000/"
 # model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs_mask_instruct/checkpoint-1400"
 # model_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs_mask_instruct/checkpoint-1500"
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs_mask_instruct/checkpoint-1000"
+# model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs_mask_instruct/checkpoint-1000"
+
+# mask_header_question
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs_fix_mask_bug/checkpoint-1000"
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun_conversation/ft_outs_fix_mask_bug/checkpoint-1600"
+
 load_model(model_dir)
 logger.info('load model done!!!')
 logger.info('-' * 100)
@@ -194,4 +199,4 @@ def receive():
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host="202.168.100.251", port=5018)
+    app.run(debug=False, host="202.168.100.251", port=5019)
