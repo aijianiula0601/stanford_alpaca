@@ -1,37 +1,37 @@
+import os
+import sys
 import json
 from tqdm import tqdm
 from joblib import Parallel, delayed
 from pathlib import Path
 
-PROMPT_DICT = {
-    "background_chat": (
-        "The following is the background now give you the background, according to the background, generate the answer to the corresponding question, do not generate multiple rounds of reply.\n"
-        "{background}\n"
-        "Here is a conversation between {role_a} and {role_b}\n"
-        "{history}"
-    ),
-    "no_background_chat": (
-        "Here is a conversation between {role_a} and {role_b}, do not generate multiple rounds of reply.\n"
-        "{history}"
-    )
-}
+HUMAN_NAME_KEY = "human_name"
+BOT_NAME_KEY = "bot_name"
+BACKGROUND_KEY = "background"
+QAS_KEY = "qas"
+QUESTION_KEY = "question"
+ANSWER_KEY = "answer"
+DATASET_KEY = "dataset_name"
 
 
 def get_qa(data_dic={}):
-    instruct_list = []
     story = data_dic['story']
     questions = data_dic['questions']
     answers = data_dic['answers']
 
+    cur_dialogues = {BACKGROUND_KEY: story, HUMAN_NAME_KEY: "user", BOT_NAME_KEY: "assistant"}
+    qas = []
     for q, a in zip(questions, answers):
         q_input_text = q['input_text']
         a_input_text = a['input_text']
 
         assert q['turn_id'] == a['turn_id'], f"error turn_id for q-a: {q['turn_id']} != {a['turn_id']}"
 
-        instruct_list.append({"background": story, "question": q_input_text, "answer": a_input_text})
+        qas.append({f"turn_{a['turn_id']}": {QUESTION_KEY: q_input_text, ANSWER_KEY: a_input_text}})
 
-    return instruct_list
+    cur_dialogues[QAS_KEY] = qas
+
+    return cur_dialogues
 
 
 base_dir = "/mnt/cephfs/hjh/common_dataset/nlp/qa/en/coqa"
@@ -46,10 +46,10 @@ for org_f in org_f_list:
     results = Parallel(n_jobs=16, backend="multiprocessing")(
         delayed(get_qa)(example) for example in tqdm(f_data['data']))
     for res in results:
-        example_list += res
+        example_list.append(res)
 
     save_f = f"{base_dir}/processed_{Path(org_f).name}"
-
+    print("对话个数：", len(example_list))
     json.dump(example_list, fp=open(save_f, "w", encoding="utf-8"))
     print(f"save to:{save_f}")
     print(f"example:\n{json.dumps(example_list[0])}")
