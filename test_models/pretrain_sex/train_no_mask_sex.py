@@ -16,6 +16,7 @@ import sys
 import copy
 import logging
 from tqdm import tqdm
+import random
 import json
 import setproctitle
 from dataclasses import dataclass, field
@@ -28,7 +29,6 @@ import torch
 import transformers
 from torch.utils.data import Dataset
 from transformers import Trainer
-from test_models.multi_turns_conversation.data_utils import get_dataset_prompt
 
 IGNORE_INDEX = -100
 DEFAULT_PAD_TOKEN = "[PAD]"
@@ -131,59 +131,28 @@ def _prompt_input(background):
     return background
 
 
-def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrainedTokenizer, token_max_len: int):
+def _preprocess_example(text: str, tokenizer: transformers.PreTrainedTokenizer, token_max_len: int):
     """
-    :param token_max_len: limit number of token ids
-    :param conversation_dic: example:{
-        "background":"---",
-        "human_name":"a",
-        "bot_name":"b",
-        "qas":{
-            "turn_0":{"question":"---","answer":"---"},
-            ...
-            "turn_n":{"question":"---","answer":"---"}
-        }
-    }
+    text: sex 文本
     :param tokenizer: tokenizer model
     :return: dic
     """
-    dataset_name = conversation_dic['dataset_name']
-    default_segment_token_ids, default_segment_token_ids_len = _tokenize_string(DEFAULT_SEGMENT_TOKEN, tokenizer)
 
-    turn_n = len(conversation_dic["qas"])
-    human_name = conversation_dic['human_name']
-    bot_name = conversation_dic['bot_name']
-    header = get_dataset_prompt(dataset_name, human_name, bot_name, background=conversation_dic['background'])
-    head_ids, header_ids_len = _tokenize_string(header, tokenizer)
+    new_text = copy.copy(text)
+    max_chart_len = 5000
+    if len(text) > 5000:
+        start_i = random.randint(0, len(text) - max_chart_len)
+        new_text = new_text[start_i:start_i + max_chart_len]
 
-    input_ids_tensor_list = [head_ids]
+    text_ids, text_ids_len = _tokenize_string(new_text, tokenizer)
 
-    for i in range(turn_n):
-        cur_turn_qa = conversation_dic['qas'][f'turn_{i}']
-        cur_question_string = human_name + ": " + cur_turn_qa["question"] + DEFAULT_EOS_TOKEN
-        cur_question_string_token_ids, cur_question_string_token_ids_len = _tokenize_string(cur_question_string,
-                                                                                            tokenizer)
-        cur_answer_string = bot_name + ": " + cur_turn_qa["answer"] + DEFAULT_EOS_TOKEN
-        cur_answer_string_token_ids, cur_answer_string_token_ids_len = _tokenize_string(cur_answer_string, tokenizer)
+    if len(text_ids) > token_max_len:
+        start_i = random.randint(0, len(text_ids) - token_max_len)
+        text_ids = text_ids[start_i:start_i + token_max_len]
 
-        if header_ids_len + default_segment_token_ids_len + cur_question_string_token_ids_len + default_segment_token_ids_len + cur_answer_string_token_ids_len > token_max_len:
-            break
+    label_ids = copy.deepcopy(text_ids)
 
-        # question
-        input_ids_tensor_list.append(default_segment_token_ids)
-        input_ids_tensor_list.append(cur_question_string_token_ids)
-        header_ids_len += default_segment_token_ids_len + cur_question_string_token_ids_len
-
-        # answer
-        input_ids_tensor_list.append(default_segment_token_ids)
-        input_ids_tensor_list.append(cur_answer_string_token_ids)
-        header_ids_len += default_segment_token_ids_len + cur_answer_string_token_ids_len
-
-    input_ids = torch.cat(input_ids_tensor_list, dim=0)
-    label_ids = copy.deepcopy(input_ids)
-    label_ids[:len(head_ids)] = IGNORE_INDEX
-
-    return input_ids, label_ids
+    return text_ids, label_ids
 
 
 def preprocess(
@@ -209,9 +178,9 @@ class SupervisedDataset(Dataset):
     def __init__(self, data_path: str, tokenizer: transformers.PreTrainedTokenizer, token_max_len: int):
         super(SupervisedDataset, self).__init__()
         logging.warning("Loading data...")
-        list_data_dict = json.load(open(data_path))
+        list_data_text = json.load(open(data_path))
 
-        data_dict = preprocess(list_data_dict, tokenizer, token_max_len)
+        data_dict = preprocess(list_data_text, tokenizer, token_max_len)
 
         self.input_ids = data_dict["input_ids"]
         self.labels = data_dict["labels"]
