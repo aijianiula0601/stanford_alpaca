@@ -32,15 +32,15 @@ torchrun --nproc_per_node=4 --master_port=${your_random_port} test_models/pretra
     --model_name_or_path "${llama_ckpt_and_tokenizer}" \
     --data_path ${data_json} \
     --output_dir ${output_dir} \
-    --num_train_epochs 5 \
+    --num_train_epochs 3 \
     --per_device_train_batch_size 6 \
     --per_device_eval_batch_size 6 \
     --gradient_accumulation_steps 6 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 100 \
+    --save_steps 200 \
     --model_max_length 2048 \
-    --save_total_limit 100 \
+    --save_total_limit 50 \
     --learning_rate 2e-5 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \
