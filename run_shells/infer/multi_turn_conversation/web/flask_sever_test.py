@@ -60,7 +60,7 @@ def mask_instruct(message_list, role_dict, temperature=0.6):
         "prompt_input": prompt_input,
         "temperature": temperature,
         "max_gen_len": 256,
-        "stop_words_list": [DEFAULT_SEGMENT_TOKEN.strip(), role_dict['user'] + ":"]
+        "stop_words_list": [DEFAULT_SEGMENT_TOKEN.strip(), role_dict['user'] + ":", DEFAULT_EOS_TOKEN]
     })
     response = requests.post("http://202.168.100.251:5019/api", data=request_data)
 
