@@ -156,9 +156,12 @@ new_soda_data_list = trans2qa(new_soda_data_list, dataset_name="soda")
 # -----------------
 # gpt4永强生成的色情数据
 # -----------------
-f = "/mnt/cephfs/pangyongqiang/proj/LLM/data_fetch/data/sexy_chat_720.json"
+f1 = "/mnt/cephfs/pangyongqiang/proj/LLM/data_fetch/data/sexy_chat_1_720.json"
+f2 = "/mnt/cephfs/pangyongqiang/proj/LLM/data_fetch/data/sexy_chat_2_1300.json"
 save_f = f"{base_dir}/yongqiang_gpt4_sex.json"
-data_list = json.load(open(f))
+data_list1 = json.load(open(f1))
+data_list2 = json.load(open(f2))
+data_list = data_list1 + data_list2
 new_data_list = []
 for qas in data_list:
     for i, qa in enumerate(qas):
