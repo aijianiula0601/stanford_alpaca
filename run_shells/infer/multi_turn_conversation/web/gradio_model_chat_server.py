@@ -23,7 +23,12 @@ ROLE_B_NAME = "Ai"
 # --------------------------------------------------------
 # 模型选择
 # --------------------------------------------------------
-models_list = ["gpt3.5", "llama", "mask_instruct"]
+models_list = ["mask_head_answer_v1", "mask_head_answer_v2", "gptLiveSodaSex"]
+models_url_dic = {
+    models_list[0]: "http://202.168.100.251:5018/api",
+    models_list[1]: "http://202.168.100.251:5019/api",
+    models_list[2]: "http://202.168.100.165:5020/api",
+}
 
 
 def get_history(role_a_name, role_b_name, history=[]):
@@ -36,37 +41,25 @@ def get_history(role_a_name, role_b_name, history=[]):
     return rh
 
 
-def role_ab_chat(selected_temp, user_message, history, background_b, role_a_name, role_b_name, role_b_model_name):
+def role_b_chat(selected_temp, user_message, history, background_b, role_a_name, role_b_name, role_b_model_name):
     # -------------------
     # role_b回答
     # -------------------
     history = history + [[f"{role_a_name}: " + user_message, None]]
-    role_b_input_api_data = get_input_api_data(background=get_background(background_b, role_b_name, role_a_name),
+
+    role_b_input_api_data = get_input_api_data(background=background_b,
                                                history=get_history(role_a_name, role_b_name, history))
-    if role_b_model_name == models_list[0]:
-        role_b_question = chat_with_chatgpt(role_b_input_api_data, selected_temp)
-    elif role_b_model_name == models_list[1]:
-        role_b_question = llama_respond(role_b_input_api_data,
-                                        role_dict={"user": role_a_name, "assistant": role_b_name},
-                                        temperature=selected_temp)
-    elif role_b_model_name == models_list[2]:
-        role_b_input_api_data = get_input_api_data(background=background_b,
-                                                   history=get_history(role_a_name, role_b_name, history))
-        print("=" * 100)
-        print("message_list:")
-        print(get_history(role_a_name, role_b_name, history))
-        print('-' * 50)
-        print("role_b_input_api_data:")
-        print(role_b_input_api_data)
-        print("=" * 100)
-        role_b_question = mask_instruct(role_b_input_api_data,
-                                        role_dict={"user": role_a_name,
-                                                   "assistant": role_b_name},
-                                        temperature=selected_temp)
-
-
-    else:
-        raise Exception("-----Error选择的模型不存在！！！！")
+    print("=" * 100)
+    print("message_list:")
+    print(get_history(role_a_name, role_b_name, history))
+    print('-' * 50)
+    print("role_b_input_api_data:")
+    print(role_b_input_api_data)
+    print("=" * 100)
+    role_b_question = mask_instruct(role_b_input_api_data,
+                                    role_dict={"user": role_a_name,
+                                               "assistant": role_b_name},
+                                    temperature=selected_temp, model_server_url=models_url_dic[role_b_model_name])
 
     print(f"{role_b_name}({role_b_model_name}): ", role_b_question)
     history[-1][-1] = f"{role_b_name}: " + role_b_question
@@ -75,8 +68,8 @@ def role_ab_chat(selected_temp, user_message, history, background_b, role_a_name
 
 
 def toggle(user_message, selected_temp, chatbot, background_b, role_a_name, role_b_name, role_b_model_name):
-    user_message, history = role_ab_chat(selected_temp, user_message, chatbot, background_b, role_a_name,
-                                         role_b_name, role_b_model_name)
+    user_message, history = role_b_chat(selected_temp, user_message, chatbot, background_b, role_a_name,
+                                        role_b_name, role_b_model_name)
     chatbot += history[len(chatbot):]
     return user_message, chatbot
 
@@ -112,7 +105,7 @@ def update_select_model():
 
 with gr.Blocks() as demo:
     with gr.Row():
-        gr.Markdown("# 两个LLM模型互相对话demo")
+        gr.Markdown("# LLM模型对话demo")
     with gr.Row():
         with gr.Column():
             selected_temp = gr.Slider(0, 1, value=0.9, label="Temperature超参,调的越小越容易输出常见字",
@@ -149,5 +142,5 @@ with gr.Blocks() as demo:
                            outputs=[role_a_question, gr_chatbot])
 
 demo.queue()
-demo.launch(server_name="0.0.0.0", server_port=8991, debug=True)
-# demo.launch(server_name="202.168.100.165", server_port=8991)
+# demo.launch(server_name="0.0.0.0", server_port=8991, debug=True)
+demo.launch(server_name="202.168.100.178", server_port=8995)

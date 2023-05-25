@@ -43,7 +43,7 @@ DEFAULT_SEGMENT_TOKEN = "###"
 DEFAULT_EOS_TOKEN = "</s>"
 
 
-def mask_instruct(message_list, role_dict, temperature=0.6):
+def mask_instruct(message_list, role_dict, temperature=0.6, model_server_url="http://202.168.100.251:5019/api"):
     '''message-list第一个数值是背景，
     后面需要在role_dict里要做好配置，我最后会回复role_dict['assistant']角色的答案;
     role_dict_real用于映射history里的内容'''
@@ -62,7 +62,7 @@ def mask_instruct(message_list, role_dict, temperature=0.6):
         "max_gen_len": 256,
         "stop_words_list": [DEFAULT_SEGMENT_TOKEN.strip(), role_dict['user'] + ":", DEFAULT_EOS_TOKEN]
     })
-    response = requests.post("http://202.168.100.251:5019/api", data=request_data)
+    response = requests.post(model_server_url, data=request_data)
 
     json_data = json.loads(response.text)
     text_respond = json_data["result"]

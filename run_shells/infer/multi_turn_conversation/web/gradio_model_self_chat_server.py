@@ -24,7 +24,12 @@ ROLE_A_START_QUESTION = "hi"
 # --------------------------------------------------------
 # 模型选择
 # --------------------------------------------------------
-models_list = ["gpt3.5", "llama", "mask_instruct"]
+models_list = ["mask_head_answer_v1", "mask_head_answer_v2", "gptLiveSodaSex"]
+models_url_dic = {
+    models_list[0]: "http://202.168.100.251:5018/api",
+    models_list[1]: "http://202.168.100.251:5019/api",
+    models_list[2]: "http://202.168.100.165:5020/api",
+}
 
 
 def get_history(role_a_name, role_b_name, history=[]):
@@ -43,33 +48,20 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     # role_b回答
     # -------------------
     history = history + [[f"{role_a_name}: " + user_message, None]]
-    role_b_input_api_data = get_input_api_data(background=get_background(background_b, role_b_name, role_a_name),
+
+    role_b_input_api_data = get_input_api_data(background=background_b,
                                                history=get_history(role_a_name, role_b_name, history))
-    # print("----role_b_input_api_data:", role_b_input_api_data)
-    if role_b_model_name == models_list[0]:
-        role_b_question = chat_with_chatgpt(role_b_input_api_data, selected_temp)
-    elif role_b_model_name == models_list[1]:
-        role_b_question = llama_respond(role_b_input_api_data,
-                                        role_dict={"user": role_a_name, "assistant": role_b_name},
-                                        temperature=selected_temp)
-    elif role_b_model_name == models_list[2]:
-        role_b_input_api_data = get_input_api_data(background=background_b,
-                                                   history=get_history(role_a_name, role_b_name, history))
-        print("=" * 100)
-        print("message_list:")
-        print(get_history(role_a_name, role_b_name, history))
-        print('-' * 50)
-        print("role_b_input_api_data:")
-        print(role_b_input_api_data)
-        print("=" * 100)
-        role_b_question = mask_instruct(role_b_input_api_data,
-                                        role_dict={"user": role_a_name,
-                                                   "assistant": role_b_name},
-                                        temperature=selected_temp)
-
-
-    else:
-        raise Exception("-----Error选择的模型不存在！！！！")
+    print("=" * 100)
+    print("message_list:")
+    print(get_history(role_a_name, role_b_name, history))
+    print('-' * 50)
+    print("role_b_input_api_data:")
+    print(role_b_input_api_data)
+    print("=" * 100)
+    role_b_question = mask_instruct(role_b_input_api_data,
+                                    role_dict={"user": role_a_name,
+                                               "assistant": role_b_name},
+                                    temperature=selected_temp, model_server_url=models_url_dic[role_b_model_name])
 
     print(f"{role_b_name}({role_b_model_name}): ", role_b_question)
     history[-1][-1] = f"{role_b_name}: " + role_b_question
@@ -77,27 +69,12 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     # -------------------
     # role_a回答
     # -------------------
-    role_a_input_api_data = get_input_api_data(background=get_background(background_a, role_a_name, role_b_name),
+    role_a_input_api_data = get_input_api_data(background=background_a,
                                                history=get_history(role_a_name, role_b_name, history)[1:])
-
-    if role_a_model_name == models_list[0]:
-        role_a_question = chat_with_chatgpt(role_a_input_api_data, selected_temp)
-    elif role_a_model_name == models_list[1]:
-        role_a_question = llama_respond(role_a_input_api_data,
-                                        role_dict={"user": role_b_name, "assistant": role_a_name},
-                                        temperature=selected_temp)
-    elif role_a_model_name == models_list[2]:
-        role_a_input_api_data = get_input_api_data(background=background_a,
-                                                   history=get_history(role_a_name, role_b_name, history)[1:])
-        role_a_question = mask_instruct(role_a_input_api_data,
-                                        role_dict={"user": role_b_name,
-                                                   "assistant": role_a_name},
-                                        temperature=selected_temp)
-
-    else:
-        raise Exception("-----Error选择的模型不存在！！！！")
-
-    # print("---role_dic:", {"user": role_b_name, "assistant": role_a_name})
+    role_a_question = mask_instruct(role_a_input_api_data,
+                                    role_dict={"user": role_b_name,
+                                               "assistant": role_a_name},
+                                    temperature=selected_temp, model_server_url=models_url_dic[role_a_model_name])
 
     print(f"{role_a_name}({role_a_model_name}): ", role_a_question)
     return role_a_question, history
@@ -128,18 +105,17 @@ prepared_role_b_dic[""] = {"role_name": "Ai", "background": ""}
 role_b_list = list(prepared_role_b_dic.keys())
 
 
-def update_select_role_a(role_key, bot_name):
-    return prepared_role_a_dic[role_key]["role_name"], \
-           prepared_role_a_dic[role_key]["background"], \
+def update_select_role(role_a_key, role_b_key):
+    return prepared_role_a_dic[role_a_key]["role_name"], \
+           prepared_role_a_dic[role_a_key]["background"].format_map(
+               {"role_a": prepared_role_b_dic[role_b_key]["role_name"],
+                "role_b": prepared_role_a_dic[role_a_key]["role_name"]}), \
+           prepared_role_b_dic[role_b_key]["role_name"], \
+           prepared_role_b_dic[role_b_key]["background"].format_map(
+               {"role_a": prepared_role_a_dic[role_a_key]["role_name"],
+                "role_b": prepared_role_b_dic[role_b_key]["role_name"]}), \
            None, \
-           ROLE_A_START_QUESTION + ", " + bot_name + "!"
-
-
-def update_select_role_b(role_key, bot_name):
-    return prepared_role_b_dic[role_key]["role_name"], \
-           prepared_role_b_dic[role_key]["background"], \
-           None, \
-           ROLE_A_START_QUESTION + ", " + bot_name + "!"
+           ROLE_A_START_QUESTION + ", " + prepared_role_b_dic[role_b_key]["role_name"] + "!"
 
 
 def update_select_model(bot_name):
@@ -186,10 +162,10 @@ with gr.Blocks() as demo:
     bot_name.change(lambda x: ROLE_A_START_QUESTION + ", " + x + "!", bot_name, role_a_question)
     select_role_a_model.change(update_select_model, [bot_name], [gr_chatbot, role_a_question], queue=False)
     select_role_b_model.change(update_select_model, [bot_name], [gr_chatbot, role_a_question], queue=False)
-    select_role_a.change(update_select_role_a, [select_role_a, bot_name],
-                         [user_name, background_role_a, gr_chatbot, role_a_question])
-    select_role_b.change(update_select_role_b, [select_role_b, bot_name],
-                         [bot_name, background_role_b, gr_chatbot, role_a_question])
+    select_role_a.change(update_select_role, [select_role_a, select_role_b],
+                         [user_name, background_role_a, bot_name, background_role_b, gr_chatbot, role_a_question])
+    select_role_b.change(update_select_role, [select_role_a, select_role_b],
+                         [user_name, background_role_a, bot_name, background_role_b, gr_chatbot, role_a_question])
     btn.click(toggle,
               inputs=[role_a_question, selected_temp, gr_chatbot, background_role_a, background_role_b, user_name,
                       bot_name, select_role_a_model, select_role_b_model],
@@ -204,5 +180,5 @@ with gr.Blocks() as demo:
                            outputs=[role_a_question, gr_chatbot])
 
 demo.queue()
-demo.launch(server_name="0.0.0.0", server_port=8991, debug=True)
-# demo.launch(server_name="202.168.100.165", server_port=8991)
+# demo.launch(server_name="0.0.0.0", server_port=8992, debug=True)
+demo.launch(server_name="202.168.100.178", server_port=8996)
