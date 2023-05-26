@@ -23,11 +23,18 @@ ROLE_B_NAME = "Ai"
 # --------------------------------------------------------
 # 模型选择
 # --------------------------------------------------------
-models_list = ["mask_head_answer_v1", "mask_head_answer_v2", "gptLiveSodaSex"]
+# models_list = ["mask_head_answer_v1", "mask_head_answer_v2", "gptLiveSodaSex", "gpt3.5sex"]
+# models_url_dic = {
+#     models_list[0]: "http://202.168.100.251:5018/api",
+#     models_list[1]: "http://202.168.100.251:5019/api",
+#     models_list[2]: "http://202.168.100.165:5020/api",
+#     models_list[3]: "http://202.168.100.251:5021/api",
+# }
+
+models_list = ["mask_head_answer", "gpt3.5sex"]
 models_url_dic = {
     models_list[0]: "http://202.168.100.251:5018/api",
-    models_list[1]: "http://202.168.100.251:5019/api",
-    models_list[2]: "http://202.168.100.165:5020/api",
+    models_list[1]: "http://202.168.100.251:5021/api",
 }
 
 
@@ -88,9 +95,11 @@ prepared_role_b_dic[""] = {"role_name": "Ai", "background": ""}
 role_b_list = list(prepared_role_b_dic.keys())
 
 
-def update_select_role_b(role_key):
-    return prepared_role_b_dic[role_key]["role_name"], \
-           prepared_role_b_dic[role_key]["background"], \
+def update_select_role_b(role_b_key, user_name):
+    return prepared_role_b_dic[role_b_key]["role_name"], \
+           prepared_role_b_dic[role_b_key]["background"].format_map(
+               {"role_a": user_name,
+                "role_b": prepared_role_b_dic[role_b_key]["role_name"]}), \
            None, \
            None
 
@@ -111,7 +120,7 @@ with gr.Blocks() as demo:
             selected_temp = gr.Slider(0, 1, value=0.9, label="Temperature超参,调的越小越容易输出常见字",
                                       interactive=True)
             with gr.Row():
-                select_role_b_model = gr.Dropdown(choices=models_list, value=models_list[2], label="选择角色B的模型",
+                select_role_b_model = gr.Dropdown(choices=models_list, value=models_list[1], label="选择角色B的模型",
                                                   interactive=True)
             with gr.Row():
                 select_role_b = gr.Dropdown(choices=role_b_list, value="None", label="请选择bot角色",
@@ -128,9 +137,12 @@ with gr.Blocks() as demo:
             gr_chatbot = gr.Chatbot(label="聊天记录")
             clear = gr.Button("清空聊天记录")
 
-    bot_name.change(lambda x: None, bot_name, role_a_question)
+    user_name.change(update_select_role_b, [select_role_b, user_name],
+                     [bot_name, background_role_b, gr_chatbot, role_a_question])
+    bot_name.change(update_select_role_b, [select_role_b, user_name],
+                    [bot_name, background_role_b, gr_chatbot, role_a_question])
     select_role_b_model.change(update_select_model, None, [gr_chatbot, role_a_question], queue=False)
-    select_role_b.change(update_select_role_b, [select_role_b],
+    select_role_b.change(update_select_role_b, [select_role_b, user_name],
                          [bot_name, background_role_b, gr_chatbot, role_a_question])
 
     clear.click(clear_f, None, [gr_chatbot, role_a_question])
