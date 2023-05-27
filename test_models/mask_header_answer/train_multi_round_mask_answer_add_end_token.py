@@ -161,6 +161,8 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
     head_ids, header_ids_len = _tokenize_string(header, tokenizer)
     bot_name_token_ids, bot_name_token_ids_len = _tokenize_string(bot_name + ": ", tokenizer)
 
+    assert header_ids_len >= token_max_len, "the prompt is to long!"
+
     input_ids_tensor_list = [head_ids]
 
     for i in range(turn_n):
