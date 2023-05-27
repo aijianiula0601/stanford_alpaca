@@ -19,7 +19,7 @@ def sota_prompt(human_name, bot_name, background):
     return f"Here is a conversation between {human_name} and {bot_name} related to the description below. {background}\n\n"
 
 
-def gpt4_prompt(human_name, bot_name, background):
+def sharegpt_prompt(human_name, bot_name, background):
     return f"Below is an chat between {human_name} and {bot_name}.\n\n"
 
 
@@ -42,8 +42,8 @@ def get_dataset_prompt(dataset_name, human_name, bot_name, background):
     if dataset_name == "sota":
         return sota_prompt(human_name, bot_name, background)
 
-    elif dataset_name == "gpt4":
-        return gpt4_prompt(human_name, bot_name, background)
+    elif dataset_name == "sharegpt":
+        return sharegpt_prompt(human_name, bot_name, background)
 
     elif dataset_name == "persona_chat":
         return persona_chat_prompt(human_name, bot_name, background)
