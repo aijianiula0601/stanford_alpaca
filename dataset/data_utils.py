@@ -79,13 +79,13 @@ def get_dataset_prompt(dataset_name, human_name, bot_name, background):
         return sota_prompt(human_name, bot_name, background)
 
     elif dataset_name == "sharegpt":
-        return sharegpt_prompt(human_name, bot_name, background)
+        return sharegpt_prompt(human_name, bot_name)
 
     elif dataset_name == "persona_chat":
         return persona_chat_prompt(human_name, bot_name, background)
 
     elif dataset_name == "empathetic_dialogues":
-        return empathetic_dialogues_prompt(human_name, bot_name, background)
+        return empathetic_dialogues_prompt(human_name, bot_name)
 
     elif dataset_name == "stanford_52k":
         return stanford_52k_prompt(background)
