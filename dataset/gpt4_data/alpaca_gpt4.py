@@ -10,6 +10,7 @@ sys.path.append(pdf)
 from dataset.data_utils import *
 
 # 下载地址：https://raw.githubusercontent.com/Instruction-Tuning-with-GPT-4/GPT-4-LLM/main/data/alpaca_gpt4_data.json
+# 原地址：https://github.com/Instruction-Tuning-with-GPT-4/GPT-4-LLM#data-release
 
 
 # ---------------------------------------------
