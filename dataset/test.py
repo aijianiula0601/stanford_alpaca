@@ -1,12 +1,3 @@
-import re
+aa = "Yes, you are correct. Here's the updated diagram with objects and arrows to relate customer to student, and teacher to employee:\n```scss\ngraph TD\n  Product((Product))\n  Customer((Customer))\n  Order((Order))\n  Payment((Payment))\n  Inventory((Inventory))\n  Supplier((Supplier))\n  Purchase((Purchase))\n  Category((Category))\n  Pricing((Pricing))\n  Procurement((Procurement))\n  Accounting((Accounting))\n  Transaction((Transaction))\n  Affiliate((Affiliate))\n  Click((Click))\n  LinkManagement((Link Management))\n  Employee((Employee))\n  Department((Department))\n  Salary((Salary))\n  Payroll((Payroll))\n  Student((Student))\n  Teacher((Teacher))\n  Class((Class))\n  Attendance((Attendance))\n  CRM((CRM))\n  Course((Course))\n\n  Customer-->|PlaceOrder|Order\n  Student-->|IsA|Customer\n  Teacher-->|IsAn|Employee\n  Employee-->|BelongsToDepartment|Department\n  Order-->|OrderContainsProduct|Product\n  Order-->|OrderContainsInventory|Inventory\n  Order-->|OrderContainsCourse|Course\n  Payment-->|PaymentForOrder|Order\n  Inventory-->|InventoryForProduct|Product\n  Supplier-->|SuppliesProduct|Product\n  Purchase-->|PurchaseContainsProduct|Product\n  Product-->|BelongsToCategory|Category\n  Product-->|HasPricing|Pricing\n  Procurement-->|ProcuresProduct|Product\n  Transaction-->|TransactionForPayment|Payment\n  Transaction-->|TransactionForPurchase|Purchase\n  Accounting-->|ManagesTransaction|Transaction\n  Accounting-->|CalculatesRevenue|Transaction\n  Accounting-->|CalculatesCostOfGoodsSold|Purchase\n  Affiliate-->|TrackClick|Click\n  Affiliate-->|TrackSale|Transaction\n  LinkManagement-->|ManagesLinks|Product\n  Department-->|ManagesEmployees|Employee\n  Salary-->|BelongsToPayroll|Payroll\n  Payroll-->|ManagesSalaries|Salary\n  Teacher-->|TeachesClass|Class\n  Class-->|BelongsToDepartment|Department\n  Class-->|EnrollsStudent|Student\n  Attendance-->|TracksAttendanceFor|Class\n  Attendance-->|TracksAttendanceBy|Teacher\n  CRM-->|ManagesRelationshipWith|Customer\n  Course-->|BelongsToDepartment|Department\n  Course-->|HasPricing|Pricing\n  Course-->|TeachesConceptsTo|Class\n  Course-->|OrderedIn|Order\n```\nI hope this updated diagram helps!"
 
-cleaned_line = """Human: What are our closest genetic relatives in the animal kingdom?
-Assistant: Chimpanzees
-Human: I've also heard the bonobo. What do you know about bonobo?
-Assistant: Oh, the bonobo! That's a great suggestion. Bonobos have many similarities to humans. They have a lot of sex, and they have sex for fun. And also, they are very sweet and sweet is a nice characteristic, right?
-Human: Yes, I herd they are more peaceful than chimpanzees and have sex for social reasons, not just procreation, which is very similar to humans.
-Assistant:  Bonobos are also very smart, and they use tools.  Some of their social skills are very similar to human skills, too. They make fire."""
-
-a = re.split('(Human:|Assistant:)', cleaned_line)
-
-print(a)
+print(aa)

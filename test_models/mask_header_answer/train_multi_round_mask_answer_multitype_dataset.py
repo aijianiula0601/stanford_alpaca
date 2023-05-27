@@ -15,7 +15,6 @@ import os
 import sys
 import copy
 import logging
-from tqdm import tqdm
 import json
 import setproctitle
 from dataclasses import dataclass, field
@@ -29,6 +28,8 @@ import torch
 import transformers
 from torch.utils.data import Dataset
 from transformers import Trainer
+
+from dataset.data_utils import *
 
 IGNORE_INDEX = -100
 DEFAULT_PAD_TOKEN = "[PAD]"
@@ -151,30 +152,31 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
     :param tokenizer: tokenizer model
     :return: dic
     """
+    dataset_name = conversation_dic[DATASET_KEY]
     default_segment_token_ids, default_segment_token_ids_len = _tokenize_string(DEFAULT_SEGMENT_TOKEN, tokenizer)
 
     ignore_token_index_list = []
-    turn_n = len(conversation_dic["qas"])
-    human_name = conversation_dic['human_name']
-    bot_name = conversation_dic['bot_name']
-    header = PROMPT_DICT['header']
+    turn_n = len(conversation_dic[QAS_KEY])
+    human_name = conversation_dic[HUMAN_NAME_KEY]
+    bot_name = conversation_dic[BOT_NAME_KEY]
+    header = get_dataset_prompt(dataset_name, human_name, bot_name, background=conversation_dic[BACKGROUND_KEY])
     head_ids, header_ids_len = _tokenize_string(header, tokenizer)
     bot_name_token_ids, bot_name_token_ids_len = _tokenize_string(bot_name + ": ", tokenizer)
 
     if header_ids_len >= token_max_len:
-        logging.warning("the prompt is to long!")
+        logging.warning("-------------The prompt is to long!-----------------")
         return None, None
 
     input_ids_tensor_list = [head_ids]
 
     for i in range(turn_n):
-        cur_turn_qa = conversation_dic['qas'][f'turn_{i}']
+        cur_turn_qa = conversation_dic[QAS_KEY][f'{TURN_KEY}_{i}']
         # question
-        cur_question_string = human_name + ": " + cur_turn_qa["question"] + DEFAULT_EOS_TOKEN
+        cur_question_string = human_name + ": " + cur_turn_qa[QUESTION_KEY] + DEFAULT_EOS_TOKEN
         cur_question_string_token_ids, cur_question_string_token_ids_len = _tokenize_string(cur_question_string,
                                                                                             tokenizer)
         # answer
-        cur_answer_string = cur_turn_qa["answer"] + DEFAULT_EOS_TOKEN
+        cur_answer_string = cur_turn_qa[ANSWER_KEY] + DEFAULT_EOS_TOKEN
         cur_answer_string_token_ids, cur_answer_string_token_ids_len = _tokenize_string(cur_answer_string, tokenizer)
 
         if header_ids_len + default_segment_token_ids_len + cur_question_string_token_ids_len + default_segment_token_ids_len + bot_name_token_ids_len + cur_answer_string_token_ids_len > token_max_len:

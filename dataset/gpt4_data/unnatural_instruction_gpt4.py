@@ -46,9 +46,9 @@ for item in tqdm(org_data):
                    BOT_NAME_KEY: RESPONSE_NAME,
                    QAS_KEY: {
                        f"{TURN_KEY}_0": {
-                           QUESTION_KEY: f"{item['instruction']} {DEFAULT_SEGMENT_TOKEN}{INPUT_NAME}: {item['label']}" if
+                           QUESTION_KEY: f"{item['instruction']} {DEFAULT_SEGMENT_TOKEN}{INPUT_NAME}: {item['output']}" if
                            item["input"].strip() != "" else f"{item['instruction']}",
-                           ANSWER_KEY: item['label']}}
+                           ANSWER_KEY: item['output']}}
                    }
     qas_data_list.append(cur_example)
 
@@ -56,7 +56,6 @@ print(f"all:{len(qas_data_list)}")
 check_data_format(qas_data_list)
 json.dump(qas_data_list, open(save_f, 'w'))
 print(f"save to:{save_f}")
-
 
 # ---------------------------------------------
 # 别人过滤过的，https://huggingface.co/datasets/teknium/GPT4-LLM-Cleaned

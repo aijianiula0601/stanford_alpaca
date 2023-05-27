@@ -13,10 +13,11 @@ DATASET_KEY = "dataset_name"
 TURN_KEY = "turn"
 DEFAULT_SEGMENT_TOKEN = "### "
 
-
 INSTRUCTION_NAME = "Instruction"
 RESPONSE_NAME = "Response"
 INPUT_NAME = "Input"
+HUMAN_DEFAULT_NAME = "user"
+BOT_DEFAULT_NAME = "assistant"
 
 
 # ---------------------------------------------------------------------------------------------
@@ -63,6 +64,9 @@ PERSONA_CHAT_DATASET_NAME = "persona_chat"
 EMPATHETIC_DIALOGUES_DATASET_NAME = "empathetic_dialogues"
 INSTRUCTION_INPUT_DATASET_NAME = "instruct_input"
 ALPACA_GPT4 = "alpaca_gpt4"
+UNNATURAL_INSTRUCTION_DATASET_NAME = "unnatural_instruction_gpt4"
+DATABRICKS_DOLLY_15K_DATASET_NAME = "databricks-dolly-15k"
+CNN_DAILYMAIL_DATASET_NAME = "cnn_dailymail"
 
 
 def sota_prompt(human_name, bot_name, background):
@@ -76,15 +80,14 @@ def sharegpt_prompt(human_name, bot_name, background):
 def persona_chat_prompt(human_name, bot_name, background):
     return (f"Background:{background}\n"
             f"The above describes the state information of {bot_name} from the perspective of first person. "
-            f"The following is a conversation between {human_name} and {bot_name}. "
-            f"Provide appropriate answer to the question on {human_name}\n\n")
+            f"The following is a conversation between {human_name} and {bot_name}.\n\n")
 
 
 def empathetic_dialogues_prompt(human_name, bot_name, background):
-    return f"Here is a conversation between {human_name} and {bot_name}.\n\n"
+    return f"Background:{background}.\nThe above background is the self-description of {human_name}. "
 
 
-def stanford_52k_prompt(human_name, bot_name, background=""):
+def instruction_input_prompt(human_name, bot_name, background=""):
     """
     PROMPT_DICT = {
         "prompt_input": (
@@ -113,6 +116,20 @@ def stanford_52k_prompt(human_name, bot_name, background=""):
         return "Below is an instruction that describes a task. Write a response that appropriately completes the request.\n\n"
 
 
+def reading_comprehension_prompt(human_name, bot_name, background):
+    """
+    阅读理解类型prompt
+    """
+    return f"Context:\n{background}\n You as a {bot_name}. Please answer the {human_name}'s question correctly according to the context above.\n\n"
+
+
+def summary_prompt(human_name, bot_name, background):
+    """
+    总结类型的prompt
+    """
+    return f"Context:\n{background}\n You as a {bot_name}. Please answer the {human_name}'s question correctly according to the context above.\n\n"
+
+
 def get_dataset_prompt(dataset_name, human_name, bot_name, background):
     if dataset_name == SOTA_DATASET_NAME:
         return sota_prompt(human_name, bot_name, background)
@@ -126,7 +143,14 @@ def get_dataset_prompt(dataset_name, human_name, bot_name, background):
     elif dataset_name == EMPATHETIC_DIALOGUES_DATASET_NAME:
         return empathetic_dialogues_prompt(human_name, bot_name, background)
 
-    elif dataset_name == INSTRUCTION_INPUT_DATASET_NAME:
-        return stanford_52k_prompt(human_name, bot_name, background)
+    elif dataset_name in [INSTRUCTION_INPUT_DATASET_NAME, ALPACA_GPT4, UNNATURAL_INSTRUCTION_DATASET_NAME]:
+        return instruction_input_prompt(human_name, bot_name, background)
+
+    elif dataset_name == CNN_DAILYMAIL_DATASET_NAME:
+        return summary_prompt(human_name, bot_name, background)
+
+    elif dataset_name == DATABRICKS_DOLLY_15K_DATASET_NAME:
+        return reading_comprehension_prompt(human_name, bot_name, background)
+
     else:
         raise Exception(f"Error dataset name:{dataset_name}")
