@@ -1,7 +1,0 @@
-HUMAN_NAME_KEY = "human_name"
-BOT_NAME_KEY = "bot_name"
-BACKGROUND_KEY = "background"
-QAS_KEY = "qas"
-QUESTION_KEY = "question"
-ANSWER_KEY = "answer"
-DATASET_KEY = "dataset_name"
