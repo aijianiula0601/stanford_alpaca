@@ -9,7 +9,6 @@ QUESTION_KEY = "question"
 ANSWER_KEY = "answer"
 DATASET_KEY = "dataset_name"
 
-
 # ---------------------------------------------------------------------------------------------
 # 定义各个数据集的prompt
 # ---------------------------------------------------------------------------------------------
@@ -26,11 +25,19 @@ DATASET_KEY = "dataset_name"
 #         }
 #   }
 
+
+SOTA_DATASET_NAME = "sota"
+SHAREGPT_DATASET_NAME = "sharegpt"
+PERSONA_CHAT_DATASET_NAME = "persona_chat"
+EMPATHETIC_DIALOGUES_DATASET_NAME = "empathetic_dialogues"
+INSTRUCTION_INPUT_DATASET_NAME = "instruct_input"
+
+
 def sota_prompt(human_name, bot_name, background):
     return f"Here is a conversation between {human_name} and {bot_name} related to the description below. {background}\n\n"
 
 
-def sharegpt_prompt(human_name, bot_name):
+def sharegpt_prompt(human_name, bot_name, background):
     return f"Below is an chat between {human_name} and {bot_name}. Provide appropriate answer to the question on {human_name}.\n\n"
 
 
@@ -41,11 +48,11 @@ def persona_chat_prompt(human_name, bot_name, background):
             f"Provide appropriate answer to the question on {human_name}\n\n")
 
 
-def empathetic_dialogues_prompt(human_name, bot_name):
+def empathetic_dialogues_prompt(human_name, bot_name, background):
     return f"Here is a conversation between {human_name} and {bot_name}.\n\n"
 
 
-def stanford_52k_prompt(background=""):
+def stanford_52k_prompt(human_name, bot_name, background=""):
     """
     PROMPT_DICT = {
         "prompt_input": (
@@ -75,19 +82,19 @@ def stanford_52k_prompt(background=""):
 
 
 def get_dataset_prompt(dataset_name, human_name, bot_name, background):
-    if dataset_name == "sota":
+    if dataset_name == SOTA_DATASET_NAME:
         return sota_prompt(human_name, bot_name, background)
 
-    elif dataset_name == "sharegpt":
-        return sharegpt_prompt(human_name, bot_name)
+    elif dataset_name == SHAREGPT_DATASET_NAME:
+        return sharegpt_prompt(human_name, bot_name, background)
 
-    elif dataset_name == "persona_chat":
+    elif dataset_name == PERSONA_CHAT_DATASET_NAME:
         return persona_chat_prompt(human_name, bot_name, background)
 
-    elif dataset_name == "empathetic_dialogues":
-        return empathetic_dialogues_prompt(human_name, bot_name)
+    elif dataset_name == EMPATHETIC_DIALOGUES_DATASET_NAME:
+        return empathetic_dialogues_prompt(human_name, bot_name, background)
 
-    elif dataset_name == "stanford_52k":
-        return stanford_52k_prompt(background)
+    elif dataset_name == INSTRUCTION_INPUT_DATASET_NAME:
+        return stanford_52k_prompt(human_name, bot_name, background)
     else:
         raise Exception(f"Error dataset name:{dataset_name}")
