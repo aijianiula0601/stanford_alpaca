@@ -28,6 +28,9 @@ from dataset.data_utils import *
 #   }
 # ---------------------------------------------
 
+# ---------------------------------------------
+# 为过滤过的
+# ---------------------------------------------
 
 base_dir = "/mnt/cephfs/hjh/common_dataset/nlp/instruction/unnatural_instruction_gpt4"
 org_f = f"{base_dir}/unnatural_instruction_gpt4_data.json"
@@ -46,6 +49,37 @@ for item in tqdm(org_data):
                            QUESTION_KEY: f"{item['instruction']} {DEFAULT_SEGMENT_TOKEN}{INPUT_NAME}: {item['label']}" if
                            item["input"].strip() != "" else f"{item['instruction']}",
                            ANSWER_KEY: item['label']}}
+                   }
+    qas_data_list.append(cur_example)
+
+print(f"all:{len(qas_data_list)}")
+check_data_format(qas_data_list)
+json.dump(qas_data_list, open(save_f, 'w'))
+print(f"save to:{save_f}")
+
+
+# ---------------------------------------------
+# 别人过滤过的，https://huggingface.co/datasets/teknium/GPT4-LLM-Cleaned
+# ---------------------------------------------
+
+
+base_dir = "/mnt/cephfs/hjh/common_dataset/nlp/instruction/unnatural_instruction_gpt4"
+org_f = f"{base_dir}/unnatural_instructions_unfiltered.json"
+save_f = f"{base_dir}/prepare2qas_unnatural_instructions_unfiltered_data.json"
+
+org_data = json.load(open(org_f))
+
+qas_data_list = []
+for item in tqdm(org_data):
+    cur_example = {DATASET_KEY: ALPACA_GPT4,
+                   BACKGROUND_KEY: item["input"],
+                   HUMAN_NAME_KEY: INSTRUCTION_NAME,
+                   BOT_NAME_KEY: RESPONSE_NAME,
+                   QAS_KEY: {
+                       f"{TURN_KEY}_0": {
+                           QUESTION_KEY: f"{item['instruction']} {DEFAULT_SEGMENT_TOKEN}{INPUT_NAME}: {item['output']}" if
+                           item["input"].strip() != "" else f"{item['instruction']}",
+                           ANSWER_KEY: item['output']}}
                    }
     qas_data_list.append(cur_example)
 
