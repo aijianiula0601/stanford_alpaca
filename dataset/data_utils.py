@@ -30,19 +30,22 @@ def sota_prompt(human_name, bot_name, background):
     return f"Here is a conversation between {human_name} and {bot_name} related to the description below. {background}\n\n"
 
 
-def sharegpt_prompt(human_name, bot_name, background):
-    return f"Below is an chat between {human_name} and {bot_name}.\n\n"
+def sharegpt_prompt(human_name, bot_name):
+    return f"Below is an chat between {human_name} and {bot_name}. Provide appropriate answer to the question on {human_name}.\n\n"
 
 
 def persona_chat_prompt(human_name, bot_name, background):
-    return f"{background}\n\n The above describes the state information of {bot_name} from the perspective of first person. The following is a conversation between {human_name} and {bot_name}.\n\n"
+    return (f"Background:{background}\n"
+            f"The above describes the state information of {bot_name} from the perspective of first person. "
+            f"The following is a conversation between {human_name} and {bot_name}. "
+            f"Provide appropriate answer to the question on {human_name}\n\n")
 
 
-def empathetic_dialogues_prompt(human_name, bot_name, background):
+def empathetic_dialogues_prompt(human_name, bot_name):
     return f"Here is a conversation between {human_name} and {bot_name}.\n\n"
 
 
-def stanford_52k_prompt(human_name, bot_name, background=""):
+def stanford_52k_prompt(background=""):
     """
     PROMPT_DICT = {
         "prompt_input": (
@@ -85,6 +88,6 @@ def get_dataset_prompt(dataset_name, human_name, bot_name, background):
         return empathetic_dialogues_prompt(human_name, bot_name, background)
 
     elif dataset_name == "stanford_52k":
-        return stanford_52k_prompt(human_name, bot_name, background)
+        return stanford_52k_prompt(background)
     else:
         raise Exception(f"Error dataset name:{dataset_name}")
