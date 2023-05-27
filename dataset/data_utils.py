@@ -1,3 +1,5 @@
+from tqdm import tqdm
+
 # ---------------------------------------------------------------------------------------------
 # 定义qa数据格式使用的特定字符
 # ---------------------------------------------------------------------------------------------
@@ -8,6 +10,34 @@ QAS_KEY = "qas"
 QUESTION_KEY = "question"
 ANSWER_KEY = "answer"
 DATASET_KEY = "dataset_name"
+TURN_KEY = "turn"
+DEFAULT_SEGMENT_TOKEN = "### "
+
+
+INSTRUCTION_NAME = "Instruction"
+RESPONSE_NAME = "Response"
+INPUT_NAME = "Input"
+
+
+# ---------------------------------------------------------------------------------------------
+# 检查格式的正确性
+# ---------------------------------------------------------------------------------------------
+
+def check_data_format(check_data=[]):
+    print("checking ...")
+    for example in tqdm(check_data):
+        assert DATASET_KEY in example
+        assert BACKGROUND_KEY in example
+        assert HUMAN_NAME_KEY in example
+        assert BOT_NAME_KEY in example
+        assert QAS_KEY in example
+
+        for i in range(len(example[QAS_KEY])):
+            turn_key = f"{TURN_KEY}_{i}"
+            assert f"{turn_key}" in example[QAS_KEY]
+            assert QUESTION_KEY in example[QAS_KEY][turn_key]
+            assert ANSWER_KEY in example[QAS_KEY][turn_key]
+
 
 # ---------------------------------------------------------------------------------------------
 # 定义各个数据集的prompt
@@ -15,9 +45,10 @@ DATASET_KEY = "dataset_name"
 
 #  qa数据中一个example为：
 #   {
-#         "background":"---",
+#         "background":"~",
 #         "human_name":"a",
 #         "bot_name":"b",
+#         "dataset_name": "~"
 #         "qas":{
 #             "turn_0":{"question":"---","answer":"---"},
 #             ...
@@ -31,6 +62,7 @@ SHAREGPT_DATASET_NAME = "sharegpt"
 PERSONA_CHAT_DATASET_NAME = "persona_chat"
 EMPATHETIC_DIALOGUES_DATASET_NAME = "empathetic_dialogues"
 INSTRUCTION_INPUT_DATASET_NAME = "instruct_input"
+ALPACA_GPT4 = "alpaca_gpt4"
 
 
 def sota_prompt(human_name, bot_name, background):
