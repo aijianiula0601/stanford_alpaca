@@ -164,7 +164,6 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
     bot_name_token_ids, bot_name_token_ids_len = _tokenize_string(bot_name + ": ", tokenizer)
 
     if header_ids_len >= token_max_len:
-        logging.warning("-------------The prompt is to long!-----------------")
         return None, None
 
     input_ids_tensor_list = [head_ids]
@@ -214,11 +213,24 @@ def preprocess(
     input_ids_list = []
     labels_list = []
 
+    skip_head_too_long_n = 0
+    error_n = 0
+    all_n = 0
     for example in tqdm(examples):
-        input_ids, labels = _preprocess_example(example, tokenizer, token_max_len)
-        if input_ids is not None and labels is not None:
-            input_ids_list.append(input_ids)
-            labels_list.append(labels)
+        all_n += 1
+        try:
+            input_ids, labels = _preprocess_example(example, tokenizer, token_max_len)
+            if input_ids is not None and labels is not None:
+                input_ids_list.append(input_ids)
+                labels_list.append(labels)
+            else:
+                skip_head_too_long_n += 1
+        except Exception as e:
+            logging.error(f"---------error:{e}")
+            error_n += 1
+            pass
+
+    logging.info(f"---------all_n:{all_n},skip_head_too_long:{skip_head_too_long_n},error_n:{error_n}")
 
     return dict(input_ids=input_ids_list, labels=labels_list)
 
