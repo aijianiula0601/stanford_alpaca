@@ -15,6 +15,7 @@ cd ../../../
 #   --bf16 True
 #   --tf32 True
 # 这两个参数，这两个参数是在A100机器上训练的。
+# zero2配置参考：https://aitechtogether.com/article/45439.html
 #----------------------------------------------------------
 
 your_random_port=11224
