@@ -19,6 +19,7 @@ import json
 import setproctitle
 from dataclasses import dataclass, field
 from typing import Optional, Dict, Sequence
+from joblib import Parallel, delayed
 
 pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 print(f"--pdj:{pdj}")
@@ -235,6 +236,38 @@ def preprocess(
     return dict(input_ids=input_ids_list, labels=labels_list)
 
 
+def parallel_preprocess(examples: Sequence[Dict],
+                        tokenizer: transformers.PreTrainedTokenizer,
+                        token_max_len: int) -> Dict:
+    logging.warning("--------parallel_preprocess... ---------")
+    results = Parallel(n_jobs=40, backend="multiprocessing")(
+        delayed(_preprocess_example)(example, tokenizer, token_max_len) for example in tqdm(examples))
+
+    input_ids_list = []
+    labels_list = []
+
+    skip_head_too_long_n = 0
+    error_n = 0
+    all_n = 0
+    for input_ids, labels in tqdm(results):
+        all_n += 1
+        try:
+            if input_ids is not None and labels is not None:
+                input_ids_list.append(input_ids)
+                labels_list.append(labels)
+            else:
+                skip_head_too_long_n += 1
+        except Exception as e:
+            logging.error(f"---------error:{e}")
+            error_n += 1
+            pass
+
+    logging.warning(
+        f"[parallel_preprocess]---------all_n:{all_n},skip_head_too_long:{skip_head_too_long_n},error_n:{error_n}")
+
+    return dict(input_ids=input_ids_list, labels=labels_list)
+
+
 class SupervisedDataset(Dataset):
     """Dataset for supervised fine-tuning."""
 
@@ -243,7 +276,7 @@ class SupervisedDataset(Dataset):
         logging.warning("Loading data...")
         list_data_dict = json.load(open(data_path))
 
-        data_dict = preprocess(list_data_dict, tokenizer, token_max_len)
+        data_dict = parallel_preprocess(list_data_dict, tokenizer, token_max_len)
 
         self.input_ids = data_dict["input_ids"]
         self.labels = data_dict["labels"]
