@@ -110,49 +110,49 @@ for turns_data in json.load(open(org_f)):
 
 # org_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun/gpt4_shared_data.json"
 # 在俊士数据基础上清理出来
-# org_f = "/mnt/cephfs/hjh/common_dataset/nlp/qa/en/sharegpt/cleaned_gpt4_shared_data.json"
-# gpt4_shared_data = []
-# dataset_name = SHAREGPT_DATASET_NAME
-#
-# skip_n = 0
-# all_n = 0
-# for turns_data in json.load(open(org_f)):
-#     all_n += 1
-#     if len(turns_data) <= 1:
-#         skip_n += 1
-#         continue
-#     background = ''
-#     qas = {}
-#     try:
-#         human_name = turns_data[0]['from']
-#         bot_name = turns_data[1]['from']
-#         turn_i = 0
-#         for i, td in enumerate(turns_data):
-#             if (i + 1) % 2 == 1:
-#                 assert human_name == td['from']
-#                 qas[f"turn_{turn_i}"] = {QUESTION_KEY: td['value']}
-#             else:
-#                 assert bot_name == td['from']
-#                 qas[f"turn_{turn_i}"][ANSWER_KEY] = td['value']
-#                 turn_i += 1
-#
-#         turn_n = len(qas)
-#         if QUESTION_KEY not in qas[f"turn_{turn_n - 1}"] or ANSWER_KEY not in qas[f"turn_{turn_n - 1}"]:
-#             qas.pop(f"turn_{turn_n - 1}")
-#
-#         if len(qas) < 1:
-#             continue
-#
-#         gpt4_shared_data.append(
-#             {BACKGROUND_KEY: background, DATASET_KEY: dataset_name, HUMAN_NAME_KEY: human_name, BOT_NAME_KEY: bot_name,
-#              QAS_KEY: qas})
-#     except Exception as e:
-#         # print(e, f"data:{json.dumps(turns_data)}")
-#         # print("-" * 100)
-#         pass
-#
-# # print("skip_n:", skip_n, "all_n:", all_n)
-# # print(json.dumps(gpt4_data))
+org_f = "/mnt/cephfs/hjh/common_dataset/nlp/qa/en/sharegpt/cleaned_gpt4_shared_data.json"
+shared_gpt_data = []
+dataset_name = SHAREGPT_DATASET_NAME
+
+skip_n = 0
+all_n = 0
+for turns_data in json.load(open(org_f)):
+    all_n += 1
+    if len(turns_data) <= 1:
+        skip_n += 1
+        continue
+    background = ''
+    qas = {}
+    try:
+        human_name = HUMAN_DEFAULT_NAME
+        bot_name = BOT_DEFAULT_NAME
+        turn_i = 0
+        for i, td in enumerate(turns_data):
+            if (i + 1) % 2 == 1:
+                assert human_name == td['from']
+                qas[f"turn_{turn_i}"] = {QUESTION_KEY: td['value']}
+            else:
+                assert bot_name == td['from']
+                qas[f"turn_{turn_i}"][ANSWER_KEY] = td['value']
+                turn_i += 1
+
+        turn_n = len(qas)
+        if QUESTION_KEY not in qas[f"turn_{turn_n - 1}"] or ANSWER_KEY not in qas[f"turn_{turn_n - 1}"]:
+            qas.pop(f"turn_{turn_n - 1}")
+
+        if len(qas) < 1:
+            continue
+
+        shared_gpt_data.append(
+            {BACKGROUND_KEY: background, DATASET_KEY: dataset_name, HUMAN_NAME_KEY: human_name, BOT_NAME_KEY: bot_name,
+             QAS_KEY: qas})
+    except Exception as e:
+        # print(e, f"data:{json.dumps(turns_data)}")
+        # print("-" * 100)
+        pass
+
+# print("skip_n:", skip_n, "all_n:", all_n)
+# print(json.dumps(gpt4_data))
 
 # ------------------------------------------------------------
 # persona_chat
@@ -206,7 +206,7 @@ for example in json.load(open(org_f)):
 save_f = f"{save_base_dir}/multi_dataset_qas.json"
 debug_save_f = f"{save_base_dir}/debug_multi_dataset_qas.json"
 
-data = soda_data + persona_chat_data + empathetic_dialogues_data + alpaca_gpt4_data_list + unnatural_instruction_gpt4_data_list + databricks_dolly_15k_data_list + cnn_dailymail2qas_data_list
+data = soda_data + persona_chat_data + empathetic_dialogues_data + alpaca_gpt4_data_list + unnatural_instruction_gpt4_data_list + databricks_dolly_15k_data_list + cnn_dailymail2qas_data_list + shared_gpt_data
 random.shuffle(data)
 
 checked_data = []
