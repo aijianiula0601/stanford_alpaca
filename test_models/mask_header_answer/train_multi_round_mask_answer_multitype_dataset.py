@@ -276,7 +276,8 @@ class SupervisedDataset(Dataset):
         logging.warning("Loading data...")
         list_data_dict = json.load(open(data_path))
 
-        data_dict = parallel_preprocess(list_data_dict, tokenizer, token_max_len)
+        # data_dict = parallel_preprocess(list_data_dict, tokenizer, token_max_len)#测试了并不快
+        data_dict = preprocess(list_data_dict, tokenizer, token_max_len)
 
         self.input_ids = data_dict["input_ids"]
         self.labels = data_dict["labels"]
