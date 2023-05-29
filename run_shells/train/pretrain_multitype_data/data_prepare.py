@@ -109,6 +109,8 @@ for turns_data in json.load(open(org_f)):
 # ------------------------------------------------------------
 
 # org_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitrun/gpt4_shared_data.json"
+# 在俊士数据基础上清理出来
+# org_f = "/mnt/cephfs/hjh/common_dataset/nlp/qa/en/sharegpt/cleaned_gpt4_shared_data.json"
 # gpt4_shared_data = []
 # dataset_name = SHAREGPT_DATASET_NAME
 #
