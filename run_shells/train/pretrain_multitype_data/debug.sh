@@ -15,6 +15,7 @@ cd ../../../
 #   --bf16 True
 #   --tf32 True
 # 这两个参数，这两个参数是在A100机器上训练的。
+# zero2配置参考：https://aitechtogether.com/article/45439.html
 #----------------------------------------------------------
 
 your_random_port=11224
@@ -32,9 +33,9 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/mask_h
     --data_path ${data_json} \
     --output_dir ${output_dir} \
     --num_train_epochs 3 \
-    --per_device_train_batch_size 4 \
-    --per_device_eval_batch_size 4 \
-    --gradient_accumulation_steps 4 \
+    --per_device_train_batch_size 6 \
+    --per_device_eval_batch_size 6 \
+    --gradient_accumulation_steps 6 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
     --save_steps 200 \
@@ -47,5 +48,5 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/mask_h
     --logging_steps 1 \
     --report_to "tensorboard" \
     --gradient_checkpointing True \
-    --deepspeed run_shells/train/deepspeed_config_zero2.json \
+    --deepspeed run_shells/train/deepspeed_config.json \
     --fp16 True

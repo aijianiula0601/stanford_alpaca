@@ -232,5 +232,5 @@ json.dump(checked_data, fp=open(save_f, 'w'))
 print(f"save to:{save_f}")
 print(f"skip:{skip_n},all_n:{all_n}")
 
-json.dump(checked_data[:100], fp=open(debug_save_f, 'w'))
+json.dump(checked_data[:500], fp=open(debug_save_f, 'w'))
 print(f"save to:{debug_save_f}")
