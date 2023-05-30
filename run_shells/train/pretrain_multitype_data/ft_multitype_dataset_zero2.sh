@@ -22,7 +22,7 @@ your_random_port=11224
 
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data"
 llama_ckpt_and_tokenizer="${base_dir}/llama-7b-hf"
-output_dir="${base_dir}/ft_outs_zero"
+output_dir="${base_dir}/ft_outs_zero2"
 data_json="${base_dir}/multi_dataset_qas.json"
 
 mkdir -p ${output_dir}
@@ -35,7 +35,7 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/mask_h
     --num_train_epochs 3 \
     --per_device_train_batch_size 4 \
     --per_device_eval_batch_size 4 \
-    --gradient_accumulation_steps 4 \
+    --gradient_accumulation_steps 9 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
     --save_steps 200 \
