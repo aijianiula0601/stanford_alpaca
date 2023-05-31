@@ -16,6 +16,7 @@ import sys
 import copy
 import logging
 import json
+import pickle
 import setproctitle
 from dataclasses import dataclass, field
 from typing import Optional, Dict, Sequence
@@ -274,10 +275,18 @@ class SupervisedDataset(Dataset):
     def __init__(self, data_path: str, tokenizer: transformers.PreTrainedTokenizer, token_max_len: int):
         super(SupervisedDataset, self).__init__()
         logging.warning("Loading data...")
-        list_data_dict = json.load(open(data_path))
 
-        # data_dict = parallel_preprocess(list_data_dict, tokenizer, token_max_len)#测试了并不快
-        data_dict = preprocess(list_data_dict, tokenizer, token_max_len)
+        tokenizer_file = f"{data_path}_tokenizer.obj"
+
+        if os.path.exists(tokenizer_file):
+            data_dict = pickle.load(open(tokenizer_file, 'rb'))  # 反序列化
+            logging.warning(f"loaded data from:{tokenizer_file}")
+        else:
+            list_data_dict = json.load(open(data_path))
+            # data_dict = parallel_preprocess(list_data_dict, tokenizer, token_max_len)#测试了并不快
+            data_dict = preprocess(list_data_dict, tokenizer, token_max_len)
+            pickle.dump(data_dict, open(tokenizer_file, 'wb'))
+            logging.warning(f"loaded data from:{data_path}")
 
         self.input_ids = data_dict["input_ids"]
         self.labels = data_dict["labels"]
