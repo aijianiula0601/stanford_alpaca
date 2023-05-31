@@ -104,11 +104,11 @@ def clear_f(bot_name):
 # --------------------------------------------------------
 # 预先设定的角色
 # --------------------------------------------------------
-prepared_role_a_dic = json.load(open(f"{pdj}/run_shells/infer/multi_turn_conversation/prepared_background.json"))
+prepared_role_a_dic = json.load(open(f"{pdj}/run_shells/infer/prepared_background.json"))
 prepared_role_a_dic["None"] = {"role_name": "Human", "background": ""}
 prepared_role_a_dic[""] = {"role_name": "Human", "background": ""}
 role_a_list = list(prepared_role_a_dic.keys())
-prepared_role_b_dic = json.load(open(f"{pdj}/run_shells/infer/multi_turn_conversation/prepared_background.json"))
+prepared_role_b_dic = json.load(open(f"{pdj}/run_shells/infer/prepared_background.json"))
 prepared_role_b_dic["None"] = {"role_name": "Ai", "background": ""}
 prepared_role_b_dic[""] = {"role_name": "Ai", "background": ""}
 role_b_list = list(prepared_role_b_dic.keys())
