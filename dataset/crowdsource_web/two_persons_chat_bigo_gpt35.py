@@ -28,7 +28,7 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     # role_b回答
     # -------------------
     history = history + [[f"{role_a_name}: " + user_message, None]]
-    role_b_input_api_data = get_input_api_data(background=background_a,
+    role_b_input_api_data = get_input_api_data(background=background_b,
                                                history=get_history(role_a_name, role_b_name, history))
     print("----role_b_input_api_data:", role_b_input_api_data)
     role_b_question = chat_with_chatgpt(role_b_input_api_data, selected_temp)
@@ -38,7 +38,7 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     # -------------------
     # role_a回答
     # -------------------
-    role_a_input_api_data = get_input_api_data(background=background_b,
+    role_a_input_api_data = get_input_api_data(background=background_a,
                                                history=get_history(role_a_name, role_b_name, history)[1:])
     print("----role_a_input_api_data:", role_a_input_api_data)
     role_a_question = chat_with_chatgpt(role_a_input_api_data, selected_temp)
@@ -115,5 +115,5 @@ with gr.Blocks() as demo:
     clear.click(lambda x: [None, None, None], None, [gr_chatbot, role_a_question, save_text])
 
 demo.queue()
-demo.launch(server_name="0.0.0.0", server_port=8988)
-# demo.launch(server_name="202.168.100.165", server_port=8988)
+demo.launch(server_name="0.0.0.0", server_port=9010)
+# demo.launch(server_name="202.168.100.178", server_port=8988)
