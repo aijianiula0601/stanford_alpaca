@@ -11,7 +11,7 @@ from two_bigo_gpt35 import *
 
 
 # ----------------------------------------------------------------
-# 说明：这个页面用于给标注人员设计prompt体验gpt3.5互聊的效果
+# 说明：这个页面用于给标注人员设计prompt体验人机对话效果
 # ----------------------------------------------------------------
 
 def get_history(role_a_name, role_b_name, history=[]):
@@ -23,7 +23,7 @@ def get_history(role_a_name, role_b_name, history=[]):
     return rh
 
 
-def role_ab_chat(selected_temp, user_message, history, background_a, background_b, role_a_name, role_b_name):
+def role_ab_chat(selected_temp, user_message, history, background_b, role_a_name, role_b_name):
     # -------------------
     # role_b回答
     # -------------------
@@ -35,20 +35,12 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     print(f"{role_b_name}: ", role_b_question)
     history[-1][-1] = f"{role_b_name}: " + role_b_question
     print("-" * 100)
-    # -------------------
-    # role_a回答
-    # -------------------
-    role_a_input_api_data = get_input_api_data(background=background_a,
-                                               history=get_history(role_a_name, role_b_name, history)[1:])
-    print("----role_a_input_api_data:", role_a_input_api_data)
-    role_a_question = chat_with_chatgpt(role_a_input_api_data, selected_temp)
-    print(f"{role_a_name}: ", role_a_question)
 
-    return role_a_question, history
+    return None, history
 
 
-def toggle(user_message, selected_temp, chatbot, background_a, background_b, role_a_name, role_b_name):
-    user_message, history = role_ab_chat(selected_temp, user_message, chatbot, background_a, background_b, role_a_name,
+def toggle(user_message, selected_temp, chatbot, background_b, role_a_name, role_b_name):
+    user_message, history = role_ab_chat(selected_temp, user_message, chatbot, background_b, role_a_name,
                                          role_b_name)
     chatbot += history[len(chatbot):]
     return user_message, chatbot
@@ -58,17 +50,18 @@ default_save_dir = f"{pdj_dir}/save_records"
 os.system(f"mkdir -p {default_save_dir}")
 
 
-def save_record(save_name, chatbot, background_a, background_b, role_a_name, role_b_name):
+def save_record(save_name, chatbot, background_b, role_a_name, role_b_name):
     if save_name is None or len(
-            chatbot) <= 0 or save_name.strip() == "" or "/" in save_name or "Failed to save file!" in save_name or "Saved to" in save_name or background_a == "" or background_b == "" or role_b_name == "" or role_a_name == "" or "please enter other same!" in save_name:
+            chatbot) <= 0 or save_name.strip() == "" or "/" in save_name or "Failed to save file!" in save_name or "Saved to" in save_name or background_b == "" or role_b_name == "" or role_a_name == "" or "please enter other same!" in save_name:
         return "Failed to save file! Please enter the file name!"
 
     file_path = f"{default_save_dir}/{save_name}.json"
+
     if os.path.exists(file_path):
         return f"The name of {save_name} used, please enter other same!"
 
-    save_data_dic = {"background_a": background_a, "background_b": background_b, "role_a_name": role_a_name,
-                     "role_b_name": role_b_name, "qas": chatbot}
+    save_data_dic = {"background_b": background_b, "human": role_a_name,
+                     "bot": role_b_name, "qas": chatbot}
     json.dump(save_data_dic, open(file_path, 'w'))
     return f"Saved to:{file_path}"
 
@@ -79,7 +72,7 @@ def save_record(save_name, chatbot, background_a, background_b, role_a_name, rol
 
 with gr.Blocks() as demo:
     with gr.Row():
-        gr.Markdown("# gpt3.5 self-chat demo")
+        gr.Markdown("# gpt3.5 human-bot-chat demo")
     with gr.Row():
         with gr.Column():
             selected_temp = gr.Slider(0, 1, value=0.9,
@@ -87,36 +80,33 @@ with gr.Blocks() as demo:
                                       interactive=True)
 
             with gr.Row():
-                user_name = gr.Textbox(lines=1, placeholder="set the name for roleA", label="roleA's name",
+                user_name = gr.Textbox(lines=1, placeholder="set the name for human", label="Human",
                                        interactive=True)
-                bot_name = gr.Textbox(lines=1, placeholder="set the name for roleB", label="roleB's name",
+                bot_name = gr.Textbox(lines=1, placeholder="set the name for bot", label="Bot",
                                       interactive=True)
-            background_role_a = gr.Textbox(lines=5, placeholder="set the background for roleA",
-                                           label="roleA's background ")
-            background_role_b = gr.Textbox(lines=5, placeholder="set the background for roleB",
-                                           label="roleA's background ")
-            role_a_question = gr.Textbox(placeholder="input the first question of roleA", label="question of roleA",
+            background_role_b = gr.Textbox(lines=5, placeholder="set the background for bot",
+                                           label="bot's background ")
+            role_a_question = gr.Textbox(placeholder="Input the question, enter to send!", label="question of human",
                                          interactive=True)
 
         with gr.Column():
-            btn = gr.Button("Generate a turn")
             gr_chatbot = gr.Chatbot(label="Chat record")
             clear = gr.Button("Clear chat history")
             save_text = gr.Textbox(placeholder="Enter the file name to save the chat record", value=None,
                                    label="name of save file", interactive=True)
             save_chatbot = gr.Button("Save chat records")
 
-    btn.click(toggle,
-              inputs=[role_a_question, selected_temp, gr_chatbot, background_role_a, background_role_b, user_name,
-                      bot_name],
-              outputs=[role_a_question, gr_chatbot])
+    role_a_question.submit(toggle,
+                           inputs=[role_a_question, selected_temp, gr_chatbot, background_role_b, user_name,
+                                   bot_name],
+                           outputs=[role_a_question, gr_chatbot])
 
     save_chatbot.click(save_record,
-                       inputs=[save_text, gr_chatbot, background_role_a, background_role_b, user_name, bot_name],
+                       inputs=[save_text, gr_chatbot, background_role_b, user_name, bot_name],
                        outputs=[save_text])
 
     clear.click(lambda x: [None, None, None], None, [gr_chatbot, role_a_question, save_text])
 
 demo.queue()
-demo.launch(server_name="0.0.0.0", server_port=9010)
+demo.launch(server_name="0.0.0.0", server_port=9011)
 # demo.launch(server_name="202.168.100.178", server_port=8988)
