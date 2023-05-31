@@ -11,12 +11,13 @@ import openai
 openai.api_type = "azure"
 openai.api_base = "https://bigo-chatgpt.openai.azure.com/"
 openai.api_version = "2023-03-15-preview"
-openai.api_key = "a15cfae7bd4c47d68172e85649653725"
+openai.api_key = "c21caeed-38f6-4ca0-817e-9055dcf3b8ce"
 
 # role : system|user|assistant
 gpt_config = {'engine': 'bigo-gpt35',
               'role': 'user',
               }
+
 
 # messages = [
 #     {"role": "system",
@@ -48,8 +49,6 @@ def get_input_api_data(background, history=[]):
             data_list.append({'role': 'assistant', 'content': h})
 
     return data_list
-
-
 
 
 if __name__ == '__main__':
