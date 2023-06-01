@@ -67,6 +67,7 @@ ALPACA_GPT4 = "alpaca_gpt4"
 UNNATURAL_INSTRUCTION_DATASET_NAME = "unnatural_instruction_gpt4"
 DATABRICKS_DOLLY_15K_DATASET_NAME = "databricks-dolly-15k"
 CNN_DAILYMAIL_DATASET_NAME = "cnn_dailymail"
+GPT35_DATASET_NAME = "gpt35_sex"
 
 
 def sota_prompt(human_name, bot_name, background):
@@ -80,6 +81,12 @@ def sharegpt_prompt(human_name, bot_name, background):
 def persona_chat_prompt(human_name, bot_name, background):
     return (f"Background:{background}\n"
             f"The above describes the state information of {bot_name} from the perspective of first person. "
+            f"The following is a conversation between {human_name} and {bot_name}.\n\n")
+
+
+def gpt35_prompt(human_name, bot_name, background):
+    return (f"{background}\n"
+            f"Above is a background description of {bot_name}.\n"
             f"The following is a conversation between {human_name} and {bot_name}.\n\n")
 
 
@@ -152,5 +159,7 @@ def get_dataset_prompt(dataset_name, human_name, bot_name, background):
     elif dataset_name == DATABRICKS_DOLLY_15K_DATASET_NAME:
         return reading_comprehension_prompt(human_name, bot_name, background)
 
+    elif dataset_name == GPT35_DATASET_NAME:
+        return gpt35_prompt(human_name, bot_name, background)
     else:
         raise Exception(f"Error dataset name:{dataset_name}")
