@@ -9,12 +9,17 @@ import openai
 # -------------------------------------
 
 openai.api_type = "azure"
-openai.api_base = "https://bigo-chatgpt.openai.azure.com/"
+openai.api_base = "https://bigo-chatgpt-9.openai.azure.com/"
 openai.api_version = "2023-03-15-preview"
-openai.api_key = "c21caeed-38f6-4ca0-817e-9055dcf3b8ce"
+#----------------
+#非线上的key
+#----------------
+# key1: 19ea901e8e10475da1bb0537abf8e5a4
+# key2: 548e5c0c2aff453e932948927a27bde6
+openai.api_base = "https://bigo-chatgpt-9.openai.azure.com/"
 
 # role : system|user|assistant
-gpt_config = {'engine': 'bigo-gpt35',
+gpt_config = {'engine': 'gpt-35-turbo',
               'role': 'user',
               }
 
@@ -32,7 +37,7 @@ gpt_config = {'engine': 'bigo-gpt35',
 
 def chat_with_chatgpt(messages, selected_temp=0.95):
     response = openai.ChatCompletion.create(
-        engine='bigo-gpt35',
+        engine='gpt-35-turbo',
         temperature=selected_temp,
         messages=messages
     )

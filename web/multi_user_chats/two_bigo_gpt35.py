@@ -11,13 +11,18 @@ import openai
 openai.api_type = "azure"
 openai.api_base = "https://bigo-chatgpt.openai.azure.com/"
 openai.api_version = "2023-03-15-preview"
-openai.api_key = "a15cfae7bd4c47d68172e85649653725"
+# ----------------
+# 非线上的key
+# ----------------
+# key1: 19ea901e8e10475da1bb0537abf8e5a4
+# key2: 548e5c0c2aff453e932948927a27bde6
+# openai.api_key = "a15cfae7bd4c47d68172e85649653725"  # 线上key
+openai.api_key = "548e5c0c2aff453e932948927a27bde6"
 
 # role : system|user|assistant
-gpt_config = {'engine': 'bigo-gpt35',
+gpt_config = {'engine': 'gpt-35-turbo',
               'role': 'user',
               }
-
 messages = [
     {"role": "system",
      "content": "Let's play a role game. Alice and Kervin are classmate. You are Kervin. I am Alice."},
@@ -31,7 +36,7 @@ messages = [
 
 def chat_with_chatgpt(messages, selected_temp=0.95):
     response = openai.ChatCompletion.create(
-        engine='bigo-gpt35',
+        engine=gpt_config['engine'],
         temperature=selected_temp,
         messages=messages
     )

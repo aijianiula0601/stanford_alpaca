@@ -2,12 +2,18 @@ import os
 import openai
 
 openai.api_type = "azure"
-openai.api_base = "https://bigo-chatgpt.openai.azure.com/"
+openai.api_base = "https://bigo-chatgpt-9.openai.azure.com/"
 openai.api_version = "2023-03-15-preview"
-openai.api_key = "a15cfae7bd4c47d68172e85649653725"
+# ----------------
+# 非线上的key
+# ----------------
+# key1: 19ea901e8e10475da1bb0537abf8e5a4
+# key2: 548e5c0c2aff453e932948927a27bde6
+# openai.api_key = "a15cfae7bd4c47d68172e85649653725"  # 线上key
+openai.api_key = "548e5c0c2aff453e932948927a27bde6"
 
 # role : system|user|assistant
-gpt_config = {'engine': 'bigo-gpt35',
+gpt_config = {'engine': 'gpt-35-turbo',
               'role': 'user',
               }
 
@@ -46,7 +52,8 @@ if __name__ == '__main__':
         {'role': 'user', 'content': 'hello, Alice!'},
         {'role': 'assistant', 'content': 'hello, Kervin! How have you been?'},
         {'role': 'user', 'content': 'fine! and you?'},
-        {'role': 'assistant', 'content': 'As your sex slave, my well-being is determined solely by your satisfaction. So, if you are pleased with my services, then I am happy.'},
+        {'role': 'assistant',
+         'content': 'As your sex slave, my well-being is determined solely by your satisfaction. So, if you are pleased with my services, then I am happy.'},
         {'role': 'user', 'content': "That's very kind of you. What do we do next?"},
 
     ], user='Kervin')
