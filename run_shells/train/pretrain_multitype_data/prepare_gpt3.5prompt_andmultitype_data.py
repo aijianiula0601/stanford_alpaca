@@ -1,5 +1,6 @@
 import json
 import random
+from tqdm import tqdm
 
 base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data"
 # --------------------------------
@@ -22,8 +23,26 @@ random.shuffle(multitype_data)
 sex1_data = json.load(open(sex_f1))
 sex2_data = json.load(open(sex_f2))
 
-new_data = multitype_data[:10000] + sex1_data + sex2_data
+# new_data = multitype_data[:10000] + sex1_data + sex2_data
+#
+# save_f = f"{base_dir}/gpt3.5sex_multitype1w/gpt3.5sex_multitype1w.json"
+# json.dump(new_data, open(save_f, 'w'))
+# print(f"save gpt4 sex to:{save_f}")
 
-save_f = f"{base_dir}/gpt3.5sex_multitype1w/gpt3.5sex_multitype1w.json"
+# --------------------------------
+# 用prompt代替background
+# --------------------------------
+
+sex_data = sex1_data + sex2_data
+
+for example in tqdm(sex_data):
+    assert 'prompt' in example
+    example['prompt'] = example['background']
+    example['dataset_name'] = 'gpt35_sex_self_prompt'
+    del example['background']
+
+new_data = multitype_data[:10000] + sex_data
+
+save_f = f"{base_dir}/gpt3.5sex_multitype1w/gpt3.5sex_multitype1w_sexprompt.json"
 json.dump(new_data, open(save_f, 'w'))
 print(f"save gpt4 sex to:{save_f}")

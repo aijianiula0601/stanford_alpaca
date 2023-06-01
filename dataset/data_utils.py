@@ -68,6 +68,8 @@ UNNATURAL_INSTRUCTION_DATASET_NAME = "unnatural_instruction_gpt4"
 DATABRICKS_DOLLY_15K_DATASET_NAME = "databricks-dolly-15k"
 CNN_DAILYMAIL_DATASET_NAME = "cnn_dailymail"
 GPT35_DATASET_NAME = "gpt35_sex"
+# 采用gpt35自己的prompt训练
+GPT35_SELF_PROMPT_DATASET_NAME = "gpt35_sex_self_prompt"
 
 
 def sota_prompt(human_name, bot_name, background):
@@ -88,6 +90,10 @@ def gpt35_prompt(human_name, bot_name, background):
     return (f"{background}\n"
             f"Above is a background description of {bot_name}.\n"
             f"The following is a conversation between {human_name} and {bot_name}.\n\n")
+
+
+def gpt35_self_prompt(human_name, bot_name, background):
+    return f"{background}\n"
 
 
 def empathetic_dialogues_prompt(human_name, bot_name, background):
@@ -161,5 +167,8 @@ def get_dataset_prompt(dataset_name, human_name, bot_name, background):
 
     elif dataset_name == GPT35_DATASET_NAME:
         return gpt35_prompt(human_name, bot_name, background)
+
+    elif dataset_name == GPT35_SELF_PROMPT_DATASET_NAME:
+        return gpt35_self_prompt(human_name, bot_name, background)
     else:
         raise Exception(f"Error dataset name:{dataset_name}")
