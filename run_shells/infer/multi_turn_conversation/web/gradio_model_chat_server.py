@@ -39,6 +39,13 @@ models_url_dic = {
     models_list[3]: "http://202.168.114.102:6023/api",
 }
 
+models_prompt_key_dic = {
+    models_list[0]: "conversion_v4",
+    models_list[1]: "conversion_v4",
+    models_list[2]: None,
+    models_list[3]: None,
+}
+
 
 def get_history(role_a_name, role_b_name, history=[]):
     rh = []
@@ -68,7 +75,8 @@ def role_b_chat(selected_temp, user_message, history, background_b, role_a_name,
     role_b_question = mask_instruct(role_b_input_api_data,
                                     role_dict={"user": role_a_name,
                                                "assistant": role_b_name},
-                                    temperature=selected_temp, model_server_url=models_url_dic[role_b_model_name])
+                                    temperature=selected_temp, model_server_url=models_url_dic[role_b_model_name],
+                                    prompt_key=models_prompt_key_dic[role_b_model_name])
 
     print(f"{role_b_name}({role_b_model_name}): ", role_b_question)
     history[-1][-1] = f"{role_b_name}: " + role_b_question
