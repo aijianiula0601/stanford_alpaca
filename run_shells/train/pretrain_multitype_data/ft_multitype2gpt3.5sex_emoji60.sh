@@ -18,16 +18,15 @@ cd ../../../
 # zero2配置参考：https://aitechtogether.com/article/45439.html
 #----------------------------------------------------------
 
-your_random_port=11224
+your_random_port=11325
 
 #llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft_outs/checkpoint-2000"
 llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft_outs/checkpoint-2600"
-base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft2_gpt3.5sex"
-output_dir="${base_dir}/ft_outs_2600"
+base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft2_gpt3.5sex_emoji60%"
+output_dir="${base_dir}/ft_outs_2600_10epochs"
 data_json="${base_dir}/gpt3.5sex_data.json"
 
 mkdir -p ${output_dir}
-
 
 torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/mask_header_answer/ft_org_prompt.py \
     --model_name_or_path "${llama_ckpt_and_tokenizer}" \
@@ -39,7 +38,7 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/mask_h
     --gradient_accumulation_steps 6 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 8 \
+    --save_steps 10 \
     --model_max_length 2048 \
     --save_total_limit 20 \
     --learning_rate 2e-5 \

@@ -31,11 +31,12 @@ ROLE_B_NAME = "Ai"
 #     models_list[3]: "http://202.168.100.251:5021/api",
 # }
 
-models_list = ["mask_head_answer", "gpt3.5sex", "mutlitype_dataset"]
+models_list = ["mask_head_answer", "gpt3.5sex", "mutlitype_dataset", "mutlitype_dataset_ftsex"]
 models_url_dic = {
     models_list[0]: "http://202.168.100.251:5018/api",
     models_list[1]: "http://202.168.100.251:5021/api",
-    models_list[2]: "http://202.168.100.178:5023/api",
+    models_list[2]: "http://202.168.114.102:6022/api",
+    models_list[3]: "http://202.168.114.102:6023/api",
 }
 
 
