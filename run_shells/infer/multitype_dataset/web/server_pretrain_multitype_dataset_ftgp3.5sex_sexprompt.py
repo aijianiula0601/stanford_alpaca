@@ -14,7 +14,7 @@ import os
 import sys
 import torch
 
-setproctitle.setproctitle("multitype_dataset_ftsex")
+setproctitle.setproctitle("multitype_dataset_ftsex_sexprompt")
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 # # 自动识别机器上的gpu
@@ -130,11 +130,12 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
 
 logger.info("loading model ... ")
 #----------------------------------------------------
-# 训练完多种数据集的模型ft永强的sex emoji数据
+# 训练完多种数据集的模型ft永强的sex emoji数据,
+# ft时候，multtype1w+yongqioang数据,prompt采用sex的prompt
 # 对应训练脚本：
-#    run_shells/train/pretrain_multitype_data/ft_multitype2gpt3.5sex_emoji60.sh
+#    run_shells/train/pretrain_multitype_data/ft_gpt35sex_multitype1w_gpt35selfprompt.sh
 #----------------------------------------------------
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft2_gpt3.5sex_emoji60%/ft_outs_2600_10epochs/checkpoint-20"
+model_dir = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/gpt3.5sex_multitype1w/ft_outs_3000_sex_self_prompt/checkpoint-80'
 
 load_model(model_dir)
 logger.info('load model done!!!')

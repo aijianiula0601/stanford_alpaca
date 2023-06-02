@@ -31,20 +31,26 @@ ROLE_B_NAME = "Ai"
 #     models_list[3]: "http://202.168.100.251:5021/api",
 # }
 
-models_list = ["mask_head_answer", "gpt3.5sex", "mutlitype_dataset", "mutlitype_dataset_ftsex"]
+models_list = ["mask_head_answer", "gpt3.5sex", "mutlitype_dataset", "mutlitype_dataset_sexprompt",
+               "mutlitype_dataset_ftsex","mutlitype_dataset_ftsex_sexprompt"]
 models_url_dic = {
     models_list[0]: "http://202.168.100.251:5018/api",
     models_list[1]: "http://202.168.100.251:5021/api",
     models_list[2]: "http://202.168.114.102:6022/api",
-    models_list[3]: "http://202.168.114.102:6023/api",
+    models_list[3]: "http://202.168.114.102:6022/api",
+    models_list[4]: "http://202.168.114.102:6023/api",
+    models_list[5]: "http://202.168.114.102:6023/api",
 }
 
 models_prompt_key_dic = {
     models_list[0]: "conversion_v4",
-    models_list[1]: "conversion_v4",
-    models_list[2]: None,
+    models_list[1]: None,
+    models_list[2]: 'conversion_v4',
     models_list[3]: None,
+    models_list[4]: 'conversion_v4',
+    models_list[5]: None,
 }
+
 
 
 def get_history(role_a_name, role_b_name, history=[]):
@@ -130,7 +136,7 @@ with gr.Blocks() as demo:
             selected_temp = gr.Slider(0, 1, value=0.9, label="Temperature超参,调的越小越容易输出常见字",
                                       interactive=True)
             with gr.Row():
-                select_role_b_model = gr.Dropdown(choices=models_list, value=models_list[1], label="选择角色B的模型",
+                select_role_b_model = gr.Dropdown(choices=models_list, value=models_list[2], label="选择角色B的模型",
                                                   interactive=True)
             with gr.Row():
                 select_role_b = gr.Dropdown(choices=role_b_list, value="None", label="请选择bot角色",
@@ -164,5 +170,5 @@ with gr.Blocks() as demo:
                            outputs=[role_a_question, gr_chatbot])
 
 demo.queue()
-# demo.launch(server_name="0.0.0.0", server_port=8991, debug=True)
-demo.launch(server_name="202.168.100.178", server_port=8995)
+demo.launch(server_name="0.0.0.0", server_port=8991, debug=True)
+# demo.launch(server_name="202.168.100.178", server_port=8991)

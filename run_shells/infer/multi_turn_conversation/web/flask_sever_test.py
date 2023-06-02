@@ -59,7 +59,9 @@ def mask_instruct(message_list, role_dict, temperature=0.6, model_server_url="ht
     if prompt_key is not None:
         prompt_input = PROMPT_DICT["conversion_v4"].format_map(message_dic)
     else:
-        prompt_input = background
+        history_str = DEFAULT_SEGMENT_TOKEN + DEFAULT_SEGMENT_TOKEN.join(
+            [item for item in history_list]) + DEFAULT_SEGMENT_TOKEN + role_dict['assistant'] + ":"
+        prompt_input = background + "\n" + history_str
 
     request_data = json.dumps({
         "prompt_input": prompt_input,
