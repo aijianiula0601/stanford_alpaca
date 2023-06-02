@@ -228,7 +228,7 @@ def preprocess(
             else:
                 skip_head_too_long_n += 1
         except Exception as e:
-            logging.error(f"---------error:{e}")
+            logging.error(f"---------error:{e},example:\n{json.dumps(example)}")
             error_n += 1
             pass
 

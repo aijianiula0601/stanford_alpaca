@@ -23,11 +23,11 @@ random.shuffle(multitype_data)
 sex1_data = json.load(open(sex_f1))
 sex2_data = json.load(open(sex_f2))
 
-# new_data = multitype_data[:10000] + sex1_data + sex2_data
-#
-# save_f = f"{base_dir}/gpt3.5sex_multitype1w/gpt3.5sex_multitype1w.json"
-# json.dump(new_data, open(save_f, 'w'))
-# print(f"save gpt4 sex to:{save_f}")
+new_data = multitype_data[:10000] + sex1_data + sex2_data
+
+save_f = f"{base_dir}/gpt3.5sex_multitype1w/gpt3.5sex_multitype1w.json"
+json.dump(new_data, open(save_f, 'w'))
+print(f"save gpt4 sex to:{save_f}")
 
 # --------------------------------
 # 用prompt代替background
@@ -39,7 +39,7 @@ for example in tqdm(sex_data):
     assert 'prompt' in example
     example['prompt'] = example['background']
     example['dataset_name'] = 'gpt35_sex_self_prompt'
-    del example['background']
+    del example['prompt']
 
 new_data = multitype_data[:10000] + sex_data
 
