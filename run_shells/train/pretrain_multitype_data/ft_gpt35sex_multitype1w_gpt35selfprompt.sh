@@ -19,7 +19,7 @@ your_random_port=11224
 
 base_dir='/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/gpt3.5sex_multitype1w'
 llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft_outs/checkpoint-3000"
-output_dir="${base_dir}/ft_outs_3000_sex_self_prompt"
+output_dir="${base_dir}/ft_outs_3000_sex_self_prompt_fix_jami_bug"
 data_json="${base_dir}/gpt3.5sex_multitype1w_sexprompt.json"
 
 mkdir -p ${output_dir}
@@ -28,7 +28,7 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/mask_h
   --model_name_or_path "${llama_ckpt_and_tokenizer}" \
   --data_path ${data_json} \
   --output_dir ${output_dir} \
-  --num_train_epochs 8 \
+  --num_train_epochs 6 \
   --per_device_train_batch_size 6 \
   --per_device_eval_batch_size 6 \
   --gradient_accumulation_steps 6 \
