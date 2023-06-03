@@ -154,7 +154,7 @@ new_soda_data_list = process_data(data_list, save_f, header_key="narrative")
 new_soda_data_list = trans2qa(new_soda_data_list, dataset_name="soda")
 
 # -----------------
-# gpt4永强生成的色情数据
+# gpt3.5永强生成的色情数据
 # -----------------
 f1 = "/mnt/cephfs/pangyongqiang/proj/LLM/data_fetch/data/sexy_chat_1_720.json"
 f2 = "/mnt/cephfs/pangyongqiang/proj/LLM/data_fetch/data/sexy_chat_2_1300.json"
