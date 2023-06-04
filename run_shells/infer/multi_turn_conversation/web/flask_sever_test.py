@@ -39,7 +39,7 @@ PROMPT_DICT = {
     )
 }
 
-DEFAULT_SEGMENT_TOKEN = "###"
+DEFAULT_SEGMENT_TOKEN = "### "
 DEFAULT_EOS_TOKEN = "</s>"
 
 

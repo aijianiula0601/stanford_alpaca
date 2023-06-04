@@ -124,8 +124,10 @@ for turns_data in json.load(open(org_f)):
     background = ''
     qas = {}
     try:
-        human_name = HUMAN_DEFAULT_NAME
-        bot_name = BOT_DEFAULT_NAME
+        # human_name = HUMAN_DEFAULT_NAME
+        # bot_name = BOT_DEFAULT_NAME
+        human_name = turns_data[0]['from']
+        bot_name = turns_data[1]['from']
         turn_i = 0
         for i, td in enumerate(turns_data):
             if (i + 1) % 2 == 1:
@@ -147,8 +149,8 @@ for turns_data in json.load(open(org_f)):
             {BACKGROUND_KEY: background, DATASET_KEY: dataset_name, HUMAN_NAME_KEY: human_name, BOT_NAME_KEY: bot_name,
              QAS_KEY: qas})
     except Exception as e:
-        # print(e, f"data:{json.dumps(turns_data)}")
-        # print("-" * 100)
+        print(e, f"data:{json.dumps(turns_data)}")
+        print("-" * 100)
         pass
 
 # print("skip_n:", skip_n, "all_n:", all_n)

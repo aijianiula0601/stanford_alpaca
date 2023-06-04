@@ -198,6 +198,10 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
 
         ignore_token_index_list.append((ignore_start_index, ignore_end_index))
 
+    if len(input_ids_tensor_list) <= 1:
+        # 只有head,没有qa的情况情况下，直接过滤。
+        return None, None
+
     input_ids = torch.cat(input_ids_tensor_list, dim=0)
     label_ids = copy.deepcopy(input_ids)
     for ignore_start_i, ignore_end_i in ignore_token_index_list:
@@ -325,7 +329,7 @@ def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer, dat
 
 
 def train():
-    setproctitle.setproctitle("multitype_dataset_zero2")
+    setproctitle.setproctitle("gpt_share_data_ft")
     parser = transformers.HfArgumentParser((ModelArguments, DataArguments, TrainingArguments))
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 

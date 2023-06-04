@@ -134,7 +134,7 @@ logger.info("loading model ... ")
 # 对应训练脚本：
 #    run_shells/train/pretrain_multitype_data/ft_multitype2gpt3.5sex_emoji60.sh
 #----------------------------------------------------
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft2_gpt3.5sex_emoji60%/ft_outs_2600_10epochs/checkpoint-20"
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/gpt3.5sex_multitype1w/ft_outs_3000/checkpoint-140/"
 
 load_model(model_dir)
 logger.info('load model done!!!')
