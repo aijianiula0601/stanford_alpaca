@@ -20,9 +20,9 @@ cd ../../../
 
 your_random_port=11224
 
-base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft_outs"
-llama_ckpt_and_tokenizer="${base_dir}/checkpoint-5400"
-output_dir="${base_dir}/continue_ft_outs"
+base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data"
+llama_ckpt_and_tokenizer="${base_dir}/ft_outs/checkpoint-5400"
+output_dir="${base_dir}/ft_outs/continue_ft_outs"
 data_json="${base_dir}/multi_dataset_qas.json"
 
 mkdir -p ${output_dir}
