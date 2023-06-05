@@ -45,9 +45,12 @@ DEFAULT_EOS_TOKEN = "</s>"
 
 def mask_instruct(message_list, role_dict, temperature=0.6, model_server_url="http://202.168.100.251:5019/api",
                   prompt_key=None):
-    '''message-list第一个数值是背景，
+    """
+    message-list第一个数值是背景，
     后面需要在role_dict里要做好配置，我最后会回复role_dict['assistant']角色的答案;
-    role_dict_real用于映射history里的内容'''
+    role_dict_real用于映射history里的内容
+    """
+    print(f"------model_url:{model_server_url}")
     background = message_list[0]["content"]
     history_list = [role_dict[char["role"]] + ": " + char["content"] for char in message_list[1:]]
     message_dic = {"background": background,

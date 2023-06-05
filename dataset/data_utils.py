@@ -73,7 +73,8 @@ GPT35_SELF_PROMPT_DATASET_NAME = "gpt35_sex_self_prompt"
 
 
 def sota_prompt(human_name, bot_name, background):
-    return f"Here is a conversation between {human_name} and {bot_name} related to the description below. {background}\n\n"
+    # return f"Here is a conversation between {human_name} and {bot_name} related to the description below. {background}\n\n"
+    return f"{background}\nThe following is a conversation between {human_name} and {bot_name}.\n\n"
 
 
 def sharegpt_prompt(human_name, bot_name, background):

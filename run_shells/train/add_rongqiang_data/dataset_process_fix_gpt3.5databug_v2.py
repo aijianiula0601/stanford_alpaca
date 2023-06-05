@@ -10,7 +10,7 @@ import random
 # 之前的永强的数据中聊天记录存在bug,会突然冒出另外人名，这次修复重新训练，并且加上emoji数据。
 # --------------------------------------------------
 
-base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/mask_header_answer/fix_gpt3.5databug"
+base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/mask_header_answer/fix_gpt3.5databug/v2"
 os.system(f"mkdir -p {base_dir}")
 
 BACKGROUND = "background"
@@ -113,7 +113,7 @@ def trans2qa(all_data, dataset_name):
              DATASET_KEY: dataset_name, HUMAN_NAME_KEY: human_name, BOT_NAME_KEY: bot_name,
              QAS_KEY: qas})
 
-    print(f"----skip qas nums:{skip_n}, all_n:{all_n}")
+    print(f"----skip qas nums:{skip_n}， all_n:{all_n}")
 
     return new_data
 
@@ -167,12 +167,38 @@ print("-" * 50)
 # -----------------
 # gpt3.5永强生成的色情数据
 # -----------------
-print("-----gpt3.5_sex------")
+
+# 第一批数据
+print("-----gpt3.5_sex 第一批------")
+
+f1 = "/mnt/cephfs/pangyongqiang/proj/LLM/data_fetch/data/sexy_chat_1_720.json"
+f2 = "/mnt/cephfs/pangyongqiang/proj/LLM/data_fetch/data/sexy_chat_2_1300.json"
+save_f = f"{base_dir}/yongqiang_gpt35_sex_v1.json"
+data_list1 = json.load(open(f1))
+data_list2 = json.load(open(f2))
+data_list = data_list1 + data_list2
+new_data_list_v1 = []
+for qas in data_list:
+    for i, qa in enumerate(qas):
+        if i == 0:
+            background = qa['BACKGROUD_A'] + " " + qa['BACKGROUD_B']
+            qa[BACKGROUND_KEY] = background
+            del qa['BACKGROUD_A']
+            del qa['BACKGROUD_B']
+        else:
+            break
+    new_data_list_v1.append(qas)
+
+json.dump(new_data_list_v1, open(save_f, 'w'))
+print(f"save gpt3.5 sex to:{save_f}")
+new_gpt35_sex_data_list_v1 = trans2qa(new_data_list_v1, dataset_name="gpt35_sex")
+
+print("-----gpt3.5_sex 第二批------")
 
 f = "/mnt/cephfs/pangyongqiang/proj/LLM/data_fetch/data/sexy_chat_prompt_3_2000_Jamie_check.json"
-save_f = f"{base_dir}/yongqiang_gpt4_sex.json"
+save_f = f"{base_dir}/yongqiang_gpt35_sex_v2.json"
 data_list = json.load(open(f))
-new_data_list = []
+new_data_list_v2 = []
 for qas in data_list:
     for i, qa in enumerate(qas[1:]):
         if i == 0:
@@ -182,12 +208,14 @@ for qas in data_list:
             del qa['BACKGROUD_B']
         else:
             break
-    new_data_list.append(qas[1:])
+    new_data_list_v2.append(qas[1:])
 
-json.dump(new_data_list, open(save_f, 'w'))
+json.dump(new_data_list_v2, open(save_f, 'w'))
 print(f"save gpt3.5 sex to:{save_f}")
-new_gpt4_sex_data_list = trans2qa(new_data_list, dataset_name="gpt35_sex")
+new_gpt4_sex_data_list_v2 = trans2qa(new_data_list_v2, dataset_name="gpt35_sex")
 print("-" * 50)
+
+new_gpt35_sex_data_list = new_gpt35_sex_data_list_v1 + new_gpt4_sex_data_list_v2
 
 # -----------------
 # merge
@@ -195,8 +223,7 @@ print("-" * 50)
 
 save_f = f"{base_dir}/merge_data.json"
 debug_save_f = f"{base_dir}/debug_merge_data.json"
-all_data = new_soda_data_list + new_biglive_data_list + new_sex_data_list + new_gpt4_sex_data_list
-
+all_data = new_soda_data_list + new_biglive_data_list + new_sex_data_list + new_gpt35_sex_data_list
 print(f"------all_dialogue num:{len(all_data)}")
 random.shuffle(all_data)
 json.dump(all_data, open(save_f, 'w'))
