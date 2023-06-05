@@ -134,7 +134,7 @@ logger.info("loading model ... ")
 # 对应训练脚本：
 #    run_shells/train/add_rongqiang_data/ft_gpt4_sex.sh
 #----------------------------------------------------
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft_outs/checkpoint-2000"
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft_outs/checkpoint-5000"
 
 load_model(model_dir)
 logger.info('load model done!!!')

@@ -329,7 +329,7 @@ def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer, dat
 
 
 def train():
-    setproctitle.setproctitle("gpt_share_data_ft")
+    setproctitle.setproctitle("multitype_data_continue")
     parser = transformers.HfArgumentParser((ModelArguments, DataArguments, TrainingArguments))
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 

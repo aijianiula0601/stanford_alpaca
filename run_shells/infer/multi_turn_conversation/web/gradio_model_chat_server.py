@@ -31,25 +31,28 @@ ROLE_B_NAME = "Ai"
 #     models_list[3]: "http://202.168.100.251:5021/api",
 # }
 
-models_list = ["mask_head_answer", "gpt3.5sex", "mutlitype_dataset", "mutlitype_dataset_sexprompt",
-               "mutlitype_dataset_ftsex","mutlitype_dataset_ftsex_sexprompt"]
+models_list = ["mask_head_answer", "gpt3.5sex", "gpt3.5sex_fix_bug", "mutlitype_dataset", "mutlitype_dataset_sexprompt",
+               "mutlitype_dataset_ftsex", "mutlitype_dataset_ftsex_sexprompt"]
 models_url_dic = {
     models_list[0]: "http://202.168.100.251:5018/api",
     models_list[1]: "http://202.168.100.251:5021/api",
-    models_list[2]: "http://202.168.114.102:6022/api",
+    models_list[2]: "http://202.168.114.102:5055/api",
     models_list[3]: "http://202.168.114.102:6022/api",
-    models_list[4]: "http://202.168.114.102:6023/api",
+    models_list[4]: "http://202.168.114.102:6022/api",
     models_list[5]: "http://202.168.114.102:6023/api",
+    models_list[6]: "http://202.168.114.102:6023/api",
 }
 
 models_prompt_key_dic = {
     models_list[0]: "conversion_v4",
-    models_list[1]: None,
+    models_list[1]: 'conversion_v4',
     models_list[2]: 'conversion_v4',
-    models_list[3]: None,
-    models_list[4]: 'conversion_v4',
-    models_list[5]: None,
+    models_list[3]: 'conversion_v4',
+    models_list[4]: None,
+    models_list[5]: 'conversion_v4',
+    models_list[6]: None,
 }
+
 
 
 
