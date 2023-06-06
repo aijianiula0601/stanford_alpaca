@@ -18,7 +18,7 @@ def trans2qa(all_data, dataset_name):
     skip_n = 0
     for turns_data in all_data:
         background = None
-        prompt=None
+        prompt = None
         qas = {}
         human_name = turns_data[0]['from']
         bot_name = turns_data[1]['from']
@@ -60,18 +60,18 @@ def trans2qa(all_data, dataset_name):
     return new_data
 
 
-#--------------------------------
+# --------------------------------
 # emoji占比较少的prompt数据
-#--------------------------------
+# --------------------------------
 # org_f = "/mnt/cephfs/pangyongqiang/proj/LLM/data_fetch/data/sexy_chat_prompt_1_2_2020.json"
 # save_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft2_gpt3.5sex/gpt3.5sex_data.json"
 
-#--------------------------------
+# --------------------------------
 # emoji占比60~79的prompt数据
-#--------------------------------
+# 修复了data中Jamie问题
+# --------------------------------
 org_f = "/mnt/cephfs/pangyongqiang/proj/LLM/data_fetch/data/sexy_chat_prompt_3_2000_Jamie_check.json"
 save_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft2_gpt3.5sex_emoji60%/gpt3.5sex_data.json"
-
 
 data_list = json.load(open(org_f))
 new_data_list = []
