@@ -126,13 +126,16 @@ def trans2qa(all_data, dataset_name):
 print("-----标注sex------")
 f = "/mnt/cephfs/zhuchengqi/git/LLM/bigo_stanford_alpaca/datasets/new_sexy_fix_524_save.json"
 save_f = f"{base_dir}/sexy.json"
+save_f_qas = f"{base_dir}/sexy_qas.json"
 data_list = json.load(open(f))
 
 end_string_list = ["They start a conversation:", "The conversation started"]
 
 new_sex_data_list = process_data(data_list, save_f, end_string_list, header_key='handPrompt')
 
-new_sex_data_list = trans2qa(new_sex_data_list, dataset_name="sex")
+new_sex_data_list = trans2qa(new_sex_data_list, dataset_name="crowdsource_sex")
+json.dump(new_sex_data_list, open(save_f_qas, 'w'))
+print(f"save to:{save_f_qas}")
 
 print("-" * 50)
 # -----------------
@@ -144,11 +147,15 @@ print("-----bigolive_sex------")
 # 城琦调用gpt来给聊天记录增加background
 f = "/mnt/cephfs/zhuchengqi/git/LLM/bigo_stanford_alpaca/datasets/live0512_filter2_back_2w.json"
 save_f = f"{base_dir}/bigolive.json"
+save_f_qas = f"{base_dir}/bigolive_qas.json"
 data_list = json.load(open(f))
 
 new_biglive_data_list = process_data(data_list, save_f, header_key="background")
 
 new_biglive_data_list = trans2qa(new_biglive_data_list, dataset_name="bigolive")
+json.dump(new_biglive_data_list, open(save_f_qas, 'w'))
+print(f"save to:{save_f_qas}")
+
 print("-" * 50)
 
 # -----------------
@@ -158,10 +165,13 @@ print("-----soda------")
 
 f = "/mnt/cephfs/hjh/common_dataset/nlp/chat/soda/soda_train_name.json"
 save_f = f"{base_dir}/sota.json"
+save_f_qas = f"{base_dir}/sota_qas.json"
 data_list = json.load(open(f))
 
 new_soda_data_list = process_data(data_list, save_f, header_key="narrative")
 new_soda_data_list = trans2qa(new_soda_data_list, dataset_name="soda")
+json.dump(new_soda_data_list, open(save_f_qas, 'w'))
+print(f"save to:{save_f_qas}")
 print("-" * 50)
 
 # -----------------
@@ -216,6 +226,10 @@ new_gpt4_sex_data_list_v2 = trans2qa(new_data_list_v2, dataset_name="gpt35_sex")
 print("-" * 50)
 
 new_gpt35_sex_data_list = new_gpt35_sex_data_list_v1 + new_gpt4_sex_data_list_v2
+
+save_f_qas = f"{base_dir}/gpt35sex_qas.json"
+json.dump(new_gpt35_sex_data_list, open(save_f_qas, 'w'))
+print(f"save to:{save_f_qas}")
 
 # -----------------
 # merge

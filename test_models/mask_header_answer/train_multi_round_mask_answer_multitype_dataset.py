@@ -40,10 +40,6 @@ DEFAULT_BOS_TOKEN = "</s>"
 DEFAULT_UNK_TOKEN = "</s>"
 DEFAULT_SEGMENT_TOKEN = "### "
 
-PROMPT_DICT = {
-    "header": "Here is a conversation between {role_a} and {role_b} related to the description below. \n\n",
-}
-
 
 @dataclass
 class ModelArguments:
@@ -63,6 +59,7 @@ class TrainingArguments(transformers.TrainingArguments):
         default=512,
         metadata={"help": "Maximum sequence length. Sequences will be right padded (and possibly truncated)."},
     )
+    process_name: str = field(default="train_multitype_data")
 
 
 def safe_save_model_for_hf_trainer(trainer: transformers.Trainer, output_dir: str):
@@ -329,9 +326,9 @@ def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer, dat
 
 
 def train():
-    setproctitle.setproctitle("multitype_data_continue")
     parser = transformers.HfArgumentParser((ModelArguments, DataArguments, TrainingArguments))
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
+    setproctitle.setproctitle(training_args.process_name)
 
     model = transformers.AutoModelForCausalLM.from_pretrained(
         model_args.model_name_or_path,

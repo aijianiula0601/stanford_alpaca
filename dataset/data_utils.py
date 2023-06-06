@@ -70,9 +70,16 @@ CNN_DAILYMAIL_DATASET_NAME = "cnn_dailymail"
 GPT35_DATASET_NAME = "gpt35_sex"
 # 采用gpt35自己的prompt训练
 GPT35_SELF_PROMPT_DATASET_NAME = "gpt35_sex_self_prompt"
+# 内部标注人员标注的数据
+CROWDSOURCE_SEX_DATASET_NAME = 'crowdsource_sex'
 
 
 def sota_prompt(human_name, bot_name, background):
+    # return f"Here is a conversation between {human_name} and {bot_name} related to the description below. {background}\n\n"
+    return f"{background}\nThe following is a conversation between {human_name} and {bot_name}.\n\n"
+
+
+def crowdsource_sex_prompt(human_name, bot_name, background):
     # return f"Here is a conversation between {human_name} and {bot_name} related to the description below. {background}\n\n"
     return f"{background}\nThe following is a conversation between {human_name} and {bot_name}.\n\n"
 
@@ -171,5 +178,8 @@ def get_dataset_prompt(dataset_name, human_name, bot_name, background):
 
     elif dataset_name == GPT35_SELF_PROMPT_DATASET_NAME:
         return gpt35_self_prompt(human_name, bot_name, background)
+
+    elif dataset_name == CROWDSOURCE_SEX_DATASET_NAME:
+        return crowdsource_sex_prompt(human_name, bot_name, background)
     else:
         raise Exception(f"Error dataset name:{dataset_name}")
