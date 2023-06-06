@@ -13,9 +13,11 @@ version0_data_list = json.load(open(version0_save_f))
 version1_data_list = json.load(open(version1_save_f))
 
 for example in tqdm(version1_data_list):
-    example['prompt'] = example['prompt'].replace(replace_str)
+    example['prompt'] = example['prompt'].replace(replace_str, '')
 
 for example in tqdm(version0_data_list):
-    example['prompt'] = example['prompt'].replace(replace_str)
+    example['prompt'] = example['prompt'].replace(replace_str, '')
 
-save_f = ""
+save_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft2_gpt3.5sex_prompt/gpt35sex_prompt.json"
+
+json.dump(version1_data_list + version0_data_list, open(save_f, 'w'))

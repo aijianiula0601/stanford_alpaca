@@ -101,7 +101,8 @@ def gpt35_prompt(human_name, bot_name, background):
 
 
 def gpt35_self_prompt(human_name, bot_name, background):
-    return f"{background}\n"
+    return (f"{background}\n"
+            f"The following is a conversation between {human_name} and {bot_name}.\n\n")
 
 
 def empathetic_dialogues_prompt(human_name, bot_name, background):
