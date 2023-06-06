@@ -13,7 +13,8 @@ cd ../../../
 #   --bf16 True
 #   --tf32 True
 # 这两个参数，这两个参数是在A100机器上训练的。
-# 去掉原始gpt35中的一些prompt+sota 1w数据
+# 去掉原始gpt35（1、2版本共约4k对话）中的一些prompt+sota 1w数据
+# 处理数据脚本：process_gpt35sexprompt.py
 #----------------------------------------------------------
 
 your_random_port=11224
