@@ -18,6 +18,22 @@ for example in tqdm(version1_data_list):
 for example in tqdm(version0_data_list):
     example['prompt'] = example['prompt'].replace(replace_str, '')
 
-save_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft2_gpt3.5sex_prompt/gpt35sex_prompt.json"
+save_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft2_gpt3.5sex_prompt"
+save_f = f"{save_dir}/gpt35sex_prompt.json"
 
-json.dump(version1_data_list + version0_data_list, open(save_f, 'w'))
+gpt35_data_list = version1_data_list + version0_data_list
+json.dump(gpt35_data_list, open(save_f, 'w'))
+
+# -----------------------
+# 混合soda数据
+# -----------------------
+
+sota_f = "/mnt/cephfs/hjh/common_dataset/nlp/chat/soda/soda_train_name_qas.json"
+
+sota_data_list_1w = json.load(open(sota_f))[:1000]
+
+save_sota1w_gpt35_f = f"{save_dir}/sota_1w_gpt35sex_prompt.json"
+
+json.dump(gpt35_data_list + sota_data_list_1w, open(save_sota1w_gpt35_f, 'w'))
+
+print(f"save to:{save_sota1w_gpt35_f}")

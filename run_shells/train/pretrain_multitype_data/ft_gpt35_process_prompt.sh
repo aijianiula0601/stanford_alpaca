@@ -20,7 +20,7 @@ your_random_port=11224
 
 base_dir='/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft2_gpt3.5sex_prompt'
 llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft_outs/checkpoint-5000"
-output_dir="${base_dir}/ft_out_5000"
+output_dir="${base_dir}/ft_out_gpt35prompt"
 data_json="${base_dir}/gpt35sex_prompt.json"
 
 mkdir -p ${output_dir}

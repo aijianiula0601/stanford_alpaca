@@ -147,11 +147,15 @@ new_biglive_data_list = trans2qa(new_biglive_data_list, dataset_name="bigolive")
 # -----------------
 
 f = "/mnt/cephfs/hjh/common_dataset/nlp/chat/soda/soda_train_name.json"
+qas_f = "/mnt/cephfs/hjh/common_dataset/nlp/chat/soda/soda_train_name_qas.json"
 save_f = f"{base_dir}/sota.json"
 data_list = json.load(open(f))
 
 new_soda_data_list = process_data(data_list, save_f, header_key="narrative")
 new_soda_data_list = trans2qa(new_soda_data_list, dataset_name="soda")
+
+json.dump(new_soda_data_list, open(qas_f, 'w'))
+print(f"sota qas save to:{qas_f}")
 
 # -----------------
 # gpt3.5永强生成的色情数据
