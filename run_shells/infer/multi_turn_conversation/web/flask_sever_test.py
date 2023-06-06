@@ -50,7 +50,6 @@ def mask_instruct(message_list, role_dict, temperature=0.6, model_server_url="ht
     后面需要在role_dict里要做好配置，我最后会回复role_dict['assistant']角色的答案;
     role_dict_real用于映射history里的内容
     """
-    print(f"------model_url:{model_server_url}")
     background = message_list[0]["content"]
     history_list = [role_dict[char["role"]] + ": " + char["content"] for char in message_list[1:]]
     message_dic = {"background": background,
@@ -101,6 +100,7 @@ if __name__ == '__main__':
 
     role_dict = {'user': 'Emily', 'assistant': 'Audrey'}
 
-    rs = mask_instruct(message_list_org, role_dict)
+    # rs = mask_instruct(message_list_org, role_dict,model_server_url="http://202.168.100.251:5018/api")
+    rs = mask_instruct(message_list_org, role_dict,model_server_url="http://202.168.100.251:5021/api")
 
     print(rs)
