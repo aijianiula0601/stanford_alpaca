@@ -17,18 +17,19 @@ import torch
 setproctitle.setproctitle("gpt3.5_sex")
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "2"
-# 自动识别机器上的gpu
-worker_id = int(os.environ.get('APP_WORKER_ID', 1))
-devices = os.environ.get('CUDA_VISIBLE_DEVICES', '')
-if not devices:
-    print('current environment did not get CUDA_VISIBLE_DEVICES env ,so use the default')
-rand_max = 9527
-gpu_index = (worker_id + rand_max) % torch.cuda.device_count()
-print('current worker id  {} set the gpu id :{}'.format(worker_id, gpu_index))
-torch.cuda.set_device(int(gpu_index))
+# # 自动识别机器上的gpu
+# worker_id = int(os.environ.get('APP_WORKER_ID', 1))
+# devices = os.environ.get('CUDA_VISIBLE_DEVICES', '')
+# if not devices:
+#     print('current environment did not get CUDA_VISIBLE_DEVICES env ,so use the default')
+# rand_max = 9527
+# gpu_index = (worker_id + rand_max) % torch.cuda.device_count()
+# print('current worker id  {} set the gpu id :{}'.format(worker_id, gpu_index))
+# torch.cuda.set_device(int(gpu_index))
 
 #---------------------------------------------
 # 用的是transformers==4.28.1训练的
+# 采用永强第一版数据进行勳的模型
 #---------------------------------------------
 
 import transformers
@@ -196,4 +197,4 @@ def receive():
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host="202.168.100.251", port=5021)
+    app.run(debug=False, host="202.168.114.102", port=5019)
