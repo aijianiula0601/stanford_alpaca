@@ -169,7 +169,7 @@ save_f_qas = f"{base_dir}/sota_qas.json"
 data_list = json.load(open(f))
 
 new_soda_data_list = process_data(data_list, save_f, header_key="narrative")
-new_soda_data_list = trans2qa(new_soda_data_list, dataset_name="soda")
+new_soda_data_list = trans2qa(new_soda_data_list, dataset_name="sota")
 json.dump(new_soda_data_list, open(save_f_qas, 'w'))
 print(f"save to:{save_f_qas}")
 print("-" * 50)

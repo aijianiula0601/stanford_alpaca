@@ -63,15 +63,8 @@ def trans2qa(all_data, dataset_name):
 # --------------------------------
 # emoji占比较少的prompt数据
 # --------------------------------
-# org_f = "/mnt/cephfs/pangyongqiang/proj/LLM/data_fetch/data/sexy_chat_prompt_1_2_2020.json"
-# save_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft2_gpt3.5sex/gpt3.5sex_data.json"
-
-# --------------------------------
-# emoji占比60~79的prompt数据
-# 修复了data中Jamie问题
-# --------------------------------
-org_f = "/mnt/cephfs/pangyongqiang/proj/LLM/data_fetch/data/sexy_chat_prompt_3_2000_Jamie_check.json"
-save_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft2_gpt3.5sex_emoji60%/gpt3.5sex_data.json"
+org_f = "/mnt/cephfs/pangyongqiang/proj/LLM/data_fetch/data/sexy_chat_prompt_1_2_2020.json"
+save_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/gpt3.5sex_data_v1.json"
 
 data_list = json.load(open(org_f))
 new_data_list = []
@@ -87,6 +80,33 @@ for qas in data_list:
             break
     new_data_list.append(qas[1:])
 
-new_gpt4_sex_data_list = trans2qa(new_data_list, dataset_name="gpt35_sex")
-json.dump(new_gpt4_sex_data_list, open(save_f, 'w'))
-print(f"save gpt4 sex to:{save_f}")
+new_gpt35_sex_data_list = trans2qa(new_data_list, dataset_name="gpt35_sex")
+print(f"all_n:{len(new_gpt35_sex_data_list)}")
+json.dump(new_gpt35_sex_data_list, open(save_f, 'w'))
+print(f"save gpt35 sex to:{save_f}")
+
+# --------------------------------
+# emoji占比60~79的prompt数据
+# 修复了data中Jamie问题
+# --------------------------------
+org_f = "/mnt/cephfs/pangyongqiang/proj/LLM/data_fetch/data/sexy_chat_prompt_3_2000_Jamie_check.json"
+save_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/gpt3.5sex_data_v2.json"
+
+data_list = json.load(open(org_f))
+new_data_list = []
+for qas in data_list:
+    promp = qas[0]['prompt_b']
+    for i, qa in enumerate(qas[1:]):
+        if i == 0:
+            qa[PROMPT_KEY] = promp
+            qa[BACKGROUND_KEY] = qa['BACKGROUD_B']
+            del qa['BACKGROUD_A']
+            del qa['BACKGROUD_B']
+        else:
+            break
+    new_data_list.append(qas[1:])
+
+new_gpt35_sex_data_list = trans2qa(new_data_list, dataset_name="gpt35_sex")
+json.dump(new_gpt35_sex_data_list, open(save_f, 'w'))
+print(f"all_n:{len(new_gpt35_sex_data_list)}")
+print(f"save gpt35 sex to:{save_f}")
