@@ -1,7 +1,14 @@
+import os
 import sys
 import json
 from tqdm import tqdm
 import random
+
+pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+print(f"--pdj:{pdj}")
+sys.path.append(pdj)
+
+from dataset.data_utils import *
 
 # --------------------------------------------------
 # 只拿bigolive、sota、sex数据
@@ -114,19 +121,23 @@ def trans2qa(all_data, dataset_name):
 
 
 # -----------------
-# sex
+# bigolive标注人员标注的sex数据
 # -----------------
 # f = "/mnt/cephfs/zhuchengqi/git/LLM/bigo_stanford_alpaca/datasets/sexy_840_15.json"
 # 程琦剔除单个句子长度大于200的case 39个
 f = "/mnt/cephfs/zhuchengqi/git/LLM/bigo_stanford_alpaca/datasets/new_sexy_fix_524_save.json"
 save_f = f"{base_dir}/sexy.json"
+save_qas_f = f"{base_dir}/sexy_qas.json"
 data_list = json.load(open(f))
 
 end_string_list = ["They start a conversation:", "The conversation started"]
 
 new_sex_data_list = process_data(data_list, save_f, end_string_list, header_key='handPrompt')
 
-new_sex_data_list = trans2qa(new_sex_data_list, dataset_name="sex")
+new_sex_data_list = trans2qa(new_sex_data_list, dataset_name=CROWDSOURCE_SEX_DATASET_NAME)
+print(f"dataset_name:{CROWDSOURCE_SEX_DATASET_NAME},n:{len(new_sex_data_list)}")
+json.dump(new_sex_data_list, open(save_qas_f, 'w'))
+print(f"save to:{save_qas_f}")
 
 # -----------------
 # bigolive
