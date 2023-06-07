@@ -211,67 +211,72 @@ def update_select_model(bot_name):
 # 页面构建
 # --------------------------------------------------------
 
-with gr.Blocks() as demo:
-    with gr.Row():
-        gr.Markdown("# 两个LLM模型互相对话demo")
-    with gr.Row():
-        with gr.Column():
-            selected_temp = gr.Slider(0, 1, value=0.9, label="Temperature超参,调的越小越容易输出常见字",
-                                      interactive=True)
-            with gr.Row():
-                select_role_a_model = gr.Dropdown(choices=models_list, value=models_list[2], label="选择角色A的模型",
-                                                  interactive=True)
-                select_role_b_model = gr.Dropdown(choices=models_list, value=models_list[2], label="选择角色B的模型",
-                                                  interactive=True)
-            with gr.Row():
-                select_role_a = gr.Dropdown(choices=role_a_list, value="None", label="请选择一个角色A",
-                                            interactive=True)
-                select_role_b = gr.Dropdown(choices=role_b_list, value="None", label="请选择一个角色B",
-                                            interactive=True)
+if __name__ == '__main__':
+    with gr.Blocks() as demo:
+        with gr.Row():
+            gr.Markdown("# 两个LLM模型互相对话demo")
+        with gr.Row():
+            with gr.Column():
+                selected_temp = gr.Slider(0, 1, value=0.9, label="Temperature超参,调的越小越容易输出常见字",
+                                          interactive=True)
+                with gr.Row():
+                    select_role_a_model = gr.Dropdown(choices=models_list, value=models_list[2], label="选择角色A的模型",
+                                                      interactive=True)
+                    select_role_b_model = gr.Dropdown(choices=models_list, value=models_list[2], label="选择角色B的模型",
+                                                      interactive=True)
+                with gr.Row():
+                    select_role_a = gr.Dropdown(choices=role_a_list, value="None", label="请选择一个角色A",
+                                                interactive=True)
+                    select_role_b = gr.Dropdown(choices=role_b_list, value="None", label="请选择一个角色B",
+                                                interactive=True)
 
-            with gr.Row():
-                user_name = gr.Textbox(lines=1, placeholder="设置我的名字， ...", label="roleA名字",
-                                       value=ROLE_A_NAME, interactive=True)
-                bot_name = gr.Textbox(lines=1, placeholder="设置聊天对象的名字 ...", label="roleB名字",
-                                      value=ROLE_B_NAME, interactive=True)
-            background_role_a = gr.Textbox(lines=5, placeholder="设置聊天背景 ...只能用英文", label="roleA背景")
-            background_role_b = gr.Textbox(lines=5, placeholder="设置聊天背景 ...只能用英文", label="roleB背景")
-            role_a_question = gr.Textbox(placeholder="输入RoleA首次提出的问题",
-                                         value=ROLE_A_START_QUESTION + ", " + bot_name.value + '!', label="roleA问题",
-                                         interactive=True)
-        with gr.Column():
-            btn = gr.Button("点击生成一轮对话")
-            gr_chatbot = gr.Chatbot(label="聊天记录")
-            clear = gr.Button("清空聊天记录")
+                with gr.Row():
+                    user_name = gr.Textbox(lines=1, placeholder="设置我的名字， ...", label="roleA名字",
+                                           value=ROLE_A_NAME, interactive=True)
+                    bot_name = gr.Textbox(lines=1, placeholder="设置聊天对象的名字 ...", label="roleB名字",
+                                          value=ROLE_B_NAME, interactive=True)
+                background_role_a = gr.Textbox(lines=5, placeholder="设置聊天背景 ...只能用英文", label="roleA背景")
+                background_role_b = gr.Textbox(lines=5, placeholder="设置聊天背景 ...只能用英文", label="roleB背景")
+                role_a_question = gr.Textbox(placeholder="输入RoleA首次提出的问题",
+                                             value=ROLE_A_START_QUESTION + ", " + bot_name.value + '!', label="roleA问题",
+                                             interactive=True)
+            with gr.Column():
+                btn = gr.Button("点击生成一轮对话")
+                gr_chatbot = gr.Chatbot(label="聊天记录")
+                clear = gr.Button("清空聊天记录")
 
-    bot_name.change(lambda x: ROLE_A_START_QUESTION + ", " + x + "!", bot_name, role_a_question)
-    select_role_a_model.change(update_select_model, [bot_name], [gr_chatbot, role_a_question], queue=False)
-    select_role_b_model.change(update_select_model, [bot_name], [gr_chatbot, role_a_question], queue=False)
-    select_role_a.change(update_select_role, [select_role_a, select_role_b, select_role_a_model, select_role_b_model],
-                         [user_name, background_role_a, bot_name, background_role_b, gr_chatbot, role_a_question])
-    select_role_b.change(update_select_role, [select_role_a, select_role_b, select_role_a_model, select_role_b_model],
-                         [user_name, background_role_a, bot_name, background_role_b, gr_chatbot, role_a_question])
+        bot_name.change(lambda x: ROLE_A_START_QUESTION + ", " + x + "!", bot_name, role_a_question)
+        select_role_a_model.change(update_select_model, [bot_name], [gr_chatbot, role_a_question], queue=False)
+        select_role_b_model.change(update_select_model, [bot_name], [gr_chatbot, role_a_question], queue=False)
+        select_role_a.change(update_select_role,
+                             [select_role_a, select_role_b, select_role_a_model, select_role_b_model],
+                             [user_name, background_role_a, bot_name, background_role_b, gr_chatbot, role_a_question])
+        select_role_b.change(update_select_role,
+                             [select_role_a, select_role_b, select_role_a_model, select_role_b_model],
+                             [user_name, background_role_a, bot_name, background_role_b, gr_chatbot, role_a_question])
 
-    select_role_a_model.change(update_select_role,
-                               [select_role_a, select_role_b, select_role_a_model, select_role_b_model],
-                               [user_name, background_role_a, bot_name, background_role_b, gr_chatbot, role_a_question])
-    select_role_b_model.change(update_select_role,
-                               [select_role_a, select_role_b, select_role_a_model, select_role_b_model],
-                               [user_name, background_role_a, bot_name, background_role_b, gr_chatbot, role_a_question])
+        select_role_a_model.change(update_select_role,
+                                   [select_role_a, select_role_b, select_role_a_model, select_role_b_model],
+                                   [user_name, background_role_a, bot_name, background_role_b, gr_chatbot,
+                                    role_a_question])
+        select_role_b_model.change(update_select_role,
+                                   [select_role_a, select_role_b, select_role_a_model, select_role_b_model],
+                                   [user_name, background_role_a, bot_name, background_role_b, gr_chatbot,
+                                    role_a_question])
 
-    btn.click(toggle,
-              inputs=[role_a_question, selected_temp, gr_chatbot, background_role_a, background_role_b, user_name,
-                      bot_name, select_role_a_model, select_role_b_model],
-              outputs=[role_a_question, gr_chatbot])
+        btn.click(toggle,
+                  inputs=[role_a_question, selected_temp, gr_chatbot, background_role_a, background_role_b, user_name,
+                          bot_name, select_role_a_model, select_role_b_model],
+                  outputs=[role_a_question, gr_chatbot])
 
-    clear.click(clear_f, [bot_name], [gr_chatbot, role_a_question])
+        clear.click(clear_f, [bot_name], [gr_chatbot, role_a_question])
 
-    role_a_question.submit(toggle,
-                           inputs=[role_a_question, selected_temp, gr_chatbot, background_role_a, background_role_b,
-                                   user_name,
-                                   bot_name, select_role_a_model, select_role_b_model],
-                           outputs=[role_a_question, gr_chatbot])
+        role_a_question.submit(toggle,
+                               inputs=[role_a_question, selected_temp, gr_chatbot, background_role_a, background_role_b,
+                                       user_name,
+                                       bot_name, select_role_a_model, select_role_b_model],
+                               outputs=[role_a_question, gr_chatbot])
 
-demo.queue()
-demo.launch(server_name="0.0.0.0", server_port=8992, debug=True)
-# demo.launch(server_name="202.168.100.178", server_port=8996)
+    demo.queue()
+    demo.launch(server_name="0.0.0.0", server_port=8992, debug=True)
+    # demo.launch(server_name="202.168.100.178", server_port=8996)
