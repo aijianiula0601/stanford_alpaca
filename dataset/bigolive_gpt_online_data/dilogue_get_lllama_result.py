@@ -13,7 +13,7 @@ from llama_result import llama_no_mask_respond, llama_gpt35sex_respond
 # -----------------------------------------------------------------
 
 gpt_dialogue_json_f = "/Users/jiahong/Downloads/2023-06-07_1527353_dilogue.json"
-save_gpt_dialogue_json_f = "/Users/jiahong/Downloads/2023-06-07_1527353_dilogue_llama_answers.json"
+save_gpt_dialogue_json_f = "/Users/jiahong/Downloads/2023-06-07_1527353_dilogue_llama_answers_100.json"
 
 gpt_dialogue_json_data = json.load(open(gpt_dialogue_json_f))
 
@@ -21,9 +21,9 @@ all_keys = list(gpt_dialogue_json_data.keys())
 
 random.shuffle(all_keys)
 
-all_keys = all_keys[:10]
+all_keys = all_keys[:100]
 
-limit_turn_n = 5
+limit_turn_n = 10
 new_dialogue_data_dic = {}
 for k in tqdm(all_keys):
     error_flag = False
