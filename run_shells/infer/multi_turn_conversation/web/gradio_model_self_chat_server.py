@@ -24,24 +24,14 @@ ROLE_A_START_QUESTION = "hi"
 # --------------------------------------------------------
 # 模型选择
 # --------------------------------------------------------
-# models_list = ["mask_head_answer_v1", "mask_head_answer_v2", "gptLiveSodaSex", "gpt3.5sex"]
-# models_url_dic = {
-#     models_list[0]: "http://202.168.100.251:5018/api",
-#     models_list[1]: "http://202.168.100.251:5019/api",
-#     models_list[2]: "http://202.168.100.165:5020/api",
-#     models_list[3]: "http://202.168.100.251:5021/api",
-# }
 
-
-models_list = ["mask_head_answer", "gpt3.5sex", "mutlitype_dataset", "mutlitype_dataset_ftsexprompt",
-               "mutlitype_dataset_ft_sota1w_sexprompt"]
+models_list = ["mask_head_answer", "gpt3.5sex", "mutlitype_dataset", "mutlitype_dataset_ftsexprompt"]
 
 models_url_dic = {
     models_list[0]: "http://202.168.100.251:5018/api",
     models_list[1]: "http://202.168.100.251:5021/api",
-    models_list[2]: "http://202.168.114.102:5055/api",
-    models_list[3]: "http://202.168.114.102:6022/api",
-    models_list[4]: "http://202.168.114.102:6022/api",
+    models_list[2]: "http://202.168.114.102:6022/api",
+    models_list[3]: "http://202.168.114.102:6023/api",
 }
 
 models_prompt_key_dic = {
@@ -49,7 +39,6 @@ models_prompt_key_dic = {
     models_list[1]: 'conversion_v4',
     models_list[2]: 'conversion_v4',
     models_list[3]: 'conversion_gpt35_sex',
-    models_list[4]: 'conversion_gpt35_sex',
 }
 
 PROMPT_DICT = {

@@ -16,7 +16,7 @@ import torch
 
 setproctitle.setproctitle("multitype_dataset")
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 # # 自动识别机器上的gpu
 # worker_id = int(os.environ.get('APP_WORKER_ID', 1))
 # devices = os.environ.get('CUDA_VISIBLE_DEVICES', '')
@@ -27,9 +27,9 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 # print('current worker id  {} set the gpu id :{}'.format(worker_id, gpu_index))
 # torch.cuda.set_device(int(gpu_index))
 
-#---------------------------------------------
+# ---------------------------------------------
 # 用的是transformers==4.28.1训练的
-#---------------------------------------------
+# ---------------------------------------------
 
 import transformers
 
@@ -129,11 +129,11 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
 
 
 logger.info("loading model ... ")
-#----------------------------------------------------
+# ----------------------------------------------------
 # 加入gpt bigolive soda sex数据和永强的训练数据
 # 对应训练脚本：
 #    run_shells/train/add_rongqiang_data/ft_gpt4_sex.sh
-#----------------------------------------------------
+# ----------------------------------------------------
 model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft_outs/checkpoint-5000"
 
 load_model(model_dir)

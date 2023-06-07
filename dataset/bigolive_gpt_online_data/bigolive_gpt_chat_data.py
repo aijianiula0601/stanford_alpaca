@@ -7,8 +7,11 @@ import csv
 # -----------------------------------------------------------------
 
 # 用户聊天记录
-csv_f = "/Users/jiahong/Downloads/2023-06-07_1527353.csv"
-save_json_f = "/Users/jiahong/Downloads/2023-06-07_1527353_dilogue.json"
+# csv_f = "/Users/jiahong/Downloads/2023-06-07_1527353.csv"
+# save_json_f = "/Users/jiahong/Downloads/2023-06-07_1527353_dilogue.json"
+
+csv_f="/Users/jiahong/Downloads/2023-06-07_1528241.csv"
+save_json_f = "/Users/jiahong/Downloads/2023-06-07_1528241_dilogue.json"
 
 # 主播信息
 # 源文件：/mnt/cephfs2/chenjiang/projects/flask-deploy-live-chat-robot/src/bigolive_robot_uid_part1.uids.all.20230515.base_info.txt
