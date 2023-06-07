@@ -153,8 +153,7 @@ for turns_data in json.load(open(org_f)):
         print("-" * 100)
         pass
 
-# print("skip_n:", skip_n, "all_n:", all_n)
-# print(json.dumps(gpt4_data))
+print(f"dataset_name:{dataset_name},skip_n:", skip_n, "all_n:", all_n)
 
 # ------------------------------------------------------------
 # persona_chat
