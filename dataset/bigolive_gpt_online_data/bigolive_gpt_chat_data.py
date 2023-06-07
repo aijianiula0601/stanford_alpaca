@@ -1,7 +1,5 @@
 import json
 from tqdm import tqdm
-import sys
-import pandas as pd
 import csv
 
 csv_f = "/Users/jiahong/Downloads/2023-06-07_1527353.csv"
@@ -56,6 +54,6 @@ for k in dialogue_data_dic:
     if len(dialogue_data_dic[k]['qas']) > 1:
         new_dialogue_data_dic[k] = dialogue_data_dic[k]
 
-
+print(f"对话个数:{len(new_dialogue_data_dic)}")
 json.dump(new_dialogue_data_dic, open(save_json_f, 'w'))
 print(f"save to:{save_json_f}")
