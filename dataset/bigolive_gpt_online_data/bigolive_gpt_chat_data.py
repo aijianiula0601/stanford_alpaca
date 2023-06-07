@@ -11,13 +11,12 @@ csv_f = "/Users/jiahong/Downloads/2023-06-07_1527353.csv"
 save_json_f = "/Users/jiahong/Downloads/2023-06-07_1527353_dilogue.json"
 
 # 主播信息
+# 源文件：/mnt/cephfs2/chenjiang/projects/flask-deploy-live-chat-robot/src/bigolive_robot_uid_part1.uids.all.20230515.base_info.txt
 zhibo_info_f = "/Users/jiahong/Downloads/bigolive_robot_uid_part1.uids.all.20230515.base_info.txt"
 
 # -------------------------------
 # 获取
 # -------------------------------
-
-
 zhibo_user_name_dic = {}
 with open(zhibo_info_f) as f:
     for line in tqdm(f):
