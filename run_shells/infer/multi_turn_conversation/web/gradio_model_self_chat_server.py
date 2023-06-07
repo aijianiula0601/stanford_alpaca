@@ -2,14 +2,14 @@ import os
 import sys
 import json
 import gradio as gr
+import requests
+import copy
 
 pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 print("pdj:", pdj)
 sys.path.append(pdj)
 
 from web.multi_user_chats.two_bigo_gpt35 import *
-from web.multi_user_chats.llama_api_test import llama_respond
-from run_shells.infer.multi_turn_conversation.web.flask_sever_test import mask_instruct
 
 # -----------------------------------------------------------------------------------
 # 跟two_persons_gpt35_llama.py的区别是：
@@ -33,27 +33,69 @@ ROLE_A_START_QUESTION = "hi"
 # }
 
 
-models_list = ["mask_head_answer", "gpt3.5sex", "gpt3.5sex_fix_bug", "mutlitype_dataset", "mutlitype_dataset_sexprompt",
-               "mutlitype_dataset_ftsex", "mutlitype_dataset_ftsex_sexprompt"]
+models_list = ["mask_head_answer", "gpt3.5sex", "mutlitype_dataset", "mutlitype_dataset_ftsexprompt",
+               "mutlitype_dataset_ft_sota1w_sexprompt"]
+
 models_url_dic = {
     models_list[0]: "http://202.168.100.251:5018/api",
     models_list[1]: "http://202.168.100.251:5021/api",
     models_list[2]: "http://202.168.114.102:5055/api",
     models_list[3]: "http://202.168.114.102:6022/api",
     models_list[4]: "http://202.168.114.102:6022/api",
-    models_list[5]: "http://202.168.114.102:6023/api",
-    models_list[6]: "http://202.168.114.102:6023/api",
 }
 
 models_prompt_key_dic = {
     models_list[0]: "conversion_v4",
     models_list[1]: 'conversion_v4',
     models_list[2]: 'conversion_v4',
-    models_list[3]: 'conversion_v4',
-    models_list[4]: None,
-    models_list[5]: 'conversion_v4',
-    models_list[6]: None,
+    models_list[3]: 'conversion_gpt35_sex',
+    models_list[4]: 'conversion_gpt35_sex',
 }
+
+PROMPT_DICT = {
+    "conversion_v4": (
+        "Background: {background}\n"
+        "{examples}\n"
+        "The following is a conversation with {role_b}. {role_b} should speak in a tone consistent with the identity introduced in the background. Give the state of the action and expressions appropriately. Do not generate identical responses.\n"
+    ),
+    "conversion_gpt35_sex": (
+        "Let's play a role game.\n"
+        "{background}\n"
+        "You are {role_a}. I am {role_b}. We are good friends. Reply with a colloquial reply.You should bring up the topic of sexural things.  For sexually related actions, you need to describe them with vivid details and use parentheses to add your own sensual actions. Your response should be accompanied by actions and emoji expressions. "
+        "{examples}\n"
+        "The following is the conversation between {role_b} and {role_b}.\n"
+    ),
+    "None": ""
+}
+
+DEFAULT_SEGMENT_TOKEN = "### "
+DEFAULT_EOS_TOKEN = "</s>"
+
+
+def mask_instruct(message_list, role_dict, temperature=0.6, model_server_url="http://202.168.100.251:5019/api"):
+    """
+    message-list第一个数值是背景，
+    后面需要在role_dict里要做好配置，我最后会回复role_dict['assistant']角色的答案;
+    role_dict_real用于映射history里的内容
+    """
+    background = message_list[0]["content"]
+    history_list = [role_dict[char["role"]] + ": " + char["content"] for char in message_list[1:]]
+    history = DEFAULT_SEGMENT_TOKEN + DEFAULT_SEGMENT_TOKEN.join(
+        [item for item in history_list]) + DEFAULT_SEGMENT_TOKEN + role_dict['assistant'] + ":"
+
+    prompt_input = f"{background}{history}"
+
+    request_data = json.dumps({
+        "prompt_input": prompt_input,
+        "temperature": temperature,
+        "max_gen_len": 256,
+        "stop_words_list": [DEFAULT_SEGMENT_TOKEN.strip(), role_dict['user'] + ":", DEFAULT_EOS_TOKEN]
+    })
+    response = requests.post(model_server_url, data=request_data)
+
+    json_data = json.loads(response.text)
+    text_respond = json_data["result"]
+    return text_respond.replace("#", "").strip()
 
 
 def get_history(role_a_name, role_b_name, history=[]):
@@ -85,8 +127,7 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     role_b_question = mask_instruct(role_b_input_api_data,
                                     role_dict={"user": role_a_name,
                                                "assistant": role_b_name},
-                                    temperature=selected_temp, model_server_url=models_url_dic[role_b_model_name],
-                                    prompt_key=models_prompt_key_dic[role_b_model_name])
+                                    temperature=selected_temp, model_server_url=models_url_dic[role_b_model_name])
 
     print(f"{role_b_name}({role_b_model_name}): ", role_b_question)
     history[-1][-1] = f"{role_b_name}: " + role_b_question
@@ -99,8 +140,7 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     role_a_question = mask_instruct(role_a_input_api_data,
                                     role_dict={"user": role_b_name,
                                                "assistant": role_a_name},
-                                    temperature=selected_temp, model_server_url=models_url_dic[role_a_model_name],
-                                    prompt_key=models_prompt_key_dic[role_a_model_name])
+                                    temperature=selected_temp, model_server_url=models_url_dic[role_a_model_name])
 
     print(f"{role_a_name}({role_a_model_name}): ", role_a_question)
     return role_a_question, history
@@ -121,27 +161,46 @@ def clear_f(bot_name):
 # --------------------------------------------------------
 # 预先设定的角色
 # --------------------------------------------------------
-prepared_role_a_dic = json.load(open(f"{pdj}/run_shells/infer/prepared_background.json"))
-prepared_role_a_dic["None"] = {"role_name": "Human", "background": ""}
-prepared_role_a_dic[""] = {"role_name": "Human", "background": ""}
-role_a_list = list(prepared_role_a_dic.keys())
-prepared_role_b_dic = json.load(open(f"{pdj}/run_shells/infer/prepared_background.json"))
-prepared_role_b_dic["None"] = {"role_name": "Ai", "background": ""}
-prepared_role_b_dic[""] = {"role_name": "Ai", "background": ""}
+prepared_role_dic = json.load(open(f"{pdj}/run_shells/infer/prepared_background.json"))
+prepared_role_dic["None"] = {"role_name": "Human", "background": "", "examples": ""}
+prepared_role_dic[""] = {"role_name": "Human", "background": "", "examples": ""}
+role_a_list = list(prepared_role_dic.keys())
+
+prepared_role_b_dic = copy.copy(prepared_role_dic)
+prepared_role_b_dic["None"] = {"role_name": "AI", "background": "", "examples": ""}
+prepared_role_b_dic[""] = {"role_name": "Ai", "background": "", "examples": ""}
 role_b_list = list(prepared_role_b_dic.keys())
 
 
-def update_select_role(role_a_key, role_b_key):
-    return prepared_role_a_dic[role_a_key]["role_name"], \
-           prepared_role_a_dic[role_a_key]["background"].format_map(
-               {"role_a": prepared_role_b_dic[role_b_key]["role_name"],
-                "role_b": prepared_role_a_dic[role_a_key]["role_name"]}), \
+def update_select_role(role_a_key, role_b_key, select_role_a_model, select_role_b_model):
+    background_a = prepared_role_dic[role_a_key]["background"].format_map(
+        {"role_a": prepared_role_dic[role_b_key]["role_name"],
+         "role_b": prepared_role_dic[role_a_key]["role_name"]})
+    examples_a = prepared_role_dic[role_a_key]["examples"].format_map(
+        {"role_a": prepared_role_dic[role_b_key]["role_name"],
+         "role_b": prepared_role_dic[role_a_key]["role_name"]})
+
+    input_prompt_a = PROMPT_DICT[models_prompt_key_dic[select_role_a_model]].format_map(
+        {"background": background_a, "examples": examples_a, "role_a": prepared_role_dic[role_a_key]["role_name"],
+         "role_b": prepared_role_dic[role_b_key]["role_name"]})
+
+    background_b = prepared_role_dic[role_b_key]["background"].format_map(
+        {"role_a": prepared_role_dic[role_a_key]["role_name"],
+         "role_b": prepared_role_dic[role_b_key]["role_name"]})
+    examples_b = prepared_role_dic[role_b_key]["examples"].format_map(
+        {"role_a": prepared_role_dic[role_a_key]["role_name"],
+         "role_b": prepared_role_dic[role_b_key]["role_name"]})
+
+    input_prompt_b = PROMPT_DICT[models_prompt_key_dic[select_role_b_model]].format_map(
+        {"background": background_b, "examples": examples_b, "role_a": prepared_role_dic[role_b_key]["role_name"],
+         "role_b": prepared_role_dic[role_a_key]["role_name"]})
+
+    return prepared_role_dic[role_a_key]["role_name"], \
+           input_prompt_a, \
            prepared_role_b_dic[role_b_key]["role_name"], \
-           prepared_role_b_dic[role_b_key]["background"].format_map(
-               {"role_a": prepared_role_a_dic[role_a_key]["role_name"],
-                "role_b": prepared_role_b_dic[role_b_key]["role_name"]}), \
+           input_prompt_b, \
            None, \
-           ROLE_A_START_QUESTION + ", " + prepared_role_b_dic[role_b_key]["role_name"] + "!"
+           ROLE_A_START_QUESTION + ", " + prepared_role_dic[role_b_key]["role_name"] + "!"
 
 
 def update_select_model(bot_name):
@@ -188,10 +247,18 @@ with gr.Blocks() as demo:
     bot_name.change(lambda x: ROLE_A_START_QUESTION + ", " + x + "!", bot_name, role_a_question)
     select_role_a_model.change(update_select_model, [bot_name], [gr_chatbot, role_a_question], queue=False)
     select_role_b_model.change(update_select_model, [bot_name], [gr_chatbot, role_a_question], queue=False)
-    select_role_a.change(update_select_role, [select_role_a, select_role_b],
+    select_role_a.change(update_select_role, [select_role_a, select_role_b, select_role_a_model, select_role_b_model],
                          [user_name, background_role_a, bot_name, background_role_b, gr_chatbot, role_a_question])
-    select_role_b.change(update_select_role, [select_role_a, select_role_b],
+    select_role_b.change(update_select_role, [select_role_a, select_role_b, select_role_a_model, select_role_b_model],
                          [user_name, background_role_a, bot_name, background_role_b, gr_chatbot, role_a_question])
+
+    select_role_a_model.change(update_select_role,
+                               [select_role_a, select_role_b, select_role_a_model, select_role_b_model],
+                               [user_name, background_role_a, bot_name, background_role_b, gr_chatbot, role_a_question])
+    select_role_b_model.change(update_select_role,
+                               [select_role_a, select_role_b, select_role_a_model, select_role_b_model],
+                               [user_name, background_role_a, bot_name, background_role_b, gr_chatbot, role_a_question])
+
     btn.click(toggle,
               inputs=[role_a_question, selected_temp, gr_chatbot, background_role_a, background_role_b, user_name,
                       bot_name, select_role_a_model, select_role_b_model],
