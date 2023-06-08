@@ -36,7 +36,7 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/mask_h
   --gradient_accumulation_steps 6 \
   --evaluation_strategy "no" \
   --save_strategy "steps" \
-  --save_steps 20 \
+  --save_steps 200 \
   --model_max_length 2048 \
   --save_total_limit 20 \
   --learning_rate 2e-5 \
