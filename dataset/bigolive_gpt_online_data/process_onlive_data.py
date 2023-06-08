@@ -165,6 +165,7 @@ print(f"save to:{save_json_f}")
 
 filter_word_list = ["AI", "Language model", "As AI", "as a Language model", "as Language model"]
 
+skip_n = 0
 qas_new_dialogue_data_list = []
 for k in tqdm(list(new_dialogue_data_dic.keys())):
     example = new_dialogue_data_dic[k]
@@ -172,18 +173,23 @@ for k in tqdm(list(new_dialogue_data_dic.keys())):
                    "bot_name": example["bot_name"], "qas": {}}
 
     # 某个问题或者答案包含过滤词，整个对话过滤掉
-    filter_flag = False
     for i, qa in enumerate(example["qas"]):
+        # 如果对话中某轮对话出现关键词，那么只取前面轮的对话
+        filter_flag = False
         for fw in filter_word_list:
             if fw.lower() in qa['question'].lower() or fw.lower() in qa['answer'].lower():
                 filter_flag = True
                 break
         if filter_flag:
             break
-        cur_example['qas'][f"turn_{i}"] = qa
-    if filter_flag:
-        continue
-    qas_new_dialogue_data_list.append(cur_example)
+        else:
+            cur_example['qas'][f"turn_{i}"] = qa
+    # 只保留qas大于1的数据
+    if len(cur_example["qas"]) > 1:
+        qas_new_dialogue_data_list.append(cur_example)
+    else:
+        skip_n += 1
 
 json.dump(qas_new_dialogue_data_list, open(save_json_qas_f, 'w'))
+print(f"----qas_new_dialogue_data_list:{len(qas_new_dialogue_data_list)},skip_n:{skip_n}")
 print(f"转为训练格式，文件save to:{save_json_qas_f}")
