@@ -13,16 +13,16 @@ cd ../../../
 #   --bf16 True
 #   --tf32 True
 # 这两个参数，这两个参数是在A100机器上训练的。
-# 去掉原始gpt35（1、2版本共约4k对话）中的一些prompt+sota 1w数据
-# 处理数据脚本：data_prepare_soda_sex_gptsex.py
+# 去掉原始gpt35中的一些prompt然后再训练,第一第二版本加起来约4000个对话
+# 处理数据脚本：process_gpt35sexprompt.py
 #----------------------------------------------------------
 
 your_random_port=11224
 
-base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data_soda_sex_gptsex"
-llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft_outs/checkpoint-5000"
-output_dir="${base_dir}/ft_out"
-data_json="${base_dir}/multi_dataset_qas.json"
+base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitype_data"
+llama_ckpt_and_tokenizer="${base_dir}/llama-7b-hf"
+output_dir="${base_dir}/ft_out_sharegpt_soda_bilivechat"
+data_json="${base_dir}/sharegpt_soda_bilivechat_dataset_qas.json"
 
 mkdir -p ${output_dir}
 
@@ -30,13 +30,13 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/mask_h
   --model_name_or_path "${llama_ckpt_and_tokenizer}" \
   --data_path ${data_json} \
   --output_dir ${output_dir} \
-  --num_train_epochs 2 \
+  --num_train_epochs 6 \
   --per_device_train_batch_size 6 \
   --per_device_eval_batch_size 6 \
   --gradient_accumulation_steps 6 \
   --evaluation_strategy "no" \
   --save_strategy "steps" \
-  --save_steps 20 \
+  --save_steps 200 \
   --model_max_length 2048 \
   --save_total_limit 20 \
   --learning_rate 2e-5 \
@@ -48,4 +48,4 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/mask_h
   --gradient_checkpointing True \
   --deepspeed run_shells/train/deepspeed_config.json \
   --fp16 True \
-  --process_name 'sota_sex_gpt35_process_prompt'
+  --process_name 'sharegpt_soda_bilivechat'

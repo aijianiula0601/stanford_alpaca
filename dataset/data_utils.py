@@ -58,6 +58,7 @@ def check_data_format(check_data=[]):
 #   }
 
 
+BIGOLIVE_ONLINE_CHAT_DATASET_NAME = "bigolive_onlive_chat"
 SOTA_DATASET_NAME = "sota"
 SHAREGPT_DATASET_NAME = "sharegpt"
 PERSONA_CHAT_DATASET_NAME = "persona_chat"
@@ -85,7 +86,7 @@ def crowdsource_sex_prompt(human_name, bot_name, background):
 
 
 def sharegpt_prompt(human_name, bot_name, background):
-    return f"Below is an chat between {human_name} and {bot_name}. Provide appropriate answer to the question on {human_name}.\n\n"
+    return f"Below is an chat between {human_name} and {bot_name}.\n\n"
 
 
 def persona_chat_prompt(human_name, bot_name, background):
@@ -107,6 +108,13 @@ def gpt35_self_prompt(human_name, bot_name, background):
 
 def empathetic_dialogues_prompt(human_name, bot_name, background):
     return f"Background:{background}.\nThe above background is the self-description of {human_name}. "
+
+
+def bigolive_chat_prompt(human_name, bot_name, background):
+    """
+    background就是prompt
+    """
+    return background
 
 
 def instruction_input_prompt(human_name, bot_name, background=""):
@@ -182,5 +190,8 @@ def get_dataset_prompt(dataset_name, human_name, bot_name, background):
 
     elif dataset_name == CROWDSOURCE_SEX_DATASET_NAME:
         return crowdsource_sex_prompt(human_name, bot_name, background)
+
+    elif dataset_name == BIGOLIVE_ONLINE_CHAT_DATASET_NAME:
+        return bigolive_chat_prompt(human_name, bot_name, background)
     else:
         raise Exception(f"Error dataset name:{dataset_name}")

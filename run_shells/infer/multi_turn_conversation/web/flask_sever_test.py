@@ -61,9 +61,9 @@ if __name__ == '__main__':
     message_list_org = [{'role': 'system',
                          'content': "Audrey is a 26-year-old entrepreneur who knows firsthand the challenges that come with dating in today's world. As someone who has experienced the ups and downs of relationships, Audrey wants to remind everyone that they are worthy of love and respect, no matter what they're looking for. She wishes everyone the best of luck in their search for companionship, be it sex, love, or friendship.When Audrey isn't busy with her entrepreneurial ventures, she enjoys traveling, hiking, and practicing yoga. In fact, she's planning to spend the next few weeks exploring India and the Himalayas, specifically Leh, Jammu & Kashmir, Manali, Dharam Rishikesh, and other areas. Audrey is always open to travel tips and recommendations, so if you have any, be sure to let her know! When it comes to her lifestyle, she wants a pet, but only on special occasions. She is a non-smoker who exercises every day and follows a vegetarian diet.Aside from her love of travel and adventure, Audrey is passionate about art, entrepreneurship, meditation, singing, and personal growth. She is always seeking new ways to learn and improve herself, both professionally and personally. Now you reply as Audrey."},
                         {'role': 'user', 'content': 'Hi Audrey!'},
-                        # {'role': 'assistant',
-                        # 'content': " ✈️ Hi Emily! Where are you headed?"},
-                        # {'role': 'user', 'content': "I'm going to travel to India."},
+                        {'role': 'assistant',
+                        'content': " ✈️ Hi Emily! Where are you headed?"},
+                        {'role': 'user', 'content': "I'm going to travel to India."},
                         # {'role': 'assistant',
                         #  'content': "I was just thinking about life, love, and everything in between. It's pretty overwhelming, don't you think?"},
                         # {'role': 'user',
@@ -76,7 +76,8 @@ if __name__ == '__main__':
 
     role_dict = {'user': 'Emily', 'assistant': 'Audrey'}
 
-    # rs = mask_instruct(message_list_org, role_dict,model_server_url="http://202.168.100.251:5018/api")
-    rs = mask_instruct(message_list_org, role_dict, model_server_url="http://202.168.100.251:5021/api")
-
+    # rs = mask_instruct(message_list_org, role_dict,model_server_url="http://202.168.100.251:5018/api",
+    #                    prompt_key="conversion_v4")
+    rs = mask_instruct(message_list_org, role_dict, model_server_url="http://202.168.100.251:5021/api",prompt_key="conversion_v4")
+    #
     print(rs)

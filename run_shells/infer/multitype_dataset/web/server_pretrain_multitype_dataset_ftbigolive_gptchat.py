@@ -14,7 +14,7 @@ import os
 import sys
 import torch
 
-setproctitle.setproctitle("multitype_dataset_ftsex_sexprompt")
+setproctitle.setproctitle("multitype_dataset_ftbigolive")
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 # # 自动识别机器上的gpu
@@ -133,10 +133,9 @@ logger.info("loading model ... ")
 # 训练完多种数据集的模型ft永强的sex emoji数据,
 # ft时候，multtype1w+yongqioang数据,prompt采用sex的prompt
 # 对应训练脚本：
-#    run_shells/train/pretrain_multitype_data/ft_gpt35sex_multitype1w_gpt35selfprompt.sh
+#    run_shells/train/pretrain_multitype_data/ft_bigolive_onlive_data.sh
 #----------------------------------------------------
-# model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft2_gpt3.5sex_prompt/ft_out_gpt35prompt/checkpoint-60"
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data_soda_sex_gptsex/ft_out/checkpoint-50"
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft_bigolive_gpt_chat/ft_out/checkpoint-120"
 
 load_model(model_dir)
 logger.info('load model done!!!')
@@ -198,4 +197,4 @@ def receive():
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host="202.168.114.102", port=6023)
+    app.run(debug=False, host="202.168.114.102", port=6024)

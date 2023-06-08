@@ -54,6 +54,7 @@ llama_my_model_url = {
     "gpt35sex": "http://202.168.100.251:5021/api",
     "mask_head_answer": "http://202.168.100.251:5018/api",
     "gpt35sex_self_prompt": "http://202.168.114.102:6023/api",
+    "bigolive_chat": "http://202.168.114.102:6024/api",
 }
 
 

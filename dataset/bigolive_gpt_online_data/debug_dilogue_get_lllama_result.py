@@ -41,8 +41,10 @@ for k in tqdm(all_keys):
             del cur_example['qas'][-1]['answer']
 
             example['qas'][i]['no_mask_answer'] = llama_no_mask_respond(cur_example)
-            example['qas'][i]['gpt35sex_answer'] = my_llama_respond(cur_example, model_name="gpt35sex")
-            example['qas'][i]['mask_head_answer'] = my_llama_respond(cur_example, model_name="mask_head_answer")
+            # example['qas'][i]['gpt35sex_answer'] = my_llama_respond(cur_example, model_name="gpt35sex")
+            # example['qas'][i]['gpt35sex_self_prompt'] = my_llama_respond(cur_example, model_name="gpt35sex_self_prompt")
+            # example['qas'][i]['mask_head_answer'] = my_llama_respond(cur_example, model_name="mask_head_answer")
+            example['qas'][i]['bigolive_chat'] = my_llama_respond(cur_example, model_name="bigolive_chat")
 
     except Exception as e:
         print(e)

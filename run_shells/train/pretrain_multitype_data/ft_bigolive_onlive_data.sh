@@ -22,11 +22,11 @@ your_random_port=11224
 base_dir='/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft_bigolive_gpt_chat'
 llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft_outs/checkpoint-5000"
 output_dir="${base_dir}/ft_out"
-data_json="${base_dir}/debug_2023-06-07_1528241_dilogue_data.json"
+data_json="${base_dir}/2023-06-07_1528241_dilogue_data.json"
 
 mkdir -p ${output_dir}
 
-torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/ft_bigolive_online/train_multi_round_mask_answer_multitype_dataset.py \
+torchrun --nproc_per_node=7 --master_port=${your_random_port} test_models/ft_bigolive_online/train_multi_round_mask_answer_multitype_dataset.py \
   --model_name_or_path "${llama_ckpt_and_tokenizer}" \
   --data_path ${data_json} \
   --output_dir ${output_dir} \
