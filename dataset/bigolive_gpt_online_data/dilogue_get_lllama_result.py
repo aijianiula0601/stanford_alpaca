@@ -6,14 +6,20 @@ from tqdm import tqdm
 import copy
 import random
 
-from llama_result import llama_no_mask_respond, llama_gpt35sex_respond
+from llama_result import *
 
 # -----------------------------------------------------------------
 # gpt线上的数据去调用我们的模型获取答案
 # -----------------------------------------------------------------
 
-gpt_dialogue_json_f = "/Users/jiahong/Downloads/2023-06-07_1527353_dilogue.json"
-save_gpt_dialogue_json_f = "/Users/jiahong/Downloads/2023-06-07_1527353_dilogue_llama_answers_100.json"
+limit_dialogue_n = 20
+limit_turn_n = 20
+
+base_dir = "/Users/jiahong/Downloads"
+base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/bigolive_gpt_onlive_data/for_biaozhu_eval"
+gpt_dialogue_json_f = f"{base_dir}/2023-06-07_1527353_dilogue.json"
+save_gpt_dialogue_json_f = f"{base_dir}/2023-06-07_1527353_dilogue_llama_answers_20.json"
+# save_gpt_dialogue_json_f = f"{base_dir}/debug.json"
 
 gpt_dialogue_json_data = json.load(open(gpt_dialogue_json_f))
 
@@ -21,10 +27,10 @@ all_keys = list(gpt_dialogue_json_data.keys())
 
 random.shuffle(all_keys)
 
-all_keys = all_keys[:100]
+all_keys = all_keys[:limit_dialogue_n]
 
-limit_turn_n = 10
 new_dialogue_data_dic = {}
+i = 0
 for k in tqdm(all_keys):
     error_flag = False
     example = gpt_dialogue_json_data[k]
@@ -35,18 +41,20 @@ for k in tqdm(all_keys):
             cur_example = copy.deepcopy(example)
             cur_example['qas'] = cur_example['qas'][:i + 1]
             del cur_example['qas'][-1]['answer']
-            llama_no_mask_res = llama_no_mask_respond(cur_example)
-            llama_gpt35sex_res = llama_gpt35sex_respond(cur_example)
 
-            example['qas'][i]['no_mask_answer'] = llama_no_mask_res
-            example['qas'][i]['gpt35sex_answer'] = llama_gpt35sex_res
+            example['qas'][i]['no_mask_answer'] = llama_no_mask_respond(cur_example)
+            example['qas'][i]['gpt35sex_answer'] = my_llama_respond(cur_example, model_name="gpt35sex")
+            # example['qas'][i]['gpt35sex_self_prompt'] = my_llama_respond(cur_example, model_name="gpt35sex_self_prompt")
+            example['qas'][i]['mask_head_answer'] = my_llama_respond(cur_example, model_name="mask_head_answer")
+
     except Exception as e:
         print(e)
         error_flag = True
     if error_flag:
         continue
     else:
-        new_dialogue_data_dic[k] = example
+        i += 1
+        new_dialogue_data_dic[f"dialogue-{i}"] = example
 
 json.dump(new_dialogue_data_dic, open(save_gpt_dialogue_json_f, 'w'))
 print(f"save to:{save_gpt_dialogue_json_f}")
