@@ -29,6 +29,7 @@ import torch
 import transformers
 from torch.utils.data import Dataset
 from transformers import Trainer
+from dataset.data_utils import *
 
 IGNORE_INDEX = -100
 DEFAULT_PAD_TOKEN = "[PAD]"
@@ -147,50 +148,55 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
     :param tokenizer: tokenizer model
     :return: dic
     """
-    default_segment_token_ids, default_segment_token_ids_len = _tokenize_string(DEFAULT_SEGMENT_TOKEN, tokenizer)
 
     ignore_token_index_list = []
-    turn_n = len(conversation_dic["qas"])
-    human_name = conversation_dic['human_name']
-    bot_name = conversation_dic['bot_name']
+    turn_n = len(conversation_dic[QAS_KEY])
+    human_name = conversation_dic[HUMAN_NAME_KEY]
+    bot_name = conversation_dic[BOT_NAME_KEY]
     header = PROMPT_DICT['header'].format_map(
-        {"background": conversation_dic['background'], "role_a": human_name, "role_b": bot_name})
+        {BACKGROUND_KEY: conversation_dic[BACKGROUND_KEY], "role_a": human_name, "role_b": bot_name})
     head_ids, header_ids_len = _tokenize_string(header, tokenizer)
-    bot_name_token_ids, bot_name_token_ids_len = _tokenize_string(bot_name + ": ", tokenizer)
 
     if header_ids_len >= token_max_len:
-        logging.warning("the prompt is to long!")
         return None, None
 
+    # mask head
+    ignore_token_index_list.append((0, header_ids_len))  # mask index
     input_ids_tensor_list = [head_ids]
 
     for i in range(turn_n):
-        cur_turn_qa = conversation_dic['qas'][f'turn_{i}']
+        cur_turn_qa = conversation_dic[QAS_KEY][f'{TURN_KEY}_{i}']
+        # mask question start index
+        ignore_start_index = header_ids_len - 1
+        # ------------
         # question
-        cur_question_string = human_name + ": " + cur_turn_qa["question"] + DEFAULT_EOS_TOKEN
+        # ------------
+        cur_question_string = DEFAULT_SEGMENT_TOKEN + human_name + ": " + cur_turn_qa[QUESTION_KEY] + DEFAULT_EOS_TOKEN
         cur_question_string_token_ids, cur_question_string_token_ids_len = _tokenize_string(cur_question_string,
                                                                                             tokenizer)
-        # answer
-        cur_answer_string = cur_turn_qa["answer"] + DEFAULT_EOS_TOKEN
-        cur_answer_string_token_ids, cur_answer_string_token_ids_len = _tokenize_string(cur_answer_string, tokenizer)
 
-        if header_ids_len + default_segment_token_ids_len + cur_question_string_token_ids_len + default_segment_token_ids_len + bot_name_token_ids_len + cur_answer_string_token_ids_len > token_max_len:
+        header_ids_len += cur_question_string_token_ids_len
+        ignore_end_index = header_ids_len
+        if header_ids_len > token_max_len:
             break
 
-        # question
-        input_ids_tensor_list.append(default_segment_token_ids)
-        input_ids_tensor_list.append(cur_question_string_token_ids)
-        header_ids_len += default_segment_token_ids_len + cur_question_string_token_ids_len + default_segment_token_ids_len + bot_name_token_ids_len
-        ignore_start_index = header_ids_len - 1
-
+        # ------------
         # answer
-        input_ids_tensor_list.append(default_segment_token_ids)
-        input_ids_tensor_list.append(bot_name_token_ids)
-        input_ids_tensor_list.append(cur_answer_string_token_ids)
+        # ------------
+        cur_answer_string = DEFAULT_SEGMENT_TOKEN + bot_name + ": " + cur_turn_qa[ANSWER_KEY] + DEFAULT_EOS_TOKEN
+        cur_answer_string_token_ids, cur_answer_string_token_ids_len = _tokenize_string(cur_answer_string, tokenizer)
         header_ids_len += cur_answer_string_token_ids_len
-        ignore_end_index = header_ids_len
+        if header_ids_len > token_max_len:
+            break
 
-        ignore_token_index_list.append((ignore_start_index, ignore_end_index))
+        # 问题和答案都不超过长度才加入
+        input_ids_tensor_list.append(cur_question_string_token_ids)
+        input_ids_tensor_list.append(cur_answer_string_token_ids)
+        ignore_token_index_list.append((ignore_start_index, ignore_end_index))  # mask index
+
+    if len(input_ids_tensor_list) <= 1:
+        # 只有head,没有qa的情况情况下，直接过滤。
+        return None, None
 
     input_ids = torch.cat(input_ids_tensor_list, dim=0)
     label_ids = copy.deepcopy(input_ids)
