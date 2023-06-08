@@ -12,12 +12,12 @@ from llama_result import *
 # gpt线上的数据去调用我们的模型获取答案
 # -----------------------------------------------------------------
 
-limit_dialogue_n = 20
-limit_turn_n = 20
+limit_dialogue_n = 5
+limit_turn_n = 5
 
-base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/bigolive_gpt_onlive_data/for_biaozhu_eval"
+base_dir = "/Users/jiahong/Downloads"
 gpt_dialogue_json_f = f"{base_dir}/2023-06-07_1527353_dilogue.json"
-save_gpt_dialogue_json_f = f"{base_dir}/2023-06-07_1527353_dilogue_llama_answers_20.json"
+save_gpt_dialogue_json_f = f"{base_dir}/debug.json"
 
 gpt_dialogue_json_data = json.load(open(gpt_dialogue_json_f))
 
