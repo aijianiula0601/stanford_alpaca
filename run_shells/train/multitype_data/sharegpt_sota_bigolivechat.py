@@ -101,22 +101,16 @@ print(f"dataset_name:{dataset_name},skip_n:", skip_n, "all_n:", all_n)
 # ============================================================
 # bigolive线上聊天数据
 # ============================================================
-org_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft_bigolive_gpt_chat/2023-06-07_1528241_dilogue_data.json"
 
-bigolive_chat_data = json.load(open(org_f))
-new_bigolive_chat_data = []
+org_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/onlive_csv_data/20230530-20230607_qas.json"
+
+bigolive_chat_data_list = json.load(open(org_f))
 dataset_name = BIGOLIVE_ONLINE_CHAT_DATASET_NAME
 
-for example in bigolive_chat_data:
-    cur_qas = {}
-    for i, qa in enumerate(example['qas']):
-        cur_qas[f"{TURN_KEY}_{i}"] = qa
+for example in tqdm(bigolive_chat_data_list):
+    example[DATASET_KEY] = dataset_name
 
-    new_bigolive_chat_data.append(
-        {BACKGROUND_KEY: example['prompt'], DATASET_KEY: dataset_name, HUMAN_NAME_KEY: example['human_name'],
-         BOT_NAME_KEY: example["bot_name"], QAS_KEY: cur_qas})
-
-print(f"---datasetname:{BIGOLIVE_ONLINE_CHAT_DATASET_NAME},all_n:{len(new_bigolive_chat_data)}")
+print(f"---datasetname:{BIGOLIVE_ONLINE_CHAT_DATASET_NAME},all_n:{len(bigolive_chat_data_list)}")
 
 # ============================================================
 # 汇总所有数据
@@ -127,7 +121,7 @@ debug_save_f = f"{save_base_dir}/debug_sharegpt_soda_bilivechat_dataset_qas.json
 
 data = soda_data + \
        shared_gpt_data + \
-       new_bigolive_chat_data
+       bigolive_chat_data_list
 random.shuffle(data)
 
 checked_data = []
