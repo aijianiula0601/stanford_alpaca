@@ -8,24 +8,19 @@ openai.api_version = "2023-03-15-preview"
 # key2: 548e5c0c2aff453e932948927a27bde6
 openai.api_key = "548e5c0c2aff453e932948927a27bde6"
 
-
 # role : system|user|assistant
 gpt_config = {'engine': 'gpt-35-turbo',
               'role': 'user',
               }
 
-
 response = openai.ChatCompletion.create(
     engine=gpt_config['engine'],
     messages=[
         {"role": "system",
-         "content": "Let's play a role game. Alice and Kervin are classmate. You are Kervin. I am Alice."},
-        {"role": "user", "content": "hi, Kervin"},
-        {"role": "assistant", "content": "I am fine, how about you?"},
-        {"role": "user", "content": "Where are you?"},
-        {"role": "assistant", "content": "I am at home, what about you?"},
-        {"role": "user", "content": "Let's go to the library. Will you come with me?"}
+         "content": "请根据我的描述生成指定的文本"},
+        {"role": "user", "content": "生成一些描述一个女性上挑舌头并带有一丝挑逗成分的语句"},
     ]
 )
 
 print(response)
+print(response['choices'][0]['message']['content'])

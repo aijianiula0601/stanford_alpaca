@@ -25,20 +25,22 @@ ROLE_A_START_QUESTION = "hi"
 # 模型选择
 # --------------------------------------------------------
 
-models_list = ["mask_head_answer", "gpt3.5sex", "mutlitype_dataset", "mutlitype_dataset_ftsexprompt"]
+models_list = ["mask_head_answer", "gpt3.5sex", "mutlitype_dataset", "mutlitype_dataset_ftsexprompt", "falcon-7b"]
 
 models_url_dic = {
     models_list[0]: "http://202.168.100.251:5018/api",
     models_list[1]: "http://202.168.100.251:5021/api",
     models_list[2]: "http://202.168.114.102:6022/api",
     models_list[3]: "http://202.168.114.102:6023/api",
+    models_list[4]: "http://202.168.114.102:6024/api",
 }
 
 models_prompt_key_dic = {
     models_list[0]: "conversion_v4",
     models_list[1]: 'conversion_v4',
     models_list[2]: 'conversion_v4',
-    models_list[3]: 'conversion_gpt35_sex',
+    models_list[3]: 'conversion_v4',
+    models_list[4]: 'conversion_v4',
 }
 
 PROMPT_DICT = {

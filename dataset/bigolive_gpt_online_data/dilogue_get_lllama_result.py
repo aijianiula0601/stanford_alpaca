@@ -23,7 +23,7 @@ limit_turn_n = 20
 
 base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/bigolive_gpt_onlive_data/for_biaozhu_eval"
 gpt_dialogue_json_f = f"{base_dir}/2023-06-07_1527353_dilogue.json"
-save_gpt_dialogue_json_f = f"{base_dir}/2023-06-07_1527353_dilogue_llama_answers_20.json"
+save_gpt_dialogue_json_f = f"{base_dir}/20230609_eval_data.json"
 
 gpt_dialogue_json_data = json.load(open(gpt_dialogue_json_f))
 
@@ -48,7 +48,9 @@ for k in tqdm(all_keys):
 
             example['qas'][i]['no_mask_answer'] = llama_no_mask_respond(cur_example)
             example['qas'][i]['gpt35sex_answer'] = my_llama_respond(cur_example, model_name="gpt35sex")
+            example['qas'][i]['gpt35sex_v1_answer'] = my_llama_respond(cur_example, model_name="gpt35sex_self_prompt")
             example['qas'][i]['mask_head_answer'] = my_llama_respond(cur_example, model_name="mask_head_answer")
+
 
     except Exception as e:
         print(e)
