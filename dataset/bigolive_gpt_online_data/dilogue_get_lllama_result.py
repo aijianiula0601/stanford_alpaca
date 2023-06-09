@@ -10,6 +10,9 @@ from llama_result import *
 
 # -----------------------------------------------------------------
 # gpt线上的数据去调用我们的模型获取答案
+# 服务部署：在v100_f178和f165中
+# cd /mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/bigolive_gpt_onlive_data/for_biaozhu_eval
+# python -m http.server 8085
 # -----------------------------------------------------------------
 
 limit_dialogue_n = 20
