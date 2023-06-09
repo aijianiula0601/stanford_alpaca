@@ -28,6 +28,7 @@ sys.path.append(pdj)
 
 import torch
 import transformers
+from transformers import AutoTokenizer, AutoModelForCausalLM
 from torch.utils.data import Dataset
 from transformers import Trainer
 
