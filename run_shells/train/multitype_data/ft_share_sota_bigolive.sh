@@ -21,7 +21,7 @@ your_random_port=11224
 
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitype_data"
 llama_ckpt_and_tokenizer="${base_dir}/llama-7b-hf"
-output_dir="${base_dir}/ft_out_sharegpt_soda_bilivechat"
+output_dir="${base_dir}/ft_out_sharegpt_soda_bilivechat_v2"
 data_json="${base_dir}/sharegpt_soda_bilivechat_dataset_qas.json"
 
 mkdir -p ${output_dir}
