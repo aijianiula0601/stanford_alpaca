@@ -32,8 +32,8 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/mask_h
   --output_dir ${output_dir} \
   --num_train_epochs 6 \
   --per_device_train_batch_size 6 \
-  --per_device_eval_batch_size 6 \
-  --gradient_accumulation_steps 6 \
+  --per_device_eval_batch_size 1 \
+  --gradient_accumulation_steps 4 \
   --evaluation_strategy "no" \
   --save_strategy "steps" \
   --save_steps 200 \
