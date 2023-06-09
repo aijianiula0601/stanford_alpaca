@@ -10,9 +10,12 @@ from llama_result import *
 
 # -----------------------------------------------------------------
 # gpt线上的数据去调用我们的模型获取答案
+# 方案1：
 # 服务部署：在v100_f178和f165中
 # cd /mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/bigolive_gpt_onlive_data/for_biaozhu_eval
 # python -m http.server 8085
+# 方案2：
+# 打开https://jsongrid.com/这个网站，把内容复制过去
 # -----------------------------------------------------------------
 
 limit_dialogue_n = 20
