@@ -27,14 +27,14 @@ data_json="${base_dir}/multi_dataset_qas.json"
 mkdir -p ${output_dir}
 
 
-torchrun --nproc_per_node=7 --master_port=${your_random_port} test_models/mask_header_answer/train_multi_round_mask_answer_multitype_dataset.py \
+torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/mask_header_answer/train_multi_round_mask_answer_multitype_dataset.py \
     --model_name_or_path "${llama_ckpt_and_tokenizer}" \
     --data_path ${data_json} \
     --output_dir ${output_dir} \
-    --num_train_epochs 3 \
+    --num_train_epochs 10 \
     --per_device_train_batch_size 6 \
-    --per_device_eval_batch_size 6 \
-    --gradient_accumulation_steps 6 \
+    --per_device_eval_batch_size 1 \
+    --gradient_accumulation_steps 4 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
     --save_steps 200 \
