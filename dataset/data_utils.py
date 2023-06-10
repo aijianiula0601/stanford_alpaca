@@ -59,6 +59,7 @@ def check_data_format(check_data=[]):
 
 
 BIGOLIVE_ONLINE_CHAT_DATASET_NAME = "bigolive_onlive_chat"
+# 应该是soda才对的，有一开始起错了，很多其他数据在用了，就不改了
 SOTA_DATASET_NAME = "sota"
 SHAREGPT_DATASET_NAME = "sharegpt"
 PERSONA_CHAT_DATASET_NAME = "persona_chat"
