@@ -14,7 +14,7 @@ from test_models.mask_header_answer.train_multi_round_mask_answer_multitype_data
 
 
 def check_example(
-        examples: list,
+        examples: Sequence[Dict],
         tokenizer: transformers.PreTrainedTokenizer,
         token_max_len: int) -> list:
     """Preprocess the data by tokenizing."""
@@ -29,6 +29,46 @@ def check_example(
         try:
             input_ids, labels = _preprocess_example(example, tokenizer, token_max_len)
             if input_ids is not None and labels is not None:
+                checked_data_list.append(example)
+            else:
+                skip_head_too_long_n += 1
+        except Exception as e:
+            logging.error(f"---------error:{e}")
+            error_n += 1
+            pass
+
+    print(
+        f"---------all_n:{all_n},skip_head_too_long:{skip_head_too_long_n},error_n:{error_n},exist:{len(checked_data_list)}")
+
+    return checked_data_list
+
+
+def my_precess_example(conversation_dic: Dict, tokenizer: transformers.PreTrainedTokenizer, token_max_len: int):
+    input_ids, label_ids = _preprocess_example(conversation_dic, tokenizer, token_max_len)
+
+    if input_ids is not None and label_ids is not None:
+        return conversation_dic
+    else:
+        return None
+
+
+def parallel_checked(examples: Sequence[Dict],
+                     tokenizer: transformers.PreTrainedTokenizer,
+                     token_max_len: int,
+                     n_jobs: int = 40) -> list:
+    logging.warning("--------parallel_preprocess... ---------")
+    results = Parallel(n_jobs=n_jobs, backend="multiprocessing")(
+        delayed(my_precess_example)(example, tokenizer, token_max_len) for example in tqdm(examples))
+
+    checked_data_list = []
+
+    skip_head_too_long_n = 0
+    error_n = 0
+    all_n = 0
+    for example in tqdm(results):
+        all_n += 1
+        try:
+            if example is not None:
                 checked_data_list.append(example)
             else:
                 skip_head_too_long_n += 1
@@ -76,7 +116,8 @@ def train():
         )
 
     list_data_dict = json.load(open(data_args.data_path))
-    checked_list_data_dict = check_example(list_data_dict, tokenizer, training_args.model_max_length)
+    # checked_list_data_dict = check_example(list_data_dict, tokenizer, training_args.model_max_length)
+    checked_list_data_dict = parallel_checked(list_data_dict, tokenizer, training_args.model_max_length, n_jobs=90)
 
     save_f = data_args.data_path.replace(".json", f"_checked_max_token_{training_args.model_max_length}.json")
 
