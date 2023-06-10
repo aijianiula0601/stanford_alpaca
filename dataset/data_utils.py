@@ -68,6 +68,7 @@ ALPACA_GPT4 = "alpaca_gpt4"
 UNNATURAL_INSTRUCTION_DATASET_NAME = "unnatural_instruction_gpt4"
 DATABRICKS_DOLLY_15K_DATASET_NAME = "databricks-dolly-15k"
 CNN_DAILYMAIL_DATASET_NAME = "cnn_dailymail"
+# 永强用gpt35调回来的数据
 GPT35_DATASET_NAME = "gpt35_sex"
 # 采用gpt35自己的prompt训练
 GPT35_SELF_PROMPT_DATASET_NAME = "gpt35_sex_self_prompt"

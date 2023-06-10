@@ -181,7 +181,7 @@ new_data_list = []
 for qas in data_list:
     for i, qa in enumerate(qas):
         if i == 0:
-            background = qa['BACKGROUD_A'] + " " + qa['BACKGROUD_B']
+            background = qa['BACKGROUD_A'] + " " + qa['BACKGROUD_B']  # 这里是错误的，应该只拿b的背景就行
             qa[BACKGROUND_KEY] = background
             del qa['BACKGROUD_A']
             del qa['BACKGROUD_B']
