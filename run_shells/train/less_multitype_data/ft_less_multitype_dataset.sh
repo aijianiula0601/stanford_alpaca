@@ -49,4 +49,7 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/mask_h
     --gradient_checkpointing True \
     --deepspeed run_shells/train/deepspeed_config.json \
     --fp16 True \
-    --process_name "less_multitype_data"
+    --process_name "less_multitype_data" \
+    --lazy_load \
+    --mask_head \
+    --mask_question
