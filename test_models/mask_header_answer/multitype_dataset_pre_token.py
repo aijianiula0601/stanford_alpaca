@@ -27,7 +27,8 @@ def check_example(
     for example in tqdm(examples):
         all_n += 1
         try:
-            input_ids, labels = _preprocess_example(example, tokenizer, token_max_len, if_mask=False)
+            input_ids, labels = _preprocess_example(example, tokenizer, token_max_len, mask_head=False,
+                                                    mask_question=False)
             if input_ids is not None and labels is not None:
                 checked_data_list.append(example)
             else:
@@ -44,7 +45,8 @@ def check_example(
 
 
 def my_precess_example(conversation_dic: Dict, tokenizer: transformers.PreTrainedTokenizer, token_max_len: int):
-    input_ids, label_ids = _preprocess_example(conversation_dic, tokenizer, token_max_len, if_mask=False)
+    input_ids, label_ids = _preprocess_example(conversation_dic, tokenizer, token_max_len, mask_head=False,
+                                               mask_question=False)
 
     if input_ids is not None and label_ids is not None:
         return conversation_dic
