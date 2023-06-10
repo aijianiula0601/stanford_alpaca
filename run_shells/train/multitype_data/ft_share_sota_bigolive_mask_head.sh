@@ -21,12 +21,12 @@ your_random_port=11224
 
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitype_data"
 llama_ckpt_and_tokenizer="${base_dir}/llama-7b-hf"
-output_dir="${base_dir}/ft_out_sharegpt_soda_bilivechat_v2"
-data_json="${base_dir}/sharegpt_soda_bilivechat_dataset_qas.json"
+output_dir="${base_dir}/ft_out_sharegpt_soda_bilivechat_mask_head"
+data_json="${base_dir}/sharegpt_soda_bilivechat_dataset_qas_checked_max_token_2048.json"
 
 mkdir -p ${output_dir}
 
-torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/mask_header_answer/train_multi_round_mask_answer_multitype_dataset.py \
+torchrun --nproc_per_node=4 --master_port=${your_random_port} test_models/mask_header_answer/train_multi_round_mask_answer_multitype_dataset.py \
   --model_name_or_path "${llama_ckpt_and_tokenizer}" \
   --data_path ${data_json} \
   --output_dir ${output_dir} \
@@ -49,5 +49,6 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/mask_h
   --deepspeed run_shells/train/deepspeed_config.json \
   --fp16 True \
   --process_name 'sharegpt_soda_bilivechat_mask_head' \
+  --lazy_load \
   --mask_head
 
