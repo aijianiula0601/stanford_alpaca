@@ -16,9 +16,9 @@ def get_prompt_input(post_data: dict):
 
     history_list = []
     for qa in qas:
-        history_list.append(f"{role_a}: {qa['question']}")
+        history_list.append(f"{role_a}: {qa['question']}{DEFAULT_EOS_TOKEN}")
         if "answer" in qa:
-            history_list.append(f"{role_b}: {qa['answer']}")
+            history_list.append(f"{role_b}: {qa['answer']}{DEFAULT_EOS_TOKEN}")
 
     history_str = DEFAULT_SEGMENT_TOKEN + DEFAULT_SEGMENT_TOKEN.join(
         [item for item in history_list]) + DEFAULT_SEGMENT_TOKEN + role_b + ":"
@@ -55,6 +55,7 @@ llama_my_model_url = {
     "mask_head_answer": "http://202.168.100.251:5018/api",
     "gpt35sex_self_prompt": "http://202.168.114.102:6023/api",
     "bigolive_chat": "http://202.168.114.102:6024/api",
+    "less_multitype_data": "http://202.168.114.102:6024/api",
 }
 
 
@@ -66,7 +67,7 @@ def my_llama_respond(post_data: dict, temperature=0.6, model_name=None):
         "prompt_input": prompt_input,
         "temperature": temperature,
         "max_gen_len": 256,
-        "stop_words_list": [DEFAULT_SEGMENT_TOKEN.strip(), role_a + ":"]
+        "stop_words_list": [DEFAULT_SEGMENT_TOKEN.strip(), role_a + ":", DEFAULT_EOS_TOKEN]
     })
     response = requests.post(llama_my_model_url[model_name], data=request_data)
 

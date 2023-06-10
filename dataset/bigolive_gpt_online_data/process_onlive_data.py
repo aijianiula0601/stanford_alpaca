@@ -163,7 +163,8 @@ print(f"save to:{save_json_f}")
 #  ]
 # # -------------------------------
 
-filter_word_list = ["AI", "Language model", "As AI", "as a Language model", "as Language model"]
+filter_word_list = ["AI", "Language model", "As AI", "as a Language model", "as Language model", "reason=, msg = {}",
+                    "text-based program"]
 
 skip_n = 0
 qas_new_dialogue_data_list = []
