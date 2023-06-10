@@ -13,14 +13,13 @@ from test_models.mask_header_answer.train_multi_round_mask_answer_multitype_data
 from test_models.mask_header_answer.train_multi_round_mask_answer_multitype_dataset import *
 
 
-def my_preprocess(
-        examples: Sequence[Dict],
+def check_example(
+        examples: list,
         tokenizer: transformers.PreTrainedTokenizer,
-        token_max_len: int
-) -> Dict:
+        token_max_len: int) -> list:
     """Preprocess the data by tokenizing."""
-    input_ids_list = []
-    labels_list = []
+
+    checked_data_list = []
 
     skip_head_too_long_n = 0
     error_n = 0
@@ -30,8 +29,7 @@ def my_preprocess(
         try:
             input_ids, labels = _preprocess_example(example, tokenizer, token_max_len)
             if input_ids is not None and labels is not None:
-                input_ids_list.append(list(input_ids.numpy()))
-                labels_list.append(list(labels.numpy()))
+                checked_data_list.append(example)
             else:
                 skip_head_too_long_n += 1
         except Exception as e:
@@ -39,9 +37,10 @@ def my_preprocess(
             error_n += 1
             pass
 
-    logging.info(f"---------all_n:{all_n},skip_head_too_long:{skip_head_too_long_n},error_n:{error_n}")
+    print(
+        f"---------all_n:{all_n},skip_head_too_long:{skip_head_too_long_n},error_n:{error_n},exist:{len(checked_data_list)}")
 
-    return dict(input_ids=input_ids_list, labels=labels_list)
+    return checked_data_list
 
 
 def train():
@@ -77,15 +76,12 @@ def train():
         )
 
     list_data_dict = json.load(open(data_args.data_path))
-    data_dict = preprocess(list_data_dict, tokenizer, training_args.model_max_length)
+    checked_list_data_dict = check_example(list_data_dict, tokenizer, training_args.model_max_length)
 
-    save_f = data_args.data_path + "_tokenid.obj"
+    save_f = data_args.data_path.replace(".json", f"_checked_max_token_{training_args.model_max_length}.json")
 
-    pickle.dump(data_dict, open(save_f, 'wb'))
+    json.dump(checked_list_data_dict, open(save_f, 'w'))
     print(f"save to:{save_f}")
-
-    # loaded_data_dic = pickle.load(open(save_f, 'rb'))  # 反序列化
-    # print(loaded_data_dic)
 
 
 if __name__ == '__main__':
