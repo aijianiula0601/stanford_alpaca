@@ -21,7 +21,7 @@ your_random_port=11224
 
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data"
 llama_ckpt_and_tokenizer="${base_dir}/llama-7b-hf"
-output_dir="${base_dir}/ft_outs_no_mask"
+output_dir="${base_dir}/ft_outs_fix_mask"
 data_json="${base_dir}/multi_dataset_qas_checked_max_token_2048.json"
 
 mkdir -p ${output_dir}
@@ -48,5 +48,8 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/mask_h
     --gradient_checkpointing True \
     --deepspeed run_shells/train/deepspeed_config.json \
     --fp16 True \
-    --process_name "pretrain_multitype_no_mask" \
-    --lazy_load
+    --process_name "pretrain_multitype_fix_mask" \
+    --lazy_load \
+    --mask_head \
+    --mask_question
+
