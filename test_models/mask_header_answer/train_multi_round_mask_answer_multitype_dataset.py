@@ -24,7 +24,6 @@ from joblib import Parallel, delayed
 import random
 
 pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-print(f"--pdj:{pdj}")
 sys.path.append(pdj)
 
 import torch
@@ -308,7 +307,7 @@ class LazySupervisedDataset(Dataset):
 
     def __init__(self, data_path: str, tokenizer: transformers.PreTrainedTokenizer, token_max_len: int):
         super(LazySupervisedDataset, self).__init__()
-
+        assert "checked" in data_path, f"--------必须保证加载的文件是经过检测的，执行multitype_dataset_pre_token.py后的文件，目前加载的文件为:{data_path}"
         self.tokenizer = tokenizer
         self.token_max_len = token_max_len
         self.list_data_dict = json.load(open(data_path))
@@ -319,38 +318,8 @@ class LazySupervisedDataset(Dataset):
     def __len__(self):
         return self.list_data_dict_len
 
-    def re_find_example(self):
-        input_ids, labels = None, None
-        re_fine_n = 0
-        while True:
-            re_fine_n += 1
-            logging.warning("---re find example ...")
-            choose_index = random.randint(0, self.list_data_dict_len - 1)
-            if choose_index in self.filter_index_set:
-                continue
-            input_ids, labels = _preprocess_example(
-                self.list_data_dict[choose_index], self.tokenizer,
-                self.token_max_len)
-            if input_ids is not None and labels is not None:
-                logging.warning(f"----re find done! re fine n:{re_fine_n}")
-                return input_ids, labels
-            else:
-                self.filter_index_set.add(choose_index)
-                continue
-
-        assert input_ids is not None and labels is not None, "re file example failed!!!"
-        return input_ids, labels
-
     def __getitem__(self, i) -> Dict[str, torch.Tensor]:
-
-        if i not in self.filter_index_set:
-            input_ids, labels = _preprocess_example(self.list_data_dict[i], self.tokenizer, self.token_max_len)
-            if input_ids is None or labels is None:
-                self.filter_index_set.add(i)
-                input_ids, labels = self.re_find_example()
-        else:
-            input_ids, labels = self.re_find_example()
-
+        input_ids, labels = _preprocess_example(self.list_data_dict[i], self.tokenizer, self.token_max_len)
         return dict(input_ids=input_ids, labels=labels)
 
 
