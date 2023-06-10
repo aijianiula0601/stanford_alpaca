@@ -17,15 +17,16 @@ cd ../../../
 # 这两个参数，这两个参数是在A100机器上训练的。
 #----------------------------------------------------------
 
-your_random_port=11224
+your_random_port=11225
 
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data"
 llama_ckpt_and_tokenizer="${base_dir}/llama-7b-hf"
-output_dir="${base_dir}/ft_outs_no_mask"
-data_json="${base_dir}/multi_dataset_qas_checked_max_token_2048.json"
+output_dir="${base_dir}/debug"
+data_json="${base_dir}/debug_multi_dataset_qas_checked_max_token_2048.json"
 
 mkdir -p ${output_dir}
 
+CUDA_VISIBLE_DEVICES=2,3,4,5 \
 torchrun --nproc_per_node=4 --master_port=${your_random_port} test_models/mask_header_answer/train_multi_round_mask_answer_multitype_dataset.py \
     --model_name_or_path "${llama_ckpt_and_tokenizer}" \
     --data_path ${data_json} \
@@ -48,5 +49,5 @@ torchrun --nproc_per_node=4 --master_port=${your_random_port} test_models/mask_h
     --gradient_checkpointing True \
     --deepspeed run_shells/train/deepspeed_config.json \
     --fp16 True \
-    --process_name "pretrain_multitype_no_mask" \
-    --lazy_load
+    --lazy_load \
+    --process_name "pretrain_multitype_fix_mask"
