@@ -19,13 +19,13 @@ cd ../../../
 
 your_random_port=11224
 
-base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitype_data"
+base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/less_multitype_data"
 llama_ckpt_and_tokenizer="${base_dir}/llama-7b-hf"
 output_dir="${base_dir}/debug"
-data_json="${base_dir}/sharegpt_soda_bilivechat_dataset_qas.json"
+data_json="${base_dir}/20230530-20230607_qas.json"
 
 
-CUDA_VISIBLE_DEVICES=3 \
+
 torchrun --nproc_per_node=1 --master_port=${your_random_port} test_models/mask_header_answer/multitype_dataset_pre_token.py \
     --model_name_or_path "${llama_ckpt_and_tokenizer}" \
     --data_path ${data_json} \

@@ -1,10 +1,19 @@
 import json
+import os
+import sys
 from tqdm import tqdm
 import csv
 
 # -----------------------------------------------------------------
 # 获取bigolive线上的数据进行整理
 # -----------------------------------------------------------------
+
+pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(pdj)
+
+from dataset.data_utils import BIGOLIVE_ONLINE_CHAT_DATASET_NAME
+
+
 
 # 用户聊天记录
 base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/onlive_csv_data"
@@ -170,7 +179,8 @@ skip_n = 0
 qas_new_dialogue_data_list = []
 for k in tqdm(list(new_dialogue_data_dic.keys())):
     example = new_dialogue_data_dic[k]
-    cur_example = {"background": example["prompt"], "human_name": example['human_name'],
+    cur_example = {"dataset_name": BIGOLIVE_ONLINE_CHAT_DATASET_NAME, "background": example["prompt"],
+                   "human_name": example['human_name'],
                    "bot_name": example["bot_name"], "qas": {}}
 
     # 某个问题或者答案包含过滤词，整个对话过滤掉
