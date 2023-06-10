@@ -116,8 +116,8 @@ def train():
         )
 
     list_data_dict = json.load(open(data_args.data_path))
-    # checked_list_data_dict = check_example(list_data_dict, tokenizer, training_args.model_max_length)
-    checked_list_data_dict = parallel_checked(list_data_dict, tokenizer, training_args.model_max_length, n_jobs=90)
+    checked_list_data_dict = check_example(list_data_dict, tokenizer, training_args.model_max_length)
+    # checked_list_data_dict = parallel_checked(list_data_dict, tokenizer, training_args.model_max_length, n_jobs=90)#测试过，这里用多进程并不快
 
     save_f = data_args.data_path.replace(".json", f"_checked_max_token_{training_args.model_max_length}.json")
 
