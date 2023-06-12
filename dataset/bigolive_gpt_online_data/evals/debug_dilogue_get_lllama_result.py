@@ -10,8 +10,8 @@ from dataset.bigolive_gpt_online_data.evals.llama_result import *
 limit_dialogue_n = 5
 limit_turn_n = 5
 
-base_dir = "/Users/jiahong/Downloads"
-gpt_dialogue_json_f = "test_model_dialogues20230608.json"
+base_dir = "/Users/hjh/Downloads"
+gpt_dialogue_json_f = f"test_model_dialogues20230608.json"
 save_gpt_dialogue_json_f = f"{base_dir}/debug.json"
 
 gpt_dialogue_json_data = json.load(open(gpt_dialogue_json_f))
@@ -35,7 +35,8 @@ for k in tqdm(all_keys):
             cur_example['qas'] = cur_example['qas'][:i + 1]
             del cur_example['qas'][-1]['answer']
 
-            # example['qas'][i]['no_mask_answer'] = llama_no_mask_respond(cur_example)
+            example['qas'][i]['801'] = llama_no_mask_respond(cur_example, if_self_prompt=True, model_name="801")
+            example['qas'][i]['802'] = llama_no_mask_respond(cur_example, if_self_prompt=True, model_name="802")
             example['qas'][i]['multitype_ft2_bigolive'] = my_llama_respond(cur_example,
                                                                            model_name="multitype_ft2_bigolive",
                                                                            if_self_prompt=True)
