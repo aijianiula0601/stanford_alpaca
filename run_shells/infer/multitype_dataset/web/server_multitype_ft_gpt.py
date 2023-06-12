@@ -14,9 +14,9 @@ import os
 import sys
 import torch
 
-setproctitle.setproctitle("multitype_dataset")
+setproctitle.setproctitle("test_model_infer")
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "3"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 # # 自动识别机器上的gpu
 # worker_id = int(os.environ.get('APP_WORKER_ID', 1))
 # devices = os.environ.get('CUDA_VISIBLE_DEVICES', '')
@@ -129,19 +129,14 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
 
 
 logger.info("loading model ... ")
-# ----------------------------------------------------
-# 加入gpt bigolive soda sex数据和永强的训练数据
-# 对应训练脚本：
-#    run_shells/train/add_rongqiang_data/ft_gpt4_sex.sh
-# ----------------------------------------------------
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft_outs/checkpoint-5000"
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/multitype_data_ft2_soda4w_gpt35sex_biglivechat/ft_outs_fix_mask/checkpoint-400"
 
 load_model(model_dir)
 logger.info('load model done!!!')
 logger.info('-' * 100)
 
 
-def bot(prompt_input, temperature=0.7, max_gen_len=256, stop_words_list=None):
+def bot(prompt_input, temperature=0.7, max_gen_len=256, stop_words_list=None, role_b=None):
     assert stop_words_list is not None, "stop text is None!!!"
     params = {
         "prompt": prompt_input,
@@ -152,13 +147,18 @@ def bot(prompt_input, temperature=0.7, max_gen_len=256, stop_words_list=None):
     logger.info(prompt_input)
     logger.info("-" * 200)
 
-    skip_echo_len = len(prompt_input.replace("</s>", " ")) + 1
+    # skip_echo_len = len(prompt_input.replace("</s>", " ")) + 1
     stream = generate_stream(model, tokenizer, params)
     generated_text = None
     for outputs in stream:
-        generated_text = outputs[skip_echo_len:].strip()
+        # print("*" * 100)
+        # print(outputs)
+        # print("*" * 100)
+        role_b_l_index = outputs.rfind(f"{role_b}:")
+        generated_text = outputs[role_b_l_index:].replace(f"{role_b}:", "").strip()
         generated_text = generated_text.split(" ")
     generated_text = " ".join(generated_text)
+
     logger.info("-" * 50 + "model generate text" + '-' * 50)
     logger.info(generated_text)
     logger.info("-" * 200)
@@ -176,6 +176,7 @@ def receive():
         return Response(orjson.dumps(res), mimetype="application/json;charset=UTF-8", status=200)
 
     if 'prompt_input' not in params or not isinstance(params['prompt_input'], str) \
+            or 'role_b' not in params or not isinstance(params['role_b'], str) \
             or 'temperature' not in params or not isinstance(params['temperature'], float) \
             or 'max_gen_len' not in params or not isinstance(params['max_gen_len'], int) \
             or 'stop_words_list' not in params or not isinstance(params['stop_words_list'], list):
@@ -187,13 +188,16 @@ def receive():
     prompt_input = params.get('prompt_input', "")
     temperature = params.get('temperature', 0)
     max_gen_len = params.get('max_gen_len', "")
+    role_b = params.get('role_b', None)
+    assert role_b is not None
     stop_words_list = params.get('stop_words_list', [])
 
-    result = bot(prompt_input, temperature, max_gen_len, stop_words_list)
+    result = bot(prompt_input, temperature, max_gen_len, stop_words_list, role_b)
 
     res = {"status": 200, "result": result, "error_msg": "", "server_info": ""}
     return Response(orjson.dumps(res), mimetype="application/json;charset=UTF-8", status=200)
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host="202.168.114.102", port=6022)
+    app.run(debug=False, host="0.0.0.0", port=6023)
+    # app.run(debug=False, host="202.168.114.102", port=6024)

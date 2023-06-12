@@ -30,16 +30,23 @@ def get_prompt_input(post_data: dict):
     return prompt_input
 
 
-def llama_no_mask_respond(post_data: dict, temperature=0.6, if_self_prompt=False):
+def llama_no_mask_respond(post_data: dict, temperature=0.6, if_self_prompt=False, model_name=None):
     """
     城琦的no_mask模型
     """
+
+    role_a = post_data["human_name"]
+    role_b = post_data["bot_name"]
     if if_self_prompt:
+
         # --------------------------
         # 采用自己的prompt
         # --------------------------
-        role_a = post_data["human_name"]
-        role_b = post_data["bot_name"]
+        model_url_dic = {
+            "801": "http://202.168.114.99:801/api/llama",
+            "802": "http://202.168.114.99:802/api/llama",
+        }
+
         background = post_data["prompt"].replace(replace_prompt, "").strip()
         qas = post_data['qas']
 
@@ -60,7 +67,7 @@ def llama_no_mask_respond(post_data: dict, temperature=0.6, if_self_prompt=False
             "role_b": role_b,
         })
 
-        response = requests.post("http://202.168.114.99:800/api/llama", data=request_data)
+        response = requests.post(model_url_dic[model_name], data=request_data)
         json_data = json.loads(response.text)
         text_respond = json_data["result"]
         text_respond = text_respond.strip().split(role_a + ": ")[0]
@@ -69,22 +76,23 @@ def llama_no_mask_respond(post_data: dict, temperature=0.6, if_self_prompt=False
         # --------------------------
         # 采用gpt线上的prompt
         # --------------------------
+        model_url_dic = {
+            "801": "http://202.168.114.99:801/api/model",
+            "802": "http://202.168.114.99:802/api/model",
+        }
 
         prompt_input = get_prompt_input(post_data)
 
-        urls = [
-            "http://202.168.114.99:801/api/model",
-            "http://202.168.114.99:802/api/model",
-        ]
-        url = urls[random.randint(0, len(urls) - 1)]
-        # query
         request_body = orjson.dumps({
             "prompt": prompt_input,
             "temperature": temperature,
             "max_new_tokens": 256,
-            "stop": "###"
+            "stop": "###",
+            "role_b": role_b,
+
         })
-        response = requests.post(url, data=request_body)
+        response = requests.post(model_url_dic[model_name], data=request_body)
+
         result = response.json()['result']
 
         return result
@@ -94,6 +102,7 @@ llama_my_model_url = {
     "gpt35sex": "http://202.168.100.251:5021/api",
     "mask_head_answer": "http://202.168.100.251:5018/api",
     # model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitype_data/ft_out_sharegpt_soda_bilivechat_mask_head/checkpoint-2400"
+    "multitype_ft2_bigolive": "http://202.168.100.251:6023/api",
     "share_sota_bigolive": "http://202.168.100.251:6024/api",
 }
 
@@ -176,7 +185,8 @@ if __name__ == '__main__':
                 }]
         }
 
-        rs = my_llama_respond(post_data, model_name="share_sota_bigolive", if_self_prompt=True)
+        # rs = my_llama_respond(post_data, model_name="share_sota_bigolive", if_self_prompt=True)
+        rs = llama_no_mask_respond(post_data, if_self_prompt=False, model_name="802")
 
         print("-" * 100)
         print(rs)

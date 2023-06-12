@@ -25,7 +25,7 @@ ROLE_A_START_QUESTION = "hi"
 # 模型选择
 # --------------------------------------------------------
 
-models_list = ["mask_head_answer", "gpt3.5sex", "mutlitype_dataset", "mutlitype_dataset_ftsexprompt", "falcon-7b"]
+models_list = ["mask_head_answer", "gpt3.5sex", "mutlitype_dataset", "mutlitype_dataset_ftsexprompt", "sex_mask_head"]
 
 models_url_dic = {
     models_list[0]: "http://202.168.100.251:5018/api",

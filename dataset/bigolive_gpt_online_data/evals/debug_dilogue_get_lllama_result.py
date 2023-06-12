@@ -1,19 +1,14 @@
-import json
-import requests
-import sys
-import os
 from tqdm import tqdm
 import copy
-import random
 
-from llama_result import *
+from dataset.bigolive_gpt_online_data.evals.llama_result import *
 
 # -----------------------------------------------------------------
 # gpt线上的数据去调用我们的模型获取答案
 # -----------------------------------------------------------------
 
 limit_dialogue_n = 5
-limit_turn_n = 10
+limit_turn_n = 5
 
 base_dir = "/Users/jiahong/Downloads"
 gpt_dialogue_json_f = "test_model_dialogues20230608.json"
@@ -40,11 +35,12 @@ for k in tqdm(all_keys):
             cur_example['qas'] = cur_example['qas'][:i + 1]
             del cur_example['qas'][-1]['answer']
 
-            example['qas'][i]['no_mask_answer'] = llama_no_mask_respond(cur_example)
-            # example['qas'][i]['gpt35sex_answer'] = my_llama_respond(cur_example, model_name="gpt35sex")
-            # example['qas'][i]['gpt35sex_v1_answer'] = my_llama_respond(cur_example, model_name="gpt35sex_self_prompt")
-            # example['qas'][i]['mask_head_answer'] = my_llama_respond(cur_example, model_name="mask_head_answer")
-            example['qas'][i]['less_multitype_data'] = my_llama_respond(cur_example, model_name="less_multitype_data")
+            # example['qas'][i]['no_mask_answer'] = llama_no_mask_respond(cur_example)
+            example['qas'][i]['multitype_ft2_bigolive'] = my_llama_respond(cur_example,
+                                                                           model_name="multitype_ft2_bigolive",
+                                                                           if_self_prompt=True)
+            example['qas'][i]['share_sota_bigolive'] = my_llama_respond(cur_example, model_name="share_sota_bigolive",
+                                                                        if_self_prompt=True)
 
     except Exception as e:
         print(e)
