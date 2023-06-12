@@ -1,29 +1,22 @@
-import json
-import requests
-import sys
 import os
+
 from tqdm import tqdm
 import copy
-import random
 
 from llama_result import *
 
 # -----------------------------------------------------------------
 # gpt线上的数据去调用我们的模型获取答案
-# 方案1：
-# 服务部署：在v100_f178和f165中
-# cd /mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/bigolive_gpt_onlive_data/for_biaozhu_eval
-# python -m http.server 8085
-# 方案2：
-# 打开https://jsongrid.com/这个网站，把内容复制过去
 # -----------------------------------------------------------------
 
 limit_dialogue_n = 20
 limit_turn_n = 20
 
-base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/bigolive_gpt_onlive_data/for_biaozhu_eval/evals/20230609"
-gpt_dialogue_json_f = f"{base_dir}/2023-06-07_1527353_dilogue.json"
-save_gpt_dialogue_json_f = f"{base_dir}/20230609_eval_data.json"
+base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/bigolive_gpt_onlive_data/for_biaozhu_eval/evals/20230613"
+gpt_dialogue_json_f = f"test_model_dialogues20230608.json"
+save_gpt_dialogue_json_f = f"{base_dir}/20230613_eval_data.json"
+
+os.system(f"mkdir -p {base_dir}")
 
 gpt_dialogue_json_data = json.load(open(gpt_dialogue_json_f))
 
@@ -46,11 +39,12 @@ for k in tqdm(all_keys):
             cur_example['qas'] = cur_example['qas'][:i + 1]
             del cur_example['qas'][-1]['answer']
 
-            example['qas'][i]['no_mask_answer'] = llama_no_mask_respond(cur_example)
-            example['qas'][i]['gpt35sex_answer'] = my_llama_respond(cur_example, model_name="gpt35sex")
-            example['qas'][i]['gpt35sex_v1_answer'] = my_llama_respond(cur_example, model_name="gpt35sex_self_prompt")
-            example['qas'][i]['mask_head_answer'] = my_llama_respond(cur_example, model_name="mask_head_answer")
-
+            example['qas'][i]['answer-1'] = my_llama_respond(cur_example, model_name="multitype_ft2_bigolive",
+                                                             if_self_prompt=True)
+            example['qas'][i]['answer-2'] = llama_no_mask_respond(cur_example, if_self_prompt=True, model_name="801")
+            example['qas'][i]['answer-3'] = llama_no_mask_respond(cur_example, if_self_prompt=True, model_name="802")
+            example['qas'][i]['answer-4'] = my_llama_respond(cur_example, model_name="share_sota_bigolive",
+                                                             if_self_prompt=True)
 
     except Exception as e:
         print(e)

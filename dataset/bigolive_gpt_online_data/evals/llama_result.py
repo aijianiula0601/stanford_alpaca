@@ -43,8 +43,8 @@ def llama_no_mask_respond(post_data: dict, temperature=0.6, if_self_prompt=False
         # 采用自己的prompt
         # --------------------------
         model_url_dic = {
-            "801": "http://202.168.114.99:801/api/llama",
-            "802": "http://202.168.114.99:802/api/llama",
+            "801": "http://202.168.114.99:810/api/llama",
+            "802": "http://202.168.114.99:820/api/llama",
         }
 
         background = post_data["prompt"].replace(replace_prompt, "").strip()
@@ -186,7 +186,7 @@ if __name__ == '__main__':
         }
 
         # rs = my_llama_respond(post_data, model_name="share_sota_bigolive", if_self_prompt=True)
-        rs = llama_no_mask_respond(post_data, if_self_prompt=False, model_name="802")
+        rs = llama_no_mask_respond(post_data, if_self_prompt=True, model_name="801")
 
         print("-" * 100)
         print(rs)
