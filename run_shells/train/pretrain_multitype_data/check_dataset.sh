@@ -19,13 +19,13 @@ cd ../../../
 
 your_random_port=11224
 
-base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data"
-llama_ckpt_and_tokenizer="${base_dir}/llama-7b-hf"
+base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/multitype_data_ft2_soda4w_gpt35sex_biglivechat"
+llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/llama-7b-hf_trainsformer4.28.1"
 output_dir="${base_dir}/debug"
-data_json="${base_dir}/multi_dataset_qas.json"
+data_json="${base_dir}/soda4w_gpt35sex_biglivechat.json"
 
 
-
+CUDA_VISIBLE_DEVICES=3 \
 torchrun --nproc_per_node=1 --master_port=${your_random_port} test_models/mask_header_answer/multitype_dataset_pre_token.py \
     --model_name_or_path "${llama_ckpt_and_tokenizer}" \
     --data_path ${data_json} \
