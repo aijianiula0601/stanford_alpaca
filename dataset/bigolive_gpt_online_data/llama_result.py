@@ -6,6 +6,8 @@ import orjson
 DEFAULT_SEGMENT_TOKEN = "### "
 DEFAULT_EOS_TOKEN = "</s>"
 
+replace_prompt = "let's play a role game."
+
 
 def get_prompt_input(post_data: dict):
     role_a = post_data["human_name"]
@@ -28,40 +30,114 @@ def get_prompt_input(post_data: dict):
     return prompt_input
 
 
-def llama_no_mask_respond(post_data: dict, temperature=0.6):
-    prompt_input = get_prompt_input(post_data)
+def llama_no_mask_respond(post_data: dict, temperature=0.6, if_self_prompt=False):
+    """
+    城琦的no_mask模型
+    """
+    if if_self_prompt:
+        # --------------------------
+        # 采用自己的prompt
+        # --------------------------
+        role_a = post_data["human_name"]
+        role_b = post_data["bot_name"]
+        background = post_data["prompt"].replace(replace_prompt, "").strip()
+        qas = post_data['qas']
 
-    urls = [
-        "http://202.168.114.99:801/api/model",
-        "http://202.168.114.99:802/api/model",
-    ]
-    url = urls[random.randint(0, len(urls) - 1)]
+        history_list = []
+        for qa in qas:
+            cur_qa = [f"{role_a}: {qa['question']}"]
+            if "answer" in qa:
+                cur_qa.append(f"{role_b}: {qa['answer']}")
 
-    # query
-    request_body = orjson.dumps({
-        "prompt": prompt_input,
-        "temperature": temperature,
-        "max_new_tokens": 256,
-        "stop": "###"
-    })
-    response = requests.post(url, data=request_body)
-    result = response.json()['result']
+            history_list.append(cur_qa)
 
-    return result
+        request_data = json.dumps({
+            "history": [item for item in history_list],
+            "temperature": temperature,
+            "max_gen_len": 256,
+            "background": background,
+            "role_a": role_a,
+            "role_b": role_b,
+        })
+
+        response = requests.post("http://202.168.114.99:800/api/llama", data=request_data)
+        json_data = json.loads(response.text)
+        text_respond = json_data["result"]
+        text_respond = text_respond.strip().split(role_a + ": ")[0]
+        return text_respond.strip()
+    else:
+        # --------------------------
+        # 采用gpt线上的prompt
+        # --------------------------
+
+        prompt_input = get_prompt_input(post_data)
+
+        urls = [
+            "http://202.168.114.99:801/api/model",
+            "http://202.168.114.99:802/api/model",
+        ]
+        url = urls[random.randint(0, len(urls) - 1)]
+        # query
+        request_body = orjson.dumps({
+            "prompt": prompt_input,
+            "temperature": temperature,
+            "max_new_tokens": 256,
+            "stop": "###"
+        })
+        response = requests.post(url, data=request_body)
+        result = response.json()['result']
+
+        return result
 
 
 llama_my_model_url = {
     "gpt35sex": "http://202.168.100.251:5021/api",
     "mask_head_answer": "http://202.168.100.251:5018/api",
-    #model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitype_data/ft_out_sharegpt_soda_bilivechat_mask_head/checkpoint-2400"
+    # model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitype_data/ft_out_sharegpt_soda_bilivechat_mask_head/checkpoint-2400"
     "share_sota_bigolive": "http://202.168.100.251:6024/api",
 }
 
 
-def my_llama_respond(post_data: dict, temperature=0.6, model_name=None):
-    prompt_input = get_prompt_input(post_data)
+def my_llama_respond(post_data: dict, temperature=0.6, model_name=None, if_self_prompt=False):
+    """
+    我自己的模型
+    """
     role_a = post_data["human_name"]
     role_b = post_data["bot_name"]
+    if if_self_prompt:
+        # --------------------------
+        # 采用自己的prompt
+        # --------------------------
+        PROMPT_DICT = {
+            "conversion": (
+                "{background}\n"
+                "The following is a conversation with {role_b}. {role_b} should speak in a tone consistent with the identity introduced in the background. Give the state of the action and expressions appropriately. Do not generate identical responses.\n"
+                "{history}"
+            )
+        }
+
+        background = post_data["prompt"].replace(replace_prompt, "").strip()
+
+        qas = post_data['qas']
+        history_list = []
+        for qa in qas:
+            history_list.append(f"{role_a}: {qa['question']}")
+            if "answer" in qa:
+                history_list.append(f"{role_b}: {qa['answer']}")
+
+        message_dic = {"background": background,
+                       "role_a": role_a,
+                       "role_b": role_b,
+                       "history": DEFAULT_SEGMENT_TOKEN + DEFAULT_SEGMENT_TOKEN.join(
+                           [item for item in history_list]) + DEFAULT_SEGMENT_TOKEN + role_b + ":"}
+        prompt_input = PROMPT_DICT["conversion"].format_map(message_dic)
+
+
+    else:
+        # --------------------------
+        # 采用gpt的prompt
+        # --------------------------
+        prompt_input = get_prompt_input(post_data)
 
     request_data = json.dumps({
         "prompt_input": prompt_input,
@@ -100,7 +176,7 @@ if __name__ == '__main__':
                 }]
         }
 
-        rs = my_llama_respond(post_data, model_name="share_sota_bigolive")
+        rs = my_llama_respond(post_data, model_name="share_sota_bigolive", if_self_prompt=True)
 
         print("-" * 100)
         print(rs)
