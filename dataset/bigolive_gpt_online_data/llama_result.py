@@ -53,27 +53,28 @@ def llama_no_mask_respond(post_data: dict, temperature=0.6):
 llama_my_model_url = {
     "gpt35sex": "http://202.168.100.251:5021/api",
     "mask_head_answer": "http://202.168.100.251:5018/api",
-    "gpt35sex_self_prompt": "http://202.168.114.102:6023/api",
-    "bigolive_chat": "http://202.168.114.102:6024/api",
-    "less_multitype_data": "http://202.168.114.102:6024/api",
+    #model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitype_data/ft_out_sharegpt_soda_bilivechat_mask_head/checkpoint-2400"
+    "share_sota_bigolive": "http://202.168.100.251:6024/api",
 }
 
 
 def my_llama_respond(post_data: dict, temperature=0.6, model_name=None):
     prompt_input = get_prompt_input(post_data)
     role_a = post_data["human_name"]
+    role_b = post_data["bot_name"]
 
     request_data = json.dumps({
         "prompt_input": prompt_input,
         "temperature": temperature,
         "max_gen_len": 256,
+        "role_b": role_b,
         "stop_words_list": [DEFAULT_SEGMENT_TOKEN.strip(), role_a + ":", DEFAULT_EOS_TOKEN]
     })
     response = requests.post(llama_my_model_url[model_name], data=request_data)
 
     json_data = json.loads(response.text)
     text_respond = json_data["result"]
-    return text_respond.replace("#", "").strip()
+    return text_respond
 
 
 if __name__ == '__main__':
@@ -99,7 +100,7 @@ if __name__ == '__main__':
                 }]
         }
 
-        rs = my_llama_respond(post_data, model_name="gpt35sex")
+        rs = my_llama_respond(post_data, model_name="share_sota_bigolive")
 
         print("-" * 100)
         print(rs)
