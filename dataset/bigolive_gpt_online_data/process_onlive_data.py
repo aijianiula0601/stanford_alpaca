@@ -13,8 +13,6 @@ sys.path.append(pdj)
 
 from dataset.data_utils import BIGOLIVE_ONLINE_CHAT_DATASET_NAME
 
-
-
 # 用户聊天记录
 base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/onlive_csv_data"
 
@@ -185,12 +183,16 @@ for k in tqdm(list(new_dialogue_data_dic.keys())):
 
     # 某个问题或者答案包含过滤词，整个对话过滤掉
     for i, qa in enumerate(example["qas"]):
-        # 如果对话中某轮对话出现关键词，那么只取前面轮的对话
         filter_flag = False
-        for fw in filter_word_list:
-            if fw.lower() in qa['question'].lower() or fw.lower() in qa['answer'].lower():
-                filter_flag = True
-                break
+        # 答案为空
+        if qa['answer'].strip() == "":
+            filter_flag = True
+        else:
+            # 如果对话中某轮对话出现关键词，那么只取前面轮的对话
+            for fw in filter_word_list:
+                if fw.lower() in qa['question'].lower() or fw.lower() in qa['answer'].lower():
+                    filter_flag = True
+                    break
         if filter_flag:
             break
         else:
