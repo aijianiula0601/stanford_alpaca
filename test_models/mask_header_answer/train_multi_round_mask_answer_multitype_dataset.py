@@ -163,8 +163,6 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
     bot_name = conversation_dic[BOT_NAME_KEY]
     header = get_dataset_prompt(dataset_name, human_name, bot_name, background=conversation_dic[BACKGROUND_KEY])
     head_ids, header_ids_len = _tokenize_string(header, tokenizer)
-    question_head_ids, question_head_ids_len = _tokenize_string(DEFAULT_SEGMENT_TOKEN + human_name + ": ", tokenizer)
-    answer_head_ids, answer_head_ids_len = _tokenize_string(DEFAULT_SEGMENT_TOKEN + bot_name + ": ", tokenizer)
 
     if header_ids_len >= token_max_len:
         return None, None
@@ -181,11 +179,12 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
         # ------------
         # question
         # ------------
-        cur_question_string = cur_turn_qa[QUESTION_KEY] + DEFAULT_EOS_TOKEN
+        cur_question_string = DEFAULT_SEGMENT_TOKEN + human_name + ": " + cur_turn_qa[
+            QUESTION_KEY] + DEFAULT_EOS_TOKEN + DEFAULT_SEGMENT_TOKEN + bot_name + ": "
         cur_question_string_token_ids, cur_question_string_token_ids_len = _tokenize_string(cur_question_string,
                                                                                             tokenizer)
 
-        header_ids_len += question_head_ids_len + cur_question_string_token_ids_len + answer_head_ids_len
+        header_ids_len += cur_question_string_token_ids_len
         ignore_end_index = header_ids_len
         if header_ids_len > token_max_len:
             break
@@ -200,9 +199,7 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
             break
 
         # 问题和答案都不超过长度才加入
-        input_ids_tensor_list.append(question_head_ids)
         input_ids_tensor_list.append(cur_question_string_token_ids)
-        input_ids_tensor_list.append(answer_head_ids)
         input_ids_tensor_list.append(cur_answer_string_token_ids)
         if mask_question:
             ignore_token_index_list.append((ignore_start_index, ignore_end_index))  # mask index
