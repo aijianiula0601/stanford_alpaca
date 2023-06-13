@@ -5,5 +5,5 @@
 # 数据集
 
 
-sharegpt+soda+gpt35sex(永强)+标注sex(标注团队的标注sex数据)
+soda+gpt35sex(永强)+标注sex(标注团队的标注sex数据)
 

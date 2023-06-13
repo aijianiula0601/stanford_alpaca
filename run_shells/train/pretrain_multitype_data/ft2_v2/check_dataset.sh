@@ -6,7 +6,7 @@ curdir=$(pwd)
 echo "curdir:$curdir"
 cd "$curdir" || exit
 
-cd ../../../
+cd ../../../../
 
 
 
@@ -19,12 +19,10 @@ cd ../../../
 
 your_random_port=11224
 
-base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/multitype_data_ft2_soda4w_gpt35sex_biglivechat"
-#base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitype_data"
+base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft2_v2"
 llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/llama-7b-hf_trainsformer4.28.1"
 output_dir="${base_dir}/debug"
-#data_json="${base_dir}/multi_dataset_qas.json"
-data_json="${base_dir}/soda4w_gpt35sex_biglivechat.json"
+data_json="${base_dir}/train_data.json"
 
 
 CUDA_VISIBLE_DEVICES=3 \
