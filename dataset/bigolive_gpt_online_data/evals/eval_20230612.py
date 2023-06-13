@@ -36,13 +36,13 @@ for k in tqdm(all_keys):
             del cur_example['qas'][-1]['answer']
 
             example['qas'][i]['answer-1'] = my_llama_respond(cur_example, model_name="multitype_ft2_bigolive",
-                                                             if_self_prompt=if_self_prompt)
+                                                             if_self_prompt=if_self_prompt)  # 用mulitype数据训练完，再ft线上数据的模型
             example['qas'][i]['answer-2'] = llama_no_mask_respond(cur_example, if_self_prompt=if_self_prompt,
-                                                                  model_name="801")
+                                                                  model_name="801")  # 城琦就的tansformer训练的no-mask模型
             example['qas'][i]['answer-3'] = llama_no_mask_respond(cur_example, if_self_prompt=if_self_prompt,
-                                                                  model_name="802")
+                                                                  model_name="802")  # 城琦新的tansformer训练的no-mask模型
             example['qas'][i]['answer-4'] = my_llama_respond(cur_example, model_name="share_sota_bigolive",
-                                                             if_self_prompt=if_self_prompt)
+                                                             if_self_prompt=if_self_prompt)  # 直接训练sharegpt、soda、biglive数据的模型
 
     except Exception as e:
         print("-" * 100)
