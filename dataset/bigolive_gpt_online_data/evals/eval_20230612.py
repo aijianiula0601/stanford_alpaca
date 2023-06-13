@@ -11,7 +11,10 @@ from llama_result import *
 
 base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/bigolive_gpt_onlive_data/for_biaozhu_eval/evals/20230613"
 gpt_dialogue_json_f = f"test_model_dialogues20230608.json"
-save_gpt_dialogue_json_f = f"{base_dir}/20230613_eval_data.json"
+# if_self_prompt = True  # 采用自己的prompt
+# save_gpt_dialogue_json_f = f"{base_dir}/20230613_eval_data.json"
+save_gpt_dialogue_json_f = f"{base_dir}/20230613_eval_data_gpt_prompt.json"  # 采用gpt的prompt
+if_self_prompt = False  # 采用gpt原始的prommpt
 
 os.system(f"mkdir -p {base_dir}")
 
@@ -33,11 +36,13 @@ for k in tqdm(all_keys):
             del cur_example['qas'][-1]['answer']
 
             example['qas'][i]['answer-1'] = my_llama_respond(cur_example, model_name="multitype_ft2_bigolive",
-                                                             if_self_prompt=True)
-            example['qas'][i]['answer-2'] = llama_no_mask_respond(cur_example, if_self_prompt=True, model_name="801")
-            example['qas'][i]['answer-3'] = llama_no_mask_respond(cur_example, if_self_prompt=True, model_name="802")
+                                                             if_self_prompt=if_self_prompt)
+            example['qas'][i]['answer-2'] = llama_no_mask_respond(cur_example, if_self_prompt=if_self_prompt,
+                                                                  model_name="801")
+            example['qas'][i]['answer-3'] = llama_no_mask_respond(cur_example, if_self_prompt=if_self_prompt,
+                                                                  model_name="802")
             example['qas'][i]['answer-4'] = my_llama_respond(cur_example, model_name="share_sota_bigolive",
-                                                             if_self_prompt=True)
+                                                             if_self_prompt=if_self_prompt)
 
     except Exception as e:
         print("-" * 100)
