@@ -53,7 +53,10 @@ for k in tqdm(all_keys):
 
 
     except Exception as e:
-        print(e)
+        print("-" * 100)
+        print(f"error:{e}")
+        print(f"dialogue:{example}")
+        print("-" * 100)
         error_flag = True
     if error_flag:
         continue
