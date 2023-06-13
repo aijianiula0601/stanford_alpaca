@@ -9,9 +9,6 @@ from llama_result import *
 # gpt线上的数据去调用我们的模型获取答案
 # -----------------------------------------------------------------
 
-limit_dialogue_n = 20
-limit_turn_n = 20
-
 base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/bigolive_gpt_onlive_data/for_biaozhu_eval/evals/20230613"
 gpt_dialogue_json_f = f"test_model_dialogues20230608.json"
 save_gpt_dialogue_json_f = f"{base_dir}/20230613_eval_data.json"
@@ -22,16 +19,12 @@ gpt_dialogue_json_data = json.load(open(gpt_dialogue_json_f))
 
 all_keys = list(gpt_dialogue_json_data.keys())
 
-random.shuffle(all_keys)
-
-all_keys = all_keys[:limit_dialogue_n]
-
 new_dialogue_data_dic = {}
 d_i = 0
 for k in tqdm(all_keys):
     error_flag = False
     example = gpt_dialogue_json_data[k]
-    example['qas'] = example['qas'][:limit_turn_n]
+    example['qas'] = example['qas']
     try:
         turn_n = len(example['qas'])
         for i in range(turn_n):
