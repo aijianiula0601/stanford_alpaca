@@ -27,6 +27,18 @@ def check_example(
     for example in tqdm(examples):
         all_n += 1
         try:
+            # ------------------------
+            # 检查qa文本是否为空
+            # ------------------------
+            for i in range(len(example['qas'])):
+                qa = example["qas"][f"turn_{i}"]
+                question = qa['question'].strip()
+                answer = qa['answer'].strip()
+                assert question != "" and answer != "", f"------------empty error, question:{question}\n answer:{answer}\n"
+
+            # ------------------------
+            # 剔除超长的文本
+            # ------------------------
             input_ids, labels = _preprocess_example(example, tokenizer, token_max_len, mask_head=False,
                                                     mask_question=False)
             if input_ids is not None and labels is not None:
