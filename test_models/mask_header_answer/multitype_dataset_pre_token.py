@@ -30,6 +30,8 @@ def check_example(
             input_ids, labels = _preprocess_example(example, tokenizer, token_max_len, mask_head=False,
                                                     mask_question=False)
             if input_ids is not None and labels is not None:
+                assert input_ids is not None
+                assert labels is not None
                 checked_data_list.append(example)
             else:
                 skip_head_too_long_n += 1
