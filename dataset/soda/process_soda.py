@@ -18,8 +18,9 @@ os.system(f"mkdir -p {save_base_dir}")
 org_f = "/mnt/cephfs/hjh/common_dataset/nlp/chat/soda/soda_train_name.json"
 dataset_name = SOTA_DATASET_NAME
 
+skip_empty_qa_n = 0
 soda_data = []
-for turns_data in json.load(open(org_f)):
+for turns_data in tqdm(json.load(open(org_f))):
     background = None
     qas = {}
     human_name = turns_data[0]['from']
@@ -43,13 +44,26 @@ for turns_data in json.load(open(org_f)):
     if len(qas) < 1:
         continue
 
+    skip_qa = False
+    for i in range(len(qas)):
+        qa = qas[f"turn_{i}"]
+        question = qa[QUESTION_KEY].strip()
+        answer = qa[ANSWER_KEY].strip()
+        if question == "" or answer == "":
+            skip_empty_qa_n += 1
+            skip_qa = True
+            break
+
+    if skip_qa:
+        continue
+
     assert background is not None
     soda_data.append(
         {BACKGROUND_KEY: background,
          DATASET_KEY: dataset_name, HUMAN_NAME_KEY: human_name, BOT_NAME_KEY: bot_name,
          QAS_KEY: qas})
 
-print(f"dataset name:{dataset_name},all_n:{len(soda_data)}")
+print(f"dataset name:{dataset_name},all_n:{len(soda_data)}, skip_empty_qa_n:{skip_empty_qa_n}")
 
 save_f = "/mnt/cephfs/hjh/common_dataset/nlp/qa/en/soda/soda_train_name_qas.json"
 
