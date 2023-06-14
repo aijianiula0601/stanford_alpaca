@@ -7,6 +7,11 @@ from llama_result import *
 
 # -----------------------------------------------------------------
 # gpt线上的数据去调用我们的模型获取答案
+# 模型对应关系：
+# share_sota_bigolive：
+#   /mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitype_data/ft_out_sharegpt_soda_bilivechat_mask_head/checkpoint-2400
+# multitype_ft2_bigolive：
+#   /mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/multitype_data_ft2_soda4w_gpt35sex_biglivechat/ft_outs_fix_mask/checkpoint-900
 # -----------------------------------------------------------------
 
 base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/bigolive_gpt_onlive_data/for_biaozhu_eval/evals/20230613"
