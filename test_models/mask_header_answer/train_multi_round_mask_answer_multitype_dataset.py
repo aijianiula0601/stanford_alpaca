@@ -296,6 +296,7 @@ class SupervisedDataset(Dataset):
             logging.warning(f"loaded data from:{tokenizer_file}")
         else:
             list_data_dict = json.load(open(data_path))
+            random.shuffle(list_data_dict)
             # data_dict = parallel_preprocess(list_data_dict, tokenizer, token_max_len)#测试了并不快
             data_dict = preprocess(list_data_dict, tokenizer, token_max_len, mask_head, mask_question)
             pickle.dump(data_dict, open(tokenizer_file, 'wb'))
@@ -323,6 +324,7 @@ class LazySupervisedDataset(Dataset):
         self.mask_head = mask_head
         self.mask_question = mask_question
         self.list_data_dict = json.load(open(data_path))
+        random.shuffle(self.list_data_dict)
         self.list_data_dict_len = len(self.list_data_dict)
         logging.warning(f"loaded org data list:{self.list_data_dict_len}!")
         self.filter_index_set = set()
