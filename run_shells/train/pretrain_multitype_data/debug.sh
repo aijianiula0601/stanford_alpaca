@@ -26,8 +26,8 @@ data_json="${base_dir}/debug_multi_dataset_qas_checked_max_token_2048.json"
 
 mkdir -p ${output_dir}
 
-CUDA_VISIBLE_DEVICES=2,3,4,5 \
-torchrun --nproc_per_node=4 --master_port=${your_random_port} test_models/mask_header_answer/train_multi_round_mask_answer_multitype_dataset.py \
+CUDA_VISIBLE_DEVICES=4,5 \
+torchrun --nproc_per_node=2 --master_port=${your_random_port} test_models/mask_header_answer/train_multi_round_mask_answer_multitype_dataset.py \
     --model_name_or_path "${llama_ckpt_and_tokenizer}" \
     --data_path ${data_json} \
     --output_dir ${output_dir} \

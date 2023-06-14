@@ -104,6 +104,8 @@ llama_my_model_url = {
     # model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitype_data/ft_out_sharegpt_soda_bilivechat_mask_head/checkpoint-2400"
     "multitype_ft2_bigolive": "http://202.168.100.251:6023/api",
     "share_sota_bigolive": "http://202.168.100.251:6024/api",
+    "multitype_ft2_soda_sex": "http://202.168.100.251:6024/api",
+
 }
 
 
@@ -185,8 +187,8 @@ if __name__ == '__main__':
                 }]
         }
 
-        # rs = my_llama_respond(post_data, model_name="share_sota_bigolive", if_self_prompt=True)
-        rs = llama_no_mask_respond(post_data, if_self_prompt=True, model_name="801")
+        rs = my_llama_respond(post_data, model_name="multitype_ft2_soda_sex", if_self_prompt=True)
+        # rs = llama_no_mask_respond(post_data, if_self_prompt=True, model_name="801")
 
         print("-" * 100)
         print(rs)
