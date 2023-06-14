@@ -18,6 +18,7 @@ dataset_name = SHAREGPT_DATASET_NAME
 
 skip_n = 0
 all_n = 0
+skip_empty_qa_n = 0
 for turns_data in json.load(open(org_f)):
     all_n += 1
     if len(turns_data) <= 1:
@@ -47,6 +48,19 @@ for turns_data in json.load(open(org_f)):
         if len(qas) < 1:
             continue
 
+        skip_qa = False
+        for i in range(len(qas)):
+            qa = qas[f"turn_{i}"]
+            question = qa[QUESTION_KEY].strip()
+            answer = qa[ANSWER_KEY].strip()
+            if question == "" or answer == "":
+                skip_empty_qa_n += 1
+                skip_qa = True
+                skip_n += 1
+                break
+        if skip_qa:
+            continue
+
         shared_gpt_data.append(
             {BACKGROUND_KEY: background, DATASET_KEY: dataset_name, HUMAN_NAME_KEY: human_name, BOT_NAME_KEY: bot_name,
              QAS_KEY: qas})
@@ -55,7 +69,7 @@ for turns_data in json.load(open(org_f)):
         print("-" * 100)
         pass
 
-print(f"dataset_name:{dataset_name},skip_n:", skip_n, "all_n:", all_n)
+print(f"dataset_name:{dataset_name},skip_n:", skip_n, "skip_empty_qa_n:", skip_empty_qa_n, "all_n:", all_n)
 
 json.dump(shared_gpt_data, open(save_f, 'w'))
 print(f"save to:{save_f}")
