@@ -10,17 +10,54 @@ replace_str = "You should immerse yourself in the role. Never reply you are virt
 version0_data_list = json.load(open(version0_save_f))
 version1_data_list = json.load(open(version1_save_f))
 
+new_version0_data_list = []
+new_version1_data_list = []
+
+
+def check_qas(qas):
+    skip_qa = False
+    for i in range(len(qas)):
+        qa = qas[f"turn_{i}"]
+        question = qa['question'].strip()
+        answer = qa['answer'].strip()
+        if question == "" or answer == "":
+            skip_qa = True
+            break
+
+    if skip_qa:
+        return skip_qa
+
+
+skip_empty_qa_n = 0
 for example in tqdm(version1_data_list):
     example['prompt'] = example['prompt'].replace(replace_str, '')
 
+    skip_qa = check_qas(example["qas"])
+
+    if skip_qa:
+        skip_empty_qa_n += 1
+        continue
+
+    new_version0_data_list.append(example)
+
+print(f"new v0:{len(new_version1_data_list)},skip:{skip_empty_qa_n}")
+
+skip_empty_qa_n = 0
 for example in tqdm(version0_data_list):
     example['prompt'] = example['prompt'].replace(replace_str, '')
 
-print(f"v1:{len(version0_data_list)},v2:{len(version1_data_list)}")
+    skip_qa = check_qas(example["qas"])
+    if skip_qa:
+        skip_empty_qa_n += 1
+        continue
+
+    new_version1_data_list.append(example)
+
+print(f"new v0:{len(new_version0_data_list)},skip:{skip_empty_qa_n}")
 
 save_dir = "/mnt/cephfs/hjh/common_dataset/nlp/yongqiaong_gpt35sex_data"
 save_f_v1 = f"{save_dir}/gpt3.5sex_data_v1_qas.json"
 save_f_v2 = f"{save_dir}/gpt3.5sex_data_v2_qas.json"
 
-json.dump(version0_data_list, open(save_f_v1, 'w'))
-json.dump(version1_data_list, open(save_f_v2, 'w'))
+json.dump(new_version0_data_list, open(save_f_v1, 'w'))
+json.dump(new_version1_data_list, open(save_f_v2, 'w'))
