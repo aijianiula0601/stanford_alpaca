@@ -26,6 +26,20 @@ ANSWER_KEY = "answer"
 DATASET_KEY = "dataset_name"
 
 
+def check_qas(qas):
+    skip_qa = False
+    for i in range(len(qas)):
+        qa = qas[f"turn_{i}"]
+        question = qa['question'].strip()
+        answer = qa['answer'].strip()
+        if question == "" or answer == "":
+            skip_qa = True
+            break
+
+    if skip_qa:
+        return skip_qa
+
+
 def trans2qa(all_data, dataset_name):
     new_data = []
     skip_n = 0
@@ -56,6 +70,10 @@ def trans2qa(all_data, dataset_name):
             qas.pop(f"turn_{turn_n - 1}")
 
         if len(qas) < 1:
+            continue
+
+        if check_qas(qas):
+            skip_n += 1
             continue
 
         assert background is not None
