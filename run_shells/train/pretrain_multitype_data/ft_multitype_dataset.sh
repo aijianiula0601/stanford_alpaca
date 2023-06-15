@@ -21,7 +21,7 @@ your_random_port=11224
 
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data"
 llama_ckpt_and_tokenizer="${base_dir}/llama-7b-hf"
-output_dir="${base_dir}/ft_outs_fix_mask_v3" #去掉空的qa
+output_dir="${base_dir}/ft_outs_fix_mask_v3" #去掉空的qa，从头开始训练
 data_json="${base_dir}/multi_dataset_qas_checked_max_token_2048.json"
 
 mkdir -p ${output_dir}
