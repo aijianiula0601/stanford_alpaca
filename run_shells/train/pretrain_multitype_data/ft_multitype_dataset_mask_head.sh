@@ -22,7 +22,10 @@ your_random_port=11224
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data"
 llama_ckpt_and_tokenizer="${base_dir}/llama-7b-hf"
 output_dir="${base_dir}/ft_outs_mask_head"
+readme_file="${output_dir}/README.md"
 data_json="${base_dir}/multi_dataset_qas_checked_max_token_2048.json"
+
+echo "只mask_head来训练" > ${readme_file}
 
 mkdir -p ${output_dir}
 
