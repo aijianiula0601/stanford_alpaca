@@ -20,12 +20,8 @@ cd ../../../
 your_random_port=11224
 
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data"
-#llama_ckpt_and_tokenizer="${base_dir}/llama-7b-hf"
-#第一次训练断了，重新加载
-#llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft_outs_fix_mask/checkpoint-800"
-#第二次，修复answer_head的mask，之前没有mask answer_head
-llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft_outs_fix_mask/checkpoint-600"
-output_dir="${base_dir}/ft_outs_fix_mask_v2"
+llama_ckpt_and_tokenizer="${base_dir}/llama-7b-hf"
+output_dir="${base_dir}/ft_outs_fix_mask_v3" #去掉空的qa
 data_json="${base_dir}/multi_dataset_qas_checked_max_token_2048.json"
 
 mkdir -p ${output_dir}

@@ -20,7 +20,7 @@ base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_da
 #llama_ckpt_and_tokenizer="${base_dir}/llama-7b-hf"
 #第一次训练断了，重新加载
 llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft_outs_fix_mask/checkpoint-600"
-output_dir="${base_dir}/ft_outs_fix_mask"
+output_dir="${base_dir}/ft_outs_fix_empty_qa"
 data_json="${base_dir}/soda4w_gpt35sex_biglivechat_checked_max_token_2048.json"
 
 mkdir -p ${output_dir}
@@ -47,7 +47,7 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/mask_h
     --gradient_checkpointing True \
     --deepspeed run_shells/train/deepspeed_config.json \
     --fp16 True \
-    --process_name "multitype_ft2_soda4w_gpt35sex_biglivechat" \
+    --process_name "multitype_ft2_soda4w_gpt35sex_biglivechat_fix_empty_qa" \
     --lazy_load \
     --mask_head \
     --mask_question
