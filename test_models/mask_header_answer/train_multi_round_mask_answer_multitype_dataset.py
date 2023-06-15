@@ -180,7 +180,7 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
         # question
         # ------------
         cur_question_string = DEFAULT_SEGMENT_TOKEN + human_name + ": " + cur_turn_qa[
-            QUESTION_KEY] + DEFAULT_EOS_TOKEN + DEFAULT_SEGMENT_TOKEN + bot_name + ": "
+            QUESTION_KEY] + DEFAULT_SEGMENT_TOKEN + bot_name + ": "
         cur_question_string_token_ids, cur_question_string_token_ids_len = _tokenize_string(cur_question_string,
                                                                                             tokenizer)
 
