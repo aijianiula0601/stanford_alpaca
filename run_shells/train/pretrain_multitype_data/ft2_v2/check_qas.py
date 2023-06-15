@@ -1,7 +1,7 @@
 import json
 from tqdm import tqdm
 
-f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft2_v1/train_data_checked_max_token_2048.json"
+f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft2_v2/train_data_checked_max_token_2048.json"
 
 data_list = json.load(open(f))
 
@@ -24,6 +24,7 @@ for example in tqdm(data_list):
         print(f"example:{json.dumps(example)}")
         skip_n += 1
         print("-" * 100)
+
 
 print(f"---all:{all_n},skip:{skip_n}")
 # json.dump(new_data_list, open(f, 'w'))

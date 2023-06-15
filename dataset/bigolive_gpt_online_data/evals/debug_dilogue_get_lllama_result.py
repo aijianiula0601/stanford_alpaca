@@ -8,7 +8,7 @@ from dataset.bigolive_gpt_online_data.evals.llama_result import *
 # -----------------------------------------------------------------
 
 limit_dialogue_n = 5
-limit_turn_n = 3
+limit_turn_n = 4
 
 base_dir = "/Users/jiahong/Downloads"
 gpt_dialogue_json_f = "/Users/jiahong/PycharmProjects/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/evals/test_model_dialogues20230608.json"
@@ -45,7 +45,7 @@ for k in tqdm(all_keys):
 
             example['qas'][i]['multitype_ft2_soda_sex'] = my_llama_respond(cur_example,
                                                                            model_name="multitype_ft2_soda_sex",
-                                                                           if_self_prompt=False)
+                                                                           if_self_prompt=True)
 
     except Exception as e:
         print("-" * 100)

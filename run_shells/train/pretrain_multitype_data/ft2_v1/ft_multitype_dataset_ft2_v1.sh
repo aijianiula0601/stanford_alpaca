@@ -21,6 +21,7 @@ data_json="${base_dir}/train_data_checked_max_token_2048.json"
 
 mkdir -p ${output_dir}
 
+#CUDA_VISIBLE_DEVICES=0,1,2,3 \
 torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/mask_header_answer/train_multi_round_mask_answer_multitype_dataset.py \
     --model_name_or_path "${llama_ckpt_and_tokenizer}" \
     --data_path ${data_json} \
@@ -31,7 +32,7 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/mask_h
     --gradient_accumulation_steps 4 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 50 \
+    --save_steps 100 \
     --model_max_length 2048 \
     --save_total_limit 30 \
     --learning_rate 2e-5 \

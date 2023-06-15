@@ -18,9 +18,9 @@ def get_prompt_input(post_data: dict):
 
     history_list = []
     for qa in qas:
-        history_list.append(f"{role_a}: {qa['question']}{DEFAULT_EOS_TOKEN}")
+        history_list.append(f"{role_a}: {qa['question']}")
         if "answer" in qa:
-            history_list.append(f"{role_b}: {qa['answer']}{DEFAULT_EOS_TOKEN}")
+            history_list.append(f"{role_b}: {qa['answer']}")
 
     history_str = DEFAULT_SEGMENT_TOKEN + DEFAULT_SEGMENT_TOKEN.join(
         [item for item in history_list]) + DEFAULT_SEGMENT_TOKEN + role_b + ":"
@@ -122,7 +122,8 @@ def my_llama_respond(post_data: dict, temperature=0.6, model_name=None, if_self_
         PROMPT_DICT = {
             "conversion": (
                 "{background}\n"
-                "The following is a conversation with {role_b}. {role_b} should speak in a tone consistent with the identity introduced in the background. Give the state of the action and expressions appropriately. Do not generate identical responses.\n"
+                "The following is a conversation with {role_b}. {role_b} should speak in a tone consistent with the identity introduced in the background. Give the state of the action and expressions appropriately. Do not generate identical responses. "
+                "If the other party proposes to meet, video, phone call, {role_b} should politely reply we can get to know each other better through chatting first.\n"
                 "{history}"
             )
         }
@@ -187,8 +188,8 @@ if __name__ == '__main__':
                 }]
         }
 
-        rs = my_llama_respond(post_data, model_name="multitype_ft2_soda_sex", if_self_prompt=True)
-        # rs = llama_no_mask_respond(post_data, if_self_prompt=True, model_name="801")
+        # rs = my_llama_respond(post_data, model_name="multitype_ft2_soda_sex", if_self_prompt=True)
+        rs = llama_no_mask_respond(post_data, if_self_prompt=True, model_name="801")
 
         print("-" * 100)
         print(rs)
