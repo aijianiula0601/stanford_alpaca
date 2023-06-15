@@ -15,13 +15,13 @@ your_random_port=11224
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v1"
 llama_ckpt_and_tokenizer="eachadea/vicuna-7b-1.1"
 output_dir="${base_dir}/ft_out"
-data_json="${base_dir}/train_data_checked_max_token_2048.json"
+data_json="${base_dir}/train_data.json"
 cache_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/hungging"
 
 mkdir -p ${output_dir}
 
 #CUDA_VISIBLE_DEVICES=0,1,2,3 \
-torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/folcon-7b/train.py \
+torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna-7b/train.py \
     --model_name_or_path "${llama_ckpt_and_tokenizer}" \
     --data_path ${data_json} \
     --cache_dir ${cache_dir} \
