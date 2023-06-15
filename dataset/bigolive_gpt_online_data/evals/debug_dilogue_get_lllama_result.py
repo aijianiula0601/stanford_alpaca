@@ -43,9 +43,13 @@ for k in tqdm(all_keys):
             # example['qas'][i]['share_sota_bigolive'] = my_llama_respond(cur_example, model_name="share_sota_bigolive",
             #                                                             if_self_prompt=True)
 
-            example['qas'][i]['multitype_ft2_soda_sex'] = my_llama_respond(cur_example,
-                                                                           model_name="multitype_ft2_soda_sex",
-                                                                           if_self_prompt=True)
+            # example['qas'][i]['multitype_ft2_soda_sex'] = my_llama_respond(cur_example,
+            #                                                                model_name="multitype_ft2_soda_sex",
+            #                                                                if_self_prompt=True)
+
+            example['qas'][i]['falcon-7b-instruction'] = my_llama_respond(cur_example,
+                                                                          model_name="falcon-7b-instruction",
+                                                                          if_self_prompt=True)
 
     except Exception as e:
         print("-" * 100)

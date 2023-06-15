@@ -105,6 +105,7 @@ llama_my_model_url = {
     "multitype_ft2_bigolive": "http://202.168.100.251:6023/api",
     "share_sota_bigolive": "http://202.168.100.251:6024/api",
     "multitype_ft2_soda_sex": "http://202.168.100.251:6024/api",
+    "falcon-7b-instruction": "http://202.168.114.102:6025/api",
 
 }
 

@@ -6,7 +6,7 @@ curdir=$(pwd)
 echo "curdir:$curdir"
 cd "$curdir" || exit
 
-cd ../../../
+cd ../../../../
 
 
 
@@ -15,27 +15,27 @@ cd ../../../
 #   --bf16 True
 #   --tf32 True
 # 这两个参数，这两个参数是在A100机器上训练的。
-#之前的永强的数据中聊天记录存在bug,会突然冒出另外人名，这次修复重新训练，并且加上emoji数据 + 第一批数据
 #----------------------------------------------------------
 
-your_random_port=11224
+your_random_port=11225
 
-base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/mask_header_answer/fix_gpt3.5databug/v2"
-llama_ckpt_and_tokenizer="${base_dir}/llama-7b-hf"
-output_dir="${base_dir}/ft_outs"
-data_json="${base_dir}/merge_data.json"
+base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v1"
+llama_ckpt_and_tokenizer="eachadea/vicuna-7b-1.1"
+output_dir="${base_dir}/debug"
+data_json="${base_dir}/train_data.json"
+cache_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/hungging"
 
-mkdir -p ${output_dir}
 
-
-torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/mask_header_answer/train_multi_round_mask_answer_add_end_token_background.py \
+CUDA_VISIBLE_DEVICES=3 \
+torchrun --nproc_per_node=1 --master_port=${your_random_port} test_models/vicuna-7b/multitype_dataset_pre_token.py \
     --model_name_or_path "${llama_ckpt_and_tokenizer}" \
     --data_path ${data_json} \
+    --cache_dir ${cache_dir} \
     --output_dir ${output_dir} \
-    --num_train_epochs 3 \
+    --num_train_epochs 10 \
     --per_device_train_batch_size 6 \
-    --per_device_eval_batch_size 6 \
-    --gradient_accumulation_steps 6 \
+    --per_device_eval_batch_size 1 \
+    --gradient_accumulation_steps 4 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
     --save_steps 200 \
@@ -49,4 +49,5 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/mask_h
     --report_to "tensorboard" \
     --gradient_checkpointing True \
     --deepspeed run_shells/train/deepspeed_config.json \
-    --fp16 True
+    --fp16 True \
+    --process_name "checked_dataset"
