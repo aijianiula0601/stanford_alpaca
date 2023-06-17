@@ -16,14 +16,34 @@ from dataset.data_utils import BIGOLIVE_ONLINE_CHAT_DATASET_NAME
 # 用户聊天记录
 base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/onlive_csv_data"
 
-# 这里存的数据必须按照顺序
+# ----------------------------------------------------
+# 第一次获取的数据
+# ----------------------------------------------------
+# # 这里存的数据必须按照时间顺序
+# csv_f_list = [
+#     f"{base_dir}/20230530-20230602.csv",
+#     f"{base_dir}/20230603-20230605.csv",
+#     f"{base_dir}/20230606-20230607.csv",
+# ]
+# save_json_f = f"{base_dir}/20230530-20230607.json"
+# save_json_qas_f = f"{base_dir}/20230530-20230607_qas.json"
+
+
+# ----------------------------------------------------
+# 第一次获取的数据
+# ----------------------------------------------------
+# 这里存的数据必须按照时间顺序
 csv_f_list = [
     f"{base_dir}/20230530-20230602.csv",
     f"{base_dir}/20230603-20230605.csv",
     f"{base_dir}/20230606-20230607.csv",
+    f"{base_dir}/20230608-20230609.csv",
+    f"{base_dir}/20230610-20230611.csv",
+    f"{base_dir}/20230612-20230613.csv",
+    f"{base_dir}/20230614-20230615.csv",
 ]
-save_json_f = f"{base_dir}/20230530-20230607.json"
-save_json_qas_f = f"{base_dir}/20230530-20230607_qas.json"
+save_json_f = f"{base_dir}/20230530-20230615.json"
+save_json_qas_f = f"{base_dir}/20230530-20230615_qas.json"
 
 # 主播信息
 # 源文件：/mnt/cephfs2/chenjiang/projects/flask-deploy-live-chat-robot/src/bigolive_robot_uid_part1.uids.all.20230515.base_info.txt
@@ -63,6 +83,10 @@ def get_last_user_question(context_send_to_gpt):
     return context_send_to_gpt[0]['content'], ' '.join(user_q_re_list[::-1])
 
 
+# 处理过程发生错误的key,直接丢弃改对话
+filter_keys_set = set()
+
+
 def read_org_csv_f(csv_f):
     """
     转换为如下格式:{
@@ -77,6 +101,7 @@ def read_org_csv_f(csv_f):
         }
     }
     """
+    print(f"reading:{csv_f}")
     dialogue_data_dic = {}
     csv_reader = csv.reader(open(csv_f))
     i = 0
@@ -88,24 +113,36 @@ def read_org_csv_f(csv_f):
         robot_uid = row[1]
         user_id = row[2]
         rtime = row[3]
-
-        data_dic = json.loads(data)
-        context_send_to_gpt = data_dic['context_send_to_gpt']
-        gpt_response = data_dic['gpt_response']
-        human_name = json.loads(data_dic['user_info'])['nick_name']
-        bot_name = zhibo_user_name_dic[robot_uid]
-
-        background, user_question = get_last_user_question(json.loads(context_send_to_gpt))
-        cur_qa = {"question": user_question, "answer": gpt_response}
-
         d_key = f"{robot_uid}#{user_id}"
-        if d_key not in dialogue_data_dic:
-            dialogue_data_dic[d_key] = {"prompt": background, "human_name": human_name, "bot_name": bot_name,
-                                        "qas": [cur_qa]}
-        else:
-            # 判断同一个对话的prompt是否一致
-            assert background == dialogue_data_dic[d_key]['prompt']
-            dialogue_data_dic[d_key]['qas'].append(cur_qa)
+
+        filter_flag = False
+
+        try:
+            data_dic = json.loads(data)
+            context_send_to_gpt = data_dic['context_send_to_gpt']
+            gpt_response = data_dic['gpt_response']
+            assert 'nick_name' in json.loads(
+                data_dic['user_info']), f"error,key:{d_key} user info:{data_dic['user_info']}"
+            human_name = json.loads(data_dic['user_info'])['nick_name']
+            bot_name = zhibo_user_name_dic[robot_uid]
+
+            background, user_question = get_last_user_question(json.loads(context_send_to_gpt))
+            cur_qa = {"question": user_question, "answer": gpt_response}
+
+            if d_key not in dialogue_data_dic:
+                dialogue_data_dic[d_key] = {"prompt": background, "human_name": human_name, "bot_name": bot_name,
+                                            "qas": [cur_qa]}
+            else:
+                # 判断同一个对话的prompt是否一致
+                assert background == dialogue_data_dic[d_key]['prompt']
+                dialogue_data_dic[d_key]['qas'].append(cur_qa)
+
+        except Exception as e:
+            print(e)
+            filter_flag = True
+
+        if filter_flag:
+            filter_keys_set.add(d_key)
 
     return dialogue_data_dic
 
@@ -150,6 +187,9 @@ for k in all_dialogue_data_dic:
     if len(all_dialogue_data_dic[k]['qas']) > 1:
         new_dialogue_data_dic[k] = all_dialogue_data_dic[k]
 
+    if k in filter_keys_set:
+        del all_dialogue_data_dic[k]
+
 print(f"一共对话个数:{len(new_dialogue_data_dic)}")
 json.dump(new_dialogue_data_dic, open(save_json_f, 'w'))
 print(f"save to:{save_json_f}")
@@ -185,7 +225,7 @@ for k in tqdm(list(new_dialogue_data_dic.keys())):
     for i, qa in enumerate(example["qas"]):
         filter_flag = False
         # 答案为空
-        if qa['answer'].strip() == "":
+        if qa['answer'].strip() == "" or qa['question'].strip() == "":
             filter_flag = True
         else:
             # 如果对话中某轮对话出现关键词，那么只取前面轮的对话
