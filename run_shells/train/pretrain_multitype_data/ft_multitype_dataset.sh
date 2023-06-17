@@ -21,12 +21,21 @@ your_random_port=11224
 
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data"
 llama_ckpt_and_tokenizer="${base_dir}/llama-7b-hf"
-output_dir="${base_dir}/ft_outs_mask_head_question" #去掉空的qa，从头开始训练
-data_json="${base_dir}/multi_dataset_qas_checked_max_token_2048.json"
+output_dir="${base_dir}/ft_outs_mask_head_question_v1" #去掉空的qa，从头开始训练
+data_json="${base_dir}/multi_dataset_qas.json"
 readme_file="${output_dir}/README.md"
 
 echo "#去掉空的qa，从头开始训练" > ${readme_file}
 
+#------------------
+#check qas
+#------------------
+#python dataset/check_empty_qa.py ${data_json} ${data_json}
+
+
+###------------------
+###train
+###------------------
 mkdir -p ${output_dir}
 
 torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/mask_header_answer/train_multi_round_mask_answer_multitype_dataset.py \

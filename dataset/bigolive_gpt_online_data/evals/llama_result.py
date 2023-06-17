@@ -106,6 +106,8 @@ llama_my_model_url = {
     "share_sota_bigolive": "http://202.168.100.251:6024/api",
     "multitype_ft2_soda_sex": "http://202.168.100.251:6024/api",
     "falcon-7b-instruction": "http://202.168.114.102:6025/api",
+    "vicuna-7b": "http://202.168.114.102:6025/api",
+    "test_infer": "http://202.168.114.102:6024/api",
 
 }
 
@@ -121,9 +123,16 @@ def my_llama_respond(post_data: dict, temperature=0.6, model_name=None, if_self_
         # 采用自己的prompt
         # --------------------------
         PROMPT_DICT = {
+            # "conversion": (
+            #     "{background}\n"
+            #     "The following is a conversation with {role_b}. {role_b} should speak in a tone consistent with the identity introduced in the background. Give the state of the action and expressions appropriately. Do not generate identical responses. "
+            #     "If the other party proposes to meet, video, phone call, {role_b} should politely reply we can get to know each other better through chatting first.\n"
+            #     "{history}"
+            # )
+            #去掉动作的
             "conversion": (
                 "{background}\n"
-                "The following is a conversation with {role_b}. {role_b} should speak in a tone consistent with the identity introduced in the background. Give the state of the action and expressions appropriately. Do not generate identical responses. "
+                "The following is a conversation with {role_b}. {role_b} should speak in a tone consistent with the identity introduced in the background. Do not generate identical responses. "
                 "If the other party proposes to meet, video, phone call, {role_b} should politely reply we can get to know each other better through chatting first.\n"
                 "{history}"
             )
@@ -162,7 +171,7 @@ def my_llama_respond(post_data: dict, temperature=0.6, model_name=None, if_self_
     response = requests.post(llama_my_model_url[model_name], data=request_data)
 
     json_data = json.loads(response.text)
-    text_respond = json_data["result"]
+    text_respond = json_data["result"].lstrip("#").strip()
     return text_respond
 
 
@@ -190,7 +199,7 @@ if __name__ == '__main__':
         }
 
         # rs = my_llama_respond(post_data, model_name="multitype_ft2_soda_sex", if_self_prompt=True)
-        rs = llama_no_mask_respond(post_data, if_self_prompt=True, model_name="801")
+        rs = llama_no_mask_respond(post_data, if_self_prompt=True, model_name="802")
 
         print("-" * 100)
         print(rs)
