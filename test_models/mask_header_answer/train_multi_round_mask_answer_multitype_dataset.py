@@ -290,6 +290,7 @@ class SupervisedDataset(Dataset):
         logging.warning("Loading data...")
 
         tokenizer_file = f"{data_path}_tokenizer.obj"
+        assert "checked" in data_path, f"--------必须保证加载的文件是经过检测的，执行multitype_dataset_pre_token.py后的文件，目前加载的文件为:{data_path}"
 
         if os.path.exists(tokenizer_file):
             data_dict = pickle.load(open(tokenizer_file, 'rb'))  # 反序列化
@@ -318,7 +319,6 @@ class LazySupervisedDataset(Dataset):
     def __init__(self, data_path: str, tokenizer: transformers.PreTrainedTokenizer, token_max_len: int, mask_head: bool,
                  mask_question: bool):
         super(LazySupervisedDataset, self).__init__()
-        assert "checked" in data_path, f"--------必须保证加载的文件是经过检测的，执行multitype_dataset_pre_token.py后的文件，目前加载的文件为:{data_path}"
         self.tokenizer = tokenizer
         self.token_max_len = token_max_len
         self.mask_head = mask_head
