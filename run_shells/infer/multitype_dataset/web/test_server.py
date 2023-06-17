@@ -136,7 +136,7 @@ logger.info("loading model ... ")
 # model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft2_v2/ft_out/checkpoint-300"
 # model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft2_v1/ft_out/checkpoint-1000"
 # model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft_outs_mask_head_question/checkpoint-1000"
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitype_data/ft_out_sharegpt_soda_bilivechat_mask_head/checkpoint-3200"
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitype_data/ft_out_sharegpt_soda_bilivechat_mask_head/checkpoint-4000"
 
 print("model_dir:", model_dir)
 load_model(model_dir)

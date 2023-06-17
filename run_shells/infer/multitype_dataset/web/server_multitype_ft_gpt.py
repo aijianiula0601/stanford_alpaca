@@ -16,7 +16,7 @@ import torch
 
 setproctitle.setproctitle("test_model_infer")
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 # # 自动识别机器上的gpu
 # worker_id = int(os.environ.get('APP_WORKER_ID', 1))
 # devices = os.environ.get('CUDA_VISIBLE_DEVICES', '')
@@ -130,6 +130,7 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
 
 # 对应路径 run_shells/train/pretrain_multitype_data/ft_multitype_dataset_ft2bigolivechat.sh
 model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/multitype_data_ft2_soda4w_gpt35sex_biglivechat/ft_outs_fix_mask/checkpoint-900"
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/multitype_data_ft2_soda4w_gpt35sex_biglivechat/ft_outs_fix_mask/checkpoint-1250"
 logger.info(f"loading model:{model_dir}")
 
 load_model(model_dir)

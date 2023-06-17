@@ -104,7 +104,7 @@ llama_my_model_url = {
     # model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitype_data/ft_out_sharegpt_soda_bilivechat_mask_head/checkpoint-2400"
     "multitype_ft2_bigolive": "http://202.168.100.251:6023/api",
     "share_sota_bigolive": "http://202.168.100.251:6024/api",
-    "multitype_ft2_soda_sex": "http://202.168.100.251:6024/api",
+    "multitype_ft2_soda_sex": "http://202.168.114.102:6024/api",
     "falcon-7b-instruction": "http://202.168.114.102:6025/api",
     "vicuna-7b": "http://202.168.114.102:6025/api",
     "test_infer": "http://202.168.114.102:6024/api",
@@ -129,7 +129,7 @@ def my_llama_respond(post_data: dict, temperature=0.6, model_name=None, if_self_
             #     "If the other party proposes to meet, video, phone call, {role_b} should politely reply we can get to know each other better through chatting first.\n"
             #     "{history}"
             # )
-            #去掉动作的
+            # 去掉动作的
             "conversion": (
                 "{background}\n"
                 "The following is a conversation with {role_b}. {role_b} should speak in a tone consistent with the identity introduced in the background. Do not generate identical responses. "
@@ -171,7 +171,7 @@ def my_llama_respond(post_data: dict, temperature=0.6, model_name=None, if_self_
     response = requests.post(llama_my_model_url[model_name], data=request_data)
 
     json_data = json.loads(response.text)
-    text_respond = json_data["result"].lstrip("#").strip()
+    text_respond = json_data["result"].strip().strip("#").strip()
     return text_respond
 
 

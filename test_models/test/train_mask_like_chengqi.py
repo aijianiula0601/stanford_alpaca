@@ -39,6 +39,7 @@ DEFAULT_EOS_TOKEN = "</s>"
 DEFAULT_BOS_TOKEN = "</s>"
 DEFAULT_UNK_TOKEN = "</s>"
 DEFAULT_SEGMENT_TOKEN = "### "
+DEFAULT_END_TOKEN = "\n"
 
 
 @dataclass
@@ -184,7 +185,7 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
         # question
         # ------------
         cur_question_string = DEFAULT_SEGMENT_TOKEN + human_name + ": " + cur_turn_qa[
-            QUESTION_KEY] + DEFAULT_SEGMENT_TOKEN + bot_name + ": "
+            QUESTION_KEY] + DEFAULT_SEGMENT_TOKEN
         cur_question_string_token_ids, cur_question_string_token_ids_len = _tokenize_string(cur_question_string,
                                                                                             tokenizer)
 
@@ -196,7 +197,7 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
         # ------------
         # answer
         # ------------
-        cur_answer_string = cur_turn_qa[ANSWER_KEY] + DEFAULT_EOS_TOKEN
+        cur_answer_string = DEFAULT_END_TOKEN + bot_name + ": " + cur_turn_qa[ANSWER_KEY] + DEFAULT_END_TOKEN
         cur_answer_string_token_ids, cur_answer_string_token_ids_len = _tokenize_string(cur_answer_string, tokenizer)
         header_ids_len += cur_answer_string_token_ids_len
         if header_ids_len > token_max_len:
@@ -205,7 +206,7 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
         # 问题和答案都不超过长度才加入
         input_ids_tensor_list.append(cur_question_string_token_ids)
         input_ids_tensor_list.append(cur_answer_string_token_ids)
-        if mask_question:
+        if mask_question or dataset_name == SHAREGPT_DATASET_NAME:
             ignore_token_index_list.append((ignore_start_index, ignore_end_index))  # mask index
 
     if len(input_ids_tensor_list) <= 1:
