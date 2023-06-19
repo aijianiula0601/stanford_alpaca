@@ -14,12 +14,17 @@ from dataset.data_utils import BIGOLIVE_ONLINE_CHAT_DATASET_NAME
 # bigolive线上数据
 # ---------------
 print("-" * 50 + "prepare data" + "-" * 50)
-f = "/mnt/cephfs/pangyongqiang/proj/LLM/chatgpt_goof/revized_proof_data_8000_1_key.json"
+ai_language_model_keys_f = "/mnt/cephfs/pangyongqiang/proj/LLM/chatgpt_goof/revized_proof_data_8000_1.json"
+org_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/onlive_csv_data/20230530-20230615.json"
 
-# ---------------
-# 合并
-# ---------------
-all_dialogue_data_dic = json.load(open(f))
+all_dialogue_data_dic = json.load(open(org_f))
+ai_language_model_keys_list = json.load(open(ai_language_model_keys_f))
+
+ai_language_model_keys_set = set()
+ai_language_model_keys_dic = {}
+for example in ai_language_model_keys_list:
+    ai_language_model_keys_set.add(example['id'])
+    ai_language_model_keys_dic[example['id']] = example
 
 # -------------------------------
 # 转换为我们训练的qas格式
@@ -41,9 +46,15 @@ filter_word_list = ["AI", "Language model", "As AI", "as a Language model", "as 
                     "text-based program"]
 
 skip_n = 0
+ai_n = 0
 qas_new_dialogue_data_list = []
 for k in tqdm(list(all_dialogue_data_dic.keys())):
-    example = all_dialogue_data_dic[k]
+
+    if k in ai_language_model_keys_set:
+        example = ai_language_model_keys_dic[k]
+        ai_n += 1
+    else:
+        example = all_dialogue_data_dic[k]
     cur_example = {"dataset_name": BIGOLIVE_ONLINE_CHAT_DATASET_NAME, "background": example["prompt"],
                    "human_name": example['human_name'],
                    "bot_name": example["bot_name"], "qas": {}}
@@ -75,7 +86,7 @@ for k in tqdm(list(all_dialogue_data_dic.keys())):
     else:
         skip_n += 1
 
-print(f"----qas_new_dialogue_data_list:{len(qas_new_dialogue_data_list)},skip_n:{skip_n}")
+print(f"----qas_new_dialogue_data_list:{len(qas_new_dialogue_data_list)},skip_n:{skip_n},ai_n:{ai_n}")
 
 save_dir = sys.argv[1]
 os.system(f"mkdir -p {save_dir}")
