@@ -14,7 +14,7 @@ import os
 import sys
 import torch
 
-setproctitle.setproctitle("test_f7b")
+setproctitle.setproctitle("test_model_infer")
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 # # 自动识别机器上的gpu
@@ -42,7 +42,7 @@ from logger import MyLogger
 logger = MyLogger.__call__().get_logger()
 
 
-def load_model(model_name, cache_dir):
+def load_model(model_name, eight_bit=0, device_map="auto"):
     global model, tokenizer, generator
 
     logger.info("Loading " + model_name)
@@ -53,11 +53,14 @@ def load_model(model_name, cache_dir):
     tokenizer = transformers.AutoTokenizer.from_pretrained(model_name, use_fast=False)
     model = transformers.AutoModelForCausalLM.from_pretrained(
         model_name,
+        # device_map=device_map,
+        # device_map="auto",
         torch_dtype=torch.float16,
+        # max_memory = {0: "14GB", 1: "14GB", 2: "14GB", 3: "14GB",4: "14GB",5: "14GB",6: "14GB",7: "14GB"},
+        # load_in_8bit=eight_bit,
         low_cpu_mem_usage=True,
         load_in_8bit=False,
-        cache_dir=cache_dir,
-        trust_remote_code=True,
+        cache_dir="cache"
     ).cuda()
 
 
@@ -125,16 +128,11 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
     return output
 
 
-logger.info("loading model ... ")
-# model_name = "AlekseyKorshuk/vicuna-7b"  # 这个模型体验起来，感觉逻辑不顺，不按人设中的地点回答，还自己造一个。
-# model_name = "eachadea/vicuna-7b-1.1"  # 这个模型对于人设的信息是理解的
-# cache_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/hungging"
+# 对应路径 run_shells/train/multitype_data/ft_share_sota_bigolive.sh
+model_dir = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitype_data/ft_out_sharegpt_soda_bilivechat_v2/checkpoint-1600'
+logger.info(f"loading model:{model_dir}")
 
-# model_name = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v1/ft_out/checkpoint-1900"
-model_name = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v3/ft_out/checkpoint-1500"
-cache_dir = "/tmp"
-
-load_model(model_name, cache_dir)
+load_model(model_dir)
 logger.info('load model done!!!')
 logger.info('-' * 100)
 
@@ -202,4 +200,5 @@ def receive():
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host="0.0.0.0", port=6025)
+    app.run(debug=False, host="0.0.0.0", port=6024)
+    # app.run(debug=False, host="202.168.114.102", port=6024)

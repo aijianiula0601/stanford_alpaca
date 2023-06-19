@@ -106,8 +106,8 @@ llama_my_model_url = {
     "share_sota_bigolive": "http://202.168.100.251:6024/api",
     "multitype_ft2_soda_sex": "http://202.168.114.102:6024/api",
     "falcon-7b-instruction": "http://202.168.114.102:6025/api",
-    "vicuna-7b": "http://202.168.114.102:6025/api",
-    "test_infer": "http://202.168.114.102:6024/api",
+    "vicuna-7b": "http://202.168.100.251:6025/api",
+    "test_infer": "http://202.168.100.251:6024/api",
 
 }
 
@@ -168,6 +168,7 @@ def my_llama_respond(post_data: dict, temperature=0.6, model_name=None, if_self_
         "role_b": role_b,
         "stop_words_list": [DEFAULT_SEGMENT_TOKEN.strip(), role_a + ":", DEFAULT_EOS_TOKEN]
     })
+
     response = requests.post(llama_my_model_url[model_name], data=request_data)
 
     json_data = json.loads(response.text)
@@ -198,8 +199,8 @@ if __name__ == '__main__':
                 }]
         }
 
-        # rs = my_llama_respond(post_data, model_name="multitype_ft2_soda_sex", if_self_prompt=True)
-        rs = llama_no_mask_respond(post_data, if_self_prompt=True, model_name="802")
+        rs = my_llama_respond(post_data, model_name="vicuna-7b", if_self_prompt=True)
+        # rs = llama_no_mask_respond(post_data, if_self_prompt=True, model_name="802")
 
         print("-" * 100)
         print(rs)

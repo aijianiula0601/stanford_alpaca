@@ -206,6 +206,7 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
         # 问题和答案都不超过长度才加入
         input_ids_tensor_list.append(cur_question_string_token_ids)
         input_ids_tensor_list.append(cur_answer_string_token_ids)
+        # -----sharegpt数据必须做mask
         if mask_question or dataset_name == SHAREGPT_DATASET_NAME:
             ignore_token_index_list.append((ignore_start_index, ignore_end_index))  # mask index
 

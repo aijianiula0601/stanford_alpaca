@@ -12,9 +12,8 @@ cd ../../../../
 
 your_random_port=11224
 
-base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v3"
+base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v4"
 llama_ckpt_and_tokenizer="eachadea/vicuna-7b-1.1"
-llama_ckpt_and_tokenizer="${base_dir}ft_out/checkpoint-600"
 output_dir="${base_dir}/ft_out"
 data_json="${base_dir}/train_data.json"
 cache_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/hungging"
@@ -42,7 +41,7 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna
     --gradient_accumulation_steps 4 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 300 \
+    --save_steps 500 \
     --model_max_length 2048 \
     --save_total_limit 20 \
     --learning_rate 2e-5 \
@@ -54,7 +53,7 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna
     --gradient_checkpointing True \
     --deepspeed run_shells/train/deepspeed_config.json \
     --fp16 True \
-    --process_name "vicuna-7b-bigolive" \
+    --process_name "vicuna7b_bigolive_fix_aimodel" \
     --lazy_load \
     --mask_head \
     --mask_question

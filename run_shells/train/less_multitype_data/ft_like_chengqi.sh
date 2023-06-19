@@ -6,14 +6,14 @@ curdir=$(pwd)
 echo "curdir:$curdir"
 cd "$curdir" || exit
 
-cd ../../../../
+cd ../../../
 
 
 
 your_random_port=11224
 
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/like_chengqi"
-llama_ckpt_and_tokenizer="${base_dir}/llama-7b-hf"
+llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/llama-7b-hf_trainsformer4.28.1"
 output_dir="${base_dir}/ft_out"
 data_json="${base_dir}/train_data.json"
 
@@ -52,6 +52,4 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/test/t
     --fp16 True \
     --process_name "forlike_ccqq" \
     --lazy_load \
-    --mask_head \
-    --mask_question
-
+    --mask_head

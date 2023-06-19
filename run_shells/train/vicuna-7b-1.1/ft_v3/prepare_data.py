@@ -18,6 +18,7 @@ from tqdm import tqdm
 # ---------------
 # bigolive线上数据
 # ---------------
+print("-" * 50 + "prepare data" + "-" * 50)
 f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/onlive_csv_data/20230530-20230615_qas.json"
 bigolive_data_list = json.load(open(f))
 
