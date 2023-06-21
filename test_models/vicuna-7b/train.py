@@ -174,6 +174,9 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
 
     for i in range(turn_n):
         cur_turn_qa = conversation_dic[QAS_KEY][f'{TURN_KEY}_{i}']
+
+        if cur_turn_qa[QUESTION_KEY].strip() == "" or cur_turn_qa[ANSWER_KEY].strip() == "":
+            break
         # mask question start index
         ignore_start_index = header_ids_len - 1
         # ------------

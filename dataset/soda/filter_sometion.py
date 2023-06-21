@@ -10,7 +10,7 @@ save_f = "/mnt/cephfs/hjh/common_dataset/nlp/qa/en/soda/soda_train_name_qas_filt
 # ---------------------------
 
 
-data_list = json.dumps(open(f))
+data_list = json.load(open(f))
 
 all_n = 0
 skip_n = 0

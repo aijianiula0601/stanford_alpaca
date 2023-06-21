@@ -9,3 +9,8 @@
 ft biglive线上数据
 
 biglive: /mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/onlive_csv_data/20230530-20230615_qas.json
+
+
+# 结果
+
+效果不错
