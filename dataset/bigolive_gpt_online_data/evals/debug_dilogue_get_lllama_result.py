@@ -7,8 +7,8 @@ from dataset.bigolive_gpt_online_data.evals.llama_result import *
 # gpt线上的数据去调用我们的模型获取答案
 # -----------------------------------------------------------------
 
-limit_dialogue_n = 20
-limit_turn_n = 10
+limit_dialogue_n = 1
+limit_turn_n = 1
 
 base_dir = "/Users/hjh/Downloads"
 gpt_dialogue_json_f = "test_model_dialogues20230608.json"

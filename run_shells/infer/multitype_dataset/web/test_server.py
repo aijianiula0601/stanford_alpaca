@@ -106,7 +106,14 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
 
         output_ids.append(token)
 
+        print(
+            f"------</s>:{tokenizer.encode('Fine! Thank you for asking! </s>')}")  # [2, 28896, 29991, 3374, 366, 363, 6721, 29991, 2]
+        print(f"------</s>111:{tokenizer.encode('</s>')}")  # [2, 2]
+        print(f"------</s>222:{tokenizer.encode('')}")  # [2]
+        print(f"------</s>333:{tokenizer.encode('.')}")  # [2, 869]
+        print(f"------</s>333:{tokenizer.encode('.</s>')}")  # [2, 869, 2]
         if token == tokenizer.eos_token_id:
+            print(f"------output_ids:{output_ids}")
             stopped = True
         else:
             stopped = False
@@ -139,7 +146,8 @@ logger.info("loading model ... ")
 # model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/like_chengqi/ft_out/checkpoint-200"
 # model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v2/ft_out/checkpoint-600"
 # model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v3/ft_out/checkpoint-1800"
-model_dir = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/like_chengqi/ft_out/checkpoint-1200'
+# model_dir = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/like_chengqi/ft_out/checkpoint-1200'
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft_outs_mask_head_question/checkpoint-3200"
 
 print("model_dir:", model_dir)
 load_model(model_dir)

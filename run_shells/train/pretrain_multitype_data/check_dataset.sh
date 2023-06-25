@@ -23,9 +23,16 @@ your_random_port=11224
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitype_data"
 llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/llama/llama-7b-hf_trainsformer4.28.1"
 output_dir="${base_dir}/debug"
-data_json="${base_dir}/multi_dataset_qas.json"
+data_json="${base_dir}/debug_multi_dataset_qas.json"
 #data_json="${base_dir}/soda4w_gpt35sex_biglivechat.json"
 
+
+#llama_ckpt_and_tokenizer="eachadea/vicuna-7b-1.1"
+#cache_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/hungging"
+
+
+rm -rf ${output_dir}
+mkdir -p ${output_dir}
 
 CUDA_VISIBLE_DEVICES=3 \
 torchrun --nproc_per_node=1 --master_port=${your_random_port} test_models/mask_header_answer/multitype_dataset_pre_token.py \

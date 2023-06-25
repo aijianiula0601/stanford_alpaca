@@ -107,7 +107,7 @@ llama_my_model_url = {
     "multitype_ft2_soda_sex": "http://202.168.114.102:6024/api",
     "falcon-7b-instruction": "http://202.168.114.102:6025/api",
     "vicuna-7b": "http://202.168.100.251:6025/api",
-    "test_infer": "http://202.168.100.251:6024/api",
+    "test_infer": "http://202.168.114.102:6024/api",
 
 }
 

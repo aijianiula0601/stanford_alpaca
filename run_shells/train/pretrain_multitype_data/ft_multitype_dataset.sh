@@ -21,9 +21,11 @@ your_random_port=11224
 
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data"
 llama_ckpt_and_tokenizer="${base_dir}/llama-7b-hf"
-output_dir="${base_dir}/ft_outs_mask_head_question_v1" #去掉空的qa，从头开始训练
+output_dir="${base_dir}/ft_outs_fix_id2" #修复前后有2id的
 data_json="${base_dir}/multi_dataset_qas.json"
 readme_file="${output_dir}/README.md"
+
+mkdir -p ${output_dir}
 
 echo "#去掉空的qa，从头开始训练" > ${readme_file}
 
@@ -42,15 +44,15 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/mask_h
     --model_name_or_path "${llama_ckpt_and_tokenizer}" \
     --data_path ${data_json} \
     --output_dir ${output_dir} \
-    --num_train_epochs 10 \
+    --num_train_epochs 5 \
     --per_device_train_batch_size 6 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 4 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 200 \
+    --save_steps 1000 \
     --model_max_length 2048 \
-    --save_total_limit 50 \
+    --save_total_limit 20 \
     --learning_rate 2e-5 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \
@@ -60,7 +62,7 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/mask_h
     --gradient_checkpointing True \
     --deepspeed run_shells/train/deepspeed_config.json \
     --fp16 True \
-    --process_name "multitype_fix_answer_head_mask" \
+    --process_name "multitype_fix_id2" \
     --lazy_load \
     --mask_head \
     --mask_question
