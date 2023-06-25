@@ -34,10 +34,10 @@ from transformers import Trainer
 from dataset.data_utils import *
 
 IGNORE_INDEX = -100
-DEFAULT_PAD_TOKEN = "[PAD]"
-DEFAULT_EOS_TOKEN = "</s>"
-DEFAULT_BOS_TOKEN = "</s>"
-DEFAULT_UNK_TOKEN = "</s>"
+DEFAULT_PAD_TOKEN = None  # 修改为跟vicuna-7b的一样
+DEFAULT_EOS_TOKEN = "</s>"  # 修改为跟vicuna-7b的一样
+DEFAULT_BOS_TOKEN = "<s>"  # 修改为跟vicuna-7b的一样
+DEFAULT_UNK_TOKEN = "<unk>"  # 修改为跟vicuna-7b的一样
 DEFAULT_SEGMENT_TOKEN = "### "
 
 
@@ -189,7 +189,7 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
                                                                                             tokenizer)
 
         # 去掉开头为2的id
-        assert cur_question_string_token_ids[0] == 2
+        assert cur_question_string_token_ids[0] == 1
         cur_question_string_token_ids = cur_question_string_token_ids[1:]
         cur_question_string_token_ids_len -= 1
 
@@ -205,7 +205,7 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
         cur_answer_string_token_ids, cur_answer_string_token_ids_len = _tokenize_string(cur_answer_string, tokenizer)
 
         # 去掉开头为2的id
-        assert cur_answer_string_token_ids[0] == 2
+        assert cur_answer_string_token_ids[0] == 1
         cur_answer_string_token_ids = cur_answer_string_token_ids[1:]
         cur_answer_string_token_ids_len -= 1
 
