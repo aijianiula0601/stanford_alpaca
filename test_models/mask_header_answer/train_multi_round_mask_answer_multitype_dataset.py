@@ -188,6 +188,11 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
         cur_question_string_token_ids, cur_question_string_token_ids_len = _tokenize_string(cur_question_string,
                                                                                             tokenizer)
 
+        # 去掉开头为2的id
+        assert cur_question_string_token_ids[0] == 2
+        cur_question_string_token_ids = cur_question_string_token_ids[1:]
+        cur_question_string_token_ids_len -= 1
+
         header_ids_len += cur_question_string_token_ids_len
         ignore_end_index = header_ids_len
         if header_ids_len > token_max_len:
@@ -198,6 +203,12 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
         # ------------
         cur_answer_string = cur_turn_qa[ANSWER_KEY] + DEFAULT_EOS_TOKEN
         cur_answer_string_token_ids, cur_answer_string_token_ids_len = _tokenize_string(cur_answer_string, tokenizer)
+
+        # 去掉开头为2的id
+        assert cur_answer_string_token_ids[0] == 2
+        cur_answer_string_token_ids = cur_answer_string_token_ids[1:]
+        cur_answer_string_token_ids_len -= 1
+
         header_ids_len += cur_answer_string_token_ids_len
         if header_ids_len > token_max_len:
             break
@@ -397,7 +408,6 @@ def train():
         model_args.model_name_or_path,
         cache_dir=training_args.cache_dir,
         model_max_length=training_args.model_max_length,
-        padding_side="right",
         use_fast=False,
     )
     if tokenizer.pad_token is None:
