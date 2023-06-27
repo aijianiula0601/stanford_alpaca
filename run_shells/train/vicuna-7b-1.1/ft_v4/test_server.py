@@ -13,9 +13,9 @@ app.logger.disabled = True
 logging.getLogger("werkzeug").disabled = True
 logging.getLogger().setLevel(logging.WARNING)
 
-setproctitle.setproctitle("vicuna7b-ft_v3")
+setproctitle.setproctitle("vicuna7b-ft_v4")
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "5"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 print(f"pdj:{pdj}")
@@ -117,7 +117,7 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
 
 
 logger.info("loading model ... ")
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v3/ft_out/checkpoint-1800"
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v4/ft_out/checkpoint-1200"
 
 print("model_dir:", model_dir)
 load_model(model_dir)
