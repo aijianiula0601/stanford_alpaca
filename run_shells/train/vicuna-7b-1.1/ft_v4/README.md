@@ -9,3 +9,7 @@
 ft biglive线上数据，这里的数据，永强吧露馅的修改了。
 
 biglive: /mnt/cephfs/pangyongqiang/proj/LLM/chatgpt_goof/revized_proof_data_8000_1_key.json
+
+# 结果
+
+效果不错，跟线上Gpt相似

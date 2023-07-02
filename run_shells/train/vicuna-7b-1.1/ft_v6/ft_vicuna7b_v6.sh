@@ -12,8 +12,8 @@ cd ../../../../
 
 your_random_port=11224
 
-base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v3"
-llama_ckpt_and_tokenizer="eachadea/vicuna-7b-1.1"
+base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v6"
+llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v5/ft_out/checkpoint-7000"
 output_dir="${base_dir}/ft_out"
 data_json="${base_dir}/train_data.json"
 cache_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/hungging"
@@ -24,7 +24,12 @@ mkdir -p ${output_dir}
 #----------------------
 # dataset
 #----------------------
-python ${curdir}/prepare_data.py ${base_dir}
+
+if [ ! -f "${data_json}" ]; then
+  echo "-------------------------prepare_data-----------------------------------------"
+  python ${curdir}/prepare_data.py ${base_dir}
+  echo "------------------------------------------------------------------------------"
+fi
 
 #----------------------
 # train
@@ -43,7 +48,7 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna
     --save_strategy "steps" \
     --save_steps 600 \
     --model_max_length 2048 \
-    --save_total_limit 20 \
+    --save_total_limit 10 \
     --learning_rate 2e-5 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \
@@ -53,7 +58,7 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna
     --gradient_checkpointing True \
     --deepspeed run_shells/train/deepspeed_config.json \
     --fp16 True \
-    --process_name "vicuna-7b-ft2_v3" \
+    --process_name "vicuna-7b-v6" \
     --lazy_load \
     --mask_head \
     --mask_question

@@ -6,7 +6,7 @@ curdir=$(pwd)
 echo "curdir:$curdir"
 cd "$curdir" || exit
 
-cd ../../../
+cd ../../../../
 
 
 
@@ -27,7 +27,7 @@ readme_file="${output_dir}/README.md"
 
 mkdir -p ${output_dir}
 
-echo "#去掉空的qa，从头开始训练" > ${readme_file}
+echo "#修复开头结尾的停止符" > ${readme_file}
 
 #------------------
 #check qas

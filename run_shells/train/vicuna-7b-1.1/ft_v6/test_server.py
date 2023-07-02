@@ -13,14 +13,11 @@ logging.getLogger().setLevel(logging.WARNING)
 import os
 import sys
 import torch
+import transformers
 
-setproctitle.setproctitle("vicuna7b-ft_v5")
+setproctitle.setproctitle("test_model_infer")
 
-pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-print(f"pdj:{pdj}")
-sys.path.append(pdj)
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 # # 自动识别机器上的gpu
 # worker_id = int(os.environ.get('APP_WORKER_ID', 1))
 # devices = os.environ.get('CUDA_VISIBLE_DEVICES', '')
@@ -35,7 +32,9 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 # 用的是transformers==4.28.1训练的
 # ---------------------------------------------
 
-import transformers
+pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+print(f"pdj:{pdj}")
+sys.path.append(pdj)
 
 model = None
 tokenizer = None
@@ -75,8 +74,6 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
     temperature = float(params.get("temperature", 1.0))
     max_new_tokens = int(params.get("max_new_tokens", 256))
     stop_words_list = params.get("stop_words_list", [])
-    stop_words_list.append("\n")
-    stop_words_list.append("</s>")
 
     input_ids = tokenizer(prompt).input_ids
     output_ids = list(input_ids)
@@ -133,7 +130,7 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
 
 
 logger.info("loading model ... ")
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v5/ft_out/checkpoint-4000"
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft2_v3/ft_outs/checkpoint-300"
 
 print("model_dir:", model_dir)
 load_model(model_dir)
@@ -204,5 +201,5 @@ def receive():
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host="0.0.0.0", port=6025)
+    app.run(debug=False, host="0.0.0.0", port=5003)
     # app.run(debug=False, host="202.168.114.102", port=6024)

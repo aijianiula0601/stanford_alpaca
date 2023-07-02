@@ -25,14 +25,15 @@ ROLE_A_START_QUESTION = "hi"
 # 模型选择
 # --------------------------------------------------------
 
-models_list = ["mask_head_answer", "gpt3.5sex", "mutlitype_dataset", "mutlitype_dataset_ftsexprompt", "sex_mask_head"]
+models_list = ["mask_head_answer", "gpt3.5sex", "mutlitype_dataset", "mutlitype_dataset_ftsexprompt",
+               "vicuna-7b-ft2bigolive"]
 
 models_url_dic = {
     models_list[0]: "http://202.168.100.251:5018/api",
     models_list[1]: "http://202.168.100.251:5021/api",
     models_list[2]: "http://202.168.114.102:6022/api",
     models_list[3]: "http://202.168.114.102:6023/api",
-    models_list[4]: "http://202.168.114.102:6024/api",
+    models_list[4]: "http://202.168.100.251:6024/api",
 }
 
 models_prompt_key_dic = {
@@ -79,6 +80,7 @@ def mask_instruct(message_list, role_dict, temperature=0.6, model_server_url="ht
     request_data = json.dumps({
         "prompt_input": prompt_input,
         "temperature": temperature,
+        "role_b": role_dict['assistant'],
         "max_gen_len": 256,
         "stop_words_list": [DEFAULT_SEGMENT_TOKEN.strip(), role_dict['user'] + ":", DEFAULT_EOS_TOKEN]
     })
@@ -211,9 +213,11 @@ if __name__ == '__main__':
                 selected_temp = gr.Slider(0, 1, value=0.9, label="Temperature超参,调的越小越容易输出常见字",
                                           interactive=True)
                 with gr.Row():
-                    select_role_a_model = gr.Dropdown(choices=models_list, value=models_list[2], label="选择角色A的模型",
+                    select_role_a_model = gr.Dropdown(choices=models_list, value=models_list[2],
+                                                      label="选择角色A的模型",
                                                       interactive=True)
-                    select_role_b_model = gr.Dropdown(choices=models_list, value=models_list[2], label="选择角色B的模型",
+                    select_role_b_model = gr.Dropdown(choices=models_list, value=models_list[2],
+                                                      label="选择角色B的模型",
                                                       interactive=True)
                 with gr.Row():
                     select_role_a = gr.Dropdown(choices=role_a_list, value="None", label="请选择一个角色A",
@@ -229,7 +233,8 @@ if __name__ == '__main__':
                 background_role_a = gr.Textbox(lines=5, placeholder="设置聊天背景 ...只能用英文", label="roleA背景")
                 background_role_b = gr.Textbox(lines=5, placeholder="设置聊天背景 ...只能用英文", label="roleB背景")
                 role_a_question = gr.Textbox(placeholder="输入RoleA首次提出的问题",
-                                             value=ROLE_A_START_QUESTION + ", " + bot_name.value + '!', label="roleA问题",
+                                             value=ROLE_A_START_QUESTION + ", " + bot_name.value + '!',
+                                             label="roleA问题",
                                              interactive=True)
             with gr.Column():
                 btn = gr.Button("点击生成一轮对话")

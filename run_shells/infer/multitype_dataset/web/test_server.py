@@ -16,7 +16,7 @@ import torch
 
 setproctitle.setproctitle("test_model_infer")
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "3"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 # # 自动识别机器上的gpu
 # worker_id = int(os.environ.get('APP_WORKER_ID', 1))
 # devices = os.environ.get('CUDA_VISIBLE_DEVICES', '')
@@ -71,8 +71,6 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
     temperature = float(params.get("temperature", 1.0))
     max_new_tokens = int(params.get("max_new_tokens", 256))
     stop_words_list = params.get("stop_words_list", [])
-    stop_words_list.append("\n")
-    stop_words_list.append("</s>")
 
     input_ids = tokenizer(prompt).input_ids
     output_ids = list(input_ids)
@@ -147,7 +145,7 @@ logger.info("loading model ... ")
 # model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v2/ft_out/checkpoint-600"
 # model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v3/ft_out/checkpoint-1800"
 # model_dir = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/like_chengqi/ft_out/checkpoint-1200'
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft_outs_mask_head_question/checkpoint-3200"
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft_outs_fix_id2/checkpoint-2000"
 
 print("model_dir:", model_dir)
 load_model(model_dir)

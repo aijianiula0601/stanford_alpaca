@@ -99,15 +99,11 @@ def llama_no_mask_respond(post_data: dict, temperature=0.6, if_self_prompt=False
 
 
 llama_my_model_url = {
-    "gpt35sex": "http://202.168.100.251:5021/api",
-    "mask_head_answer": "http://202.168.100.251:5018/api",
-    # model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitype_data/ft_out_sharegpt_soda_bilivechat_mask_head/checkpoint-2400"
-    "multitype_ft2_bigolive": "http://202.168.100.251:6023/api",
-    "share_sota_bigolive": "http://202.168.100.251:6024/api",
-    "multitype_ft2_soda_sex": "http://202.168.114.102:6024/api",
-    "falcon-7b-instruction": "http://202.168.114.102:6025/api",
-    "vicuna-7b": "http://202.168.100.251:6025/api",
-    "test_infer": "http://202.168.114.102:6024/api",
+    "vicuna-7b_ft_v3": "http://202.168.100.251:6023/api",
+    "vicuna-7b_ft_v4": "http://202.168.100.251:6024/api",
+    "vicuna-7b_ft_v5": "http://202.168.100.251:6025/api",
+    "llama_multitype_data": "http://202.168.100.251:5000/api",
+    "llama_multitype_data_ft2_v3": "http://202.168.100.251:5003/api",
 
 }
 
@@ -199,8 +195,8 @@ if __name__ == '__main__':
                 }]
         }
 
-        rs = my_llama_respond(post_data, model_name="vicuna-7b", if_self_prompt=True)
-        # rs = llama_no_mask_respond(post_data, if_self_prompt=True, model_name="802")
+        # rs = my_llama_respond(post_data, model_name="vicuna-7b", if_self_prompt=True)
+        rs = llama_no_mask_respond(post_data, if_self_prompt=True, model_name="802")
 
         print("-" * 100)
         print(rs)
