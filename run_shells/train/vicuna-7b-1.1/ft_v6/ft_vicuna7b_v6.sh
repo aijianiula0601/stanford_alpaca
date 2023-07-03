@@ -27,7 +27,9 @@ mkdir -p ${output_dir}
 
 if [ ! -f "${data_json}" ]; then
   echo "-------------------------prepare_data-----------------------------------------"
-  python ${curdir}/prepare_data.py ${base_dir}
+  org_data_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft2_v4"
+  ln -s ${org_data_dir}/train_data.json ${base_dir}/train_data.json
+  ln -s ${org_data_dir}/debug_data.json ${base_dir}/debug_data.json
   echo "------------------------------------------------------------------------------"
 fi
 
