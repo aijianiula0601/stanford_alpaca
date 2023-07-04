@@ -19,7 +19,7 @@ f_name_list = [
 
 for f_name in f_name_list:
     org_f = f"{base_dir}/{f_name}.parquet"
-    save_f = f"{base_dir}/{f_name}.json"
+    save_f = f"{base_dir}/{f_name}_qas.json"
 
     data = read_parquet(org_f)
     print(data.count())
