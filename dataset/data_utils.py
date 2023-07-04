@@ -75,6 +75,8 @@ GPT35_DATASET_NAME = "gpt35_sex"
 GPT35_SELF_PROMPT_DATASET_NAME = "gpt35_sex_self_prompt"
 # 内部标注人员标注的数据
 CROWDSOURCE_SEX_DATASET_NAME = 'crowdsource_sex'
+# openorca
+OPENORCA_DATASET_NAME = "openorca"
 
 
 def sota_prompt(human_name, bot_name, background):
@@ -162,6 +164,10 @@ def summary_prompt(human_name, bot_name, background):
     return f"Context:\n{background}\n You as a {bot_name}. Please answer the {human_name}'s question correctly according to the context above.\n\n"
 
 
+def openorca_prompt(human_name, bot_name, background):
+    return f"{background}\n\n"
+
+
 def get_dataset_prompt(dataset_name, human_name, bot_name, background):
     if dataset_name == SOTA_DATASET_NAME:
         return sota_prompt(human_name, bot_name, background)
@@ -195,5 +201,9 @@ def get_dataset_prompt(dataset_name, human_name, bot_name, background):
 
     elif dataset_name == BIGOLIVE_ONLINE_CHAT_DATASET_NAME:
         return bigolive_chat_prompt(human_name, bot_name, background)
+
+    elif dataset_name == OPENORCA_DATASET_NAME:
+        return openorca_prompt(human_name, bot_name, background)
+
     else:
         raise Exception(f"Error dataset name:{dataset_name}")
