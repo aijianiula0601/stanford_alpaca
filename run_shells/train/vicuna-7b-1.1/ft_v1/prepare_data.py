@@ -1,6 +1,7 @@
 import json
 import random
 import os
+import sys
 from tqdm import tqdm
 
 # # ---------------
@@ -34,6 +35,7 @@ for org_f in f_list:
     gpt35sex_data_list += json.load(open(org_f))
 
 random.shuffle(gpt35sex_data_list)
+print("-" * 100)
 print("gpt35sex:", len(gpt35sex_data_list))
 
 print("-" * 100)
@@ -49,21 +51,22 @@ random.shuffle(sexy_data_list)
 print(f"sexy:{len(sexy_data_list)}")
 print("-" * 100)
 
-# ---------------
-# soda
-# ---------------
-
-f = "/mnt/cephfs/hjh/common_dataset/nlp/qa/en/soda/soda_train_name_qas.json"
-soda_data_list = json.load(open(f))
-
-random.shuffle(soda_data_list)
-print(f"sexy:{len(soda_data_list)}")
-print("-" * 100)
+# # ---------------
+# # soda
+# # ---------------
+#
+# f = "/mnt/cephfs/hjh/common_dataset/nlp/qa/en/soda/soda_train_name_qas.json"
+# soda_data_list = json.load(open(f))
+#
+# random.shuffle(soda_data_list)
+# soda_data_list = soda_data_list[:10000]  # ---------------只取1w
+# print(f"soda:{len(soda_data_list)}")
+# print("-" * 100)
 
 # ---------------
 # 合并
 # ---------------
-all_data_list = gpt35sex_data_list + sexy_data_list + soda_data_list
+all_data_list = gpt35sex_data_list + sexy_data_list
 
 # 过来有空回复的对话
 new_data_list = []
@@ -87,7 +90,7 @@ for example in tqdm(all_data_list):
 
 print(f"all_data:{len(new_data_list)},skip empty qa:{skip_n}")
 
-save_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v1"
+save_dir = sys.argv[1]
 os.system(f"mkdir -p {save_dir}")
 save_f = f"{save_dir}/train_data.json"
 save_debug_f = f"{save_dir}/debug_data.json"
