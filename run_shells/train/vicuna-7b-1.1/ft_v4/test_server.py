@@ -15,7 +15,7 @@ logging.getLogger().setLevel(logging.WARNING)
 
 setproctitle.setproctitle("vicuna7b-ft_v4")
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "6"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
 pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 print(f"pdj:{pdj}")

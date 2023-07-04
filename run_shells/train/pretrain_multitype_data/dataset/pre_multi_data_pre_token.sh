@@ -34,8 +34,8 @@ torchrun --nproc_per_node=1 --master_port=${your_random_port} test_models/mask_h
     --evaluation_strategy "no" \
     --save_strategy "steps" \
     --save_steps 200 \
-    --model_max_length 2048 \
-    --save_total_limit 50 \
+    --model_max_length 2048 \    --save_total_limit 50 \
+
     --learning_rate 2e-5 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \

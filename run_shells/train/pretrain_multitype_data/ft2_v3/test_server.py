@@ -15,7 +15,7 @@ import sys
 import torch
 import transformers
 
-setproctitle.setproctitle("test_model_infer")
+setproctitle.setproctitle("multitype_ft2_v3")
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 # # 自动识别机器上的gpu
@@ -202,4 +202,3 @@ def receive():
 
 if __name__ == '__main__':
     app.run(debug=False, host="0.0.0.0", port=5003)
-    # app.run(debug=False, host="202.168.114.102", port=6024)

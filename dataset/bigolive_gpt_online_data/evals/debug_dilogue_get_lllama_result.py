@@ -7,11 +7,11 @@ from dataset.bigolive_gpt_online_data.evals.llama_result import *
 # gpt线上的数据去调用我们的模型获取答案
 # -----------------------------------------------------------------
 
-limit_dialogue_n = 15
-limit_turn_n = 10
+limit_dialogue_n = 5
+limit_turn_n = 5
 
-base_dir = "/Users/hjh/Downloads"
-gpt_dialogue_json_f = "test_model_dialogues20230608.json"
+base_dir = "/Users/jiahong/Downloads"
+gpt_dialogue_json_f = "/Users/jiahong/PycharmProjects/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/evals/test_model_dialogues20230608.json"
 # gpt_dialogue_json_f = "/Users/jiahong/Downloads/v1_test_data.json"
 save_gpt_dialogue_json_f = f"{base_dir}/debug.json"
 
@@ -38,21 +38,26 @@ for k in tqdm(all_keys):
             # example['qas'][i]['801'] = llama_no_mask_respond(cur_example, if_self_prompt=True, model_name="801")
             # example['qas'][i]['802'] = llama_no_mask_respond(cur_example, if_self_prompt=True, model_name="802")
 
-            # example['qas'][i]['llama_multitype_data_ft2_v3'] = my_llama_respond(cur_example,
-            #                                                              model_name="llama_multitype_data_ft2_v3",
-            #                                                              if_self_prompt=False)
-
-            example['qas'][i]['vicuna-7b_ft_v4_self_prompt'] = my_llama_respond(cur_example,
-                                                                                model_name="vicuna-7b_ft_v4",
+            example['qas'][i]['llama_multitype_data_ft2_v4'] = my_llama_respond(cur_example,
+                                                                                model_name="llama_multitype_data_ft2_v4",
                                                                                 if_self_prompt=False)
 
-            example['qas'][i]['vicuna-7b_ft_v4_gpt_prompt'] = my_llama_respond(cur_example,
-                                                                               model_name="vicuna-7b_ft_v4",
-                                                                               if_self_prompt=True)
+            # example['qas'][i]['vicuna-7b_ft_v4_self_prompt'] = my_llama_respond(cur_example,
+            #                                                                     model_name="vicuna-7b_ft_v4",
+            #                                                                     if_self_prompt=False)
+            #
+            # example['qas'][i]['vicuna-7b_ft_v4_gpt_prompt'] = my_llama_respond(cur_example,
+            #                                                                    model_name="vicuna-7b_ft_v4",
+            #                                                                    if_self_prompt=True)
 
-            # example['qas'][i]['vicuna-7b_ft_v3'] = my_llama_respond(cur_example,
-            #                                                         model_name="vicuna-7b_ft_v3",
-            #                                                         if_self_prompt=True)
+            example['qas'][i]['vicuna-7b_ft_v4'] = my_llama_respond(cur_example,
+                                                                    model_name="vicuna-7b_ft_v4",
+                                                                    if_self_prompt=False)
+            example['qas'][i]['vicuna-7b_ft_v6'] = my_llama_respond(cur_example,
+                                                                    model_name="vicuna-7b_ft_v6",
+                                                                    if_self_prompt=False)
+
+
 
     except Exception as e:
         print("-" * 100)

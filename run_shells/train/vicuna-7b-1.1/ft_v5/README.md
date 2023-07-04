@@ -7,4 +7,4 @@
 # 数据集
 
 
-处理sharegpt的各种网上找的数据，应为vicuna是在sharegpt上训练的。
+网上找的各种数据集，训练vicuna-7b，看下是否会好点
