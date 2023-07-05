@@ -16,7 +16,7 @@ f1_p = f"{data_base_dir}/1M-GPT4-Augmented_qas.json"
 f2_p = f"{data_base_dir}/3_5M-GPT3_5-Augmented_qas.json"
 
 f1_data_list = json.load(open(f1_p))
-f2_data_list = json.load(open(f2_p))
+# f2_data_list = json.load(open(f2_p))
 
 # ============================================================
 # 汇总所有数据
@@ -27,7 +27,8 @@ save_base_dir = sys.argv[1]
 save_f = f"{save_base_dir}/train_data.json"
 debug_save_f = f"{save_base_dir}/debug_data.json"
 
-data = f1_data_list + f2_data_list
+# data = f1_data_list + f2_data_list
+data = f1_data_list
 random.shuffle(data)
 
 checked_data = []
