@@ -18,7 +18,7 @@ def process_conversation(conversation_str):
         for line in conversation_str.split("\n"):
             narrative += line
 
-            if '<START>'.lower() not in line.lower():
+            if '<START>'.lower() in line.lower():
                 qas_flag = True
                 continue
 
@@ -35,7 +35,8 @@ def process_conversation(conversation_str):
 
 base_dir = '/mnt/cephfs/hjh/common_dataset/nlp/qa/en/pyg_processed'
 org_f = f"{base_dir}/pyg_processed.json"
-save_f = f"{base_dir}/pyg_processed_qas.json"
+save_f_qa = f"{base_dir}/pyg_processed_qas.json"
+save_f_fv = f"{base_dir}/pyg_processed_fv.json"
 org_data_dic = json.load(open(org_f))
 
 # --------------------------
@@ -48,31 +49,35 @@ for k in tqdm(org_data_dic.keys()):
         if example is not None:
             form_value_list.append(example)
 
+print(f"from value list:{len(form_value_list)}")
+json.dump(form_value_list, open(save_f_fv, 'w'))
+print(f"save to:{save_f_fv}")
+
 # --------------------------
 # 处理为qas格式
 # --------------------------
-skip_empty_qa_n = 0
 qas_data_list = []
+skip_n = 0
 dataset_name = PYG_DATASET_NAME
 for turns_data in tqdm(form_value_list):
     if len(turns_data) < 2:
         continue
-
     try:
-
         background = None
         qas = {}
         human_name = turns_data[0]['from']
         bot_name = turns_data[1]['from']
         turn_i = 0
         for i, td in enumerate(turns_data):
+            assert td['value'].strip() != "", "empty value!"
+
             if i == 0:
                 background = td['narrative']
             if (i + 1) % 2 == 1:
-                assert human_name == td['from']
+                assert human_name == td['from'], f"error human_name"
                 qas[f"turn_{turn_i}"] = {QUESTION_KEY: td['value']}
             else:
-                assert bot_name == td['from']
+                assert bot_name == td['from'], "error bot_name"
                 qas[f"turn_{turn_i}"][ANSWER_KEY] = td['value']
                 turn_i += 1
 
@@ -90,7 +95,8 @@ for turns_data in tqdm(form_value_list):
              QAS_KEY: qas})
     except Exception as e:
         print(e)
+        skip_n += 1
 
-print(f"all_n:{len(qas_data_list)},skip:{skip_empty_qa_n}")
-json.dump(qas_data_list, open(save_f, 'w'))
-print(f"save to:{save_f}")
+print(f"all_n:{len(qas_data_list)},skip:{skip_n}")
+json.dump(qas_data_list, open(save_f_qa, 'w'))
+print(f"save to:{save_f_qa}")
