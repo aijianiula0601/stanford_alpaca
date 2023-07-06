@@ -77,6 +77,7 @@ GPT35_SELF_PROMPT_DATASET_NAME = "gpt35_sex_self_prompt"
 CROWDSOURCE_SEX_DATASET_NAME = 'crowdsource_sex'
 # openorca
 OPENORCA_DATASET_NAME = "openorca"
+PYG_DATASET_NAME = "pyg"
 
 
 def sota_prompt(human_name, bot_name, background):
@@ -168,6 +169,11 @@ def openorca_prompt(human_name, bot_name, background):
     return f"{background}\n\n"
 
 
+def pyg_prompt(human_name, bot_name, background):
+    return (f"{background}\n"
+            f"The following is a conversation between {human_name} and {bot_name}.\n\n")
+
+
 def get_dataset_prompt(dataset_name, human_name, bot_name, background):
     if dataset_name == SOTA_DATASET_NAME:
         return sota_prompt(human_name, bot_name, background)
@@ -204,6 +210,9 @@ def get_dataset_prompt(dataset_name, human_name, bot_name, background):
 
     elif dataset_name == OPENORCA_DATASET_NAME:
         return openorca_prompt(human_name, bot_name, background)
+
+    elif dataset_name == PYG_DATASET_NAME:
+        return pyg_prompt(human_name, bot_name, background)
 
     else:
         raise Exception(f"Error dataset name:{dataset_name}")
