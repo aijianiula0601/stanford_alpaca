@@ -78,6 +78,7 @@ CROWDSOURCE_SEX_DATASET_NAME = 'crowdsource_sex'
 # openorca
 OPENORCA_DATASET_NAME = "openorca"
 PYG_DATASET_NAME = "pyg"
+MECHAT_DATASET_NAME = "mechat"
 
 
 def sota_prompt(human_name, bot_name, background):
@@ -212,6 +213,9 @@ def get_dataset_prompt(dataset_name, human_name, bot_name, background):
         return openorca_prompt(human_name, bot_name, background)
 
     elif dataset_name == PYG_DATASET_NAME:
+        return pyg_prompt(human_name, bot_name, background)
+
+    elif dataset_name == MECHAT_DATASET_NAME:
         return pyg_prompt(human_name, bot_name, background)
 
     else:
