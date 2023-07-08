@@ -7,13 +7,13 @@ from dataset.bigolive_gpt_online_data.evals.llama_result import *
 # gpt线上的数据去调用我们的模型获取答案
 # -----------------------------------------------------------------
 
-limit_dialogue_n = 5
-limit_turn_n = 5
+limit_dialogue_n = 20
+limit_turn_n = 10
 
-base_dir = "/Users/hjh/Downloads"
+base_dir = "/Users/jiahong/Downloads"
 gpt_dialogue_json_f = "test_model_dialogues20230608.json"
 # gpt_dialogue_json_f = "/Users/jiahong/Downloads/v1_test_data.json"
-save_gpt_dialogue_json_f = f"{base_dir}/debug.json"
+save_gpt_dialogue_json_f = f"{base_dir}/vicuna_7b_vc_13b.json"
 
 gpt_dialogue_json_data = json.load(open(gpt_dialogue_json_f))
 
@@ -72,7 +72,7 @@ for k in tqdm(all_keys):
         print(f"dialogue:{example}")
         print("-" * 100)
         error_flag = True
-        traceback.print_exception(e)
+        traceback.print_exc(e)
     if error_flag:
         continue
     else:
