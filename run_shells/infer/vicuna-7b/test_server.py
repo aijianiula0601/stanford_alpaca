@@ -16,7 +16,7 @@ import torch
 
 setproctitle.setproctitle("test_f7b")
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "5"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 # # 自动识别机器上的gpu
 # worker_id = int(os.environ.get('APP_WORKER_ID', 1))
 # devices = os.environ.get('CUDA_VISIBLE_DEVICES', '')
@@ -127,12 +127,8 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
 
 logger.info("loading model ... ")
 # model_name = "AlekseyKorshuk/vicuna-7b"  # 这个模型体验起来，感觉逻辑不顺，不按人设中的地点回答，还自己造一个。
-# model_name = "eachadea/vicuna-7b-1.1"  # 这个模型对于人设的信息是理解的
-# cache_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/hungging"
-
-# model_name = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v1/ft_out/checkpoint-1900"
-model_name = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v3/ft_out/checkpoint-1500"
-cache_dir = "/tmp"
+model_name = "eachadea/vicuna-7b-1.1"  # 这个模型对于人设的信息是理解的
+cache_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/hungging"
 
 load_model(model_name, cache_dir)
 logger.info('load model done!!!')
@@ -202,4 +198,4 @@ def receive():
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host="0.0.0.0", port=6025)
+    app.run(debug=False, host="0.0.0.0", port=6024)
