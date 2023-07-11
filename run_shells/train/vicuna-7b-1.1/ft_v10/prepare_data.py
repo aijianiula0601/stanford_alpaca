@@ -26,7 +26,7 @@ save_f = f"{save_base_dir}/train_data.json"
 debug_save_f = f"{save_base_dir}/debug_data.json"
 
 random.shuffle(f1_data_list)
-data = f1_data_list[:50000] + f2_data_list
+data = f1_data_list + f2_data_list[:50000]
 random.shuffle(data)
 
 checked_data = []

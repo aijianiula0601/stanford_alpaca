@@ -16,7 +16,7 @@ import torch
 
 setproctitle.setproctitle("vicuna7b-ft2bilive")
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "5"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 # # 自动识别机器上的gpu
 # worker_id = int(os.environ.get('APP_WORKER_ID', 1))
 # devices = os.environ.get('CUDA_VISIBLE_DEVICES', '')
@@ -203,5 +203,5 @@ def receive():
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host="0.0.0.0", port=6024)
+    app.run(debug=False, host="0.0.0.0", port=6025)
     # app.run(debug=False, host="202.168.114.102", port=6024)

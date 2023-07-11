@@ -49,9 +49,9 @@ for k in tqdm(all_keys):
             #                                                                    model_name="vicuna-7b_ft_v4",
             #                                                                    if_self_prompt=True)
             #
-            # example['qas'][i]['vicuna-7b_ft_v4'] = my_llama_respond(cur_example,
-            #                                                         model_name="vicuna-7b_ft_v4",
-            #                                                         if_self_prompt=False)
+            example['qas'][i]['vicuna-7b_ft_v5'] = my_llama_respond(cur_example,
+                                                                    model_name="vicuna-7b_ft_v5",
+                                                                    if_self_prompt=False)
             example['qas'][i]['vicuna-7b_ft_v7'] = my_llama_respond(cur_example,
                                                                     model_name="vicuna-7b_ft_v7",
                                                                     if_self_prompt=False)
