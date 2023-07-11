@@ -37,6 +37,9 @@ model = None
 tokenizer = None
 generator = None
 
+pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+sys.path.append(pdj)
+
 from logger import MyLogger
 
 logger = MyLogger.__call__().get_logger()
@@ -129,7 +132,7 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
 
 
 logger.info("loading model ... ")
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v3/ft_out/checkpoint-1800"
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v5/ft_out/checkpoint-7000"
 
 print("model_dir:", model_dir)
 load_model(model_dir)

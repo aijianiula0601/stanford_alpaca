@@ -7,13 +7,12 @@ from dataset.bigolive_gpt_online_data.evals.llama_result import *
 # gpt线上的数据去调用我们的模型获取答案
 # -----------------------------------------------------------------
 
-limit_dialogue_n = 20
+limit_dialogue_n = 15
 limit_turn_n = 10
 
 base_dir = "/Users/jiahong/Downloads"
 gpt_dialogue_json_f = "test_model_dialogues20230608.json"
-# gpt_dialogue_json_f = "/Users/jiahong/Downloads/v1_test_data.json"
-save_gpt_dialogue_json_f = f"{base_dir}/vicuna_7b_vc_13b.json"
+save_gpt_dialogue_json_f = f"{base_dir}/debug.json"
 
 gpt_dialogue_json_data = json.load(open(gpt_dialogue_json_f))
 
@@ -53,16 +52,11 @@ for k in tqdm(all_keys):
             # example['qas'][i]['vicuna-7b_ft_v4'] = my_llama_respond(cur_example,
             #                                                         model_name="vicuna-7b_ft_v4",
             #                                                         if_self_prompt=False)
-            # example['qas'][i]['vicuna-7b_ft_v6'] = my_llama_respond(cur_example,
-            #                                                         model_name="vicuna-7b_ft_v6",
-            #                                                         if_self_prompt=False)
+            example['qas'][i]['vicuna-7b_ft_v7'] = my_llama_respond(cur_example,
+                                                                    model_name="vicuna-7b_ft_v7",
+                                                                    if_self_prompt=False)
 
-            example['qas'][i]['vicuna-13b'] = my_llama_respond(cur_example,
-                                                               model_name="vicuna-13b",
-                                                               if_self_prompt=False)
-            example['qas'][i]['vicuna-7b'] = my_llama_respond(cur_example,
-                                                               model_name="vicuna-7b",
-                                                               if_self_prompt=False)
+
 
 
 

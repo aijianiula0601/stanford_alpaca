@@ -14,7 +14,11 @@ import os
 import sys
 import torch
 
-setproctitle.setproctitle("vicuna7b-ft_v7")
+pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+print(f"pdj:{pdj}")
+sys.path.append(pdj)
+
+setproctitle.setproctitle("vicuna7b-ft_v9")
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 # # 自动识别机器上的gpu
@@ -36,10 +40,6 @@ import transformers
 model = None
 tokenizer = None
 generator = None
-
-pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-print(f"pdj:{pdj}")
-sys.path.append(pdj)
 
 from logger import MyLogger
 
@@ -133,7 +133,7 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
 
 
 logger.info("loading model ... ")
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v7/ft_out/checkpoint-10000"
+model_dir = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v9/ft_out/checkpoint-40'
 
 print("model_dir:", model_dir)
 load_model(model_dir)
@@ -149,6 +149,7 @@ def bot(prompt_input, temperature=0.7, max_gen_len=256, stop_words_list=None, ro
         "max_new_tokens": max_gen_len,
         "stop_words_list": stop_words_list,
     }
+    logger.info("-" * 100 + "prompt_input" + "_" * 100)
     logger.info(prompt_input)
     logger.info("-" * 200)
 
@@ -156,9 +157,6 @@ def bot(prompt_input, temperature=0.7, max_gen_len=256, stop_words_list=None, ro
     stream = generate_stream(model, tokenizer, params)
     generated_text = None
     for outputs in stream:
-        # print("*" * 100)
-        # print(outputs)
-        # print("*" * 100)
         role_b_l_index = outputs.rfind(f"{role_b}:")
         generated_text = outputs[role_b_l_index:].replace(f"{role_b}:", "").strip()
         generated_text = generated_text.split(" ")
@@ -204,5 +202,5 @@ def receive():
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host="0.0.0.0", port=6027)
+    app.run(debug=False, host="0.0.0.0", port=6029)
     # app.run(debug=False, host="202.168.114.102", port=6024)

@@ -12,6 +12,7 @@ from llama_result import *
 #   /mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft_outs_fix_id2/checkpoint-4000
 # vicuna-7b_ft_v5：
 #   /mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v5/ft_out/checkpoint-4000
+# 对比结果：vicuna-7b_ft_v5 > llama_multitype_data > 802
 # -----------------------------------------------------------------
 
 date_time_str = "20230628"

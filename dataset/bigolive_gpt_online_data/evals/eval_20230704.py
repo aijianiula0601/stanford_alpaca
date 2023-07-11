@@ -10,6 +10,8 @@ from llama_result import *
 # vicuna-7b_ft_v4：vicuna-7b直接ft线上数据
 # vicuna-7b_ft_v6：vicuna-7bft多种数据后再ft线上数据
 # llama_multitype_data_ft2_v4：llama7b ft多种数据后再ft线上数据
+# 对比结果：
+# vicuna-7b_ft_v6 > vicuna-7b_ft_v4 ~= llama_multitype_data_ft2_v4
 # -----------------------------------------------------------------
 
 

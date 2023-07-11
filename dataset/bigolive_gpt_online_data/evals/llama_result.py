@@ -107,6 +107,7 @@ llama_my_model_url = {
     "vicuna-7b_ft_v4": f"{url_v100}:6024/api",
     "vicuna-7b_ft_v5": f"{url_v100}:6025/api",
     "vicuna-7b_ft_v6": f"{url_f102}:6026/api",
+    "vicuna-7b_ft_v7": f"{url_f102}:6027/api",
     "vicuna-13b": f"{url_f102}:6025/api",
     "llama_multitype_data": f"{url_v100}:5000/api",
     "llama_multitype_data_ft2_v3": f"{url_f102}:5003/api",
