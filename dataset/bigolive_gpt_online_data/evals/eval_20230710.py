@@ -12,9 +12,9 @@ from dataset.bigolive_gpt_online_data.evals.llama_result import *
 limit_dialogue_n = 20
 limit_turn_n = 10
 
-base_dir = "/Users/jiahong/Downloads"
-gpt_dialogue_json_f = "test_model_dialogues20230608.json"
-# gpt_dialogue_json_f = "/Users/jiahong/Downloads/v1_test_data.json"
+time_day = "20230710/"
+base_dir = f"/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/bigolive_gpt_onlive_data/for_biaozhu_eval/evals/{time_day}"
+gpt_dialogue_json_f = f"test_model_dialogues20230608.json"
 save_gpt_dialogue_json_f = f"{base_dir}/vicuna_7b_vc_13b.json"
 
 gpt_dialogue_json_data = json.load(open(gpt_dialogue_json_f))

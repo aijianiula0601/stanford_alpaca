@@ -128,7 +128,8 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
 
 
 logger.info("loading model ... ")
-model_name = "jeffwan/vicuna-13b"
+# model_name = "jeffwan/vicuna-13b"
+model_name = "eachadea/vicuna-13b-1.1"  # 跟vicuna-7同是官网的模型
 # model_name = "tiiuae/falcon-7b-instruct"
 cache_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/hungging"
 
