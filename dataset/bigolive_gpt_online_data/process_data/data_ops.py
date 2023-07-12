@@ -12,7 +12,8 @@ from dataset.data_utils import *
 
 # 主播信息
 # 源文件：/mnt/cephfs2/chenjiang/projects/flask-deploy-live-chat-robot/src/bigolive_robot_uid_part1.uids.all.20230515.base_info.txt
-zhibo_info_f = "/Users/jiahong/Downloads/bigolive_robot_uid_part1.uids.all.20230515.base_info.txt"
+# zhibo_info_f = "/Users/jiahong/Downloads/bigolive_robot_uid_part1.uids.all.20230515.base_info.txt"
+zhibo_info_f = '/mnt/cephfs2/chenjiang/projects/flask-deploy-live-chat-robot/src/bigolive_robot_uid_part1.uids.all.20230515.base_info.txt'
 
 # -------------------------------
 # 获取
@@ -55,11 +56,13 @@ def get_question_answer(context_send_to_gpt, gpt_last_answer):
 
         return background_str, user_qa_list
     except Exception as e:
+        traceback.print_exc(e)
         return None, None
 
 
 def read_org_csv_f(csv_f):
     """
+    处理聊天机器人的数据
     每一次调用作为一个对话
     转换为如下格式:[
         {
@@ -99,6 +102,75 @@ def read_org_csv_f(csv_f):
                 data_dic['user_info']), f"error,key:{d_key} user info:{data_dic['user_info']}"
             human_name = json.loads(data_dic['user_info'])['nick_name']
             bot_name = zhibo_user_name_dic[robot_uid]
+
+            background, user_qa_list = get_question_answer(json.loads(context_send_to_gpt), gpt_response)
+
+            if background is None or user_qa_list is None:
+                skip_flag = True
+
+            if skip_flag:
+                skip_n += 1
+                continue
+
+            dialogue_data_list.append(
+                {BACKGROUND_KEY: background,
+                 DATASET_KEY: BIGOLIVE_ONLINE_CHAT_DATASET_NAME,
+                 HUMAN_NAME_KEY: human_name,
+                 BOT_NAME_KEY: bot_name,
+                 QAS_KEY: user_qa_list})
+        except Exception as e:
+            skip_flag = True
+            pass
+        if skip_flag:
+            skip_n += 1
+
+    print(f"skip_n:{skip_n}")
+    print("-" * 100)
+    return dialogue_data_list
+
+
+def read_org_csv_f_livingowner(csv_f):
+    """
+    处理主播接待的数据
+    每一次调用作为一个对话
+    转换为如下格式:[
+        {
+            "robot_uid#use_id": "~"
+            "prompt": "~",
+            "human_name":"~",
+            "bot_name":"~",
+            "qas":[
+                {"question": "~", "answer":"~"},
+                ..
+            ]
+        },
+        ...
+        ,
+    ]
+    """
+    print(f"reading:{csv_f}")
+    dialogue_data_list = []
+    csv_reader = csv.reader(open(csv_f))
+    i = 0
+    skip_n = 0
+    for row in tqdm(csv_reader):
+        skip_flag = False
+        if i == 0:
+            i += 1
+            continue
+        data = row[0]
+        robot_uid = row[1]
+        user_id = row[2]
+        d_key = f"{robot_uid}#{user_id}"
+
+        try:
+            data_dic = json.loads(data)
+            context_send_to_gpt = data_dic['context_send_to_gpt']
+            gpt_response = data_dic['gpt_response'].strip("\"")
+            assert 'nick_name' in json.loads(
+                data_dic['user_info']), f"error,key:{d_key} user info:{data_dic['user_info']}"
+            human_name = json.loads(data_dic['user_info'])['nick_name']
+            bot_name = json.loads(data_dic['host_user_info'])['nick_name']
 
             background, user_qa_list = get_question_answer(json.loads(context_send_to_gpt), gpt_response)
 

@@ -54,7 +54,7 @@ rtime
 from bigolive.bigo_std_audio_audit 
 where 
     businesstype = 'bigolive_chat_livingowner'
-    and day >= '2023-07-08'
+    and day >= '2023-06-01'
     and day <= '2023-07-10'
     and appid = '60'
     and get_json_object(data, '$.language_code')='en'
