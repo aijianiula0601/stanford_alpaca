@@ -326,7 +326,7 @@ class LazySupervisedDataset(Dataset):
         while input_ids is None or labels is None:
             random_i = random.randint(0, self.list_data_dict_len - 1)
             input_ids, labels = _preprocess_example(self.list_data_dict[random_i], self.tokenizer, self.token_max_len,
-                                                    self.mask_head, self.mask_question)
+                                                    self.mask_head, self.mask_question,self.mask_except_last_answer)
             if input_ids is None or labels is None:
                 logging.warning(f"----input_ids or labels is None,resample!")
         return dict(input_ids=input_ids, labels=labels)
