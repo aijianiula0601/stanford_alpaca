@@ -1,7 +1,14 @@
+import os
+import sys
 import csv
 import json
 from tqdm import tqdm
 import traceback
+
+pdf = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(pdf)
+
+from dataset.data_utils import *
 
 # 主播信息
 # 源文件：/mnt/cephfs2/chenjiang/projects/flask-deploy-live-chat-robot/src/bigolive_robot_uid_part1.uids.all.20230515.base_info.txt
@@ -86,7 +93,7 @@ def read_org_csv_f(csv_f):
 
         try:
             data_dic = json.loads(data)
-            context_send_to_gpt = data_dic['context_send_to_gpt']
+            context_send_to_gpt = data_dic['origin_context_send_to_gpt']
             gpt_response = data_dic['gpt_response'].strip("\"")
             assert 'nick_name' in json.loads(
                 data_dic['user_info']), f"error,key:{d_key} user info:{data_dic['user_info']}"
@@ -102,8 +109,12 @@ def read_org_csv_f(csv_f):
                 skip_n += 1
                 continue
 
-            dialogue_data_list.append({"prompt": background, "human_name": human_name, "bot_name": bot_name,
-                                       "qas": user_qa_list})
+            dialogue_data_list.append(
+                {BACKGROUND_KEY: background,
+                 DATASET_KEY: BIGOLIVE_ONLINE_CHAT_DATASET_NAME,
+                 HUMAN_NAME_KEY: human_name,
+                 BOT_NAME_KEY: bot_name,
+                 QAS_KEY: user_qa_list})
         except Exception as e:
             skip_flag = True
             pass
