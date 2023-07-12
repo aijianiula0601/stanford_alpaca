@@ -52,6 +52,7 @@ class DataArguments:
     lazy_load: bool = field(default=True)
     mask_head: bool = field(default=False)
     mask_question: bool = field(default=False)
+    mask_except_last_answer: bool = field(default=False)
 
 
 @dataclass
@@ -139,7 +140,7 @@ def _prompt_input(background):
 
 
 def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrainedTokenizer, token_max_len: int,
-                        mask_head: bool, mask_question: bool):
+                        mask_head: bool, mask_question: bool, mask_except_last_answer: bool):
     """
     :param token_max_len: limit number of token ids
     :param conversation_dic: example:{
@@ -227,6 +228,11 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
     for ignore_start_i, ignore_end_i in ignore_token_index_list:
         label_ids[ignore_start_i:ignore_end_i] = IGNORE_INDEX
 
+    # 最后一个answer前面的所有都mask
+    if mask_except_last_answer and len(ignore_token_index_list) > 0:
+        _, ignore_end_i = ignore_token_index_list[-1]
+        label_ids[:ignore_end_i] = IGNORE_INDEX
+
     return input_ids, label_ids
 
 
@@ -234,7 +240,7 @@ def preprocess(
         examples: Sequence[Dict],
         tokenizer: transformers.PreTrainedTokenizer,
         token_max_len: int,
-        mask_head: bool, mask_question: bool
+        mask_head: bool, mask_question: bool, mask_except_last_answer: bool
 ) -> Dict:
     """Preprocess the data by tokenizing."""
     input_ids_list = []
@@ -246,7 +252,8 @@ def preprocess(
     for example in tqdm(examples):
         all_n += 1
         try:
-            input_ids, labels = _preprocess_example(example, tokenizer, token_max_len, mask_head, mask_question)
+            input_ids, labels = _preprocess_example(example, tokenizer, token_max_len, mask_head, mask_question,
+                                                    mask_except_last_answer)
             if input_ids is not None and labels is not None:
                 input_ids_list.append(input_ids)
                 labels_list.append(labels)
@@ -262,44 +269,11 @@ def preprocess(
     return dict(input_ids=input_ids_list, labels=labels_list)
 
 
-def parallel_preprocess(examples: Sequence[Dict],
-                        tokenizer: transformers.PreTrainedTokenizer,
-                        token_max_len: int, mask_head: bool, mask_question: bool) -> Dict:
-    logging.warning("--------parallel_preprocess... ---------")
-    results = Parallel(n_jobs=40, backend="multiprocessing")(
-        delayed(_preprocess_example)(example, tokenizer, token_max_len, mask_head, mask_question) for example in
-        tqdm(examples))
-
-    input_ids_list = []
-    labels_list = []
-
-    skip_head_too_long_n = 0
-    error_n = 0
-    all_n = 0
-    for input_ids, labels in tqdm(results):
-        all_n += 1
-        try:
-            if input_ids is not None and labels is not None:
-                input_ids_list.append(input_ids)
-                labels_list.append(labels)
-            else:
-                skip_head_too_long_n += 1
-        except Exception as e:
-            logging.error(f"---------error:{e}")
-            error_n += 1
-            pass
-
-    logging.warning(
-        f"[parallel_preprocess]---------all_n:{all_n},skip_head_too_long:{skip_head_too_long_n},error_n:{error_n}")
-
-    return dict(input_ids=input_ids_list, labels=labels_list)
-
-
 class SupervisedDataset(Dataset):
     """Dataset for supervised fine-tuning."""
 
     def __init__(self, data_path: str, tokenizer: transformers.PreTrainedTokenizer, token_max_len: int, mask_head: bool,
-                 mask_question: bool):
+                 mask_question: bool, mask_except_last_answer: bool):
         super(SupervisedDataset, self).__init__()
         logging.warning("Loading data...")
 
@@ -311,8 +285,8 @@ class SupervisedDataset(Dataset):
         else:
             list_data_dict = json.load(open(data_path))
             random.shuffle(list_data_dict)
-            # data_dict = parallel_preprocess(list_data_dict, tokenizer, token_max_len)#测试了并不快
-            data_dict = preprocess(list_data_dict, tokenizer, token_max_len, mask_head, mask_question)
+            data_dict = preprocess(list_data_dict, tokenizer, token_max_len, mask_head, mask_question,
+                                   mask_except_last_answer)
             pickle.dump(data_dict, open(tokenizer_file, 'wb'))
             logging.warning(f"loaded data from:{data_path}")
 
@@ -330,12 +304,13 @@ class LazySupervisedDataset(Dataset):
     """Dataset for supervised fine-tuning."""
 
     def __init__(self, data_path: str, tokenizer: transformers.PreTrainedTokenizer, token_max_len: int, mask_head: bool,
-                 mask_question: bool):
+                 mask_question: bool, mask_except_last_answer: bool):
         super(LazySupervisedDataset, self).__init__()
         # assert "checked" in data_path, f"--------必须保证加载的文件是经过检测的，执行multitype_dataset_pre_token.py后的文件，目前加载的文件为:{data_path}"
         self.tokenizer = tokenizer
         self.token_max_len = token_max_len
         self.mask_head = mask_head
+        self.mask_except_last_answer = mask_except_last_answer
         self.mask_question = mask_question
         self.list_data_dict = json.load(open(data_path))
         random.shuffle(self.list_data_dict)
@@ -347,7 +322,7 @@ class LazySupervisedDataset(Dataset):
 
     def __getitem__(self, i) -> Dict[str, torch.Tensor]:
         input_ids, labels = _preprocess_example(self.list_data_dict[i], self.tokenizer, self.token_max_len,
-                                                self.mask_head, self.mask_question)
+                                                self.mask_head, self.mask_question, self.mask_except_last_answer)
         while input_ids is None or labels is None:
             random_i = random.randint(0, self.list_data_dict_len - 1)
             input_ids, labels = _preprocess_example(self.list_data_dict[random_i], self.tokenizer, self.token_max_len,
@@ -384,11 +359,13 @@ def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer, dat
         logging.warning("----loading data with lazy!")
         train_dataset = LazySupervisedDataset(tokenizer=tokenizer, data_path=data_args.data_path,
                                               token_max_len=token_max_len, mask_head=data_args.mask_head,
-                                              mask_question=data_args.mask_question)
+                                              mask_question=data_args.mask_question,
+                                              mask_except_last_answer=data_args.mask_except_last_answer)
     else:
         train_dataset = SupervisedDataset(tokenizer=tokenizer, data_path=data_args.data_path,
                                           token_max_len=token_max_len, mask_head=data_args.mask_head,
-                                          mask_question=data_args.mask_question)
+                                          mask_question=data_args.mask_question,
+                                          mask_except_last_answer=data_args.mask_except_last_answer)
     data_collator = DataCollatorForSupervisedDataset(tokenizer=tokenizer)
     return dict(train_dataset=train_dataset, eval_dataset=None, data_collator=data_collator)
 

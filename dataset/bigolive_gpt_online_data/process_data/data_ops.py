@@ -38,7 +38,7 @@ print("-" * 100)
 
 def get_question_answer(context_send_to_gpt, gpt_last_answer):
     try:
-        user_qa_list = []
+        user_qa_dic = {}
         question_str = None
         assert context_send_to_gpt[0]['role'] == "system"
 
@@ -50,11 +50,11 @@ def get_question_answer(context_send_to_gpt, gpt_last_answer):
                 question_str = example['content']
             else:
                 assert example['role'] == 'assistant'
-                user_qa_list.append({"question": question_str, "answer": example['content']})
+                user_qa_dic[f"turn_{i // 2}"] = {"question": question_str, "answer": example['content']}
 
-        user_qa_list.append({"question": question_str, "answer": gpt_last_answer})
+        user_qa_dic[f"turn_{i // 2}"] = {"question": question_str, "answer": gpt_last_answer}
 
-        return background_str, user_qa_list
+        return background_str, user_qa_dic
     except Exception as e:
         traceback.print_exc(e)
         return None, None

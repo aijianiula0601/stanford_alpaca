@@ -1,11 +1,8 @@
 import logging
 import orjson
-import os
-import sys
+import requests
 from flask import Flask, request, Response
 import setproctitle
-import torch
-import transformers
 
 app = Flask(__name__)
 
@@ -13,19 +10,37 @@ app.logger.disabled = True
 logging.getLogger("werkzeug").disabled = True
 logging.getLogger().setLevel(logging.WARNING)
 
-setproctitle.setproctitle("vicuna7b-ft_v4")
+import os
+import sys
+import torch
+import transformers
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "3"
+setproctitle.setproctitle("vicuna-7b-ft_v6")
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+# # 自动识别机器上的gpu
+# worker_id = int(os.environ.get('APP_WORKER_ID', 1))
+# devices = os.environ.get('CUDA_VISIBLE_DEVICES', '')
+# if not devices:
+#     print('current environment did not get CUDA_VISIBLE_DEVICES env ,so use the default')
+# rand_max = 9527
+# gpu_index = (worker_id + rand_max) % torch.cuda.device_count()
+# print('current worker id  {} set the gpu id :{}'.format(worker_id, gpu_index))
+# torch.cuda.set_device(int(gpu_index))
+
+# ---------------------------------------------
+# 用的是transformers==4.28.1训练的
+# ---------------------------------------------
 
 pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 print(f"pdj:{pdj}")
 sys.path.append(pdj)
 
-from logger import MyLogger
-
 model = None
 tokenizer = None
 generator = None
+
+from logger import MyLogger
 
 logger = MyLogger.__call__().get_logger()
 
@@ -59,8 +74,6 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
     temperature = float(params.get("temperature", 1.0))
     max_new_tokens = int(params.get("max_new_tokens", 256))
     stop_words_list = params.get("stop_words_list", [])
-    stop_words_list.append("\n")
-    stop_words_list.append("</s>")
 
     input_ids = tokenizer(prompt).input_ids
     output_ids = list(input_ids)
@@ -117,7 +130,7 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
 
 
 logger.info("loading model ... ")
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v4/ft_out/checkpoint-1200"
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v6/ft_out/checkpoint-1200"
 
 print("model_dir:", model_dir)
 load_model(model_dir)
@@ -188,5 +201,4 @@ def receive():
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host="0.0.0.0", port=6024)
-    # app.run(debug=False, host="202.168.114.102", port=6024)
+    app.run(debug=False, host="0.0.0.0", port=6026)
