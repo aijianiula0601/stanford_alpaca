@@ -33,31 +33,23 @@ def instruction2example(item: dict):
     return example
 
 
-base_dir = "/mnt/cephfs/hjh/common_dataset/nlp/QingyiSi_Alpaca-CoT/Chain-of-Thought/formatted_cot_data"
+base_dir = sys.argv[1]  # 传输执行的目录如：/mnt/cephfs/hjh/common_dataset/nlp/QingyiSi_Alpaca-CoT/auto-cot
 save_base_dir = f"{base_dir}/qas"
-os.system(f"mkdir -p {save_base_dir}")
+os.system(f"rm -rf {save_base_dir} && mkdir -p {save_base_dir}")
 
-f_p_list = [
-    f"{base_dir}/aqua_train.json",
-    f"{base_dir}/creak_train.json",
-    f"{base_dir}/ecqa_train.json",
-    f"{base_dir}/esnli_train.json",
-    f"{base_dir}/gsm8k_train.json",
-    f"{base_dir}/qasc_train.json",
-    f"{base_dir}/qed_train.json",
-    f"{base_dir}/sensemaking_train.json",
-    f"{base_dir}/strategyqa_train.json",
-]
-
-for org_f in f_p_list:
+for org_f in Path(base_dir).glob("*.json"):
     example_list = []
     print('-' * 100)
     print(f"reading:{org_f}")
     instruction_data = json.load(open(org_f))
 
     for item in instruction_data:
-        example = instruction2example(item)
-        example_list.append(example)
+        try:
+            example = instruction2example(item)
+            example_list.append(example)
+        except Exception as e:
+            print(e)
+            print(f"Error item:{item}")
 
     print(f"all_N:{len(example_list)}")
     save_f = f"{save_base_dir}/{Path(org_f).name.replace('.json', '_qas.json')}"
