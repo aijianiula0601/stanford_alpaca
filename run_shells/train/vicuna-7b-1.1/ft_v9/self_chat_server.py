@@ -53,6 +53,10 @@ def mask_instruct(message_list, role_dict, temperature=0.6, model_server_url="ht
         {'background': background, 'human_name': role_dict['assistant'], 'bot_name': role_dict['user']})
     prompt_input = f"{background_str}{history}"
 
+    print("-" * 50 + 'prompt_input' + "-" * 40)
+    print(prompt_input)
+    print("-" * 100)
+
     request_data = json.dumps({
         "prompt_input": prompt_input,
         "temperature": temperature,
@@ -148,7 +152,7 @@ def update_select_model(bot_name):
 if __name__ == '__main__':
     with gr.Blocks() as demo:
         with gr.Row():
-            gr.Markdown("# 两个LLM模型互相对话demo")
+            gr.Markdown("# 微调mechat数据两模型互聊demo")
         with gr.Row():
             with gr.Column():
                 selected_temp = gr.Slider(0, 1, value=0.9, label="Temperature超参,调的越小越容易输出常见字",
