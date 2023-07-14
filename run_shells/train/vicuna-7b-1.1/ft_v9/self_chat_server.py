@@ -9,8 +9,6 @@ pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.di
 print("pdj:", pdj)
 sys.path.append(pdj)
 
-from web.multi_user_chats.two_bigo_gpt35 import *
-
 # -----------------------------------------------------------------------------------
 # 跟two_persons_gpt35_llama.py的区别是：
 # 在聊的时候，告诉模型它的人设是什么。让A模型生成的时候，模型A知道自己的人设，不知道提问者人设。
@@ -36,6 +34,17 @@ PROMPT_DICT = {
 
 DEFAULT_SEGMENT_TOKEN = "### "
 DEFAULT_EOS_TOKEN = "</s>"
+
+
+def get_input_api_data(background, history=[]):
+    data_list = [{'role': 'system', 'content': background}]
+    for i, h in enumerate(history):
+        if i % 2 == 0:
+            data_list.append({"role": 'user', "content": h})
+        else:
+            data_list.append({'role': 'assistant', 'content': h})
+
+    return data_list
 
 
 def mask_instruct(message_list, role_dict, temperature=0.6, model_server_url="http://202.168.100.251:5019/api"):
