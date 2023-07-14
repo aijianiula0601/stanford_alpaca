@@ -13,3 +13,8 @@ biglive: /mnt/cephfs/pangyongqiang/proj/LLM/chatgpt_goof/revized_proof_data_8000
 
 
 为的是跟run_shells/train/pretrain_multitype_data/ft2_v4做对比
+
+
+# 结果
+
+评估效果不错，比ft_v4稍微差点，而ft_v4跟gpt回答相当

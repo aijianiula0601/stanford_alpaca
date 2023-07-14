@@ -3,8 +3,7 @@ import sys
 import json
 import gradio as gr
 
-from web.multi_user_chats.two_bigo_gpt35 import *
-from gradio_model_self_chat_server import models_url_dic, models_prompt_key_dic, models_list, mask_instruct, PROMPT_DICT
+from gradio_model_self_chat_server import models_url_dic, get_input_api_data, models_list, mask_instruct
 
 # -----------------------------------------------------------------------------------
 # 跟two_persons_gpt35_llama.py的区别是：
@@ -141,5 +140,4 @@ if __name__ == '__main__':
                                outputs=[role_a_question, gr_chatbot])
 
     demo.queue()
-    demo.launch(server_name="0.0.0.0", server_port=8991, debug=True)
-    # demo.launch(server_name="202.168.100.178", server_port=8991)
+    demo.launch(server_name="0.0.0.0", server_port=8904, debug=True)
