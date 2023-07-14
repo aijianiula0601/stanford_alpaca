@@ -1,15 +1,12 @@
 # 说明
 
-加载vicuna-7b-1.1来训练
+加载long_llama-3b来训练
 
-地址：https://huggingface.co/eachadea/vicuna-7b-1.1
+地址：https://github.com/CStanKonrad/long_llama
 
 # 数据集
 
 
-网上找的各种数据集，训练vicuna-7b，看下是否会好点
+网上找的各种数据集+openOrca中的gpt4数据
 
 
-# 效果
-
-效果有提升的

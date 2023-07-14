@@ -35,18 +35,18 @@ fi
 # train
 #----------------------
 #CUDA_VISIBLE_DEVICES=0,1,2,3 \
-torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/llama/train.py \
+torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/long_llama/train.py \
     --model_name_or_path "${llama_ckpt_and_tokenizer}" \
     --data_path ${data_json} \
     --cache_dir ${cache_dir} \
     --output_dir ${output_dir} \
     --num_train_epochs 3 \
-    --per_device_train_batch_size 16 \
+    --per_device_train_batch_size 8 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 4 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 700 \
+    --save_steps 2000 \
     --model_max_length 2048 \
     --save_total_limit 10 \
     --learning_rate 2e-5 \
