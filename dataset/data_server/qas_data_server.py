@@ -2,7 +2,7 @@
 
 import json
 import random
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
@@ -14,8 +14,8 @@ print(f"all_n:{data_n}")
 
 @app.route('/qas_data', methods=['GET'])
 def check():
-    random_i = random.randint(0, data_n - 1)
-    return jsonify(json_data_list[random_i])
+    index_i = request.args.get('index', type=int)
+    return jsonify(json_data_list[index_i])
 
 
 @app.route('/data_n', methods=['GET'])

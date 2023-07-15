@@ -1,29 +1,18 @@
 import requests
 import json
 
+# from queue import LifoQueue
+
 server_url = "http://202.168.97.165:6100"
 
 
-def check_data(example):
-    try:
-        assert "background" in example, "key error:background"
-        assert "dataset_name" in example, "key error:dataset_name"
-        assert "human_name" in example, "key error:human_name"
-        assert "bot_name" in example, "key error:bot_name"
-        assert "qas" in example, "key error:qas"
-    except Exception as e:
-        print(e)
-        return False
-    return True
+# example_memory_lq = LifoQueue(maxsize=5)  # 后进先出队列
 
 
-def get_example():
-    response = requests.get(f"{server_url}/qas_data")
+def get_example(index_i):
+    response = requests.get(f"{server_url}/qas_data?index={index_i}")
+
     example = json.loads(response.text)
-    check_flag = check_data(example)
-    while check_flag is False:
-        check_flag = check_data(example)
-
     return example
 
 
@@ -34,4 +23,4 @@ def get_data_len():
 
 
 if __name__ == '__main__':
-    print(get_example())
+    print(get_example(5))

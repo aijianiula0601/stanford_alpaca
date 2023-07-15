@@ -254,11 +254,11 @@ class LazySupervisedDataset(Dataset):
         return self.list_data_dict_len
 
     def __getitem__(self, i) -> Dict[str, torch.Tensor]:
-        data_example = get_example()  # 从服务中获取数据
-        input_ids, labels = _preprocess_example(data_example, self.tokenizer, self.token_max_len,
+        input_ids, labels = _preprocess_example(get_example(i), self.tokenizer, self.token_max_len,
                                                 self.mask_head, self.mask_question, self.mask_except_last_answer)
         while input_ids is None or labels is None:
-            input_ids, labels = _preprocess_example(data_example, self.tokenizer, self.token_max_len,
+            random_i = random.randint(0, self.list_data_dict_len - 1)
+            input_ids, labels = _preprocess_example(get_example(random_i), self.tokenizer, self.token_max_len,
                                                     self.mask_head, self.mask_question, self.mask_except_last_answer)
             if input_ids is None or labels is None:
                 logging.warning(f"----input_ids or labels is None,resample!")
