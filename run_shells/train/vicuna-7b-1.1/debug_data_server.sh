@@ -19,16 +19,14 @@ your_random_port=11225
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data"
 llama_ckpt_and_tokenizer="eachadea/vicuna-7b-1.1"
 output_dir="${base_dir}/debug"
-data_json="${base_dir}/debug_multi_dataset_qas.json"
 cache_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/hungging"
 
 mkdir -p ${output_dir}
 
 #CUDA_VISIBLE_DEVICES=0,1,2,3 \
-torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna-7b/train.py \
+torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna-7b/train_server_data.py \
     --model_name_or_path "${llama_ckpt_and_tokenizer}" \
     --cache_dir ${cache_dir} \
-    --data_path ${data_json} \
     --output_dir ${output_dir} \
     --num_train_epochs 10 \
     --per_device_train_batch_size 6 \
