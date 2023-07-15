@@ -8,6 +8,7 @@ app = Flask(__name__)
 
 json_f_p = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v9/train_data.json"
 json_data_list = json.load(open(json_f_p))
+random.shuffle(json_data_list)
 data_n = len(json_data_list)
 print(f"all_n:{data_n}")
 
