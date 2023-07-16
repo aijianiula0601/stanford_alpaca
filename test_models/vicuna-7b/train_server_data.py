@@ -15,12 +15,9 @@ import os
 import sys
 import copy
 import logging
-import json
-import pickle
 import setproctitle
 from dataclasses import dataclass, field
 from typing import Optional, Dict, Sequence
-from joblib import Parallel, delayed
 import random
 
 pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -32,7 +29,7 @@ from torch.utils.data import Dataset
 from transformers import Trainer
 
 from dataset.data_utils import *
-from dataset.data_server.data_client import get_data_len, get_example
+from dataset.data_server.v1.data_client import get_data_len, get_example
 
 IGNORE_INDEX = -100
 DEFAULT_PAD_TOKEN = "[PAD]"

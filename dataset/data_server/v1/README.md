@@ -1,3 +1,9 @@
+# 数据说明
+
+采用的数据是以下链接汇总的：
+
+https://huggingface.co/datasets/QingyiSi/Alpaca-CoT
+
 # 部署
 
 1.安装supervisor
