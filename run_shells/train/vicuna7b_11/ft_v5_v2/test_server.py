@@ -14,7 +14,7 @@ import os
 import sys
 import torch
 
-setproctitle.setproctitle("vicuna7b-ft2bilive")
+setproctitle.setproctitle("vicuna7b-v5_v2")
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 # # 自动识别机器上的gpu
@@ -132,7 +132,7 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
 
 
 logger.info("loading model ... ")
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v5/ft_out/checkpoint-7000"
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v5_v2/ft_out/checkpoint-6000"
 
 print("model_dir:", model_dir)
 load_model(model_dir)
@@ -203,5 +203,5 @@ def receive():
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host="0.0.0.0", port=6025)
+    app.run(debug=False, host="0.0.0.0", port=6052)
     # app.run(debug=False, host="202.168.114.102", port=6024)

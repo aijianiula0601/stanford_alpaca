@@ -14,7 +14,7 @@ import os
 import sys
 import torch
 
-setproctitle.setproctitle("vicuna7b-ft2bilive")
+setproctitle.setproctitle("vicuna7b-ft_v5")
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 # # 自动识别机器上的gpu
