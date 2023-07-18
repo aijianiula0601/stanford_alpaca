@@ -2,7 +2,7 @@ import json
 from elasticsearch import Elasticsearch
 from elasticsearch import helpers
 
-es = Elasticsearch("https://202.168.97.165:9200", http_auth=('elastic', 'ef_lN4y0B0-3joUJiyeX'), verify_certs=False)
+es = Elasticsearch("https://202.168.97.165:9200", http_auth=('elastic', '3Uy1=C9DhQY96LuWY-Rc'), verify_certs=False)
 
 
 def insert_example(index_name, example, id=None):
@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
     }
 
-    # print(insert_example(index_name, example))
+    print(insert_example(index_name, example))
     print(search_all())
     # delete_index(index_name)
     # print(get_data_id(index_name, id=1))
