@@ -1,6 +1,10 @@
 import json
 from elasticsearch import Elasticsearch
 
+import urllib3
+
+urllib3.disable_warnings()
+
 
 def insert_example(es, index_name, example, id):
     if not es.indices.exists(index=index_name):
