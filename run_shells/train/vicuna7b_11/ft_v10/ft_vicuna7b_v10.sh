@@ -49,7 +49,7 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna
     --save_strategy "steps" \
     --save_steps 1000 \
     --model_max_length 2048 \
-    --save_total_limit 10 \
+    --save_total_limit 5 \
     --learning_rate 2e-5 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \

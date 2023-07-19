@@ -20,7 +20,7 @@ sys.path.append(pdj)
 
 setproctitle.setproctitle("vicuna7b-ft_v9")
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "3"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 # # 自动识别机器上的gpu
 # worker_id = int(os.environ.get('APP_WORKER_ID', 1))
 # devices = os.environ.get('CUDA_VISIBLE_DEVICES', '')
@@ -133,7 +133,7 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
 
 
 logger.info("loading model ... ")
-model_dir = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v9/ft_out/checkpoint-40'
+model_dir = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v10/ft_out/checkpoint-10940'
 
 print("model_dir:", model_dir)
 load_model(model_dir)
@@ -202,5 +202,5 @@ def receive():
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host="0.0.0.0", port=6029)
+    app.run(debug=False, host="0.0.0.0", port=6030)
     # app.run(debug=False, host="202.168.114.102", port=6024)

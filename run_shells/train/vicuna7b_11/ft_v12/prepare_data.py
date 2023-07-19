@@ -12,6 +12,8 @@ from run_shells.train.vicuna7b_11.ft_v12.data_server.insert_es_data import *
 
 INDEX_NAME = "qas_data"
 
+glob_i = 0
+
 
 def trans_qas2list(example):
     qas_list = []
@@ -26,9 +28,10 @@ def trans_qas2list(example):
 
 
 def insert_data2es(example_list):
+    global glob_i
     for example in tqdm(example_list):
-        ex = trans_qas2list(example)
-        insert_example(INDEX_NAME, ex)
+        insert_example(INDEX_NAME, trans_qas2list(example), id=glob_i)
+        glob_i += 1
 
     print(f"insert {len(example_list)} to es done!")
     print("-" * 100)

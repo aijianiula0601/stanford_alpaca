@@ -1,11 +1,8 @@
 import json
 from elasticsearch import Elasticsearch
-from elasticsearch import helpers
-
-es = Elasticsearch("https://202.168.97.165:9200", http_auth=('elastic', 'EwelDkaFv8l_VBYO_UDL'), verify_certs=False)
 
 
-def insert_example(index_name, example, id):
+def insert_example(es, index_name, example, id):
     if not es.indices.exists(index=index_name):
         es.indices.create(index=index_name)
     res = es.index(index=index_name, body=example, id=id)
@@ -14,7 +11,7 @@ def insert_example(index_name, example, id):
     return res
 
 
-def search_all():
+def search_all(es):
     result = es.search(
         index=index_name,
         query={
@@ -24,22 +21,23 @@ def search_all():
     return result['hits']['hits']
 
 
-def get_data_id(index_name, id):
+def get_data_id(es, index_name, id):
     rs = es.get(index=index_name, id=id)
     return rs['_source']
 
 
-def delete_index(index_name):
+def delete_index(es, index_name):
     rs = es.indices.delete(index=index_name)
     return rs
 
 
-def index_count(index_name):
+def index_count(es, index_name):
     res = es.count(index=index_name)
     return res['count']
 
 
 if __name__ == '__main__':
+    es = Elasticsearch("https://202.168.97.165:9200", http_auth=('elastic', 'EwelDkaFv8l_VBYO_UDL'), verify_certs=False)
     index_name = 'qas_data'
     example = {
         "background": "Khamari is worried about his appearance because he wants to look his best for the upcoming dance. He's unsure what to wear and how to style his hair, and he doesn't want to end up looking like a fool.",
@@ -66,5 +64,5 @@ if __name__ == '__main__':
     # print(insert_example(index_name, example, id=1))
     # print(search_all())
     # delete_index(index_name)
-    print(get_data_id(index_name, id=1))
-    print(index_count(index_name))
+    # print(get_data_id(index_name, id=1))
+    print(index_count(es, index_name))
