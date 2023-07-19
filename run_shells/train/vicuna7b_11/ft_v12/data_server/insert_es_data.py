@@ -1,6 +1,8 @@
 import json
 from elasticsearch import Elasticsearch
-from elasticsearch import helpers
+import urllib3
+
+urllib3.disable_warnings()
 
 es = Elasticsearch("https://202.168.97.165:9200", http_auth=('elastic', 'EwelDkaFv8l_VBYO_UDL'), verify_certs=False)
 
