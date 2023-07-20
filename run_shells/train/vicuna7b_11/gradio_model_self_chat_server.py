@@ -42,7 +42,10 @@ PROMPT_DICT = {
         "{examples}\n"
         "The following is a conversation with {role_b}. {role_b} should speak in a tone consistent with the identity introduced in the background. Give the state of the action and expressions appropriately. Do not generate identical responses.\n"
     ),
-    "None": ""
+    "None": "",
+    "bigolive": (
+        "{background} Keep your responses short and don't ask multiple questions at once.\n"
+    ),
 }
 
 DEFAULT_SEGMENT_TOKEN = "### "
@@ -60,7 +63,9 @@ def mask_instruct(message_list, role_dict, temperature=0.6, model_server_url="ht
     history = DEFAULT_SEGMENT_TOKEN + DEFAULT_SEGMENT_TOKEN.join(
         [item for item in history_list]) + DEFAULT_SEGMENT_TOKEN + role_dict['assistant'] + ":"
 
-    prompt_input = f"{background}{history}"
+    prompt_bk = PROMPT_DICT['bigolive'].format_map({"background": background, "role_b": role_dict['assistant']})
+
+    prompt_input = f"{prompt_bk}{history}"
 
     request_data = json.dumps({
         "prompt_input": prompt_input,
@@ -73,7 +78,7 @@ def mask_instruct(message_list, role_dict, temperature=0.6, model_server_url="ht
 
     json_data = json.loads(response.text)
     text_respond = json_data["result"]
-    return text_respond.replace("#", "").strip()
+    return text_respond.replace("#", "").strip().strip(":)")
 
 
 def get_input_api_data(background, history=[]):
