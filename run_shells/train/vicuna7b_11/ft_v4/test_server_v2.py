@@ -1,8 +1,11 @@
 import logging
 import orjson
-import requests
+import os
+import sys
 from flask import Flask, request, Response
 import setproctitle
+import torch
+import transformers
 
 app = Flask(__name__)
 
@@ -10,39 +13,24 @@ app.logger.disabled = True
 logging.getLogger("werkzeug").disabled = True
 logging.getLogger().setLevel(logging.WARNING)
 
-import os
-import sys
-import torch
-
-setproctitle.setproctitle("test_f7b")
+setproctitle.setproctitle("vicuna7b-ft_v4_v2")
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "2"
-# # 自动识别机器上的gpu
-# worker_id = int(os.environ.get('APP_WORKER_ID', 1))
-# devices = os.environ.get('CUDA_VISIBLE_DEVICES', '')
-# if not devices:
-#     print('current environment did not get CUDA_VISIBLE_DEVICES env ,so use the default')
-# rand_max = 9527
-# gpu_index = (worker_id + rand_max) % torch.cuda.device_count()
-# print('current worker id  {} set the gpu id :{}'.format(worker_id, gpu_index))
-# torch.cuda.set_device(int(gpu_index))
 
-# ---------------------------------------------
-# 用的是transformers==4.28.1训练的
-# ---------------------------------------------
+pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+print(f"pdj:{pdj}")
+sys.path.append(pdj)
 
-import transformers
+from logger import MyLogger
 
 model = None
 tokenizer = None
 generator = None
 
-from logger import MyLogger
-
 logger = MyLogger.__call__().get_logger()
 
 
-def load_model(model_name, cache_dir):
+def load_model(model_name, eight_bit=0, device_map="auto"):
     global model, tokenizer, generator
 
     logger.info("Loading " + model_name)
@@ -53,11 +41,14 @@ def load_model(model_name, cache_dir):
     tokenizer = transformers.AutoTokenizer.from_pretrained(model_name, use_fast=False)
     model = transformers.AutoModelForCausalLM.from_pretrained(
         model_name,
+        # device_map=device_map,
+        # device_map="auto",
         torch_dtype=torch.float16,
+        # max_memory = {0: "14GB", 1: "14GB", 2: "14GB", 3: "14GB",4: "14GB",5: "14GB",6: "14GB",7: "14GB"},
+        # load_in_8bit=eight_bit,
         low_cpu_mem_usage=True,
         load_in_8bit=False,
-        cache_dir=cache_dir,
-        trust_remote_code=True,
+        cache_dir="cache"
     ).cuda()
 
 
@@ -126,11 +117,10 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
 
 
 logger.info("loading model ... ")
-# model_name = "AlekseyKorshuk/vicuna-7b"  # 这个模型体验起来，感觉逻辑不顺，不按人设中的地点回答，还自己造一个。
-model_name = "eachadea/vicuna-7b-1.1"  # 这个模型对于人设的信息是理解的
-cache_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/hungging"
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v4/v2/ft_out/checkpoint-400/"
 
-load_model(model_name, cache_dir)
+print("model_dir:", model_dir)
+load_model(model_dir)
 logger.info('load model done!!!')
 logger.info('-' * 100)
 
@@ -198,4 +188,5 @@ def receive():
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host="0.0.0.0", port=6020)
+    app.run(debug=False, host="0.0.0.0", port=60242)
+    # app.run(debug=False, host="202.168.114.102", port=6024)

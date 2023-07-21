@@ -35,13 +35,13 @@ for k in tqdm(all_keys):
             del cur_example['qas'][-1]['answer']
 
             # --------------------------------
-            # vicuna-7b直接ft multitype数据
+            # vicuna-7b直接ft OpenOrca数据
             # 模型:/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v7/ft_out/checkpoint-12000
             # --------------------------------
             example['qas'][i]['answer-1'] = my_llama_respond(cur_example, model_name="vicuna-7b_ft_v7",
                                                              if_self_prompt=if_self_prompt)
             # --------------------------------
-            # vicuna-7bft multitype+cot数据
+            # vicuna-7bft multitype后再fine-tune OpenOrca数据
             # 模型:/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v10/ft_out/checkpoint-10940
             # --------------------------------
             example['qas'][i]['answer-2'] = my_llama_respond(cur_example, model_name="vicuna-7b_ft_v10",

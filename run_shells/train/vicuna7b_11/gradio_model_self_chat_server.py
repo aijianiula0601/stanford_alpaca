@@ -19,17 +19,19 @@ ROLE_A_START_QUESTION = "hi"
 # 模型选择
 # --------------------------------------------------------
 
+
 models_list = [
     "vicuna-7b-ft2bigolive",
-    # "vicuna-7b-ft2bigolive_v2",
+    "vicuna-7b_v4_v2",
+    "vicuna-7b_v4_v3",
 ]
-
 url_f102 = "http://202.168.114.102"
-# url_v100 = "http://202.168.114.102"
+url_v100 = "http://202.168.114.102"
 
 models_url_dic = {
     models_list[0]: f"{url_f102}:6024/api",  # 对应ft_v4下面的服务
-    # models_list[1]: f"{url_f102}:6026/api",  # 对应ft_v4下面的服务
+    models_list[1]: f"{url_f102}:60242/api",
+    models_list[2]: f"{url_f102}:60243/api",
 }
 
 models_prompt_key_dic = {
@@ -38,13 +40,12 @@ models_prompt_key_dic = {
 
 PROMPT_DICT = {
     "conversion": (
-        "Background: {background}\n"
-        "{examples}\n"
+        "{background}\n"
         "The following is a conversation with {role_b}. {role_b} should speak in a tone consistent with the identity introduced in the background. Give the state of the action and expressions appropriately. Do not generate identical responses.\n"
     ),
     "None": "",
     "bigolive": (
-        "{background} Keep your responses short and don't ask multiple questions at once.\n"
+        "{background} Keep your responses short. Don't ask multiple questions at once. \n"
     ),
 }
 
@@ -63,9 +64,9 @@ def mask_instruct(message_list, role_dict, temperature=0.6, model_server_url="ht
     history = DEFAULT_SEGMENT_TOKEN + DEFAULT_SEGMENT_TOKEN.join(
         [item for item in history_list]) + DEFAULT_SEGMENT_TOKEN + role_dict['assistant'] + ":"
 
-    prompt_bk = PROMPT_DICT['bigolive'].format_map({"background": background, "role_b": role_dict['assistant']})
+    # prompt_bk = PROMPT_DICT['bigolive'].format_map({"background": background, "role_b": role_dict['assistant']})
 
-    prompt_input = f"{prompt_bk}{history}"
+    prompt_input = f"{background}\n{history}"
 
     request_data = json.dumps({
         "prompt_input": prompt_input,
@@ -78,7 +79,7 @@ def mask_instruct(message_list, role_dict, temperature=0.6, model_server_url="ht
 
     json_data = json.loads(response.text)
     text_respond = json_data["result"]
-    return text_respond.replace("#", "").strip().strip(":)")
+    return text_respond.replace("#", "").strip()
 
 
 def get_input_api_data(background, history=[]):

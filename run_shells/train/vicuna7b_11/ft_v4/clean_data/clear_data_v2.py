@@ -1,22 +1,19 @@
 import json
 import sys
 from tqdm import tqdm
+from clear_data import filter_specify_chat, toolong_check
 
-limit_chat_n = 260
 
-
-def toolong_check(answer):
+def limit_question_n(answer: str):
     """
-    超过指定长度检测
+    限制问号出现的次数
     """
-    if len(answer) > limit_chat_n:
+    qn = answer.count("?")
+
+    if qn > 1:
         return True
-    else:
-        return False
 
-
-def filter_specify_chat(answer: str):
-    return answer.strip().rstrip(":)").rstrip(" :)")
+    return False
 
 
 def process_example(example: dict):
@@ -28,12 +25,9 @@ def process_example(example: dict):
         question = qa['question']
         answer = filter_specify_chat(qa['answer'])  # 过滤笑脸
         qa['answer'] = answer
-        if toolong_check(answer):
+        if toolong_check(answer) or limit_question_n(answer):
             break
         qas[f'turn_{i}'] = {"question": question, "answer": answer}
-
-    # if len(qas) < turn_n:
-    #     print(f"---org_turn_n:{turn_n},now_n:{len(qas)}")
 
     if len(qas) < 1:
         return None
@@ -44,9 +38,8 @@ def process_example(example: dict):
 
 
 if __name__ == '__main__':
-    base_dir = sys.argv[1]
-    org_f = f"{base_dir}/train_data.json"
-    save_f = f"{base_dir}/cleaned_train_data.json"
+    org_f = sys.argv[1]
+    save_f = sys.argv[2]
 
     org_data_list = json.load(open(org_f))
 
@@ -60,5 +53,5 @@ if __name__ == '__main__':
             skip_n += 1
 
     json.dump(new_data_list, open(save_f, 'w'))
-    print(f"all_n:{len(org_data_list)},skip_n:{skip_n}")
+    print(f"all_n:{len(org_data_list)},skip_n:{skip_n},now_n:{len(new_data_list)}")
     print(f"save to:{save_f}")
