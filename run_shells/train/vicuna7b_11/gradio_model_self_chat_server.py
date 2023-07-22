@@ -21,9 +21,6 @@ ROLE_A_START_QUESTION = "hi"
 
 
 models_list = [
-    "vicuna-7b-ft2bigolive",
-    "vicuna-7b_v4_v2",
-    "vicuna-7b_v4_v3",
     "vicuna-7b_v4_v4",
     "llama2_v0",
 ]
@@ -31,11 +28,8 @@ url_f102 = "http://202.168.114.102"
 url_v100 = "http://202.168.114.102"
 
 models_url_dic = {
-    models_list[0]: f"{url_f102}:6024/api",  # 对应ft_v4下面的服务
-    models_list[1]: f"{url_f102}:60242/api",
-    models_list[2]: f"{url_f102}:60243/api",
-    models_list[3]: f"{url_f102}:60244/api",
-    models_list[4]: f"{url_f102}:7000/api",
+    models_list[0]: f"{url_f102}:60244/api",  # 修复连续访问问题：run_shells/train/vicuna7b_11/ft_v4/test_server_v4.py
+    models_list[1]: f"{url_f102}:7000/api",  # llama2 ft 修复连续访问问题的数据：run_shells/train/llama2/ft2_v0
 }
 
 models_prompt_key_dic = {
