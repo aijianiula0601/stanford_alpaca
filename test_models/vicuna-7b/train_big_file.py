@@ -53,6 +53,8 @@ class DataArguments:
     mask_head: bool = field(default=False)
     mask_question: bool = field(default=False)
     mask_except_last_answer: bool = field(default=False)
+    data_len: int = field(default=-1)
+    preload_n: int = field(default=5000)
 
 
 @dataclass
@@ -273,7 +275,7 @@ class LazySupervisedDataset(Dataset):
     """Dataset for supervised fine-tuning."""
 
     def __init__(self, data_path: str, tokenizer: transformers.PreTrainedTokenizer, token_max_len: int, mask_head: bool,
-                 mask_question: bool, mask_except_last_answer: bool, data_len: int, preload_n: 2000):
+                 mask_question: bool, mask_except_last_answer: bool, data_len: int, preload_n: 5000):
         super(LazySupervisedDataset, self).__init__()
         self.tokenizer = tokenizer
         self.f = data_path
@@ -286,6 +288,7 @@ class LazySupervisedDataset(Dataset):
         self.data_len = data_len
         self.opened_file = open(data_path)
         self.preload_data_list = []
+        self.preload_data()
 
     def preload_data(self):
         if len(self.preload_data_list) < self.preload_n:
@@ -307,7 +310,7 @@ class LazySupervisedDataset(Dataset):
         example = self.preload_data_list[random_i]
         del self.preload_data_list[random_i]
         self.preload_data()
-        return example
+        return json.loads(example)
 
     def __len__(self):
         return self.data_len
@@ -353,8 +356,10 @@ def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer, dat
     train_dataset = LazySupervisedDataset(tokenizer=tokenizer, data_path=data_args.data_path,
                                           token_max_len=token_max_len, mask_head=data_args.mask_head,
                                           mask_question=data_args.mask_question,
-                                          mask_except_last_answer=data_args.mask_except_last_answer)
+                                          mask_except_last_answer=data_args.mask_except_last_answer,
+                                          data_len=data_args.data_len, preload_n=data_args.preload_n)
 
+    data_collator = DataCollatorForSupervisedDataset(tokenizer=tokenizer)
     return dict(train_dataset=train_dataset, eval_dataset=None, data_collator=data_collator)
 
 
