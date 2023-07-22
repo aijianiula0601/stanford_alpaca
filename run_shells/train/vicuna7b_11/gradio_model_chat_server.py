@@ -23,9 +23,9 @@ ROLE_B_NAME = "Alice"
 def get_history(role_a_name, role_b_name, history=[]):
     rh = []
     for qa in history:
-        rh.append(qa[0].lstrip(f"{role_a_name}: "))
+        rh.append(qa[0].lstrip(f"{role_a_name}:").strip())
         if qa[1] is not None:
-            rh.append(qa[1].lstrip(f"{role_b_name}: "))
+            rh.append(qa[1].lstrip(f"{role_b_name}:").strip())
 
     return rh
 
