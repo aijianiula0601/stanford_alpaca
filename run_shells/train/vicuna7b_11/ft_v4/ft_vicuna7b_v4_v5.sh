@@ -47,7 +47,7 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna
     --gradient_accumulation_steps 4 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 100 \
+    --save_steps 80 \
     --model_max_length 2048 \
     --save_total_limit 20 \
     --learning_rate 2e-5 \
