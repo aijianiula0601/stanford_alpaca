@@ -24,7 +24,7 @@ ROLE_A_START_QUESTION = "hi"
 # --------------------------------------------------------
 
 
-server_url = "http://202.168.114.102:6029/api"
+server_url = "http://202.168.114.102:60291/api"
 
 PROMPT_DICT = {
     "conversation": ("{background}\n"
