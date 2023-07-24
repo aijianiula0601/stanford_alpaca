@@ -15,7 +15,7 @@ import sys
 import torch
 import transformers
 
-setproctitle.setproctitle("test_model_infer")
+setproctitle.setproctitle("llama2_ft_v0")
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 # # 自动识别机器上的gpu
@@ -130,7 +130,7 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
 
 
 logger.info("loading model ... ")
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_multitype_data/ft_outs_fix_id2/checkpoint-7000"
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/llama2/ft_v0/ft_out/checkpoint-300/"
 
 print("model_dir:", model_dir)
 load_model(model_dir)
@@ -201,5 +201,5 @@ def receive():
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host="0.0.0.0", port=5000)
+    app.run(debug=False, host="0.0.0.0", port=7000)
     # app.run(debug=False, host="202.168.114.102", port=6024)
