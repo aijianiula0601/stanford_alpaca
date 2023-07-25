@@ -15,7 +15,7 @@ sys.path.append(pdj)
 # 而跟two_persons_gpt35_llama在聊的时候是告诉模型，提问者的人设是什么。
 # -----------------------------------------------------------------------------------
 
-ROLE_A_NAME = "Human"
+ROLE_A_NAME = "Jack"
 ROLE_B_NAME = "Ai"
 ROLE_A_START_QUESTION = "hi"
 
@@ -23,8 +23,17 @@ ROLE_A_START_QUESTION = "hi"
 # 模型选择
 # --------------------------------------------------------
 
+models_list = [
+    "vicuna7b_ft2epoch",
+    "vicuna7b_ft2epoch_before",
+]
+url_f102 = "http://202.168.114.102"
+url_v100 = "http://202.168.100.251"
 
-server_url = "http://202.168.114.102:60291/api"
+models_url_dic = {
+    models_list[0]: f"{url_f102}:60291/api",
+    models_list[1]: f"{url_v100}:6029/api",
+}
 
 PROMPT_DICT = {
     "conversation": ("{background}\n"
@@ -90,7 +99,8 @@ def get_history(role_a_name, role_b_name, history=[]):
     return rh
 
 
-def role_ab_chat(selected_temp, user_message, history, background_a, background_b, role_a_name, role_b_name):
+def role_ab_chat(selected_temp, user_message, history, background_a, background_b, role_a_name, role_b_name,
+                 role_b_model):
     # -------------------
     # role_b回答
     # -------------------
@@ -108,7 +118,7 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     role_b_question = mask_instruct(role_b_input_api_data,
                                     role_dict={"user": role_a_name,
                                                "assistant": role_b_name},
-                                    temperature=selected_temp, model_server_url=server_url)
+                                    temperature=selected_temp, model_server_url=models_url_dic[role_b_model])
 
     history[-1][-1] = f"{role_b_name}: " + role_b_question
     print("-" * 100)
@@ -120,14 +130,15 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     role_a_question = mask_instruct(role_a_input_api_data,
                                     role_dict={"user": role_b_name,
                                                "assistant": role_a_name},
-                                    temperature=selected_temp, model_server_url=server_url)
+                                    temperature=selected_temp, model_server_url=models_url_dic[role_b_model])
 
     return role_a_question, history
 
 
-def toggle(user_message, selected_temp, chatbot, background_a, background_b, role_a_name, role_b_name):
+def toggle(user_message, selected_temp, chatbot, background_a, background_b, role_a_name, role_b_name,
+           select_role_b_model):
     user_message, history = role_ab_chat(selected_temp, user_message, chatbot, background_a, background_b, role_a_name,
-                                         role_b_name)
+                                         role_b_name, select_role_b_model)
     chatbot += history[len(chatbot):]
     return user_message, chatbot
 
@@ -166,6 +177,10 @@ if __name__ == '__main__':
             with gr.Column():
                 selected_temp = gr.Slider(0, 1, value=0.9, label="Temperature超参,调的越小越容易输出常见字",
                                           interactive=True)
+                with gr.Row():
+                    select_role_b_model = gr.Dropdown(choices=models_list, value=models_list[0],
+                                                      label="选择角色B的模型",
+                                                      interactive=True)
 
                 with gr.Row():
                     user_name = gr.Textbox(lines=1, placeholder="设置我的名字， ...", label="roleA名字",
@@ -185,10 +200,11 @@ if __name__ == '__main__':
                 clear = gr.Button("清空聊天记录")
 
         bot_name.change(lambda x: ROLE_A_START_QUESTION + ", " + x + "!", bot_name, role_a_question)
+        select_role_b_model.change(update_select_model, None, [gr_chatbot, role_a_question], queue=False)
 
         btn.click(toggle,
                   inputs=[role_a_question, selected_temp, gr_chatbot, background_role_a, background_role_b, user_name,
-                          bot_name],
+                          bot_name, select_role_b_model],
                   outputs=[role_a_question, gr_chatbot])
 
         clear.click(clear_f, [bot_name], [gr_chatbot, role_a_question])
@@ -196,7 +212,7 @@ if __name__ == '__main__':
         role_a_question.submit(toggle,
                                inputs=[role_a_question, selected_temp, gr_chatbot, background_role_a, background_role_b,
                                        user_name,
-                                       bot_name],
+                                       bot_name, select_role_b_model],
                                outputs=[role_a_question, gr_chatbot])
 
     demo.queue()
