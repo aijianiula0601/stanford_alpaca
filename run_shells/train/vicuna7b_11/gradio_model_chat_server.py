@@ -78,12 +78,20 @@ role_b_list = list(prepared_role_b_dic.keys())
 
 
 def update_select_role_b(role_b_key, user_name, select_role_b_model):
-    input_prompt_b = prepared_role_b_dic[role_b_key]["background"]
+    if user_name.strip().lower() == prepared_role_b_dic[role_b_key]["role_name"].strip().lower():
+        user_name = ROLE_B_NAME
 
-    return prepared_role_b_dic[role_b_key]["role_name"], \
-           input_prompt_b, \
-           None, \
-           None
+    background_b = prepared_role_b_dic[role_b_key]["background"].format_map(
+        {"role_a": user_name,
+         "role_b": prepared_role_b_dic[role_b_key]["role_name"]})
+
+    examples_b = prepared_role_b_dic[role_b_key]["examples"].format_map(
+        {"role_a": user_name,
+         "role_b": prepared_role_b_dic[role_b_key]["role_name"]})
+
+    input_prompt_b = f"{background_b}\n{examples_b}\n"
+
+    return prepared_role_b_dic[role_b_key]["role_name"], input_prompt_b, user_name, None, None
 
 
 def update_select_model():
@@ -121,15 +129,15 @@ if __name__ == '__main__':
                 clear = gr.Button("清空聊天记录")
 
         user_name.change(update_select_role_b, [select_role_b, user_name, select_role_b_model],
-                         [bot_name, background_role_b, gr_chatbot, role_a_question])
+                         [bot_name, background_role_b, user_name, gr_chatbot, role_a_question])
         bot_name.change(update_select_role_b, [select_role_b, user_name, select_role_b_model],
-                        [bot_name, background_role_b, gr_chatbot, role_a_question])
+                        [bot_name, background_role_b, user_name, gr_chatbot, role_a_question])
         select_role_b_model.change(update_select_model, None, [gr_chatbot, role_a_question], queue=False)
         select_role_b.change(update_select_role_b, [select_role_b, user_name, select_role_b_model],
-                             [bot_name, background_role_b, gr_chatbot, role_a_question])
+                             [bot_name, background_role_b, user_name, gr_chatbot, role_a_question])
 
         select_role_b_model.change(update_select_role_b, [select_role_b, user_name, select_role_b_model],
-                                   [bot_name, background_role_b, gr_chatbot, role_a_question])
+                                   [bot_name, background_role_b, user_name, gr_chatbot, role_a_question])
 
         clear.click(clear_f, None, [gr_chatbot, role_a_question])
 
