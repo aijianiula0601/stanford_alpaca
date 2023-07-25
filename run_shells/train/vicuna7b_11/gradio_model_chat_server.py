@@ -72,8 +72,8 @@ def clear_f():
 # --------------------------------------------------------
 
 prepared_role_b_dic = json.load(open("prompt_data.json"))
-prepared_role_b_dic["None"] = {"role_name": "Ai", "background": ""}
-prepared_role_b_dic[""] = {"role_name": "Ai", "background": ""}
+prepared_role_b_dic["None"] = {"role_name": "Ai", "background": "", "examples": ""}
+prepared_role_b_dic[""] = {"role_name": "Ai", "background": "", "examples": ""}
 role_b_list = list(prepared_role_b_dic.keys())
 
 
