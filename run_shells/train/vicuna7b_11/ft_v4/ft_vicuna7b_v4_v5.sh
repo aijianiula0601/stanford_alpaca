@@ -27,7 +27,7 @@ mkdir -p ${output_dir}
 # dataset
 #----------------------
 if [ ! -f "${data_json}" ]; then
-  #相比v4版本之前的区别，这里的数据只取20230530-20230607的，而他们是20230530-20230615
+  #相比v4版本之前的区别，这里的数据只取20230530-20230607的，而他们是20230530-20230615，由于加入multitype数据有提升作用，这个实验就不做测试了。
   python ${curdir}/prepare_data_v5.py ${base_dir}
   python ${curdir}/clean_data/clear_data_v2.py ${data_json} ${clear_data_json}
 fi

@@ -6,34 +6,29 @@ curdir=$(pwd)
 echo "curdir:$curdir"
 cd "$curdir" || exit
 
-cd ../../../../
+cd ../../../../../
 
 
 
 your_random_port=11224
 
-
-parent_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v4"
-base_dir="${parent_dir}/v4"
+base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v13/v1"
 llama_ckpt_and_tokenizer="eachadea/vicuna-7b-1.1"
 output_dir="${base_dir}/ft_out"
-data_json="${parent_dir}/cleaned_v2_train_data.json"
+data_json="${base_dir}/train_data.json"
 cache_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/hungging"
 
 mkdir -p ${output_dir}
-
-#----------------------------------------------------------
-# 实验结论：
-# 通过过滤长回复、连续反问、:) 训练模型后，发现有明显的正向作用。
-#----------------------------------------------------------
-
 
 
 #----------------------
 # dataset
 #----------------------
+
 if [ ! -f "${data_json}" ]; then
-  python ${curdir}/clean_data/clear_data_v2.py ${parent_dir}/cleaned_train_data.json ${data_json}
+  echo "-------------------------prepare_data-----------------------------------------"
+  python ${curdir}/prepare_data.py ${base_dir}
+  echo "------------------------------------------------------------------------------"
 fi
 
 #----------------------
@@ -51,9 +46,9 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna
     --gradient_accumulation_steps 4 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 300 \
+    --save_steps 1000 \
     --model_max_length 2048 \
-    --save_total_limit 20 \
+    --save_total_limit 10 \
     --learning_rate 2e-5 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \
@@ -63,7 +58,7 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna
     --gradient_checkpointing True \
     --deepspeed run_shells/train/deepspeed_config.json \
     --fp16 True \
-    --process_name "vicuna7b_ft_v4_v4" \
+    --process_name "vicuna-7b-v13_v1" \
     --lazy_load \
     --mask_head \
     --mask_question

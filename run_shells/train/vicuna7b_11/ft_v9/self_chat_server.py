@@ -188,7 +188,6 @@ if __name__ == '__main__':
                     bot_name = gr.Textbox(lines=1, placeholder="设置聊天对象的名字 ...", label="roleB名字",
                                           value=ROLE_B_NAME, interactive=True)
 
-                background_role_a = gr.Textbox(lines=5, placeholder="设置聊天背景 ...只能用英文", label="roleA背景")
                 background_role_b = gr.Textbox(lines=5, placeholder="设置聊天背景 ...只能用英文", label="roleB背景")
                 role_a_question = gr.Textbox(placeholder="输入RoleA首次提出的问题",
                                              value=ROLE_A_START_QUESTION + ", " + bot_name.value + '!',
@@ -200,17 +199,17 @@ if __name__ == '__main__':
                 clear = gr.Button("清空聊天记录")
 
         bot_name.change(lambda x: ROLE_A_START_QUESTION + ", " + x + "!", bot_name, role_a_question)
-        select_role_b_model.change(update_select_model, None, [gr_chatbot, role_a_question], queue=False)
+        select_role_b_model.change(update_select_model, [bot_name], [gr_chatbot, role_a_question], queue=False)
 
         btn.click(toggle,
-                  inputs=[role_a_question, selected_temp, gr_chatbot, background_role_a, background_role_b, user_name,
+                  inputs=[role_a_question, selected_temp, gr_chatbot, background_role_b, background_role_b, user_name,
                           bot_name, select_role_b_model],
                   outputs=[role_a_question, gr_chatbot])
 
         clear.click(clear_f, [bot_name], [gr_chatbot, role_a_question])
 
         role_a_question.submit(toggle,
-                               inputs=[role_a_question, selected_temp, gr_chatbot, background_role_a, background_role_b,
+                               inputs=[role_a_question, selected_temp, gr_chatbot, background_role_b, background_role_b,
                                        user_name,
                                        bot_name, select_role_b_model],
                                outputs=[role_a_question, gr_chatbot])
