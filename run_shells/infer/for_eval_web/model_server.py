@@ -6,6 +6,7 @@ from flask import Flask, request, Response
 import setproctitle
 import torch
 import transformers
+import json
 
 app = Flask(__name__)
 
@@ -133,6 +134,9 @@ load_model(model_dir)
 logger.info('load model done!!!')
 logger.info('-' * 100)
 
+DEFAULT_SEGMENT_TOKEN = "### "
+DEFAULT_EOS_TOKEN = "</s>"
+
 
 def bot(prompt_input, temperature=0.7, max_gen_len=256, stop_words_list=None, role_b=None):
     assert stop_words_list is not None, "stop text is None!!!"
@@ -164,10 +168,64 @@ def bot(prompt_input, temperature=0.7, max_gen_len=256, stop_words_list=None, ro
     return generated_text.strip()
 
 
+def get_post_data(web_post_data: dict, temperature: float = 0.9) -> dict:
+    """
+    post_data：
+        {
+            "role_id": "3", "qas": [{"turn_i": 0, "question": "hi"}],
+            "background": "~"，
+            "role_a": "Jack",
+            "role_b": "Britney"
+        }
+    message-list:
+       [
+           {"role": "system","content": "~"},
+           {"role": "user", "content": "~"},
+           {"role": "assistant", "content": "~"},
+           {"role": "user", "content": "~"}
+       ]
+
+    role_dict:
+        {"user": "~", "assistant": "~"}
+
+    """
+    # ---------------------------------------------------
+    # web传过来的数据转换转换为gpt3.5的调用方式
+    # ---------------------------------------------------
+    role_dict = {"user": web_post_data["role_a"], "assistant": web_post_data['role_b']}
+    message_list = [{"role": "system", "content": web_post_data['background']}]
+    for qa in web_post_data['qas']:
+        message_list.append({"role": "user", "content": qa['question']})
+        if 'answer' in qa:
+            message_list.append({"role": "assistant", "content": qa['answer']})
+
+    # ---------------------------------------------------
+    # 转换调用服务的格式
+    # ---------------------------------------------------
+    background = message_list[0]["content"]
+    history_list = [role_dict[char["role"]] + ": " + char["content"] for char in message_list[1:]]
+    history = DEFAULT_SEGMENT_TOKEN + DEFAULT_SEGMENT_TOKEN.join(
+        [item for item in history_list]) + DEFAULT_SEGMENT_TOKEN + role_dict['assistant'] + ":"
+
+    # prompt_bk = PROMPT_DICT['bigolive'].format_map({"background": background, "role_b": role_dict['assistant']})
+    prompt_input = f"{background}\n{history}"
+
+    request_data = {
+        "prompt_input": prompt_input,
+        "temperature": temperature,
+        "role_b": role_dict['assistant'],
+        "max_gen_len": 256,
+        "stop_words_list": [DEFAULT_SEGMENT_TOKEN.strip(), role_dict['user'] + ":", DEFAULT_EOS_TOKEN]
+    }
+    return request_data
+
+
 @app.route("/api", methods=["POST"])
 def receive():
     try:
-        params = orjson.loads(request.data)
+        post_data = orjson.loads(request.data)
+        params = get_post_data(post_data, temperature=0.9)
+
     except orjson.JSONDecodeError:
         logger.error("Invalid json format in request data: [{}].".format(request.data))
         res = {"status": 400, "error_msg": "Invalid json format in request data.", "server_info": "", }
@@ -182,7 +240,6 @@ def receive():
         res = {"status": 400, "error_msg": "Invalid json request.", "server_info": "", }
         return Response(orjson.dumps(res), mimetype="application/json;charset=UTF-8", status=200)
 
-    # logger.info('[http/receive]requests:', params)
     prompt_input = params.get('prompt_input', "")
     temperature = params.get('temperature', 0)
     max_gen_len = params.get('max_gen_len', "")
@@ -192,10 +249,8 @@ def receive():
 
     result = bot(prompt_input, temperature, max_gen_len, stop_words_list, role_b)
 
-    res = {"status": 200, "result": result, "error_msg": "", "server_info": ""}
-    return Response(orjson.dumps(res), mimetype="application/json;charset=UTF-8", status=200)
+    return result
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host="0.0.0.0", port=60244)
-    # app.run(debug=False, host="202.168.114.102", port=6024)
+    app.run(debug=False, host="0.0.0.0", port=5018)

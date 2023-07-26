@@ -13,8 +13,10 @@ cd ../../../../
 your_random_port=11224
 
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v12"
-llama_ckpt_and_tokenizer="eachadea/vicuna-7b-1.1"
+#llama_ckpt_and_tokenizer="eachadea/vicuna-7b-1.1"
 output_dir="${base_dir}/ft_out"
+#断开重启
+llama_ckpt_and_tokenizer="${output_dir}/checkpoint-10000"
 data_path="${base_dir}/train_data_34970648.txt"
 cache_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/hungging"
 
