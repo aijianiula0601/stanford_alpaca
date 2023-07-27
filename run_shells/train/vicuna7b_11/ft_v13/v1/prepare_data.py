@@ -4,7 +4,8 @@ import json
 import random
 from tqdm import tqdm
 
-pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))))
+pdj = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))))
 print(f"--pdj:{pdj}")
 sys.path.append(pdj)
 
@@ -108,6 +109,31 @@ for example in json.load(open(org_f)):
 
 print(f"dataset:{dataset_name},all_n:{len(empathetic_dialogues_data)}")
 
+
+def filter_qa(qas: dict):
+    """过滤"""
+    filter_flag = False
+    filter_word_list = ["AI", "Language model", "As AI", "as a Language model", "as Language model",
+                        "reason=, msg = {}",
+                        "text-based program"]
+    new_qas = {}
+    for turn_i in qas:
+        qa = qas[turn_i]
+        for fw in filter_word_list:
+            if fw.lower() in qa[QUESTION_KEY].lower() or fw.lower() in qa[ANSWER_KEY].lower():
+                filter_flag = True
+                break
+        if filter_flag:
+            break
+
+        new_qas[turn_i] = qa
+
+    if len(new_qas) > 0:
+        return new_qas
+    else:
+        return None
+
+
 # ============================================================
 # 汇总所有数据
 # ============================================================
@@ -134,7 +160,13 @@ for item in data:
         for turn_i in item[QAS_KEY]:
             assert QUESTION_KEY in item[QAS_KEY][turn_i]
             assert ANSWER_KEY in item[QAS_KEY][turn_i]
-        checked_data.append(item)
+
+        new_qas = filter_qa(item[QAS_KEY])
+        if new_qas is not None:
+            item[QAS_KEY] = new_qas
+            checked_data.append(item)
+        else:
+            skip_n += 1
     except Exception as e:
         skip_n += 1
         print(e, f"item:{json.dumps(item)}")
