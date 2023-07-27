@@ -20,7 +20,7 @@ data_base_dir = "/mnt/cephfs/hjh/common_dataset/nlp/qa/en/OpenOrca"
 f_p = f"{data_base_dir}/1M-GPT4-Augmented_qas.json"
 openorca_data_list = json.load(open(f_p))
 random.shuffle(openorca_data_list)
-openorca_data_list = openorca_data_list[:60000]
+openorca_data_list = openorca_data_list[:80000]
 
 # ------------------------------------------------------------
 # bigolive数据，大约3.6w
