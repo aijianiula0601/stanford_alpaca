@@ -34,7 +34,7 @@ def process_conversation(conversation: list):
             value_list.append(add_punc(cur_value))
         else:
             if i > 0:
-                from_value_example_list.append({"from": from_name, "value": ' '.join(value_list)})
+                from_value_example_list.append({"from": from_name, "value": '\n'.join(value_list)})
             from_name = cur_name
             value_list.clear()
             value_list.append(add_punc(cur_value))
