@@ -21,17 +21,15 @@ ROLE_A_START_QUESTION = "hi"
 
 
 models_list = [
-    "vicuna7b_ft_bigolive",
     "vicuna7b_ft_multitype_bigolive",
-    "llama2_v0",
+    "mechat_v2",
 ]
 url_f102 = "http://202.168.114.102"
 url_v100 = "http://202.168.114.102"
 
 models_url_dic = {
-    models_list[0]: f"{url_f102}:60244/api",  # 修复连续访问问题：run_shells/train/vicuna7b_11/ft_v4/test_server_v4.py
-    models_list[1]: f"{url_f102}:60213/api",
-    models_list[2]: f"{url_f102}:7000/api",  # llama2 ft 修复连续访问问题的数据：run_shells/train/llama2/ft2_v0
+    models_list[0]: f"{url_f102}:60213/api",
+    models_list[1]: f"{url_f102}:60292/api",
 }
 
 models_prompt_key_dic = {

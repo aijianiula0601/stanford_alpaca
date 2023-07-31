@@ -4,6 +4,7 @@ import json
 import gradio as gr
 import requests
 import copy
+import numpy as np
 
 pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 print("pdj:", pdj)
@@ -15,24 +16,23 @@ sys.path.append(pdj)
 # 而跟two_persons_gpt35_llama在聊的时候是告诉模型，提问者的人设是什么。
 # -----------------------------------------------------------------------------------
 
-ROLE_A_NAME = "Jack"
-ROLE_B_NAME = "Ai"
-ROLE_A_START_QUESTION = "hi"
+HUMAN_NAME = "Jack"
+BOT_NAME = "Ai"
+BOT_START_QUESTION = "hi"
 
 # --------------------------------------------------------
 # 模型选择
 # --------------------------------------------------------
 
 models_list = [
-    "vicuna7b_ft2epoch",
-    "vicuna7b_ft2epoch_before",
+    "vicuna7b_ft2epoch_v2",
 ]
 url_f102 = "http://202.168.114.102"
 url_v100 = "http://202.168.100.251"
+url_v100_f165 = "http://202.168.100.165"
 
 models_url_dic = {
-    models_list[0]: f"{url_f102}:60291/api",
-    models_list[1]: f"{url_v100}:6029/api",
+    models_list[0]: f"{url_v100_f165}:60292/api",
 }
 
 PROMPT_DICT = {
@@ -89,80 +89,90 @@ def mask_instruct(message_list, role_dict, temperature=0.6, model_server_url="ht
     return text_respond.replace("#", "").strip()
 
 
-def get_history(role_a_name, role_b_name, history=[]):
+def get_history(user_name, assistant_name, history=[]):
     rh = []
     for qa in history:
-        rh.append(qa[0].lstrip(f"{role_a_name}: "))
+        rh.append(qa[0].strip().lstrip(f"{user_name}:").strip())
         if qa[1] is not None:
-            rh.append(qa[1].lstrip(f"{role_b_name}: "))
+            rh.append(qa[1].strip().lstrip(f"{assistant_name}:").strip())
 
     return rh
 
 
-def role_ab_chat(selected_temp, user_message, history, background_a, background_b, role_a_name, role_b_name,
-                 role_b_model):
+def role_ab_chat(selected_temp, bot_message, history, background_human, background_bot, human_name, bot_name,
+                 bot_model):
     # -------------------
-    # role_b回答
+    # human的回答
     # -------------------
-    history = history + [[f"{role_a_name}: " + user_message, None]]
+    history = history + [[f"{bot_name}: " + bot_message, None]]
 
-    role_b_input_api_data = get_input_api_data(background=background_b,
-                                               history=get_history(role_a_name, role_b_name, history))
-    print("=" * 100)
-    print("message_list:")
-    print(get_history(role_a_name, role_b_name, history))
-    print('-' * 50)
-    print("role_b_input_api_data:")
-    print(role_b_input_api_data)
-    print("=" * 100)
-    role_b_question = mask_instruct(role_b_input_api_data,
-                                    role_dict={"user": role_a_name,
-                                               "assistant": role_b_name},
-                                    temperature=selected_temp, model_server_url=models_url_dic[role_b_model])
+    input_human_api_data = get_input_api_data(background=background_human,
+                                              history=get_history(bot_name, human_name, history))
+    print("-" * 100 + "input_human_api_data:")
+    print(input_human_api_data)
+    human_question = mask_instruct(input_human_api_data,
+                                   role_dict={"user": bot_name,
+                                              "assistant": human_name},
+                                   temperature=selected_temp, model_server_url=models_url_dic[bot_model])
+    print(f"{human_name}: " + human_question)
+    print()
+    history[-1][-1] = f"{human_name}: " + human_question
+    # -------------------
+    # bot的回答
+    # -------------------
+    bot_history = []
+    item = []
+    for i, e in enumerate(list(np.array(history).flatten())[1:]):
+        item.append(e)
+        if i % 2 == 1:
+            bot_history.append(copy.copy(item))
+            item.clear()
+    if len(item) == 1:
+        item.append(None)
+        bot_history.append(copy.copy(item))
 
-    history[-1][-1] = f"{role_b_name}: " + role_b_question
+    input_bot_api_data = get_input_api_data(background=background_bot,
+                                            history=get_history(human_name, bot_name, bot_history))
+    print(input_bot_api_data)
     print("-" * 100)
-    # -------------------
-    # role_a回答
-    # -------------------
-    role_a_input_api_data = get_input_api_data(background=background_a,
-                                               history=get_history(role_a_name, role_b_name, history)[1:])
-    role_a_question = mask_instruct(role_a_input_api_data,
-                                    role_dict={"user": role_b_name,
-                                               "assistant": role_a_name},
-                                    temperature=selected_temp, model_server_url=models_url_dic[role_b_model])
-
-    return role_a_question, history
+    bot_question = mask_instruct(input_bot_api_data,
+                                 role_dict={"user": human_name,
+                                            "assistant": bot_name},
+                                 temperature=selected_temp, model_server_url=models_url_dic[bot_model])
+    print(f"{bot_name}: " + bot_question)
+    print("*" * 200)
+    return bot_question, history
 
 
-def toggle(user_message, selected_temp, chatbot, background_a, background_b, role_a_name, role_b_name,
-           select_role_b_model):
-    user_message, history = role_ab_chat(selected_temp, user_message, chatbot, background_a, background_b, role_a_name,
-                                         role_b_name, select_role_b_model)
+def toggle(bot_message, selected_temp, chatbot, background_human, background_bot, human_name, bot_name,
+           select_bot_model):
+    bot_message, history = role_ab_chat(selected_temp, bot_message, chatbot, background_human, background_bot,
+                                        human_name,
+                                        bot_name, select_bot_model)
     chatbot += history[len(chatbot):]
-    return user_message, chatbot
+    return bot_message, chatbot
 
 
-def clear_f(bot_name):
-    return None, ROLE_A_START_QUESTION + ", " + bot_name + "!"
+def clear_f(human_name):
+    return None, BOT_START_QUESTION + ", " + human_name + "!"
 
 
-# --------------------------------------------------------
-# 预先设定的角色
-# --------------------------------------------------------
-prepared_role_dic = json.load(open(f"{pdj}/run_shells/infer/prepared_background.json"))
-prepared_role_dic["None"] = {"role_name": "Human", "background": "", "examples": ""}
-prepared_role_dic[""] = {"role_name": "Human", "background": "", "examples": ""}
-role_a_list = list(prepared_role_dic.keys())
-
-prepared_role_b_dic = copy.copy(prepared_role_dic)
-prepared_role_b_dic["None"] = {"role_name": "AI", "background": "", "examples": ""}
-prepared_role_b_dic[""] = {"role_name": "Ai", "background": "", "examples": ""}
-role_b_list = list(prepared_role_b_dic.keys())
+# # --------------------------------------------------------
+# # 预先设定的角色
+# # --------------------------------------------------------
+# prepared_role_dic = json.load(open(f"{pdj}/run_shells/infer/prepared_background.json"))
+# prepared_role_dic["None"] = {"role_name": "Human", "background": "", "examples": ""}
+# prepared_role_dic[""] = {"role_name": "Human", "background": "", "examples": ""}
+# human_list = list(prepared_role_dic.keys())
+#
+# prepared_role_b_dic = copy.copy(prepared_role_dic)
+# prepared_role_b_dic["None"] = {"role_name": "AI", "background": "", "examples": ""}
+# prepared_role_b_dic[""] = {"role_name": "Ai", "background": "", "examples": ""}
+# bot_list = list(prepared_role_b_dic.keys())
 
 
 def update_select_model(bot_name):
-    return None, ROLE_A_START_QUESTION + ", " + bot_name + "!"
+    return None, BOT_START_QUESTION + ", " + bot_name + "!"
 
 
 # --------------------------------------------------------
@@ -178,41 +188,41 @@ if __name__ == '__main__':
                 selected_temp = gr.Slider(0, 1, value=0.9, label="Temperature超参,调的越小越容易输出常见字",
                                           interactive=True)
                 with gr.Row():
-                    select_role_b_model = gr.Dropdown(choices=models_list, value=models_list[0],
-                                                      label="选择角色B的模型",
-                                                      interactive=True)
+                    select_bot_model = gr.Dropdown(choices=models_list, value=models_list[0],
+                                                   label="选择角色B的模型",
+                                                   interactive=True)
 
                 with gr.Row():
-                    user_name = gr.Textbox(lines=1, placeholder="设置我的名字， ...", label="roleA名字",
-                                           value=ROLE_A_NAME, interactive=True)
-                    bot_name = gr.Textbox(lines=1, placeholder="设置聊天对象的名字 ...", label="roleB名字",
-                                          value=ROLE_B_NAME, interactive=True)
+                    human_name = gr.Textbox(lines=1, placeholder="设置我的名字， ...", label="human名字",
+                                            value=HUMAN_NAME, interactive=True)
+                    bot_name = gr.Textbox(lines=1, placeholder="设置聊天对象的名字 ...", label="bot名字",
+                                          value=BOT_NAME, interactive=True)
 
-                background_role_b = gr.Textbox(lines=5, placeholder="设置聊天背景 ...只能用英文", label="roleB背景")
-                role_a_question = gr.Textbox(placeholder="输入RoleA首次提出的问题",
-                                             value=ROLE_A_START_QUESTION + ", " + bot_name.value + '!',
-                                             label="roleA问题",
-                                             interactive=True)
+                background_bot = gr.Textbox(lines=5, placeholder="设置聊天背景 ...只能用英文", label="bot背景")
+                bot_question = gr.Textbox(placeholder="输入RoleA首次提出的问题",
+                                          value=BOT_START_QUESTION + ", " + human_name.value + '!',
+                                          label="bot问题",
+                                          interactive=True)
             with gr.Column():
                 btn = gr.Button("点击生成一轮对话")
                 gr_chatbot = gr.Chatbot(label="聊天记录")
                 clear = gr.Button("清空聊天记录")
 
-        bot_name.change(lambda x: ROLE_A_START_QUESTION + ", " + x + "!", bot_name, role_a_question)
-        select_role_b_model.change(update_select_model, [bot_name], [gr_chatbot, role_a_question], queue=False)
+        bot_name.change(lambda x: BOT_START_QUESTION + ", " + x + "!", human_name, bot_question)
+        select_bot_model.change(update_select_model, [bot_name], [gr_chatbot, bot_question], queue=False)
 
         btn.click(toggle,
-                  inputs=[role_a_question, selected_temp, gr_chatbot, background_role_b, background_role_b, user_name,
-                          bot_name, select_role_b_model],
-                  outputs=[role_a_question, gr_chatbot])
+                  inputs=[bot_question, selected_temp, gr_chatbot, background_bot, background_bot, human_name,
+                          bot_name, select_bot_model],
+                  outputs=[bot_question, gr_chatbot])
 
-        clear.click(clear_f, [bot_name], [gr_chatbot, role_a_question])
+        clear.click(clear_f, [human_name], [gr_chatbot, bot_question])
 
-        role_a_question.submit(toggle,
-                               inputs=[role_a_question, selected_temp, gr_chatbot, background_role_b, background_role_b,
-                                       user_name,
-                                       bot_name, select_role_b_model],
-                               outputs=[role_a_question, gr_chatbot])
+        bot_question.submit(toggle,
+                            inputs=[bot_question, selected_temp, gr_chatbot, background_bot, background_bot,
+                                    human_name,
+                                    bot_name, select_bot_model],
+                            outputs=[bot_question, gr_chatbot])
 
     demo.queue()
     demo.launch(server_name="0.0.0.0", server_port=8992, debug=True)
