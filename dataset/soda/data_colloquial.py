@@ -128,15 +128,16 @@ if __name__ == '__main__':
     save_f = f"{base_dir}/soda_train_name_qas_filter_sometion_to_colloquial.txt"
 
     org_data_list = json.load(open(org_f))
-    data_list = filter_long_answer(org_data_list, limit_char_n=200)
-
-    with open(save_f, 'w', buffering=1) as fw:
+    data_list = filter_long_answer(org_data_list, limit_char_n=200, limit_turn_n=5)
+    random.shuffle(data_list)
+    with open(save_f, 'a', buffering=1) as fw:
         for example in tqdm(data_list):
             try:
                 # rw_example = trans_example_qa(example)
                 rw_example = trans_example_qas(example)
                 if rw_example is not None:
                     fw.write(f"{json.dumps(rw_example)}\n")
+                    time.sleep(15)
 
             except Exception as e:
                 print(e)
