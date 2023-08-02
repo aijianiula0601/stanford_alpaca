@@ -123,7 +123,7 @@ if __name__ == '__main__':
                     bot_name = gr.Textbox(lines=1, placeholder="设置聊天对象的名字 ...", label="bot名字",
                                           value=ROLE_B_NAME, interactive=True)
                 background_role_b = gr.Textbox(lines=5, placeholder="设置聊天背景 ...只能用英文", label="bot角色背景")
-                role_a_question = gr.Textbox(placeholder="输入问题", label="问题", interactive=True)
+                role_a_question = gr.Textbox(label="Human的问题", interactive=True)
             with gr.Column():
                 gr_chatbot = gr.Chatbot(label="聊天记录")
                 clear = gr.Button("清空聊天记录")

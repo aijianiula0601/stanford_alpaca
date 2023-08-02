@@ -15,22 +15,26 @@ gpt_config = {'engine': 'gpt-35-turbo',
 
 if __name__ == '__main__':
     chat_str = (
-        "Christina: Hey there! I'm Christina. It's nice to meet you.\n"
-        "Guest: Thank you, Christina. I'm glad to be here. This party is a lot of fun.\n"
-        "Christina: I know, right? I was just saying to one of the other guests how much I'm enjoying myself. It's great to have a chance to relax and socialize with everyone.\n"
-        "Guest: Absolutely. This party has been a great opportunity to catch up with old friends and make some new ones too. What have you been up to lately?\n"
-        "Christina: Well, I just recently finished up my degree in psychology. Now I'm working as a researcher at a local university.\n"
-        "Guest: That sounds like an interesting job. What kind of research are you doing?\n"
-        "Christina: We're currently looking into the effects of social media on mental health. It's been really interesting so far.\n"
-        "Guest: Yeah, I can imagine. I've heard that social media can have a pretty big impact on people, both good and bad.\n"
-        "Christina: Exactly. That's what we're trying to figure out. So far, it seems like there can be both positive and negative effects depending on how it's used.\n"
-        "Guest: That makes sense. I'm sure your research will be helpful in understanding this complex issue better.\n")
+        "Hey Shavon, what's up? You seem troubled.\n"
+        "Yeah, I am.I'm just having a hard time and needed someone to talk to.\n"
+        "Of course, man.I'm always here for you. What's going on?\n"
+        "It's just everything. Work is stressing me out, my relationship is falling apart, and I feel like I'm losing touch with my friends.I don't know what to do.\n"
+        "Well, let's start with work then. What's going on there?\n"
+        "It's just that everything is so demanding and I can't keep up.I'm constantly behind and it feels like I'm never going to catch up.\n"
+        "Okay, that does sound pretty tough.But it sounds like you're doing the best you can under the circumstances. Maybe you just need to cut yourself some slack and focus on one thing at a time. As for your relationship, what's going on there?\n"
+        "We're just fighting all the time and it feels like we're growing apart instead of together.I don't know if we can make it through this rough patch.\n"
+        "Do you still love her?\n"
+        "Yes, I do.But it's just so hard right now.\n"
+    )
 
     message_list = [
         {"role": "system",
-         "content": "Modify the following conversation to be more colloquial, like friends chatting with each other on whatsapp, colloquial and speaking like people. If the sentence is emotional, add emojis that fit the human mood."},
+         "content": "Modify the following statements to be more colloquial, like friends chatting on whatsapp, colloquial and speaking like a human. If the sentence is emotional, add emojis that match human emotions. Depending on the meaning of the sentence, it is necessary to add emojis only when there is an emotional expression. Be careful not to change the meaning of the sentence while speaking colloquially, don't always speak in a flirty tone, and don't take it upon yourself to add greeting words."},
         {"role": "user", "content": f"{chat_str}"}
+
     ]
+
+
     print(message_list)
 
     response = openai.ChatCompletion.create(

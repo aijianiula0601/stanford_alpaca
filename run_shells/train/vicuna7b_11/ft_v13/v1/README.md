@@ -11,3 +11,12 @@
 
 
 添加openrca的数据，bigolive数据只采用20230530~20230615的数据
+
+
+# 效果
+
+
+正向，貌似说话口气更贴合人设。
+
+
+模型：/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v13/v1/ft_out/checkpoint-3000

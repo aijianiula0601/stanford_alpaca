@@ -21,15 +21,16 @@ ROLE_A_START_QUESTION = "hi"
 
 
 models_list = [
-    "vicuna7b_ft_multitype_bigolive",
-    "mechat_v2",
+    "vicuna7b_ft_v13_v1(优化后模型)",
+    "vicuna7b_old(优化前模型)",
 ]
 url_f102 = "http://202.168.114.102"
-url_v100 = "http://202.168.114.102"
+url_v100 = "http://202.168.100.251"
+url_v100_f165 = "http://202.168.100.165"
 
 models_url_dic = {
-    models_list[0]: f"{url_f102}:60213/api",
-    models_list[1]: f"{url_f102}:60292/api",
+    models_list[0]: f"{url_f102}:62131/api",
+    models_list[1]: f"{url_v100}:6024/api",
 }
 
 models_prompt_key_dic = {
