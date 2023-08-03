@@ -61,6 +61,7 @@ def check_data_format(check_data=[]):
 BIGOLIVE_ONLINE_CHAT_DATASET_NAME = "bigolive_onlive_chat"
 # 应该是soda才对的，有一开始起错了，很多其他数据在用了，就不改了
 SOTA_DATASET_NAME = "sota"
+SOTA_ANGLICIZA_DATASET_NAME = "sota_anglicize"
 SHAREGPT_DATASET_NAME = "sharegpt"
 PERSONA_CHAT_DATASET_NAME = "persona_chat"
 EMPATHETIC_DIALOGUES_DATASET_NAME = "empathetic_dialogues"
@@ -175,6 +176,11 @@ def pyg_prompt(human_name, bot_name, background):
             f"The following is a conversation between {human_name} and {bot_name}.\n\n")
 
 
+def soda_anglicize_prompt(human_name, bot_name, background):
+    return (f"{background} {bot_name} likes to answer questions in a colloquial way and add emojis when appropriate.\n"
+            f"The following is a conversation between {human_name} and {bot_name}.\n")
+
+
 def get_dataset_prompt(dataset_name, human_name, bot_name, background):
     if dataset_name == SOTA_DATASET_NAME:
         return sota_prompt(human_name, bot_name, background)
@@ -217,6 +223,8 @@ def get_dataset_prompt(dataset_name, human_name, bot_name, background):
 
     elif dataset_name == MECHAT_DATASET_NAME:
         return pyg_prompt(human_name, bot_name, background)
+    elif dataset_name == SOTA_ANGLICIZA_DATASET_NAME:
+        return soda_anglicize_prompt(human_name, bot_name, background)
 
     else:
         raise Exception(f"Error dataset name:{dataset_name}")
