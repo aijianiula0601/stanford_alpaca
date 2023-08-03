@@ -29,7 +29,7 @@ f_p = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v4/v5/trai
 bigolive_data_list = json.load(open(f_p))
 
 # ------------------------------------------------------------
-# databricks-dolly-15k
+# OllieStanley/oa_dolly_15k
 # 阅读理解类型
 # ------------------------------------------------------------
 org_f = "/mnt/cephfs/hjh/common_dataset/nlp/instruction/databricks-dolly-15k/prepare2qas_databricks-dolly-15k.json"
@@ -40,7 +40,7 @@ for example in databricks_dolly_15k_data_list:
     example[DATASET_KEY] = dataset_name
 
 # ------------------------------------------------------------
-# cnn_dailymail2qas.py
+# cnn_dailymail
 # 总结类型
 # ------------------------------------------------------------
 
