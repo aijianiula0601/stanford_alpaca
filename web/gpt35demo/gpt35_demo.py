@@ -6,7 +6,7 @@ openai.api_base = "https://bigo-chatgpt-9.openai.azure.com/"
 openai.api_version = "2023-03-15-preview"
 # key1: 19ea901e8e10475da1bb0537abf8e5a4
 # key2: 548e5c0c2aff453e932948927a27bde6
-openai.api_key = "548e5c0c2aff453e932948927a27bde6"
+openai.api_key = "19ea901e8e10475da1bb0537abf8e5a4"
 
 # role : system|user|assistant
 gpt_config = {'engine': 'gpt-35-turbo',

@@ -46,6 +46,18 @@ PROMPT_DICT = {
     "bigolive": (
         "{background} Keep your responses short. Don't ask multiple questions at once. \n"
     ),
+    "conversion_history": (
+        "background: {background}\n"
+        "Here is their historical chat.\n"
+        "{history}\n"
+        "Now {role_a} asks a question, {role_b} answers it, and {role_b} responds with context and their historical chat content to make an appropriate response."
+        "{role_b} should reply in a colloquial way, and the tone of the reply should be consistent with the background of the person, and if necessary, add expressions. Do not generate identical responses.\n"
+    ),
+    "conversion_no_history": (
+        "background: {background}\n"
+        "Now {role_a} asks a question, {role_b} answers it, and {role_b} responds with context and their historical chat content to make an appropriate response."
+        "{role_b} should reply in a colloquial way, and the tone of the reply should be consistent with the background of the person, and if necessary, add expressions. Do not generate identical responses.\n"
+    )
 }
 
 DEFAULT_SEGMENT_TOKEN = "### "
@@ -81,7 +93,7 @@ def mask_instruct(message_list, role_dict, temperature=0.6, model_server_url="ht
     return text_respond.replace("#", "").strip()
 
 
-def get_input_api_data(background, history=[]):
+def get_message_list(background, history=[]):
     data_list = [{'role': 'system', 'content': background}]
     for i, h in enumerate(history):
         if i % 2 == 0:
@@ -109,8 +121,8 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     # -------------------
     history = history + [[f"{role_a_name}: " + user_message, None]]
 
-    role_b_input_api_data = get_input_api_data(background=background_b,
-                                               history=get_history(role_a_name, role_b_name, history))
+    role_b_input_api_data = get_message_list(background=background_b,
+                                             history=get_history(role_a_name, role_b_name, history))
     print("=" * 100)
     print("message_list:")
     print(get_history(role_a_name, role_b_name, history))
@@ -129,8 +141,8 @@ def role_ab_chat(selected_temp, user_message, history, background_a, background_
     # -------------------
     # role_a回答
     # -------------------
-    role_a_input_api_data = get_input_api_data(background=background_a,
-                                               history=get_history(role_a_name, role_b_name, history)[1:])
+    role_a_input_api_data = get_message_list(background=background_a,
+                                             history=get_history(role_a_name, role_b_name, history)[1:])
     role_a_question = mask_instruct(role_a_input_api_data,
                                     role_dict={"user": role_b_name,
                                                "assistant": role_a_name},

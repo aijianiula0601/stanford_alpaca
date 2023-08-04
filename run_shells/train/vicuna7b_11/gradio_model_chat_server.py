@@ -3,7 +3,7 @@ import sys
 import json
 import gradio as gr
 
-from gradio_model_self_chat_server import models_url_dic, get_input_api_data, models_list, mask_instruct
+from gradio_model_self_chat_server import models_url_dic, get_message_list, models_list, mask_instruct
 
 # -----------------------------------------------------------------------------------
 # 跟two_persons_gpt35_llama.py的区别是：
@@ -36,16 +36,10 @@ def role_b_chat(selected_temp, user_message, history, background_b, role_a_name,
     # -------------------
     history = history + [[f"{role_a_name}: " + user_message, None]]
 
-    role_b_input_api_data = get_input_api_data(background=background_b,
-                                               history=get_history(role_a_name, role_b_name, history))
+    role_b_message_list = get_message_list(background=background_b,
+                                           history=get_history(role_a_name, role_b_name, history))
     print("=" * 100)
-    print("message_list:")
-    print(get_history(role_a_name, role_b_name, history))
-    print('-' * 50)
-    print("role_b_input_api_data:")
-    print(role_b_input_api_data)
-    print("=" * 100)
-    role_b_question = mask_instruct(role_b_input_api_data,
+    role_b_question = mask_instruct(role_b_message_list,
                                     role_dict={"user": role_a_name,
                                                "assistant": role_b_name},
                                     temperature=selected_temp, model_server_url=models_url_dic[role_b_model_name])
