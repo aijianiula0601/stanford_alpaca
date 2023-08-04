@@ -64,6 +64,54 @@ DEFAULT_SEGMENT_TOKEN = "### "
 DEFAULT_EOS_TOKEN = "</s>"
 
 
+def mask_instruct_v2(message_list, role_dict, temperature=0.6, model_server_url="http://202.168.100.251:5019/api"):
+    """
+    message-list第一个数值是背景，
+    后面需要在role_dict里要做好配置，我最后会回复role_dict['assistant']角色的答案;
+    role_dict_real用于映射history里的内容
+    """
+    background = message_list[0]["content"]
+
+    history_flag = False
+    # 有历史信息情况下
+    if len(message_list) > 3:
+        history_flag = True
+        history_chat_list = message_list[1:-1]
+
+        history_list = [role_dict[char["role"]] + ": " + char["content"] for char in history_chat_list]
+
+        history_str = DEFAULT_SEGMENT_TOKEN + f"\n{DEFAULT_SEGMENT_TOKEN}".join([item for item in history_list])
+
+    user_question = message_list[-1]
+    user_question_str = DEFAULT_SEGMENT_TOKEN + role_dict[user_question["role"]] + ": " + user_question['content']
+    if history_flag:
+        prompt_input = PROMPT_DICT['conversion_history'].format_map(
+            {"background": background, "role_a": role_dict['user'], "role_b": role_dict['assistant'],
+             "history": history_str})
+    else:
+        prompt_input = PROMPT_DICT['conversion_no_history'].format_map(
+            {"background": background, "role_a": role_dict['user'], "role_b": role_dict['assistant']})
+
+    prompt_input = f"{prompt_input}{user_question_str}\n{DEFAULT_SEGMENT_TOKEN}{role_dict['assistant']}: "
+    print("-" * 100)
+    print('prompt_input:')
+    print(prompt_input)
+    print("-" * 100)
+
+    request_data = json.dumps({
+        "prompt_input": prompt_input,
+        "temperature": temperature,
+        "role_b": role_dict['assistant'],
+        "max_gen_len": 256,
+        "stop_words_list": [DEFAULT_SEGMENT_TOKEN.strip(), role_dict['user'] + ":", DEFAULT_EOS_TOKEN]
+    })
+    response = requests.post(model_server_url, data=request_data)
+
+    json_data = json.loads(response.text)
+    text_respond = json_data["result"]
+    return text_respond.replace("#", "").strip()
+
+
 def mask_instruct(message_list, role_dict, temperature=0.6, model_server_url="http://202.168.100.251:5019/api"):
     """
     message-list第一个数值是背景，
