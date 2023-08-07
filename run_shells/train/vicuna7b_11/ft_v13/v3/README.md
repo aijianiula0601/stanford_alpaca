@@ -10,3 +10,6 @@
 在v1上，去掉bigolive数据，实验是否是bigolive的数据中的逻辑断层导致逻辑变弱
 
 
+# 效果
+
+不行，解决不了what's your name?导致的逻辑变弱问题。
