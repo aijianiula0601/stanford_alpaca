@@ -125,25 +125,22 @@ def filter_qa(qas: dict):
             if fw.lower() in qa[QUESTION_KEY].lower() or fw.lower() in qa[ANSWER_KEY].lower():
                 filter_flag = True
                 break
-
-            if "what's your name".lower() in qa[QUESTION_KEY].lower():
-                if "What's yours".lower() in qa[ANSWER_KEY].lower() or "What's your name".lower() in qa[
-                    ANSWER_KEY].lower() or "What about you".lower() in qa[ANSWER_KEY].lower():
-                    filter_flag = True
-                    break
-
-            if "what's your name".lower() in qa[ANSWER_KEY].lower() and ti < qas_l - 1:
-                next_turn_qa = qas[f"turn_{ti + 1}"]
-                if "What's yours".lower() in next_turn_qa[ANSWER_KEY].lower() or "What's your name".lower() in \
-                        next_turn_qa[
-                            ANSWER_KEY].lower() or "What about you".lower() in next_turn_qa[ANSWER_KEY].lower():
-                    filter_flag = True
-                    break
-
         if filter_flag:
             break
 
-        new_qas[turn_i] = qa
+        if "what's your name".lower() in qa[QUESTION_KEY].lower():
+            if "What's yours".lower() in qa[ANSWER_KEY].lower() or "What's your name".lower() in qa[
+                ANSWER_KEY].lower() or "What about you".lower() in qa[ANSWER_KEY].lower():
+                break
+
+        if "what's your name".lower() in qa[ANSWER_KEY].lower() and ti < qas_l - 1:
+            next_turn_qa = qas[f"turn_{ti + 1}"]
+            if "What's yours".lower() in next_turn_qa[ANSWER_KEY].lower() or "What's your name".lower() in \
+                    next_turn_qa[
+                        ANSWER_KEY].lower() or "What about you".lower() in next_turn_qa[ANSWER_KEY].lower():
+                break
+
+        new_qas[f"turn_{i}"] = qa
 
     if len(new_qas) > 0:
         return new_qas
