@@ -11,89 +11,20 @@ sys.path.append(pdj)
 
 from dataset.data_utils import *
 
-# ------------------------------------------------------------
-# OpenOrca中的gpt4数据
-# ------------------------------------------------------------
-data_base_dir = "/mnt/cephfs/hjh/common_dataset/nlp/qa/en/OpenOrca"
-f_p = f"{data_base_dir}/1M-GPT4-Augmented_qas.json"
-openorca_data_list = json.load(open(f_p))
-random.shuffle(openorca_data_list)
-openorca_data_list = openorca_data_list[:100000]
-dataset_name = OPENORCA_DATASET_NAME
-for example in openorca_data_list:
-    example[DATASET_KEY] = dataset_name
-    example[MASK_HEAD_KEY] = True
-    example[MASK_QUESTION_KEY] = True
-    example[MASK_EXCEPT_LAST_ANSWER] = False
+v3_train_data_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v14/v3/train_data.json"
+v3_train_data_list = json.load(open(v3_train_data_f))
 
 # ------------------------------------------------------------
 # bigolive数据，大约3.6w，暂时不需要bigolive数据，爬其效果影响
 # ------------------------------------------------------------
 f_p = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v4/v5/train_data_cleaned.json'
-bigolive_data_list = json.load(open(f_p))[:10000]
+bigolive_data_list = json.load(open(f_p))[:8000]
 dataset_name = BIGOLIVE_ONLINE_CHAT_DATASET_NAME
 for example in bigolive_data_list:
     example[DATASET_KEY] = dataset_name
     example[MASK_HEAD_KEY] = True
     example[MASK_QUESTION_KEY] = True
     example[MASK_EXCEPT_LAST_ANSWER] = False
-
-# ------------------------------------------------------------
-# OllieStanley/oa_dolly_15k
-# 阅读理解类型
-# ------------------------------------------------------------
-org_f = "/mnt/cephfs/hjh/common_dataset/nlp/instruction/databricks-dolly-15k/prepare2qas_databricks-dolly-15k.json"
-dataset_name = DATABRICKS_DOLLY_15K_DATASET_NAME
-
-databricks_dolly_15k_data_list = json.load(open(org_f))[:100000]
-random.shuffle(databricks_dolly_15k_data_list)
-databricks_dolly_15k_data_list = databricks_dolly_15k_data_list
-for example in databricks_dolly_15k_data_list:
-    example[DATASET_KEY] = dataset_name
-    example[MASK_HEAD_KEY] = True
-    example[MASK_QUESTION_KEY] = True
-    example[MASK_EXCEPT_LAST_ANSWER] = False
-
-# ------------------------------------------------------------
-# cnn_dailymail
-# 总结类型
-# ------------------------------------------------------------
-
-# 这里有11w数据
-org_f = "/mnt/cephfs/hjh/common_dataset/nlp/summary/cnn_dailymail/prepare2qas_cnn_dailymail-train-00000-of-00003.json"
-dataset_name = CNN_DAILYMAIL_DATASET_NAME
-
-cnn_dailymail2qas_data_list = json.load(open(org_f))[:100000]
-random.shuffle(cnn_dailymail2qas_data_list)
-cnn_dailymail2qas_data_list = cnn_dailymail2qas_data_list
-for example in cnn_dailymail2qas_data_list:
-    example[DATASET_KEY] = dataset_name
-    example[MASK_HEAD_KEY] = True
-    example[MASK_QUESTION_KEY] = True
-    example[MASK_EXCEPT_LAST_ANSWER] = False
-
-print(f"dataset:{dataset_name},all_n:{len(cnn_dailymail2qas_data_list)}")
-
-# ------------------------------------------------------------
-# sota
-# 这个数据之前犯了个错误，之前训练时候mask question，纠正为只mask head
-# ------------------------------------------------------------
-org_f = '/mnt/cephfs/hjh/common_dataset/nlp/qa/en/soda/soda_train_name_qas_filter_sometion.json'
-soda_data_list = json.load(open(org_f))
-random.shuffle(soda_data_list)
-soda_data_list = soda_data_list[:100000]
-print(f"dataset name:soda, all_n:{len(soda_data_list)}")
-
-# ------------------------------------------------------------
-# persona_chat
-# ------------------------------------------------------------
-
-org_f = "/mnt/cephfs/hjh/common_dataset/nlp/qa/en/personaChat/prepared_personality_qas.json"
-persona_chat_data = json.load(open(org_f))
-random.shuffle(persona_chat_data)
-persona_chat_data = persona_chat_data[:100000]
-dataset_name = PERSONA_CHAT_DATASET_NAME
-print(f"dataset:{dataset_name},all_n:{len(persona_chat_data)}")
 
 
 # ------------------------------------------------------------
@@ -132,16 +63,15 @@ def filter_qa(qas: dict):
 
 save_base_dir = sys.argv[1]
 save_f = f"{save_base_dir}/train_data.json"
-debug_save_f = f"{save_base_dir}/debug_data.json"
 
-data = soda_data_list + persona_chat_data + databricks_dolly_15k_data_list + cnn_dailymail2qas_data_list + openorca_data_list
-random.shuffle(data)
+data_list = v3_train_data_list + bigolive_data_list
+random.shuffle(data_list)
 
 checked_data = []
 
 skip_n = 0
 all_n = 0
-for item in data:
+for item in data_list:
     all_n += 1
     try:
         assert BACKGROUND_KEY in item
@@ -168,6 +98,3 @@ for item in data:
 json.dump(checked_data, fp=open(save_f, 'w'))
 print(f"save to:{save_f}")
 print(f"skip:{skip_n},all_n:{all_n}")
-
-json.dump(checked_data[:200], fp=open(debug_save_f, 'w'))
-print(f"save to:{debug_save_f}")

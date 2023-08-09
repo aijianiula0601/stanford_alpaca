@@ -12,7 +12,7 @@ cd ../../../../../
 
 your_random_port=11224
 
-base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v14/v2"
+base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v14/v3"
 llama_ckpt_and_tokenizer="eachadea/vicuna-7b-1.1"
 output_dir="${base_dir}/ft_out"
 data_json="${base_dir}/train_data.json"
@@ -46,7 +46,7 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna
     --gradient_accumulation_steps 4 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 190 \
+    --save_steps 150 \
     --model_max_length 2048 \
     --save_total_limit 10 \
     --learning_rate 2e-5 \
@@ -58,6 +58,6 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna
     --gradient_checkpointing True \
     --deepspeed run_shells/train/deepspeed_config.json \
     --fp16 True \
-    --process_name "vicuna-7b-v14_v2" \
+    --process_name "vicuna-7b-v14_v3" \
     --lazy_load
 

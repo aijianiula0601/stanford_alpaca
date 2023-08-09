@@ -7,6 +7,7 @@ pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))
 sys.path.append(pdj)
 
 from dataset.data_utils import *
+from dataset.filter_ops import repair_punctuation
 
 # ----------------------------------------------------------------------------------------------------------------
 # 保存到文件的数据格式是：[
@@ -66,12 +67,13 @@ print(f"save to:{save_f}")
 persona_chat_qas_data = []
 dataset_name = PERSONA_CHAT_DATASET_NAME
 for example in tqdm(personaChat_list):
-    background = example['profile_information']
+    background = repair_punctuation(example['profile_information'])
     human_name = HUMAN_DEFAULT_NAME
     bot_name = BOT_DEFAULT_NAME
     cur_qas = {}
     for i, qa in enumerate(example['qas']):
-        cur_qas[f"turn_{i}"] = {QUESTION_KEY: qa['question'], ANSWER_KEY: qa['answer']}
+        cur_qas[f"turn_{i}"] = {QUESTION_KEY: repair_punctuation(qa['question']),
+                                ANSWER_KEY: repair_punctuation(qa['answer'])}
 
     persona_chat_qas_data.append(
         {

@@ -28,6 +28,7 @@ models_list = [
     "llama2-7b",
     "test_anglicize(测试口语化)",
     "vicuna7b_ft_v13_v4",
+    "vicuna7b_ft_v14_v1",
 
 ]
 url_f102 = "http://202.168.114.102"
@@ -42,6 +43,7 @@ models_url_dic = {
     models_list[4]: f"{url_v100_f165}:7000/api",
     models_list[5]: f"{url_v100_f165}:62132/api",
     models_list[6]: f"{url_v100_f165}:62134/api",
+    models_list[7]: f"{url_v100_f165}:62141/api",
 }
 
 models_prompt_key_dic = {
