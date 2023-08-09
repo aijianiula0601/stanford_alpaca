@@ -133,7 +133,7 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
 
 
 logger.info("loading model ... ")
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v14/v3/ft_out/checkpoint-150"
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v14/v3_v1/ft_out/checkpoint-242"
 
 print("model_dir:", model_dir)
 load_model(model_dir)
