@@ -21,16 +21,27 @@ ROLE_A_START_QUESTION = "hi"
 
 
 models_list = [
-    "vicuna7b_ft_v13_v1(优化后模型)",
+    "vicuna7b_ft_v13_v1(优化后模型2000)",
     "vicuna7b_old(优化前模型)",
+    "vicuna7b_ft_v13_v3(优化后模型)",
+    "vicuna7b",
+    "llama2-7b",
+    "test_anglicize(测试口语化)",
+    "vicuna7b_ft_v13_v4",
+
 ]
 url_f102 = "http://202.168.114.102"
 url_v100 = "http://202.168.100.251"
 url_v100_f165 = "http://202.168.100.165"
 
 models_url_dic = {
-    models_list[0]: f"{url_f102}:62131/api",
+    models_list[0]: f"{url_v100_f165}:62131/api",
     models_list[1]: f"{url_v100}:6024/api",
+    models_list[2]: f"{url_v100_f165}:62133/api",
+    models_list[3]: f"{url_v100_f165}:6020/api",
+    models_list[4]: f"{url_v100_f165}:7000/api",
+    models_list[5]: f"{url_v100_f165}:62132/api",
+    models_list[6]: f"{url_v100_f165}:62134/api",
 }
 
 models_prompt_key_dic = {
@@ -41,22 +52,29 @@ PROMPT_DICT = {
     "conversion": (
         "{background}\n"
         "The following is a conversation with {role_b}. {role_b} should speak in a tone consistent with the identity introduced in the background. Give the state of the action and expressions appropriately. Do not generate identical responses.\n"
+        "{history}"
     ),
     "None": "",
     "bigolive": (
-        "{background} Keep your responses short. Don't ask multiple questions at once. \n"
+        "{background}\n"
+        "{history}"
     ),
     "conversion_history": (
         "background: {background}\n"
         "Here is their historical chat.\n"
         "{history}\n"
-        "Now {role_a} asks a question, {role_b} answers it, and {role_b} responds with context and their historical chat content to make an appropriate response."
+        "Now {role_a} asks a question, {role_b} answers it, and {role_b} responds with context and their historical chat content to make an appropriate response. {role_b} need to reponse to the User based on your personal information and the conversation history."
         "{role_b} should reply in a colloquial way, and the tone of the reply should be consistent with the background of the person, and if necessary, add expressions. Do not generate identical responses.\n"
     ),
     "conversion_no_history": (
         "background: {background}\n"
-        "Now {role_a} asks a question, {role_b} answers it, and {role_b} responds with context and their historical chat content to make an appropriate response."
+        "Now {role_a} asks a question, {role_b} answers it, and {role_b} responds with context and their historical chat content to make an appropriate response. {role_b} need to reponse to the User based on your personal information and the conversation history."
         "{role_b} should reply in a colloquial way, and the tone of the reply should be consistent with the background of the person, and if necessary, add expressions. Do not generate identical responses.\n"
+    ),
+    "test_anglicize": (
+        "{background} {role_b} likes to answer questions in a colloquial way and add emojis when appropriate.\n"
+        "The following is a conversation between {role_a} and {role_b}.\n"
+        "{history}\n"
     )
 }
 
@@ -64,7 +82,8 @@ DEFAULT_SEGMENT_TOKEN = "### "
 DEFAULT_EOS_TOKEN = "</s>"
 
 
-def mask_instruct_v2(message_list, role_dict, temperature=0.6, model_server_url="http://202.168.100.251:5019/api"):
+def mask_instruct_v2(message_list, role_dict, temperature=0.6, model_server_url="http://202.168.100.251:5019/api",
+                     select_role_b=None):
     """
     message-list第一个数值是背景，
     后面需要在role_dict里要做好配置，我最后会回复role_dict['assistant']角色的答案;
@@ -112,7 +131,8 @@ def mask_instruct_v2(message_list, role_dict, temperature=0.6, model_server_url=
     return text_respond.replace("#", "").strip()
 
 
-def mask_instruct(message_list, role_dict, temperature=0.6, model_server_url="http://202.168.100.251:5019/api"):
+def mask_instruct(message_list, role_dict, temperature=0.6, model_server_url="http://202.168.100.251:5019/api",
+                  select_role_b=None):
     """
     message-list第一个数值是背景，
     后面需要在role_dict里要做好配置，我最后会回复role_dict['assistant']角色的答案;
@@ -120,12 +140,22 @@ def mask_instruct(message_list, role_dict, temperature=0.6, model_server_url="ht
     """
     background = message_list[0]["content"]
     history_list = [role_dict[char["role"]] + ": " + char["content"] for char in message_list[1:]]
-    history = DEFAULT_SEGMENT_TOKEN + DEFAULT_SEGMENT_TOKEN.join(
-        [item for item in history_list]) + DEFAULT_SEGMENT_TOKEN + role_dict['assistant'] + ":"
+    history = DEFAULT_SEGMENT_TOKEN + f" {DEFAULT_SEGMENT_TOKEN}".join(
+        [item for item in history_list]) + DEFAULT_SEGMENT_TOKEN + role_dict['assistant'] + ": "
 
-    # prompt_bk = PROMPT_DICT['bigolive'].format_map({"background": background, "role_b": role_dict['assistant']})
+    if "bigolive" in select_role_b:
+        prompt_input = PROMPT_DICT['bigolive'].format_map({"background": background, "history": history})
+    else:
+        prompt_input = PROMPT_DICT['conversion'].format_map(
+            {"background": background, "history": history, "role_b": role_dict['assistant']})
 
-    prompt_input = f"{background}\n{history}"
+    # 测试口语化
+    # prompt_input = PROMPT_DICT['test_anglicize'].format_map(
+    #     {"background": background, "history": history, "role_b": role_dict['assistant'], "role_a": role_dict['user']})
+
+    print("prompt input:")
+    print(prompt_input)
+    print("-" * 50)
 
     request_data = json.dumps({
         "prompt_input": prompt_input,

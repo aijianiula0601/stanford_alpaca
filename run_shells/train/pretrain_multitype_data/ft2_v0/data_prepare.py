@@ -69,7 +69,7 @@ for example in cnn_dailymail2qas_data_list[:limit_n]:
 # sota
 # ------------------------------------------------------------
 org_f = "/mnt/cephfs/hjh/common_dataset/nlp/chat/soda/soda_train_name.json"
-dataset_name = SOTA_DATASET_NAME
+dataset_name = SODA_DATASET_NAME
 
 soda_data = []
 for turns_data in json.load(open(org_f)):

@@ -127,7 +127,8 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
 
 logger.info("loading model ... ")
 # model_name = "AlekseyKorshuk/vicuna-7b"  # 这个模型体验起来，感觉逻辑不顺，不按人设中的地点回答，还自己造一个。
-model_name = "eachadea/vicuna-7b-1.1"  # 这个模型对于人设的信息是理解的
+# model_name = "eachadea/vicuna-7b-1.1"  # 这个模型对于人设的信息是理解的
+model_name = "eachadea/vicuna-13b-1.1"
 cache_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/hungging"
 
 load_model(model_name, cache_dir)

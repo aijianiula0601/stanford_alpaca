@@ -17,7 +17,7 @@ os.system(f"mkdir -p {save_base_dir}")
 # sota
 # ------------------------------------------------------------
 org_f = "/mnt/cephfs/hjh/common_dataset/nlp/chat/soda/soda_train_name.json"
-dataset_name = SOTA_DATASET_NAME
+dataset_name = SODA_DATASET_NAME
 
 soda_data = []
 for turns_data in json.load(open(org_f)):
@@ -50,7 +50,7 @@ for turns_data in json.load(open(org_f)):
          DATASET_KEY: dataset_name, HUMAN_NAME_KEY: human_name, BOT_NAME_KEY: bot_name,
          QAS_KEY: qas})
 
-print(f"datasetname:{SOTA_DATASET_NAME}, all_n:{len(soda_data)}")
+print(f"datasetname:{SODA_DATASET_NAME}, all_n:{len(soda_data)}")
 
 # ------------------------------------------------------------
 # gpt4

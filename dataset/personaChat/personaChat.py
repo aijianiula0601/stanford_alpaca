@@ -1,8 +1,12 @@
-import pandas as pd
 import csv
-from pathlib import Path
 import json
 import os
+import sys
+
+pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(pdj)
+
+from dataset.data_utils import *
 
 # ----------------------------------------------------------------------------------------------------------------
 # 保存到文件的数据格式是：[
@@ -18,6 +22,7 @@ base_dir = "/mnt/cephfs/hjh/common_dataset/nlp/qa/en/personaChat"
 data_f = f"{base_dir}/personality.csv"
 
 save_f = f"{base_dir}/prepared_personality.json"
+save_qas_f = f"{base_dir}/prepared_personality_qas.json"
 
 personaChat_list = []
 
@@ -36,10 +41,6 @@ with open(data_f, encoding='utf-8-sig') as f:
         turn_i = 0
         question = None
         for j, qa_l in enumerate(qas.strip("\n").split("\n")):
-            # if j % 2 == 0:
-            #     print(f"Human:", qa_l)
-            # else:
-            #     print(f"   AI:", qa_l)
             if j % 2 == 0:
                 question = qa_l
             elif j % 2 == 1:
@@ -54,15 +55,36 @@ with open(data_f, encoding='utf-8-sig') as f:
         personaChat_list.append({"profile_information": persona, "qas": qa_list})
 f.close()
 
-os.system(f"rm -rf {save_f}")
 json.dump(personaChat_list, fp=open(save_f, 'w'))
 print(f"对话组数：{len(personaChat_list)}")  # 8939
-# print(f"save to:{save_f}")
-
-jd = json.load(open(save_f, "r"))
-print(json.dumps(jd[1]))
+print(f"save to:{save_f}")
 
 # ---------------------------------
-# 命令执行：
-# python personaChat.py|jq .
+# 转换为qas格式的数据
 # ---------------------------------
+
+persona_chat_qas_data = []
+dataset_name = PERSONA_CHAT_DATASET_NAME
+for example in tqdm(personaChat_list):
+    background = example['profile_information']
+    human_name = HUMAN_DEFAULT_NAME
+    bot_name = BOT_DEFAULT_NAME
+    cur_qas = {}
+    for i, qa in enumerate(example['qas']):
+        cur_qas[f"turn_{i}"] = {QUESTION_KEY: qa['question'], ANSWER_KEY: qa['answer']}
+
+    persona_chat_qas_data.append(
+        {
+            BACKGROUND_KEY: background,
+            MASK_HEAD_KEY: True,
+            MASK_QUESTION_KEY: True,
+            MASK_EXCEPT_LAST_ANSWER: False,
+            DATASET_KEY: dataset_name,
+            HUMAN_NAME_KEY: human_name,
+            BOT_NAME_KEY: bot_name,
+            QAS_KEY: cur_qas
+        })
+
+json.dump(persona_chat_qas_data, fp=open(save_qas_f, 'w'))
+print(f"对话组数：{len(persona_chat_qas_data)}")  # 8939
+print(f"save to:{save_qas_f}")

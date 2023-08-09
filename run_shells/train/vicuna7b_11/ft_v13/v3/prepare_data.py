@@ -92,7 +92,7 @@ org_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/empathetic_dialogues/t
 empathetic_dialogues_data = []
 dataset_name = EMPATHETIC_DIALOGUES_DATASET_NAME
 
-post_background_text = "Here is a conversation with {emotion_category} for {human_name} and {bot_name} \n\n"
+post_background_text = "The above is the self-description of {human_name}. Here is a conversation with {emotion_category} for {human_name} and {bot_name} \n\n"
 
 for example in json.load(open(org_f)):
     human_name = HUMAN_DEFAULT_NAME

@@ -22,7 +22,7 @@ mkdir -p ${output_dir}
 # dataset
 #----------------------
 if [ ! -f "${data_json}" ]; then
-  org_f='/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v13/train_data.json'
+  org_f='/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v13/v1/train_data.json'
   ln -s ${org_f} ${data_json}
 fi
 

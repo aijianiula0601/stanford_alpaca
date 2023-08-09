@@ -133,7 +133,7 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
 
 
 logger.info("loading model ... ")
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v13/v1/ft_out/checkpoint-2000"
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v13/v4/ft_out/checkpoint-300"
 
 print("model_dir:", model_dir)
 load_model(model_dir)
@@ -204,4 +204,4 @@ def receive():
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host="0.0.0.0", port=62131)
+    app.run(debug=False, host="0.0.0.0", port=62134)

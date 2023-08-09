@@ -13,10 +13,11 @@ logging.getLogger().setLevel(logging.WARNING)
 import os
 import sys
 import torch
+import transformers
 
-setproctitle.setproctitle("vicuna7b-ft_v13_v1")
+setproctitle.setproctitle("llama2_ft_v2")
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 # # 自动识别机器上的gpu
 # worker_id = int(os.environ.get('APP_WORKER_ID', 1))
 # devices = os.environ.get('CUDA_VISIBLE_DEVICES', '')
@@ -31,15 +32,13 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 # 用的是transformers==4.28.1训练的
 # ---------------------------------------------
 
-import transformers
+pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+print(f"pdj:{pdj}")
+sys.path.append(pdj)
 
 model = None
 tokenizer = None
 generator = None
-
-pdj = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))))
-sys.path.append(pdj)
 
 from logger import MyLogger
 
@@ -75,8 +74,6 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
     temperature = float(params.get("temperature", 1.0))
     max_new_tokens = int(params.get("max_new_tokens", 256))
     stop_words_list = params.get("stop_words_list", [])
-    stop_words_list.append("\n")
-    stop_words_list.append("</s>")
 
     input_ids = tokenizer(prompt).input_ids
     output_ids = list(input_ids)
@@ -133,7 +130,7 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
 
 
 logger.info("loading model ... ")
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v13/v2/ft_out/checkpoint-2000"
+model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/llama2/ft_v0/ft_out/checkpoint-300/"
 
 print("model_dir:", model_dir)
 load_model(model_dir)
@@ -204,4 +201,5 @@ def receive():
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host="0.0.0.0", port=62132)
+    app.run(debug=False, host="0.0.0.0", port=7000)
+    # app.run(debug=False, host="202.168.114.102", port=6024)

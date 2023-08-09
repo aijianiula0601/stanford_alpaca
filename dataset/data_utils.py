@@ -12,6 +12,9 @@ ANSWER_KEY = "answer"
 DATASET_KEY = "dataset_name"
 TURN_KEY = "turn"
 DEFAULT_SEGMENT_TOKEN = "### "
+MASK_HEAD_KEY = "mask_head"
+MASK_QUESTION_KEY = "mask_question"
+MASK_EXCEPT_LAST_ANSWER = 'mask_except_last_answer'
 
 INSTRUCTION_NAME = "Instruction"
 RESPONSE_NAME = "Response"
@@ -60,7 +63,7 @@ def check_data_format(check_data=[]):
 
 BIGOLIVE_ONLINE_CHAT_DATASET_NAME = "bigolive_onlive_chat"
 # 应该是soda才对的，有一开始起错了，很多其他数据在用了，就不改了
-SOTA_DATASET_NAME = "sota"
+SODA_DATASET_NAME = "soda"
 SOTA_ANGLICIZA_DATASET_NAME = "sota_anglicize"
 SHAREGPT_DATASET_NAME = "sharegpt"
 PERSONA_CHAT_DATASET_NAME = "persona_chat"
@@ -82,9 +85,8 @@ PYG_DATASET_NAME = "pyg"
 MECHAT_DATASET_NAME = "mechat"
 
 
-def sota_prompt(human_name, bot_name, background):
-    # return f"Here is a conversation between {human_name} and {bot_name} related to the description below. {background}\n\n"
-    return f"{background}\nThe following is a conversation between {human_name} and {bot_name}.\n\n"
+def soda_prompt(human_name, bot_name, background):
+    return f"Background: {background}\nThe following is a conversation between {human_name} and {bot_name}.\n\n"
 
 
 def crowdsource_sex_prompt(human_name, bot_name, background):
@@ -97,9 +99,9 @@ def sharegpt_prompt(human_name, bot_name, background):
 
 
 def persona_chat_prompt(human_name, bot_name, background):
-    return (f"Background:{background}\n"
-            f"The above describes the state information of {bot_name} from the perspective of first person. "
-            f"The following is a conversation between {human_name} and {bot_name}.\n\n")
+    return (f"{bot_name}'s profile information: {background}\n"
+            f"The above describes the profile information of {bot_name} from the perspective of first person. "
+            f"The following is a chat between {human_name} and {bot_name}. They try to get to know each other.\n")
 
 
 def gpt35_prompt(human_name, bot_name, background):
@@ -114,7 +116,7 @@ def gpt35_self_prompt(human_name, bot_name, background):
 
 
 def empathetic_dialogues_prompt(human_name, bot_name, background):
-    return f"Background:{background}.\nThe above background is the self-description of {human_name}. "
+    return f"{background}.\n"
 
 
 def bigolive_chat_prompt(human_name, bot_name, background):
@@ -182,8 +184,8 @@ def soda_anglicize_prompt(human_name, bot_name, background):
 
 
 def get_dataset_prompt(dataset_name, human_name, bot_name, background):
-    if dataset_name == SOTA_DATASET_NAME:
-        return sota_prompt(human_name, bot_name, background)
+    if dataset_name == SODA_DATASET_NAME:
+        return soda_prompt(human_name, bot_name, background)
 
     elif dataset_name == SHAREGPT_DATASET_NAME:
         return sharegpt_prompt(human_name, bot_name, background)

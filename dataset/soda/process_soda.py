@@ -12,11 +12,12 @@ from dataset.data_utils import *
 save_base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitype_data"
 os.system(f"mkdir -p {save_base_dir}")
 
-# ------------------------------------------------------------
-# sota
-# ------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------
+# soda
+# 该数据集训练的时候只mask head就行，不要mask question，因为第一个提问者是人设，正常第一个提问是用户才对
+# ---------------------------------------------------------------------------------------------
 org_f = "/mnt/cephfs/hjh/common_dataset/nlp/chat/soda/soda_train_name.json"
-dataset_name = SOTA_DATASET_NAME
+dataset_name = SODA_DATASET_NAME
 
 skip_empty_qa_n = 0
 soda_data = []
@@ -25,6 +26,7 @@ for turns_data in tqdm(json.load(open(org_f))):
     qas = {}
     human_name = turns_data[0]['from']
     bot_name = turns_data[1]['from']
+    assert human_name != bot_name, f"human_name:{human_name} must not same to bot_name:{bot_name}"
     turn_i = 0
     for i, td in enumerate(turns_data):
         if i == 0:
@@ -58,10 +60,14 @@ for turns_data in tqdm(json.load(open(org_f))):
         continue
 
     assert background is not None
-    soda_data.append(
-        {BACKGROUND_KEY: background,
-         DATASET_KEY: dataset_name, HUMAN_NAME_KEY: human_name, BOT_NAME_KEY: bot_name,
-         QAS_KEY: qas})
+    soda_data.append({BACKGROUND_KEY: background,
+                      MASK_HEAD_KEY: True,
+                      MASK_QUESTION_KEY: False,
+                      MASK_EXCEPT_LAST_ANSWER: False,
+                      DATASET_KEY: dataset_name,
+                      HUMAN_NAME_KEY: human_name,
+                      BOT_NAME_KEY: bot_name,
+                      QAS_KEY: qas})
 
 print(f"dataset name:{dataset_name},all_n:{len(soda_data)}, skip_empty_qa_n:{skip_empty_qa_n}")
 

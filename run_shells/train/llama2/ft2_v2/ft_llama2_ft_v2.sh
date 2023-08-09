@@ -6,39 +6,34 @@ curdir=$(pwd)
 echo "curdir:$curdir"
 cd "$curdir" || exit
 
-cd ../../../../../
-
+cd ../../../../
 
 
 your_random_port=11224
 
-base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v13/v5"
-llama_ckpt_and_tokenizer="eachadea/vicuna-7b-1.1"
+base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/llama2/ft_v2"
+llama_ckpt_and_tokenizer="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/llama2/org_models/llama-2-7b-chat-hf"
 output_dir="${base_dir}/ft_out"
 data_json="${base_dir}/train_data.json"
-cache_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/hungging"
 
 mkdir -p ${output_dir}
-
 
 #----------------------
 # dataset
 #----------------------
-
 if [ ! -f "${data_json}" ]; then
-  echo "-------------------------prepare_data-----------------------------------------"
-  python ${curdir}/prepare_data.py ${base_dir}
-  echo "------------------------------------------------------------------------------"
+  org_file="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v13/v4/train_data.json"
+  python  ${curdir}/prepare_data.py ${org_file} ${base_dir}
 fi
 
-#----------------------
-# train
-#----------------------
-#CUDA_VISIBLE_DEVICES=0,1,2,3 \
-torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna-7b/train.py \
+###------------------
+###train
+###------------------
+mkdir -p ${output_dir}
+
+torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/mask_header_answer/train_multi_round_mask_answer_multitype_dataset.py \
     --model_name_or_path "${llama_ckpt_and_tokenizer}" \
     --data_path ${data_json} \
-    --cache_dir ${cache_dir} \
     --output_dir ${output_dir} \
     --num_train_epochs 1 \
     --per_device_train_batch_size 6 \
@@ -46,9 +41,9 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna
     --gradient_accumulation_steps 4 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 1000 \
+    --save_steps 300 \
     --model_max_length 2048 \
-    --save_total_limit 10 \
+    --save_total_limit 5 \
     --learning_rate 2e-5 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \
@@ -58,7 +53,7 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna
     --gradient_checkpointing True \
     --deepspeed run_shells/train/deepspeed_config.json \
     --fp16 True \
-    --process_name "vicuna-7b-v13_v5" \
+    --process_name "llama2_v2" \
     --lazy_load \
     --mask_head \
     --mask_question

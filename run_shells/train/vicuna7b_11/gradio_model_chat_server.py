@@ -30,7 +30,8 @@ def get_history(role_a_name, role_b_name, history=[]):
     return rh
 
 
-def role_b_chat(selected_temp, user_message, history, background_b, role_a_name, role_b_name, role_b_model_name):
+def role_b_chat(selected_temp, user_message, history, background_b, role_a_name, role_b_name, role_b_model_name,
+                select_role_b):
     # -------------------
     # role_b回答
     # -------------------
@@ -39,10 +40,10 @@ def role_b_chat(selected_temp, user_message, history, background_b, role_a_name,
     role_b_message_list = get_message_list(background=background_b,
                                            history=get_history(role_a_name, role_b_name, history))
     print("=" * 100)
-    role_b_question = mask_instruct_v2(role_b_message_list,
-                                       role_dict={"user": role_a_name,
-                                                  "assistant": role_b_name},
-                                       temperature=selected_temp, model_server_url=models_url_dic[role_b_model_name])
+    role_b_question = mask_instruct(role_b_message_list,
+                                    role_dict={"user": role_a_name,
+                                               "assistant": role_b_name},
+                                    temperature=selected_temp, model_server_url=models_url_dic[role_b_model_name],select_role_b=select_role_b)
 
     print(f"{role_b_name}({role_b_model_name}): ", role_b_question)
     history[-1][-1] = f"{role_b_name}: " + role_b_question
@@ -50,9 +51,10 @@ def role_b_chat(selected_temp, user_message, history, background_b, role_a_name,
     return '', history
 
 
-def toggle(user_message, selected_temp, chatbot, background_b, role_a_name, role_b_name, role_b_model_name):
+def toggle(user_message, selected_temp, chatbot, background_b, role_a_name, role_b_name, role_b_model_name,
+           select_role_b):
     user_message, history = role_b_chat(selected_temp, user_message, chatbot, background_b, role_a_name,
-                                        role_b_name, role_b_model_name)
+                                        role_b_name, role_b_model_name, select_role_b)
     chatbot += history[len(chatbot):]
     return user_message, chatbot
 
@@ -138,7 +140,7 @@ if __name__ == '__main__':
         role_a_question.submit(toggle,
                                inputs=[role_a_question, selected_temp, gr_chatbot, background_role_b,
                                        user_name,
-                                       bot_name, select_role_b_model],
+                                       bot_name, select_role_b_model, select_role_b],
                                outputs=[role_a_question, gr_chatbot])
 
     demo.queue()
