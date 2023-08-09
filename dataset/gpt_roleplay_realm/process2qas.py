@@ -4,6 +4,11 @@ import json
 import pandas as pd
 from pandas import read_parquet
 
+pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(pdj)
+
+from dataset.data_utils import *
+
 # ---------------------------------------------------------------------
 # 源链接：https://huggingface.co/datasets/IlyaGusev/gpt_roleplay_realm
 # ---------------------------------------------------------------------
@@ -22,47 +27,84 @@ print('-' * 20)
 df_data = read_parquet(org_f,
                        columns=['name', 'context', 'greeting', 'example_dialogue', 'topics', 'dialogues', 'char_id'])
 
+user_ask_first_n = 0
+bot_ask_first_n = 0
+
 
 def create_examples(row, index):
+    global user_ask_first_n
+    global bot_ask_first_n
     bot_name = row['name'][index]
     human_name = "user"
     background = row['context'][index]
 
     dialogues = row['dialogues'][index]
 
-    print("----dialogues:", dialogues['chat'])
-
     example_list = []
     for chat_example in dialogues:
-        qas = {}
-        for i, qa in enumerate(json.loads(chat_example['chat'])):
-            if i % 2 == 0:
-                role = qa['role']
-                assert role == human_name
-                question = qa['content']
-            else:
-                role = qa['role']
-                assert role == "chat"
-                answer = qa['content']
-                qas[f"turn_{i // 2}"] = {"question": question, "answer": answer}
+        try:
+            # -----------------
+            # 用户先开始发问的
+            # -----------------
+            qas = {}
+            for i, qa in enumerate(chat_example['chat']):
+                if i % 2 == 0:
+                    role = qa['role']
+                    assert role == human_name, f"error user role_name:{role},chat:{chat_example['chat']}"
+                    question = qa['content']
+                else:
+                    role = qa['role']
+                    assert role == "char", f"error content role_name:{role},chat:{chat_example['chat']}"
+                    answer = qa['content']
+                    qas[f"turn_{i // 2}"] = {"question": question, "answer": answer}
 
-        example = {
-            "background": background,
-            "human_name": human_name,
-            "bot_name": bot_name,
-            "qas": qas,
-        }
-        example_list.append(example)
+            example = {
+                BACKGROUND_KEY: background,
+                HUMAN_NAME_KEY: human_name,
+                BOT_NAME_KEY: bot_name,
+                MASK_HEAD_KEY: True,
+                MASK_QUESTION_KEY: True,
+                MASK_EXCEPT_LAST_ANSWER: False,
+                QAS_KEY: qas,
+            }
+            example_list.append(example)
+            user_ask_first_n += 1
+        except Exception as e:
+            bot_ask_first_n += 1
+            # -----------------
+            # 角色先开始发问的
+            # -----------------
+            qas = {}
+            for i, qa in enumerate(chat_example['chat']):
+                if i % 2 == 0:
+                    role = qa['role']
+                    assert role == 'char', f"error user role_name:{role},chat:{chat_example['chat']}"
+                    question = qa['content']
+                else:
+                    role = qa['role']
+                    assert role == human_name, f"error content role_name:{role},chat:{chat_example['chat']}"
+                    answer = qa['content']
+                    qas[f"turn_{i // 2}"] = {"question": question, "answer": answer}
+
+            example = {
+                BACKGROUND_KEY: background,
+                HUMAN_NAME_KEY: human_name,
+                BOT_NAME_KEY: bot_name,
+                MASK_HEAD_KEY: True,
+                MASK_QUESTION_KEY: False,
+                MASK_EXCEPT_LAST_ANSWER: False,
+                QAS_KEY: qas,
+            }
+            example_list.append(example)
 
     return example_list
 
 
 all_example_list = []
 for index in df_data.index:
-    res = df_data.loc[index]
-    example_list = create_examples(row=res, index=index)
+    example_list = create_examples(row=df_data, index=index)
     all_example_list.extend(example_list)
 
-print(f"all:{len(all_example_list)}")
+print(f"all:{len(all_example_list)},user_ask_first_n:{user_ask_first_n},bot_ask_first_n:{bot_ask_first_n}")
 json.dump(all_example_list, open(save_f, 'w'))
 print(f"save to:{save_f}")
