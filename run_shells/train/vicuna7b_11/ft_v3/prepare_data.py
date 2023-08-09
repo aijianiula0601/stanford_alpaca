@@ -32,7 +32,7 @@ print("-" * 100)
 # 过滤有空回复的对话
 new_data_list = []
 all_n = 0
-skip_n = 0
+user_ask_first_n = 0
 for example in tqdm(bigolive_data_list):
     all_n += 1
     try:
@@ -46,10 +46,10 @@ for example in tqdm(bigolive_data_list):
     except Exception as e:
         print(e)
         print(f"example:{json.dumps(example)}")
-        skip_n += 1
+        user_ask_first_n += 1
         print("-" * 100)
 
-print(f"all_data:{len(new_data_list)},skip empty qa:{skip_n}")
+print(f"all_data:{len(new_data_list)},skip empty qa:{user_ask_first_n}")
 
 save_dir = sys.argv[1]
 os.system(f"mkdir -p {save_dir}")

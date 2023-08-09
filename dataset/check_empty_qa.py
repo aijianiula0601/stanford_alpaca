@@ -9,7 +9,7 @@ data_list = json.load(open(f))
 new_data_list = []
 
 all_n = 0
-skip_n = 0
+user_ask_first_n = 0
 
 print("-" * 50 + "check empty qa" + "-" * 50)
 for example in tqdm(data_list):
@@ -21,7 +21,7 @@ for example in tqdm(data_list):
 
         assert "question" in qa and "answer" in qa
         if qa['question'].strip() == "" or qa["answer"].strip() == "":
-            skip_n += 1
+            user_ask_first_n += 1
             print("*" * 100)
             print(f"Error, example:{json.dumps(example)} ")
             print("*" * 100)
@@ -32,10 +32,10 @@ for example in tqdm(data_list):
     new_data_list.append(example)
 
 print("-" * 100)
-print(f"all_n:{all_n},new_data_n:{len(new_data_list)},存在空回复的数据为:{skip_n}")
+print(f"all_n:{all_n},new_data_n:{len(new_data_list)},存在空回复的数据为:{user_ask_first_n}")
 print("-" * 100)
 
-if skip_n > 0:
+if user_ask_first_n > 0:
     json.dump(new_data_list, open(save_f, 'w'))
     print(f"save to:{save_f}")
 else:

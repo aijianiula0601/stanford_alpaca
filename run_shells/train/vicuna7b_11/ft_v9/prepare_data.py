@@ -26,7 +26,7 @@ random.shuffle(f_data_list)
 
 checked_data = []
 
-skip_n = 0
+user_ask_first_n = 0
 all_n = 0
 for item in f_data_list:
     all_n += 1
@@ -40,12 +40,12 @@ for item in f_data_list:
             assert ANSWER_KEY in item[QAS_KEY][turn_i]
         checked_data.append(item)
     except Exception as e:
-        skip_n += 1
+        user_ask_first_n += 1
         print(e, f"item:{json.dumps(item)}")
 
 json.dump(checked_data, fp=open(save_f, 'w'))
 print(f"save to:{save_f}")
-print(f"skip:{skip_n},all_n:{all_n}")
+print(f"skip:{user_ask_first_n},all_n:{all_n}")
 
 json.dump(checked_data[:500], fp=open(debug_save_f, 'w'))
 print(f"save to:{debug_save_f}")

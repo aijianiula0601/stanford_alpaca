@@ -153,7 +153,7 @@ def read_org_csv_f(csv_f):
 
 all_dialogue_data_dic = []
 ignore_k_set = set()
-skip_n = 0
+user_ask_first_n = 0
 for i, csv_f in enumerate(csv_f_list):
     print(f"reading:{csv_f}")
     if i == 0:
@@ -176,10 +176,10 @@ for i, csv_f in enumerate(csv_f_list):
                     all_dialogue_data_dic[k] = example
             except Exception as e:
                 ignore_k_set.add(k)
-                skip_n += 1
+                user_ask_first_n += 1
                 print(e)
 
-print(f"---skip_n:{skip_n}")
+print(f"---skip_n:{user_ask_first_n}")
 
 # 合并所有的对话
 new_dialogue_data_dic = {}
@@ -213,7 +213,7 @@ print(f"save to:{save_json_f}")
 filter_word_list = ["AI", "Language model", "As AI", "as a Language model", "as Language model", "reason=, msg = {}",
                     "text-based program"]
 
-skip_n = 0
+user_ask_first_n = 0
 qas_new_dialogue_data_list = []
 for k in tqdm(list(new_dialogue_data_dic.keys())):
     example = new_dialogue_data_dic[k]
@@ -241,8 +241,8 @@ for k in tqdm(list(new_dialogue_data_dic.keys())):
     if len(cur_example["qas"]) > 1:
         qas_new_dialogue_data_list.append(cur_example)
     else:
-        skip_n += 1
+        user_ask_first_n += 1
 
 json.dump(qas_new_dialogue_data_list, open(save_json_qas_f, 'w'))
-print(f"----qas_new_dialogue_data_list:{len(qas_new_dialogue_data_list)},skip_n:{skip_n}")
+print(f"----qas_new_dialogue_data_list:{len(qas_new_dialogue_data_list)},skip_n:{user_ask_first_n}")
 print(f"转为训练格式，文件save to:{save_json_qas_f}")

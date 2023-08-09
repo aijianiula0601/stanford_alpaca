@@ -11,14 +11,12 @@ sys.path.append(pdj)
 
 from dataset.data_utils import *
 
-v3_train_data_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v14/v3/train_data.json"
-v3_train_data_list = json.load(open(v3_train_data_f))
 
 # ------------------------------------------------------------
 # bigolive数据，大约3.6w，暂时不需要bigolive数据，爬其效果影响
 # ------------------------------------------------------------
 f_p = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v4/v5/train_data_cleaned.json'
-bigolive_data_list = json.load(open(f_p))[:8000]
+bigolive_data_list = json.load(open(f_p))[:5000]
 dataset_name = BIGOLIVE_ONLINE_CHAT_DATASET_NAME
 for example in bigolive_data_list:
     example[DATASET_KEY] = dataset_name
@@ -64,7 +62,7 @@ def filter_qa(qas: dict):
 save_base_dir = sys.argv[1]
 save_f = f"{save_base_dir}/train_data.json"
 
-data_list = v3_train_data_list + bigolive_data_list
+data_list = bigolive_data_list
 random.shuffle(data_list)
 
 checked_data = []

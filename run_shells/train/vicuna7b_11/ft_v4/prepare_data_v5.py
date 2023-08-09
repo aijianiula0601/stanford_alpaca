@@ -45,7 +45,7 @@ for example in ai_language_model_keys_list:
 filter_word_list = ["AI", "Language model", "As AI", "as a Language model", "as Language model", "reason=, msg = {}",
                     "text-based program"]
 
-skip_n = 0
+user_ask_first_n = 0
 ai_n = 0
 qas_new_dialogue_data_list = []
 for k in tqdm(list(all_dialogue_data_dic.keys())):
@@ -84,9 +84,9 @@ for k in tqdm(list(all_dialogue_data_dic.keys())):
     if len(cur_example["qas"]) > 1:
         qas_new_dialogue_data_list.append(cur_example)
     else:
-        skip_n += 1
+        user_ask_first_n += 1
 
-print(f"----qas_new_dialogue_data_list:{len(qas_new_dialogue_data_list)},skip_n:{skip_n},ai_n:{ai_n}")
+print(f"----qas_new_dialogue_data_list:{len(qas_new_dialogue_data_list)},skip_n:{user_ask_first_n},ai_n:{ai_n}")
 
 save_dir = sys.argv[1]
 os.system(f"mkdir -p {save_dir}")

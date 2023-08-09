@@ -8,7 +8,7 @@ data_list = json.load(open(f))
 new_data_list = []
 
 all_n = 0
-skip_n = 0
+user_ask_first_n = 0
 for example in tqdm(data_list):
     all_n += 1
     try:
@@ -22,9 +22,9 @@ for example in tqdm(data_list):
     except Exception as e:
         print(e)
         print(f"example:{json.dumps(example)}")
-        skip_n += 1
+        user_ask_first_n += 1
         print("-" * 100)
 
-print(f"---all:{all_n},skip:{skip_n}")
+print(f"---all:{all_n},skip:{user_ask_first_n}")
 # json.dump(new_data_list, open(f, 'w'))
 # print(f"save to:{f}")

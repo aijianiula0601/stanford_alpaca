@@ -15,7 +15,7 @@ data_list = json.load(open(f))
 
 new_data_list = []
 all_n = 0
-skip_n = 0
+user_ask_first_n = 0
 for example in tqdm(data_list):
     all_n += 1
     qas = example['qas']
@@ -24,7 +24,7 @@ for example in tqdm(data_list):
         qa = qas[f'turn_{i}']
         qa['answer'] = qa['answer'].strip().strip("/").strip("\\")
         if len(qa['answer']) > 220:
-            skip_n += 1
+            user_ask_first_n += 1
             break
         new_qas[f'turn_{i}'] = qa
 
@@ -32,7 +32,7 @@ for example in tqdm(data_list):
     if len(new_qas) > 0:
         new_data_list.append(example)
 
-print(f"all:{all_n},skip:{skip_n}, now:{len(new_data_list)}")
+print(f"all:{all_n},skip:{user_ask_first_n}, now:{len(new_data_list)}")
 
 json.dump(new_data_list, open(save_f, 'w'))
 print(f"save to:{save_f}")

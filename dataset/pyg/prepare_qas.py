@@ -57,7 +57,7 @@ print(f"save to:{save_f_fv}")
 # 处理为qas格式
 # --------------------------
 qas_data_list = []
-skip_n = 0
+user_ask_first_n = 0
 dataset_name = PYG_DATASET_NAME
 for turns_data in tqdm(form_value_list):
     if len(turns_data) < 2:
@@ -95,8 +95,8 @@ for turns_data in tqdm(form_value_list):
              QAS_KEY: qas})
     except Exception as e:
         print(e)
-        skip_n += 1
+        user_ask_first_n += 1
 
-print(f"all_n:{len(qas_data_list)},skip:{skip_n}")
+print(f"all_n:{len(qas_data_list)},skip:{user_ask_first_n}")
 json.dump(qas_data_list, open(save_f_qa, 'w'))
 print(f"save to:{save_f_qa}")

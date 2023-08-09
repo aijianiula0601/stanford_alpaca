@@ -16,13 +16,13 @@ save_f = f"{base_dir}/cleaned_gpt4_shared_data_qas.json"
 shared_gpt_data = []
 dataset_name = SHAREGPT_DATASET_NAME
 
-skip_n = 0
+user_ask_first_n = 0
 all_n = 0
 skip_empty_qa_n = 0
 for turns_data in json.load(open(org_f)):
     all_n += 1
     if len(turns_data) <= 1:
-        skip_n += 1
+        user_ask_first_n += 1
         continue
     background = ''
     qas = {}
@@ -56,7 +56,7 @@ for turns_data in json.load(open(org_f)):
             if question == "" or answer == "":
                 skip_empty_qa_n += 1
                 skip_qa = True
-                skip_n += 1
+                user_ask_first_n += 1
                 break
         if skip_qa:
             continue
@@ -69,7 +69,7 @@ for turns_data in json.load(open(org_f)):
         print("-" * 100)
         pass
 
-print(f"dataset_name:{dataset_name},skip_n:", skip_n, "skip_empty_qa_n:", skip_empty_qa_n, "all_n:", all_n)
+print(f"dataset_name:{dataset_name},skip_n:", user_ask_first_n, "skip_empty_qa_n:", skip_empty_qa_n, "all_n:", all_n)
 
 json.dump(shared_gpt_data, open(save_f, 'w'))
 print(f"save to:{save_f}")

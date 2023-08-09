@@ -61,12 +61,12 @@ org_f = "/mnt/cephfs/hjh/common_dataset/nlp/qa/en/sharegpt/cleaned_gpt4_shared_d
 shared_gpt_data = []
 dataset_name = SHAREGPT_DATASET_NAME
 
-skip_n = 0
+user_ask_first_n = 0
 all_n = 0
 for turns_data in json.load(open(org_f)):
     all_n += 1
     if len(turns_data) <= 1:
-        skip_n += 1
+        user_ask_first_n += 1
         continue
     background = ''
     qas = {}
@@ -98,7 +98,7 @@ for turns_data in json.load(open(org_f)):
         print("-" * 100)
         pass
 
-print(f"datasetname:{SHAREGPT_DATASET_NAME},skip_n:", skip_n, "all_n:", all_n)
+print(f"datasetname:{SHAREGPT_DATASET_NAME},skip_n:", user_ask_first_n, "all_n:", all_n)
 
 # ------------------------------------------------------------
 # gpt35
@@ -130,7 +130,7 @@ random.shuffle(data)
 
 checked_data = []
 
-skip_n = 0
+user_ask_first_n = 0
 all_n = 0
 for item in data:
     all_n += 1
@@ -144,12 +144,12 @@ for item in data:
             assert ANSWER_KEY in item[QAS_KEY][turn_i]
         checked_data.append(item)
     except Exception as e:
-        skip_n += 1
+        user_ask_first_n += 1
         print(e, f"item:{json.dumps(item)}")
 
 json.dump(checked_data, fp=open(save_f, 'w'))
 print(f"save to:{save_f}")
-print(f"skip:{skip_n},all_n:{all_n}")
+print(f"skip:{user_ask_first_n},all_n:{all_n}")
 
 json.dump(checked_data[:500], fp=open(debug_save_f, 'w'))
 print(f"save to:{debug_save_f}")

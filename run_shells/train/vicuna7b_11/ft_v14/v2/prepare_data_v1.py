@@ -18,7 +18,7 @@ v3_train_data_list = json.load(open(v3_train_data_f))
 # bigolive数据，大约3.6w，暂时不需要bigolive数据，爬其效果影响
 # ------------------------------------------------------------
 f_p = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v4/v5/train_data_cleaned.json'
-bigolive_data_list = json.load(open(f_p))[:8000]
+bigolive_data_list = json.load(open(f_p))[:3000]
 dataset_name = BIGOLIVE_ONLINE_CHAT_DATASET_NAME
 for example in bigolive_data_list:
     example[DATASET_KEY] = dataset_name

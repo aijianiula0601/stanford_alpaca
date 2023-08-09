@@ -51,14 +51,14 @@ if __name__ == '__main__':
     org_data_list = json.load(open(org_f))
 
     new_data_list = []
-    skip_n = 1
+    user_ask_first_n = 1
     for example in tqdm(org_data_list):
         ex = process_example(example)
         if ex is not None:
             new_data_list.append(ex)
         else:
-            skip_n += 1
+            user_ask_first_n += 1
 
     json.dump(new_data_list, open(save_f, 'w'))
-    print(f"all_n:{len(org_data_list)},skip_n:{skip_n}")
+    print(f"all_n:{len(org_data_list)},skip_n:{user_ask_first_n}")
     print(f"save to:{save_f}")
