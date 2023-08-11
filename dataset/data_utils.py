@@ -112,6 +112,11 @@ def gpt35_prompt(human_name, bot_name, background):
             f"The following is a conversation between {human_name} and {bot_name}.\n\n")
 
 
+def gpt_roleplay_realm_prompt(human_name, bot_name, background):
+    return (f"Background: {background}\n"
+            f"The following is a conversation between {human_name} and {bot_name}. based on above background.\n")
+
+
 def gpt35_self_prompt(human_name, bot_name, background):
     return (f"{background}\n"
             f"The following is a conversation between {human_name} and {bot_name}.\n\n")
@@ -229,6 +234,9 @@ def get_dataset_prompt(dataset_name, human_name, bot_name, background):
         return pyg_prompt(human_name, bot_name, background)
     elif dataset_name == SOTA_ANGLICIZA_DATASET_NAME:
         return soda_anglicize_prompt(human_name, bot_name, background)
+
+    elif dataset_name == GPT_ROLEPLAY_DATASET_NAME:
+        return gpt_roleplay_realm_prompt(human_name, bot_name, background)
 
     else:
         raise Exception(f"Error dataset name:{dataset_name}")

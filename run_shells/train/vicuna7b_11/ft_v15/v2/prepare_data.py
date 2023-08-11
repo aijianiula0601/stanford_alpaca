@@ -30,7 +30,7 @@ for example in openorca_data_list:
 # ------------------------------------------------------------
 # bigolive数据，大约3.6w，暂时不需要bigolive数据，爬其效果影响
 # ------------------------------------------------------------
-f_p = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/bigolive_robot_chat_history.for_train.20230804-20230808.starter_user#robot_dialogue_qas.txt'
+f_p = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/bigolive_robot_chat_history.for_train.20230804-20230808.starter_user#robot_turns_qas.txt'
 bigolive_data_list = open(f_p).readlines()
 random.shuffle(bigolive_data_list)
 bigolive_data_list = bigolive_data_list[:10000]
