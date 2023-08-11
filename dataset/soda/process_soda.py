@@ -9,14 +9,14 @@ sys.path.append(pdj)
 
 from dataset.data_utils import *
 
-save_base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/multitype_data"
-os.system(f"mkdir -p {save_base_dir}")
-
 # ---------------------------------------------------------------------------------------------
 # soda
 # 该数据集训练的时候只mask head就行，不要mask question，因为第一个提问者是人设，正常第一个提问是用户才对
 # ---------------------------------------------------------------------------------------------
-org_f = "/mnt/cephfs/hjh/common_dataset/nlp/chat/soda/soda_train_name.json"
+
+
+base_dir = "/mnt/cephfs/hjh/common_dataset/nlp/chat/soda"
+org_f = f"{base_dir}/soda_train_name.json"
 dataset_name = SODA_DATASET_NAME
 
 skip_empty_qa_n = 0
@@ -71,7 +71,7 @@ for turns_data in tqdm(json.load(open(org_f))):
 
 print(f"dataset name:{dataset_name},all_n:{len(soda_data)}, skip_empty_qa_n:{skip_empty_qa_n}")
 
-save_f = "/mnt/cephfs/hjh/common_dataset/nlp/qa/en/soda/soda_train_name_qas.json"
+save_f = f"{base_dir}/soda_train_name_qas.json"
 
 json.dump(soda_data, open(save_f, 'w'))
 print(f"save to:{save_f}")

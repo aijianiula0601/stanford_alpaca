@@ -11,6 +11,7 @@ from dataset.data_utils import *
 
 # ---------------------------------------------------------------------
 # 源链接：https://huggingface.co/datasets/IlyaGusev/gpt_roleplay_realm
+# 一共有216个角色，每个角色有20个对话。
 # ---------------------------------------------------------------------
 
 
@@ -29,6 +30,7 @@ df_data = read_parquet(org_f,
 
 user_ask_first_n = 0
 bot_ask_first_n = 0
+background_n_dic = {}
 
 
 def create_examples(row, index):
@@ -36,12 +38,13 @@ def create_examples(row, index):
     global bot_ask_first_n
     bot_name = row['name'][index]
     human_name = "user"
-    background = row['context'][index]
+    background = row['context'][index].strip()
 
     dialogues = row['dialogues'][index]
 
     example_list = []
     for chat_example in dialogues:
+        background_n_dic[background] = background_n_dic.get(background, 0) + 1
         try:
             # -----------------
             # 用户先开始发问的
@@ -105,6 +108,8 @@ for index in df_data.index:
     example_list = create_examples(row=df_data, index=index)
     all_example_list.extend(example_list)
 
+print(f"---共有:{len(background_n_dic)}个角色")
+print("---每个角色有多少个对话:", [background_n_dic[k] for k in background_n_dic])
 print(f"all:{len(all_example_list)},user_ask_first_n:{user_ask_first_n},bot_ask_first_n:{bot_ask_first_n}")
 json.dump(all_example_list, open(save_f, 'w'))
 print(f"save to:{save_f}")

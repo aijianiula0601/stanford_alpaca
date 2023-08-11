@@ -62,6 +62,7 @@ def check_data_format(check_data=[]):
 
 
 BIGOLIVE_ONLINE_CHAT_DATASET_NAME = "bigolive_onlive_chat"
+BIGOLIVE_CHAT_ROBOT = "bigolive_chat_robot"
 # 应该是soda才对的，有一开始起错了，很多其他数据在用了，就不改了
 SODA_DATASET_NAME = "soda"
 SOTA_ANGLICIZA_DATASET_NAME = "sota_anglicize"
@@ -73,6 +74,7 @@ ALPACA_GPT4 = "alpaca_gpt4"
 UNNATURAL_INSTRUCTION_DATASET_NAME = "unnatural_instruction_gpt4"
 DATABRICKS_DOLLY_15K_DATASET_NAME = "databricks-dolly-15k"
 CNN_DAILYMAIL_DATASET_NAME = "cnn_dailymail"
+GPT_ROLEPLAY_DATASET_NAME = "gpt_roleplay_realm"
 # 永强用gpt35调回来的数据
 GPT35_DATASET_NAME = "gpt35_sex"
 # 采用gpt35自己的prompt训练
@@ -86,7 +88,7 @@ MECHAT_DATASET_NAME = "mechat"
 
 
 def soda_prompt(human_name, bot_name, background):
-    return f"Background: {background}\nThe following is a conversation between {human_name} and {bot_name}.\n\n"
+    return f"Background: {background}\nThe following is a chat conversation between {human_name} and {bot_name} based on above background.\n\n"
 
 
 def crowdsource_sex_prompt(human_name, bot_name, background):
@@ -214,7 +216,7 @@ def get_dataset_prompt(dataset_name, human_name, bot_name, background):
     elif dataset_name == CROWDSOURCE_SEX_DATASET_NAME:
         return crowdsource_sex_prompt(human_name, bot_name, background)
 
-    elif dataset_name == BIGOLIVE_ONLINE_CHAT_DATASET_NAME:
+    elif dataset_name == BIGOLIVE_ONLINE_CHAT_DATASET_NAME or dataset_name == BIGOLIVE_CHAT_ROBOT:
         return bigolive_chat_prompt(human_name, bot_name, background)
 
     elif dataset_name == OPENORCA_DATASET_NAME:
