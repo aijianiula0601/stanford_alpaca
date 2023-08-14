@@ -21,10 +21,8 @@ ROLE_A_START_QUESTION = "hi"
 
 
 models_list = [
-    "vicuna7b_ft_v13_v1(优化后模型2000)",
-    "vicuna7b_old(优化前模型)",
-    "vicuna7b_ft_v14_v2_v1",
-    "vicuna7b_ft_v14_v2_v2",
+    "vicuna7b_ft_dialogue(对话形式训练bigolive数据)",
+    "vicuna7b_ft_turns(turns方式训练bigolive数据)",
 
 ]
 url_f102 = "http://202.168.114.102"
@@ -32,10 +30,8 @@ url_v100 = "http://202.168.100.251"
 url_v100_f165 = "http://202.168.100.165"
 
 models_url_dic = {
-    models_list[0]: f"{url_v100_f165}:62131/api",
-    models_list[1]: f"{url_v100}:6024/api",
-    models_list[2]: f"{url_v100_f165}:62141/api",
-    models_list[3]: f"{url_v100_f165}:62142/api",
+    models_list[0]: f"{url_v100_f165}:62151/api",
+    models_list[1]: f"{url_v100_f165}:62152/api",
 }
 
 models_prompt_key_dic = {

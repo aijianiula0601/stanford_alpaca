@@ -27,6 +27,7 @@ for example in openorca_data_list:
     example[MASK_QUESTION_KEY] = True
     example[MASK_EXCEPT_LAST_ANSWER] = False
 
+print(f"dataset:{dataset_name},all_n:{len(openorca_data_list)}")
 # ------------------------------------------------------------
 # bigolive数据，大约3.6w，暂时不需要bigolive数据，爬其效果影响
 # ------------------------------------------------------------
@@ -44,7 +45,8 @@ for example_line in bigolive_data_list:
     example[MASK_EXCEPT_LAST_ANSWER] = False
     new_bigolive_data_list.append(example)
 
-print(f"bigolive:{len(new_bigolive_data_list)}")
+print(f"dataset:{dataset_name},all_n:{len(bigolive_data_list)}")
+
 # ------------------------------------------------------------
 # OllieStanley/oa_dolly_15k
 # 阅读理解类型
@@ -60,6 +62,8 @@ for example in databricks_dolly_15k_data_list:
     example[MASK_HEAD_KEY] = True
     example[MASK_QUESTION_KEY] = True
     example[MASK_EXCEPT_LAST_ANSWER] = False
+
+print(f"dataset:{dataset_name},all_n:{len(databricks_dolly_15k_data_list)}")
 
 # ------------------------------------------------------------
 # cnn_dailymail
