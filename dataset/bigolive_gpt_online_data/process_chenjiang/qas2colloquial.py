@@ -83,9 +83,9 @@ def trans_example_qas(example: dict):
 
 
 if __name__ == '__main__':
-    base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data"
-    org_f = f"{base_dir}/bigolive_robot_chat_history.for_train.20230804-20230808.starter_user.txt"
-    save_f = f"{base_dir}/bigolive_robot_chat_history.for_train.20230804-20230808.starter_user_to_colloquial.txt"
+    base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v2"
+    org_f = f"{base_dir}/bigolive_robot_chat_history.for_train.20230804-20230808.starter_user.en.txt"
+    save_f = f"{base_dir}/bigolive_robot_chat_history.for_train.20230804-20230808.starter_user.en_to_colloquial.txt"
 
     org_data_list = open(org_f).readlines()
     random.shuffle(org_data_list)

@@ -275,7 +275,11 @@ class LazySupervisedDataset(Dataset):
         super(LazySupervisedDataset, self).__init__()
         self.tokenizer = tokenizer
         self.token_max_len = token_max_len
-        self.list_data_dict = json.load(open(data_path))
+
+        if data_path.endswith(".json"):
+            self.list_data_dict = json.load(open(data_path))
+        elif data_path.endswith(".txt"):
+            self.list_data_dict = [json.loads(example) for example in open(data_path).readlines()]
         random.shuffle(self.list_data_dict)
         self.list_data_dict_len = len(self.list_data_dict)
         logging.warning(f"loaded org data list:{self.list_data_dict_len}!")
