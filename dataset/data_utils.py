@@ -15,6 +15,7 @@ DEFAULT_SEGMENT_TOKEN = "### "
 MASK_HEAD_KEY = "mask_head"
 MASK_QUESTION_KEY = "mask_question"
 MASK_EXCEPT_LAST_ANSWER = 'mask_except_last_answer'
+MASK_EXCEPT_LAST_QUESTION_ANSWER = 'mask_except_last_question_answer'
 
 INSTRUCTION_NAME = "Instruction"
 RESPONSE_NAME = "Response"

@@ -18,13 +18,13 @@ from dataset.data_utils import *
 
 
 org_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v15/v2/train_data.json"
-other_data_list = json.load(open(org_f))
+org_data_list = json.load(open(org_f))
 filter_bigolive_other_data_list = []
 all_n = 0
 skip_n = 0
-for example in other_data_list:
+for example in org_data_list:
     all_n += 1
-    if example[DATASET_KEY] == BIGOLIVE_ONLINE_CHAT_DATASET_NAME:
+    if example[DATASET_KEY] == BIGOLIVE_ONLINE_CHAT_DATASET_NAME or example[DATASET_KEY] == BIGOLIVE_CHAT_ROBOT:
         skip_n += 1
         continue
     else:
@@ -82,7 +82,7 @@ def filter_qa(qas: dict):
 save_base_dir = sys.argv[2]
 save_f = f"{save_base_dir}/train_data.txt"
 
-data = other_data_list + new_bigolive_data_list
+data = filter_bigolive_other_data_list + new_bigolive_data_list
 random.shuffle(data)
 
 user_ask_first_n = 0

@@ -140,7 +140,12 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
     """
     :param token_max_len: limit number of token ids
     :param conversation_dic: example:{
-        "background":"---",
+        "background":"~",
+        "dataset_name": "~"
+        "mask_head": true
+        "mask_question": true
+        "mask_except_last_answer": true
+        "mask_except_last_question_answer": False
         "human_name":"a",
         "bot_name":"b",
         "qas":{
@@ -153,9 +158,10 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
     :return: dic
     """
     dataset_name = conversation_dic[DATASET_KEY]
-    mask_head = conversation_dic[MASK_HEAD_KEY]
-    mask_question = conversation_dic[MASK_QUESTION_KEY]
-    mask_except_last_answer = conversation_dic[MASK_EXCEPT_LAST_ANSWER]
+    mask_head = conversation_dic.get(MASK_HEAD_KEY, True)
+    mask_question = conversation_dic.get(MASK_QUESTION_KEY, False)
+    mask_except_last_answer = conversation_dic.get(MASK_EXCEPT_LAST_ANSWER, False)
+    mask_except_last_question_answer = conversation_dic.get(MASK_EXCEPT_LAST_QUESTION_ANSWER, False)
 
     ignore_token_index_list = []
     turn_n = len(conversation_dic[QAS_KEY])
@@ -231,6 +237,11 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
     if mask_except_last_answer and len(ignore_token_index_list) > 0:
         _, ignore_end_i = ignore_token_index_list[-1]
         label_ids[:ignore_end_i] = IGNORE_INDEX
+
+    # 最后一个question和answer前面的所有都mask，这种情况适合人设开头提问的情况
+    if mask_except_last_question_answer and len(ignore_token_index_list) > 0:
+        ignore_start_index, ignore_end_i = ignore_token_index_list[-1]
+        label_ids[:ignore_start_index] = IGNORE_INDEX
 
     return input_ids, label_ids
 

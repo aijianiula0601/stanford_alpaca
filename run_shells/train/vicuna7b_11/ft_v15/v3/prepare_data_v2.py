@@ -32,46 +32,59 @@ org_f = f"{base_dir}/train_data.txt"
 
 keywords_num_dic = {}
 other_example_list = []
+bigolive_other_example_list = []
+bigo_n = 0
 with open(org_f) as fr:
     for line in tqdm(fr.readlines()):
         example = json.loads(line)
-        # 只检查bigolive数据
+        # 只检查bigolive数据,之前的数据bigolive只有一轮
         if example[DATASET_KEY] == BIGOLIVE_ONLINE_CHAT_DATASET_NAME:
-            for i in range(len(example[QAS_KEY])):
-                qa = example[QAS_KEY][f"{TURN_KEY}_{i}"]
-                for k in keywords_list:
-                    if k in qa[ANSWER_KEY]:
-                        if k not in keywords_num_dic:
-                            keywords_num_dic[k] = []
-                        keywords_num_dic[k].append(example)
+            bigo_n += 1
+            qa = example[QAS_KEY][f"{TURN_KEY}_0"]
+            k_flag = False
+            for k in keywords_list:
+                if k in qa[ANSWER_KEY]:
+                    k_flag = True
+                    break
+            if k_flag:
+                if k not in keywords_num_dic:
+                    keywords_num_dic[k] = []
+                keywords_num_dic[k].append(example)
+                continue
+
+            bigolive_other_example_list.append(example)
 
         # 非bigolive数据
         else:
             other_example_list.append(example)
 
+print(f"-------bigo_n:{bigo_n}")
 print("-" * 100)
 k_n = 0
 for k in keywords_num_dic:
     print(f"keyword:{k},n:{len(keywords_num_dic[k])}")
     k_n += len(keywords_num_dic[k])
 print(f"k_n:{k_n}")
+print(f"bigolive_other_example_list:{len(bigolive_other_example_list)},bigo_n:{bigo_n}")
 
 # -----------------------------------
 # 带有关键词的，只采样5个对话
 # -----------------------------------
 
 for k in keywords_num_dic:
-    keywords_num_dic[k] = random.sample(keywords_num_dic[k], k=5)
+    keywords_num_dic[k] = random.sample(keywords_num_dic[k], k=min([5, len(keywords_num_dic[k])]))
 
 # -----------------------------------
 # 结合到其他对话中
 # -----------------------------------
 
-bigolive_example_list = []
+all_example_list = []
 for k in keywords_num_dic:
     for e in keywords_num_dic[k]:
-        bigolive_example_list.append(e)
-bigolive_example_list += other_example_list
+        all_example_list.append(e)
+
+random.shuffle(bigolive_other_example_list)
+all_example_list += other_example_list + bigolive_other_example_list[:4000]
 
 # -----------------------------------
 # 保存
@@ -79,7 +92,7 @@ bigolive_example_list += other_example_list
 
 save_f = sys.argv[1]
 with open(save_f, 'w') as fw:
-    for e in bigolive_example_list:
+    for e in all_example_list:
         fw.write(f"{json.dumps(e)}\n")
 
-print(f"all_n:{len(bigolive_example_list)},save to:{save_f}")
+print(f"all_n:{len(all_example_list)},save to:{save_f}")

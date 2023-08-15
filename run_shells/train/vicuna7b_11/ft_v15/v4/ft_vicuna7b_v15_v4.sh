@@ -12,14 +12,10 @@ cd ../../../../../
 
 your_random_port=11224
 
-base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v15/v3"
+base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v15/v4"
 llama_ckpt_and_tokenizer="eachadea/vicuna-7b-1.1"
 output_dir="${base_dir}/ft_out"
 data_json="${base_dir}/train_data.txt"
-turn0_f="${base_dir}/bigolive_turn0.txt"
-turn1_f="${base_dir}/bigolive_turn1.txt"
-turn2ton_f="${base_dir}/bigolive_turn2ton.txt"
-bigolive_f="${base_dir}/bigolive_1w.txt"
 cache_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/hungging"
 
 mkdir -p ${output_dir}
@@ -29,18 +25,10 @@ mkdir -p ${output_dir}
 # dataset
 #----------------------
 
-if [ ! -f "${turn0_f}"  -a ! -f "${turn1_f}"  -a ! -f "${turn2ton_f}"  ]; then
-  python -u ${curdir}/process_bigolive.py ${turn0_f} ${turn1_f} ${turn2ton_f}
-  cat ${turn0_f}|shuf|head -15 > ${bigolive_f}
-  cat ${turn1_f}|shuf|head -15 >> ${bigolive_f}
-  cat ${turn2ton_f}|shuf|head -10000 >> ${bigolive_f}
-fi
-
-
 
 if [ ! -f "${data_json}" ]; then
   echo "-------------------------prepare_data-----------------------------------------"
-  python ${curdir}/prepare_data.py ${bigolive_f} ${base_dir}
+  python ${curdir}/prepare_data.py ${data_json}
   echo "------------------------------------------------------------------------------"
 fi
 
@@ -71,5 +59,6 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna
     --gradient_checkpointing True \
     --deepspeed run_shells/train/deepspeed_config.json \
     --fp16 True \
-    --process_name "vicuna-7b-v15_v3" \
+    --process_name "vicuna-7b-v15_v4" \
     --lazy_load
+

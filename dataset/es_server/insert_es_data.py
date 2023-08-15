@@ -4,7 +4,7 @@ import urllib3
 
 urllib3.disable_warnings()
 
-es = Elasticsearch("https://202.168.97.165:9200", http_auth=('elastic', 'EwelDkaFv8l_VBYO_UDL'), verify_certs=False)
+es = Elasticsearch("https://202.168.97.165:9200", http_auth=('elastic', 's6JnANyNuXa5PCjjU0dB'), verify_certs=False)
 
 
 def insert_example(index_name, example, id):
@@ -44,28 +44,34 @@ def index_count(index_name):
 if __name__ == '__main__':
     index_name = 'qas_data'
     example = {
-        "background": "Khamari is worried about his appearance because he wants to look his best for the upcoming dance. He's unsure what to wear and how to style his hair, and he doesn't want to end up looking like a fool.",
-        "dataset_name": "sota",
-        "human_name": "Khamari",
-        "bot_name": "Alex",
-        "qas": [
-            {
-                "question": "Hey, Alex. Do you have a minute?",
-                "answer": "Yeah, sure. What's up?"
+        "background": "Juliano finds Kaneisha unpleasant because Juliano feels like Kaneisha is always trying to invade his personal space and meddle in his business. Juliano has repeatedly asked Kaneisha to give him some space, but Kaneisha seems to either not understand or not care. This often leads to conflict and makes Juliano very uncomfortable.",
+        "mask_head": True,
+        "mask_question": False,
+        "mask_except_last_answer": False,
+        "dataset_name": "soda",
+        "human_name": "Juliano",
+        "bot_name": "Kaneisha",
+        "qas": {
+            "turn_0": {
+                "question": "Hey, Kaneisha. Can I talk to you for a second?",
+                "answer": "Of course, Juliano. What's up?"
             },
-            {
-                "question": "I need some advice. I'm going to the winter dance next week and I want to look my best, but I have no idea what to wear or how to style my hair. Do you think you could help me out?",
-                "answer": "Of course! Let's start with what you're going to wear. Have you given any thought to that?"
+            "turn_1": {
+                "question": "Look, I don't mean to be rude, but I really need some space. You always seem to be trying to invade my personal space and meddle in my business. It's really getting on my nerves.",
+                "answer": "Juliano, I'm just trying to be friendly. I don't see what the big deal is."
             },
-            {
-                "question": "Not really. I was thinking maybe a suit, but I'm not sure if that's too formal.",
-                "answer": "A suit can be a good choice, but it might be too hot to wear one dancing all night. Plus, it might be a little too dressy for the dance. Maybe you could try something like a button-down shirt with nice pants or jeans. That would look good and still be comfortable."
+            "turn_2": {
+                "question": "The big deal is that I don't want your friendship! I just want you to leave me alone!",
+                "answer": "Fine, if that's what you want. But I don't understand why you're being so hostile about it."
+            },
+            "turn_3": {
+                "question": "I'm not being hostile, I'm just telling you how I feel. And I would appreciate it if you would respect my wishes and give me some space.",
+                "answer": "Alright, Juliano. I'll back off. But I still don't understand why you're so upset about this."
             }
-        ]
-
+        }
     }
 
-    # print(insert_example(index_name, example, id=1))
+    print(insert_example(index_name, example, id=None))
     # print(search_all())
     # delete_index(index_name)
     print(get_data_id(index_name, id=1))
