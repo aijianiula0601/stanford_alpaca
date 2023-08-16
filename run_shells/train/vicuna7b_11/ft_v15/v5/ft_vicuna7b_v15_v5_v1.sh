@@ -9,10 +9,13 @@ cd "$curdir" || exit
 cd ../../../../../
 
 
+#----------------------------------------------
+# 这个脚本只用4000个bigolive数据
+#----------------------------------------------
 
 your_random_port=11224
 
-base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v15/v5"
+base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v15/v5_v1"
 llama_ckpt_and_tokenizer="eachadea/vicuna-7b-1.1"
 output_dir="${base_dir}/ft_out"
 data_json="${base_dir}/train_data.txt"
@@ -27,7 +30,6 @@ mkdir -p ${output_dir}
 #----------------------
 
 if [ ! -f "${bigolivedata_colloquial_json}" ]; then
-
   #口语化数据转为单轮
   org_f="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v2/bigolive_robot_chat_history.for_train.20230804-20230808.starter_user.en_to_colloquial.txt"
   python ${curdir}/coloquial2turnqa.py ${org_f} ${bigolivedata_colloquial_json}
@@ -36,7 +38,7 @@ fi
 
 if [ ! -f "${data_json}" ]; then
   echo "-------------------------prepare_data-----------------------------------------"
-  python ${curdir}/prepare_data.py ${bigolivedata_colloquial_json} ${data_json}
+  python ${curdir}/prepare_data_v1.py ${bigolivedata_colloquial_json} ${data_json}
   echo "------------------------------------------------------------------------------"
 fi
 
@@ -67,6 +69,6 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna
     --gradient_checkpointing True \
     --deepspeed run_shells/train/deepspeed_config.json \
     --fp16 True \
-    --process_name "vicuna-7b-v15_v5" \
+    --process_name "vicuna-7b-v15_v5_v1" \
     --lazy_load
 

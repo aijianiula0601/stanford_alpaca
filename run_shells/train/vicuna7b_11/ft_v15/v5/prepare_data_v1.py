@@ -109,7 +109,7 @@ for k in keywords_num_dic:
         all_example_list.append(e)
 
 random.shuffle(bigolive_other_example_list)
-all_example_list += other_example_list + bigolive_other_example_list
+all_example_list += other_example_list + bigolive_other_example_list[:4000]
 
 # -----------------------------------
 # 保存
