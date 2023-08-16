@@ -100,6 +100,7 @@ def llama_no_mask_respond(post_data: dict, temperature=0.6, if_self_prompt=False
 
 url_f102 = "http://202.168.114.102"
 url_v100 = "http://202.168.114.102"
+url_v100_f165 = "http://202.168.100.165"
 
 llama_my_model_url = {
     "vicuna-7b_ft_v3": f"{url_f102}:6023/api",
@@ -111,6 +112,7 @@ llama_my_model_url = {
     "vicuna-7b_ft_v7": f"{url_f102}:6027/api",
     "vicuna-7b_ft_v10": f"{url_f102}:6030/api",
     "vicuna-13b": f"{url_f102}:6025/api",
+    "vicuna-7b_ft_v15_v3_v2": f"{url_v100_f165}:61532/api",
     "llama_multitype_data": f"{url_v100}:5000/api",
     "llama_multitype_data_ft2_v3": f"{url_f102}:5003/api",
     "llama_multitype_data_ft2_v4": f"{url_f102}:5004/api",

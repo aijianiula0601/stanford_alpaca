@@ -30,33 +30,6 @@ keywords_list = [
 base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v15/v3"
 org_f = f"{base_dir}/train_data.txt"
 
-# --------------------------
-# 获取非bigolive数据
-# --------------------------
-
-other_example_list = []
-with open(org_f) as fr:
-    for line in tqdm(fr.readlines()):
-        example = json.loads(line)
-        if example[DATASET_KEY] != BIGOLIVE_ONLINE_CHAT_DATASET_NAME and example[DATASET_KEY] != BIGOLIVE_CHAT_ROBOT:
-            other_example_list.append(example)
-
-print("-" * 100)
-print(f"非bigolive数据的对话个数：{len(other_example_list)}")
-
-# --------------------------
-# 加载口语化的bigolive数据
-# --------------------------
-bigolive_colloquial_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v2/bigolive_robot_chat_history.for_train.20230804-20230808.starter_user.en_to_colloquial.txt"
-
-bigolive_coloquial_data_list = []
-with open(bigolive_colloquial_f) as fr:
-    for line in tqdm(fr.readlines()):
-        example = json.loads(line)
-        example[DATASET_KEY] = BIGOLIVE_ONLINE_CHAT_DATASET_NAME
-
-
-
 keywords_num_dic = {}
 other_example_list = []
 bigolive_other_example_list = []
@@ -111,7 +84,8 @@ for k in keywords_num_dic:
         all_example_list.append(e)
 
 random.shuffle(bigolive_other_example_list)
-all_example_list += other_example_list + bigolive_other_example_list[:4000]
+random.shuffle(other_example_list)
+all_example_list += other_example_list[:30000] + bigolive_other_example_list[:4000]
 
 # -----------------------------------
 # 保存
