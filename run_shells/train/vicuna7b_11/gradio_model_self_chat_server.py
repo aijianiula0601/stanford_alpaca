@@ -24,8 +24,11 @@ models_list = [
     "vicuna7b_ft_v13_v1(优化后模型)",
     "vicuna7b_ft_v15_v3_v2(优化后模型v2)",
     "vicuna7b_old(优化前模型)",
-    # "vicuna7b_ft_v15_v3",
-    # "vicuna7b_ft_v15_v4",
+    "vicuna7b_ft_v15_v3_v3(减少数据量)",
+    "vicuna7b_ft_v15_v4",
+    "vicuna7b_ft_v15_v5",
+    "vicuna7b_ft_v15_v5_v1",
+    "vicuna7b_ft_v15_v5_v2",
 ]
 url_f102 = "http://202.168.114.102"
 url_v100 = "http://202.168.100.251"
@@ -35,8 +38,11 @@ models_url_dic = {
     models_list[0]: f"{url_f102}:6213/api",
     models_list[1]: f"{url_f102}:61532/api",
     models_list[2]: f"{url_f102}:6024/api",
-    # models_list[3]: f"{url_v100_f165}:6153/api",
-    # models_list[4]: f"{url_v100_f165}:6154/api",
+    models_list[3]: f"{url_v100_f165}:61533/api",
+    models_list[4]: f"{url_v100_f165}:6154/api",
+    models_list[5]: f"{url_v100_f165}:6155/api",
+    models_list[6]: f"{url_v100_f165}:61551/api",
+    models_list[7]: f"{url_v100_f165}:61552/api",
 }
 
 models_prompt_key_dic = {

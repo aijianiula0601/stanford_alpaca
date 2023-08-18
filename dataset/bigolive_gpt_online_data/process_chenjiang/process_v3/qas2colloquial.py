@@ -18,11 +18,9 @@ from dataset.filter_ops import *
 import openai
 
 openai.api_type = "azure"
-openai.api_base = "https://bigo-chatgpt-9.openai.azure.com/"
+openai.api_base = "https://gpt4-test-cj-0803.openai.azure.com/"
 openai.api_version = "2023-03-15-preview"
-# key1: 19ea901e8e10475da1bb0537abf8e5a4
-# key2: 548e5c0c2aff453e932948927a27bde6
-openai.api_key = "548e5c0c2aff453e932948927a27bde6"
+openai.api_key = 'bca8eef9f9c04c7bb1e573b4353e71ae'
 
 # role : system|user|assistant
 gpt_config = {'engine': 'gpt-35-turbo',
@@ -48,10 +46,15 @@ def qa_colloquial(qa_str: str):
     ]
 
     response = openai.ChatCompletion.create(
-        engine=gpt_config['engine'],
+        engine="gpt4-16k",
+        messages=message_list,
         temperature=0.7,
-        messages=message_list
-    )
+        max_tokens=800,
+        top_p=0.95,
+        frequency_penalty=0,
+        presence_penalty=0,
+        stop=None)
+
     return response['choices'][0]['message']['content']
 
 
