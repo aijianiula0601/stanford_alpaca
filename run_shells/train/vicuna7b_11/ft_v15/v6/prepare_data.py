@@ -185,7 +185,7 @@ other_data = soda_data_list + persona_chat_data + databricks_dolly_15k_data_list
 random.shuffle(other_data)
 
 random.shuffle(bigolive_coloquial_data_list)
-data = other_data[:80000] + bigolive_coloquial_data_list[:5000]
+data = other_data + bigolive_coloquial_data_list[:5000]
 
 random.shuffle(data)
 
