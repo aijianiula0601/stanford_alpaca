@@ -107,7 +107,8 @@ for example in tqdm(org_data_list):
             qa = cur_example[QAS_KEY][f'turn_{i}']
             history_str = get_history(qa['history'], cur_example[HUMAN_NAME_KEY], cur_example[BOT_NAME_KEY])
             if i > 0:
-                cur_example[BACKGROUND_KEY] = f"{cur_example[BACKGROUND_KEY]}\n{history_str}"
+                cur_example[
+                    BACKGROUND_KEY] = f"{cur_example[BACKGROUND_KEY]}\nHere is our historical dialogue.\n{history_str}"
 
             new_qas = {"turn_0": {QUESTION_KEY: qa[QUESTION_KEY], ANSWER_KEY: qa[ANSWER_KEY]}}
             new_example = copy.deepcopy(cur_example)
