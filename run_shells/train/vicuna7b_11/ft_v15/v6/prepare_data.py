@@ -10,6 +10,10 @@ sys.path.append(pdj)
 
 from dataset.data_utils import *
 
+# ------------------------------------------------------
+# bigolive数据根据关键词，做数据抽样
+# ------------------------------------------------------
+
 keywords_list = [
     "thanks for asking.",
     "How are you today?",
@@ -27,6 +31,7 @@ keywords_list = [
     "How's your day going so far?",
 ]
 
+# 提取个数据中非bigolive数据，跟处理后的bigolive数据进行组合
 base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v15/v3"
 org_f = f"{base_dir}/train_data.txt"
 
@@ -48,7 +53,6 @@ print(f"非bigolive数据的对话个数：{len(other_example_list)}")
 # 加载口语化的bigolive turns数据
 # --------------------------
 bigolive_colloquial_f = sys.argv[1]
-
 
 bigolive_coloquial_data_list = []
 with open(bigolive_colloquial_f) as fr:

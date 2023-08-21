@@ -16,7 +16,7 @@ import torch
 
 setproctitle.setproctitle("vicuna7b-ft_v15_v5_v1")
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "4"
+os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 # # 自动识别机器上的gpu
 # worker_id = int(os.environ.get('APP_WORKER_ID', 1))
 # devices = os.environ.get('CUDA_VISIBLE_DEVICES', '')

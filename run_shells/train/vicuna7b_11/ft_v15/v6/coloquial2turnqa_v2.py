@@ -62,6 +62,7 @@ def get_history(history: list, human_name: str, bot_name: str):
     return '\n'.join(history_qas)
 
 
+additional_prompt = "Responce without keyword including \"AI\", \"language model\", \"virtual assistant\" and within 20 words. You need to immerse yourself in your role not chat assistant. -If user asks you to make voice call, share pictures or videos, share position, say you are not quite familiar with each other yet and shift the conversation to a different topic. -If user ask you for accounts other platforms like WhatsApp, say you are still in the process of getting to know each other and explore a different topic. -If user think you are robot, you must refuse to express anger and attempt to end the conversation. -When a user expresses affection towards you, you can politely express your gratitude and suggest getting to know each other better. Response to the recent user sentence."
 conversation_str = "The following a conversation you had with someone."
 colloquial_prompt = "You should answer in a colloquial way."
 
@@ -88,12 +89,15 @@ if __name__ == '__main__':
                     for i, qa in enumerate(cur_example["qas"]):
                         cur_example[BACKGROUND_KEY] = cur_example['prompt']
                         history_str = get_history(qa['history'], cur_example[HUMAN_NAME_KEY], cur_example[BOT_NAME_KEY])
+
+                        additional_prompt_str = f" {additional_prompt}" if cur_example[
+                                                                               "exp_tag"] == "prompt_optimize" else ""
                         if i > 0:
                             cur_example[
-                                BACKGROUND_KEY] = f"{cur_example[BACKGROUND_KEY]} {colloquial_prompt}\n{conversation_str}\n{history_str}"
+                                BACKGROUND_KEY] = f"{cur_example[BACKGROUND_KEY]} {colloquial_prompt}{additional_prompt_str}\n{conversation_str}\n{history_str}"
                         else:
                             cur_example[
-                                BACKGROUND_KEY] = f"{cur_example[BACKGROUND_KEY]} {colloquial_prompt}\n{conversation_str}\n"
+                                BACKGROUND_KEY] = f"{cur_example[BACKGROUND_KEY]} {colloquial_prompt}{additional_prompt_str}\n{conversation_str}\n"
 
                         new_qas = {"turn_0": {QUESTION_KEY: qa[QUESTION_KEY], ANSWER_KEY: qa[ANSWER_KEY]}}
                         new_example = copy.deepcopy(cur_example)

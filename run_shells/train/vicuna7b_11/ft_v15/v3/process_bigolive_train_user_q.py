@@ -109,7 +109,7 @@ for example in tqdm(org_data_list):
             if i > 0:
                 cur_example[BACKGROUND_KEY] = f"{cur_example[BACKGROUND_KEY]}\n{history_str}"
 
-            new_qas = {"turn_0": {QUESTION_KEY: qa[QUESTION_KEY], ANSWER_KEY: "</s>"}}  # 把answer设置为空字符串
+            new_qas = {"turn_0": {QUESTION_KEY: qa[QUESTION_KEY], ANSWER_KEY: "#"}}  # 把answer设置为空字符串
             # new_qas = {"turn_0": {QUESTION_KEY: qa[QUESTION_KEY], ANSWER_KEY: qa[ANSWER_KEY]}}
 
             new_example = copy.deepcopy(cur_example)
