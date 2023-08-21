@@ -62,6 +62,9 @@ def get_history(history: list, human_name: str, bot_name: str):
     return '\n'.join(history_qas)
 
 
+conversation_str = "The following a conversation you had with someone."
+colloquial_prompt = "You should answer in a colloquial way."
+
 if __name__ == '__main__':
 
     # 口语化数据文件路径：/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v2/bigolive_robot_chat_history.for_train.20230804-20230808.starter_user.en_to_colloquial.txt
@@ -81,17 +84,20 @@ if __name__ == '__main__':
                     assert cur_example[
                                'who_ask_first'] == who_ask_first, f"error who ask first, {cur_example['who_ask_first']}!={who_ask_first}, example:{example}"
                     del cur_example['who_ask_first']
-                    cur_example[BACKGROUND_KEY] = BIGOLIVE_CHAT_ROBOT
-                    cur_example[BACKGROUND_KEY] = cur_example['prompt']
-                    del cur_example['prompt']
+                    cur_example[DATASET_KEY] = BIGOLIVE_ONLINE_CHAT_DATASET_NAME
                     for i, qa in enumerate(cur_example["qas"]):
-
+                        cur_example[BACKGROUND_KEY] = cur_example['prompt']
                         history_str = get_history(qa['history'], cur_example[HUMAN_NAME_KEY], cur_example[BOT_NAME_KEY])
                         if i > 0:
-                            cur_example[BACKGROUND_KEY] = f"{cur_example[BACKGROUND_KEY]}\n{history_str}"
+                            cur_example[
+                                BACKGROUND_KEY] = f"{cur_example[BACKGROUND_KEY]} {colloquial_prompt}\n{conversation_str}\n{history_str}"
+                        else:
+                            cur_example[
+                                BACKGROUND_KEY] = f"{cur_example[BACKGROUND_KEY]} {colloquial_prompt}\n{conversation_str}\n"
 
                         new_qas = {"turn_0": {QUESTION_KEY: qa[QUESTION_KEY], ANSWER_KEY: qa[ANSWER_KEY]}}
                         new_example = copy.deepcopy(cur_example)
+                        del new_example['prompt']
                         new_example[QAS_KEY] = new_qas
 
                         cleaned_example = process_example(new_example)

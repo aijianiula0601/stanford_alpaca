@@ -49,7 +49,6 @@ print(f"非bigolive数据的对话个数：{len(other_example_list)}")
 # --------------------------
 bigolive_colloquial_f = sys.argv[1]
 
-colloquial_prompt = "You should answer in a colloquial way."
 
 bigolive_coloquial_data_list = []
 with open(bigolive_colloquial_f) as fr:
@@ -66,7 +65,7 @@ with open(org_f) as fr:
         example = json.loads(line)
 
         # 添加口语化标记
-        example[BACKGROUND_KEY] = example[BACKGROUND_KEY] + " " + colloquial_prompt
+        example[BACKGROUND_KEY] = example[BACKGROUND_KEY]
 
         # 只检查bigolive数据,之前的数据bigolive只有一轮
         if example[DATASET_KEY] == BIGOLIVE_ONLINE_CHAT_DATASET_NAME:
@@ -115,7 +114,7 @@ for k in keywords_num_dic:
         all_example_list.append(e)
 
 random.shuffle(bigolive_other_example_list)
-all_example_list += other_example_list + bigolive_other_example_list[:4000]
+all_example_list += other_example_list + bigolive_other_example_list[:5000]
 
 # -----------------------------------
 # 保存
