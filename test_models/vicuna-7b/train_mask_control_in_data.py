@@ -225,7 +225,9 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
             ignore_token_index_list.append((ignore_start_index, ignore_end_index))  # mask index
 
     if len(input_ids_tensor_list) <= 1:
-        # 只有head,没有qa的情况情况下，直接过滤。
+        # 只有head,没有qa的情况情况下，说明文本太长了，直接过滤。
+        logging.warning(
+            f"dataset:{dataset_name} one example too long. background char num:{len(conversation_dic[BACKGROUND_KEY])}")
         return None, None
 
     input_ids = torch.cat(input_ids_tensor_list, dim=0)
@@ -244,39 +246,6 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
         label_ids[:ignore_start_index] = IGNORE_INDEX
 
     return input_ids, label_ids
-
-
-def preprocess(
-        examples: Sequence[Dict],
-        tokenizer: transformers.PreTrainedTokenizer,
-        token_max_len: int,
-        mask_head: bool, mask_question: bool, mask_except_last_answer: bool
-) -> Dict:
-    """Preprocess the data by tokenizing."""
-    input_ids_list = []
-    labels_list = []
-
-    skip_head_too_long_n = 0
-    error_n = 0
-    all_n = 0
-    for example in tqdm(examples):
-        all_n += 1
-        try:
-            input_ids, labels = _preprocess_example(example, tokenizer, token_max_len, mask_head, mask_question,
-                                                    mask_except_last_answer)
-            if input_ids is not None and labels is not None:
-                input_ids_list.append(input_ids)
-                labels_list.append(labels)
-            else:
-                skip_head_too_long_n += 1
-        except Exception as e:
-            logging.error(f"---------error:{e},example:\n{json.dumps(example)}")
-            error_n += 1
-            pass
-
-    logging.info(f"---------all_n:{all_n},skip_head_too_long:{skip_head_too_long_n},error_n:{error_n}")
-
-    return dict(input_ids=input_ids_list, labels=labels_list)
 
 
 class LazySupervisedDataset(Dataset):
@@ -302,7 +271,7 @@ class LazySupervisedDataset(Dataset):
         cur_example = self.list_data_dict[i]
         input_ids, labels = _preprocess_example(cur_example, self.tokenizer, self.token_max_len)
         while input_ids is None or labels is None:
-            logging.warning(f"----input_ids or labels is None,resample! error example:{json.dumps(cur_example)}\n")
+            logging.warning(f"----input_ids or labels is None,resample! error dataset:{cur_example[DATASET_KEY]}\n")
             random_i = random.randint(0, self.list_data_dict_len - 1)
             cur_example = self.list_data_dict[random_i]
             input_ids, labels = _preprocess_example(cur_example, self.tokenizer, self.token_max_len)

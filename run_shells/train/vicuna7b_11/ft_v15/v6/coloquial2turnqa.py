@@ -38,7 +38,11 @@ def process_example_f(example):
 
     for i, qa in enumerate(qas_list):
         history_l = len(qa['history'])
-        qa['history'] = qas_list[min(0, i - history_l):i]
+        qa['history'] = qas_list[max(0, i - history_l):i]
+
+        # 暂时处理
+        if history_l != len(qa['history']):
+            return None
 
         cp_qa_h = copy.deepcopy(qa['history'])
         for h_qa in cp_qa_h:
@@ -79,37 +83,34 @@ if __name__ == '__main__':
         with open(org_f) as fr:
             for line in tqdm(fr.readlines()):
                 all_n += 1
-                try:
-                    cur_example = process_example_f(json.loads(line))
-                    assert cur_example[
-                               'who_ask_first'] == who_ask_first, f"error who ask first, {cur_example['who_ask_first']}!={who_ask_first}, example:{example}"
-                    del cur_example['who_ask_first']
-                    cur_example[DATASET_KEY] = BIGOLIVE_ONLINE_CHAT_DATASET_NAME
-                    for i, qa in enumerate(cur_example["qas"]):
-                        cur_example[BACKGROUND_KEY] = cur_example['prompt']
-                        history_str = get_history(qa['history'], cur_example[HUMAN_NAME_KEY], cur_example[BOT_NAME_KEY])
-                        if i > 0:
-                            cur_example[
-                                BACKGROUND_KEY] = f"{cur_example[BACKGROUND_KEY]} {colloquial_prompt}\n{conversation_str}\n{history_str}"
-                        else:
-                            cur_example[
-                                BACKGROUND_KEY] = f"{cur_example[BACKGROUND_KEY]} {colloquial_prompt}\n{conversation_str}\n"
-
-                        new_qas = {"turn_0": {QUESTION_KEY: qa[QUESTION_KEY], ANSWER_KEY: qa[ANSWER_KEY]}}
-                        new_example = copy.deepcopy(cur_example)
-                        del new_example['prompt']
-                        new_example[QAS_KEY] = new_qas
-
-                        cleaned_example = process_example(new_example)
-                        if cleaned_example is not None:
-                            cleaned_example[MASK_HEAD_KEY] = True
-                            cleaned_example[MASK_QUESTION_KEY] = True
-                            cleaned_example[MASK_EXCEPT_LAST_ANSWER] = False
-                            fw.write(f"{json.dumps(cleaned_example)}\n")
-
-                except Exception as e:
+                cur_example = process_example_f(json.loads(line))
+                if cur_example is None:
                     skip_n += 1
-                    print(f"Error example:{line},{e}")
-                    traceback.print_exc()
+                    continue
+                assert cur_example[
+                           'who_ask_first'] == who_ask_first, f"error who ask first, {cur_example['who_ask_first']}!={who_ask_first}, example:{example}"
+                del cur_example['who_ask_first']
+                cur_example[DATASET_KEY] = BIGOLIVE_ONLINE_CHAT_DATASET_NAME
+                for i, qa in enumerate(cur_example["qas"]):
+                    cur_example[BACKGROUND_KEY] = cur_example['prompt']
+                    history_str = get_history(qa['history'], cur_example[HUMAN_NAME_KEY], cur_example[BOT_NAME_KEY])
+                    if i > 0:
+                        cur_example[
+                            BACKGROUND_KEY] = f"{cur_example[BACKGROUND_KEY]} {colloquial_prompt}\n{conversation_str}\n{history_str}"
+                    else:
+                        cur_example[
+                            BACKGROUND_KEY] = f"{cur_example[BACKGROUND_KEY]} {colloquial_prompt}\n{conversation_str}\n"
+
+                    new_qas = {"turn_0": {QUESTION_KEY: qa[QUESTION_KEY], ANSWER_KEY: qa[ANSWER_KEY]}}
+                    new_example = copy.deepcopy(cur_example)
+                    del new_example['prompt']
+                    new_example[QAS_KEY] = new_qas
+
+                    cleaned_example = process_example(new_example)
+                    if cleaned_example is not None:
+                        cleaned_example[MASK_HEAD_KEY] = True
+                        cleaned_example[MASK_QUESTION_KEY] = True
+                        cleaned_example[MASK_EXCEPT_LAST_ANSWER] = False
+                        fw.write(f"{json.dumps(cleaned_example)}\n")
 
     print(f"all_n:{all_n},skip:{skip_n},exist:{all_n - skip_n},save to:{save_f_turns}")
