@@ -2,7 +2,11 @@ import os
 import sys
 import json
 import random
+import time
+
 import gradio as gr
+
+now_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
 
 # --------------------------------------------------------
 # 全局变量
@@ -23,8 +27,14 @@ all_user_vote_info_dic = {}
 data_f = "/Users/jiahong/Downloads/gpt4to_colloquial.txt"
 
 # 投票结果保存路径
-save_vote_f = "/Users/jiahong/Downloads/vote_res.txt"
-opened_vot_f = open(save_vote_f, 'w', buffering=1)
+save_vote_log_f = "/Users/jiahong/Downloads/vote_log.txt"
+opened_vote_log_f = open(save_vote_log_f, 'a', buffering=1)
+opened_vote_log_f.write(f"########## 重启时间:{now_time} ##########\n")
+# 保存已经评估的用户信息
+save_vote_f = "/Users/jiahong/Downloads/user_vote_record.json"
+if os.path.exists(save_vote_f):
+    all_user_vote_info_dic = json.load(open(save_vote_f))
+    opened_vote_log_f.write(f"########## loaded user vot info from:{save_vote_f}\n")
 
 
 # --------------------------------------------------------
@@ -81,7 +91,6 @@ def get_one_example(your_name):
 def your_name_change(your_name):
     done_n, example, uid_pair = get_one_example(your_name)
     next_dialogue_text = f"next({done_n}/{len(example_dic_keys)})"
-
     history = get_history(example)
 
     return history, next_dialogue_text, example['prompt'], uid_pair
@@ -109,8 +118,9 @@ def submit_click(submit_btn, uid_pair, your_name, comment_text):
     all_user_vote_info_dic[your_name][uid_pair] = {"vote_value": vote_value, "comment": comment_text}
 
     print_dic = {"name": your_name, "uid_pair": uid_pair, 'vote_value': vote_value, 'comment_text': comment_text}
-    print(f"#####submit-log#####{json.dumps(print_dic)}")
-    opened_vot_f.write(f"{json.dumps(print_dic)}\n")
+    opened_vote_log_f.write(f"########## submit-log: {json.dumps(print_dic)}\n")
+    json.dump(all_user_vote_info_dic, open(save_vote_f, 'w'))
+    opened_vote_log_f.write(f"########## save-vote-f: {your_name} save vote f to: {save_vote_f}\n")
 
     return "vote done!"
 
