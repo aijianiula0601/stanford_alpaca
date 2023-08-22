@@ -189,8 +189,7 @@ data = other_data + bigolive_coloquial_data_list[:5000]
 
 random.shuffle(data)
 
-
-with open(save_f,'w',buffering=1) as fw:
+with open(save_f, 'w', buffering=1) as fw:
     user_ask_first_n = 0
     all_n = 0
     for item in data:
