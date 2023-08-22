@@ -84,6 +84,7 @@ GPT35_SELF_PROMPT_DATASET_NAME = "gpt35_sex_self_prompt"
 CROWDSOURCE_SEX_DATASET_NAME = 'crowdsource_sex'
 # openorca
 OPENORCA_DATASET_NAME = "openorca"
+OPEN_PLATYPUS_DATASET_NAME = "open-platypus"
 PYG_DATASET_NAME = "pyg"
 MECHAT_DATASET_NAME = "mechat"
 
@@ -222,7 +223,7 @@ def get_dataset_prompt(dataset_name, human_name, bot_name, background):
     elif dataset_name == CROWDSOURCE_SEX_DATASET_NAME:
         return crowdsource_sex_prompt(human_name, bot_name, background)
 
-    elif dataset_name == BIGOLIVE_ONLINE_CHAT_DATASET_NAME or dataset_name == BIGOLIVE_CHAT_ROBOT:
+    elif dataset_name == BIGOLIVE_ONLINE_CHAT_DATASET_NAME or dataset_name == BIGOLIVE_CHAT_ROBOT or dataset_name == OPEN_PLATYPUS_DATASET_NAME:
         return bigolive_chat_prompt(human_name, bot_name, background)
 
     elif dataset_name == OPENORCA_DATASET_NAME:
