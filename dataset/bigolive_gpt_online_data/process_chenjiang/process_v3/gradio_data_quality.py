@@ -5,6 +5,7 @@ import random
 import time
 import pandas as pd
 import gradio as gr
+import datetime
 
 now_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
 
@@ -22,10 +23,14 @@ now_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
 #     }
 # }
 
+# 用户投票统计
 all_user_vote_info_dic = {}
+# 投票耗时，存储格式
+# {"your_name_uid_pair":{'start_time':'~','end_time':'~'}}
+time_consume_dic = {}
 
-base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v3/biaozhu_vots"
-# base_dir = "/Users/jiahong/Downloads"
+# base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v3/biaozhu_vots"
+base_dir = "/Users/jiahong/Downloads"
 # 数据, only_qa.py 得到
 data_f = f"{base_dir}/gpt4to_colloquial.txt"
 
@@ -43,8 +48,19 @@ if os.path.exists(save_vote_f):
 def get_analysis_result():
     if len(all_user_vote_info_dic) > 0:
         un_list = list(all_user_vote_info_dic.keys())
-        dn_list = [len(all_user_vote_info_dic[k].keys()) for k in all_user_vote_info_dic]
-        return pd.DataFrame({'user name': un_list, 'finish dialogues': dn_list})
+        dn_list = []
+        time_consume_list = []
+        for k in all_user_vote_info_dic:
+            dn_list.append(len(all_user_vote_info_dic[k].keys()))
+            cur_time_consume = 0
+            for uid in all_user_vote_info_dic[k]:
+                if 'time_consume' in all_user_vote_info_dic[k][uid]:
+                    cur_time_consume += all_user_vote_info_dic[k][uid]['time_consume']
+
+            time_consume_list.append(round(cur_time_consume / 60, 2))
+
+        return pd.DataFrame(
+            {'user name': un_list, 'finish dialogues': dn_list, "time_consume(hours)": time_consume_list})
     else:
         return None
 
@@ -107,6 +123,8 @@ def your_name_change(your_name):
     next_dialogue_text = f"next({done_n}/{len(example_dic_keys)})"
     history = get_chat_contents(example)
 
+    time_consume_dic[f"{your_name}_{uid_pair}"] = {"start_time": datetime.datetime.now()}
+
     return history, next_dialogue_text, example['prompt'], uid_pair, get_analysis_result()
 
 
@@ -142,13 +160,23 @@ def submit_click(submit_btn, uid_pair, your_name, comment_text):
     return "vote done!", get_analysis_result()
 
 
-def next_dialogue_btn_click(your_name):
+def next_dialogue_btn_click(your_name, old_uid_pair):
     if your_name is None or your_name == "":
         raise gr.Error('Must input your name')
 
     done_n, example, uid_pair = get_one_example(your_name)
     next_dialogue_text = f"next({done_n}/{len(example_dic_keys)})"
     history = get_chat_contents(example)
+
+    # 旧对话结束时间
+    ck = f"{your_name}_{old_uid_pair}"
+    assert ck in time_consume_dic and 'start_time' in time_consume_dic[ck]
+    time_consume_dic[ck]["end_time"] = datetime.datetime.now()
+    all_user_vote_info_dic[your_name][old_uid_pair]['time_consume'] = round(
+        (time_consume_dic[ck]['end_time'] - time_consume_dic[ck]['start_time']).seconds / 60, 2)  # 分钟来保存
+
+    # 下一个对话开始时间
+    time_consume_dic[f"{your_name}_{uid_pair}"] = {"start_time": datetime.datetime.now()}
 
     return history, next_dialogue_text, example['prompt'], uid_pair, "submit", "", "", get_analysis_result()
 
@@ -178,7 +206,8 @@ if __name__ == '__main__':
                 gr_chatbot = gr.Chatbot(label="Dialogue")
                 next_dialogue = gr.Button(value="next")
 
-        analysis_table = gr.DataFrame(label="Evaluation results", headers=['user name', "finish dialogues"],
+        analysis_table = gr.DataFrame(label="Evaluation results",
+                                      headers=['user name', "finish dialogues", "time_consume(hours)"],
                                       value=get_analysis_result())
         your_name.change(your_name_change, [your_name],
                          [gr_chatbot, next_dialogue, background_text, uid_pair, analysis_table],
@@ -186,7 +215,7 @@ if __name__ == '__main__':
         approve_btn.click(oppose_oppose_btn_click, [approve_btn], [submit_btn])
         oppose_btn.click(oppose_oppose_btn_click, [oppose_btn], [submit_btn])
         submit_btn.click(submit_click, [submit_btn, uid_pair, your_name, comment_text], [submit_text, analysis_table])
-        next_dialogue.click(next_dialogue_btn_click, [your_name],
+        next_dialogue.click(next_dialogue_btn_click, [your_name, uid_pair],
                             [gr_chatbot, next_dialogue, background_text, uid_pair, submit_btn, comment_text,
                              submit_text, analysis_table],
                             queue=False)
