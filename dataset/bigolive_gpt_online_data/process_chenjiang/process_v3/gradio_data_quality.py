@@ -29,8 +29,8 @@ all_user_vote_info_dic = {}
 # {"your_name_uid_pair":{'start_time':'~','end_time':'~'}}
 time_consume_dic = {}
 
-# base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v3/biaozhu_vots"
-base_dir = "/Users/jiahong/Downloads"
+base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v3/biaozhu_vots"
+# base_dir = "/Users/jiahong/Downloads"
 # 数据, only_qa.py 得到
 data_f = f"{base_dir}/gpt4to_colloquial.txt"
 
@@ -168,12 +168,17 @@ def next_dialogue_btn_click(your_name, old_uid_pair):
     next_dialogue_text = f"next({done_n}/{len(example_dic_keys)})"
     history = get_chat_contents(example)
 
+    if your_name not in all_user_vote_info_dic:
+        raise gr.Error('results of last vote not submitted!')
+
     # 旧对话结束时间
     ck = f"{your_name}_{old_uid_pair}"
-    assert ck in time_consume_dic and 'start_time' in time_consume_dic[ck]
-    time_consume_dic[ck]["end_time"] = datetime.datetime.now()
-    all_user_vote_info_dic[your_name][old_uid_pair]['time_consume'] = round(
-        (time_consume_dic[ck]['end_time'] - time_consume_dic[ck]['start_time']).seconds / 60, 2)  # 分钟来保存
+    if ck in time_consume_dic:
+        time_consume_dic[ck]["end_time"] = datetime.datetime.now()
+        if old_uid_pair not in all_user_vote_info_dic[your_name]:
+            all_user_vote_info_dic[your_name][old_uid_pair] = {}
+        all_user_vote_info_dic[your_name][old_uid_pair]['time_consume'] = round(
+            (time_consume_dic[ck]['end_time'] - time_consume_dic[ck]['start_time']).seconds / 60, 2)  # 分钟来保存
 
     # 下一个对话开始时间
     time_consume_dic[f"{your_name}_{uid_pair}"] = {"start_time": datetime.datetime.now()}
@@ -220,5 +225,5 @@ if __name__ == '__main__':
                              submit_text, analysis_table],
                             queue=False)
 
-    # demo.queue()
-    demo.launch(server_name="0.0.0.0", server_port=9801, share=True)
+    demo.queue()
+    demo.launch(server_name="0.0.0.0", server_port=9801)
