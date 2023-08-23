@@ -115,6 +115,9 @@ def oppose_oppose_btn_click(approve_oppose):
 
 
 def submit_click(submit_btn, uid_pair, your_name, comment_text):
+    if your_name.strip() == "":
+        raise gr.Error('please input your name!')
+
     # 投票结果
     if submit_btn.replace("submit", "") == "👍":
         vote_value = 1
