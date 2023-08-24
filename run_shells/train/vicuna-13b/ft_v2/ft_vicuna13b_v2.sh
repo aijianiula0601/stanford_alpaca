@@ -12,7 +12,7 @@ cd ../../../../
 
 your_random_port=11224
 
-base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-13b/ft_v1"
+base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-13b/ft_v2"
 llama_ckpt_and_tokenizer='jeffwan/vicuna-13b'
 output_dir="${base_dir}/ft_out"
 data_json="${base_dir}/train_data.txt"
