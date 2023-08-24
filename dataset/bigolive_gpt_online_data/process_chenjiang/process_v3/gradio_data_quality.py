@@ -26,7 +26,7 @@ now_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
 # 用户投票统计
 all_user_vote_info_dic = {}
 # 投票耗时，存储格式
-# {"your_name_uid_pair":{'start_time':'~','end_time':'~'}}
+# {"your_name":{"uid_pair":{'start_time':'~','end_time':'~'},...,}
 time_consume_dic = {}
 
 base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v3/biaozhu_vots"
@@ -123,7 +123,9 @@ def your_name_change(your_name):
     next_dialogue_text = f"next({done_n}/{len(example_dic_keys)})"
     history = get_chat_contents(example)
 
-    time_consume_dic[f"{your_name}_{uid_pair}"] = {"start_time": datetime.datetime.now()}
+    if your_name not in time_consume_dic:
+        time_consume_dic[your_name] = {}
+    time_consume_dic[your_name][uid_pair] = {"start_time": datetime.datetime.now()}
 
     return history, next_dialogue_text, example['prompt'], uid_pair, get_analysis_result()
 
@@ -172,16 +174,24 @@ def next_dialogue_btn_click(your_name, old_uid_pair):
         raise gr.Error('results of last vote not submitted!')
 
     # 旧对话结束时间
-    ck = f"{your_name}_{old_uid_pair}"
-    if ck in time_consume_dic:
-        time_consume_dic[ck]["end_time"] = datetime.datetime.now()
+    if your_name in time_consume_dic and old_uid_pair in time_consume_dic[your_name]:
+        time_consume_dic[your_name][old_uid_pair]["end_time"] = datetime.datetime.now()
         if old_uid_pair not in all_user_vote_info_dic[your_name]:
             all_user_vote_info_dic[your_name][old_uid_pair] = {}
         all_user_vote_info_dic[your_name][old_uid_pair]['time_consume'] = round(
-            (time_consume_dic[ck]['end_time'] - time_consume_dic[ck]['start_time']).seconds / 60, 2)  # 分钟来保存
+            (time_consume_dic[your_name][old_uid_pair]['end_time'] - time_consume_dic[your_name][old_uid_pair][
+                'start_time']).seconds / 60, 2)  # 分钟来保存
+
+        json.dump(all_user_vote_info_dic, open(save_vote_f, 'w'))
+
+        # 清空耗时字典
+        for k in [kk for kk in time_consume_dic[your_name]]:
+            del time_consume_dic[your_name][k]
 
     # 下一个对话开始时间
-    time_consume_dic[f"{your_name}_{uid_pair}"] = {"start_time": datetime.datetime.now()}
+    if your_name not in time_consume_dic:
+        time_consume_dic[your_name] = {}
+    time_consume_dic[your_name][uid_pair] = {"start_time": datetime.datetime.now()}
 
     return history, next_dialogue_text, example['prompt'], uid_pair, "submit", "", "", get_analysis_result()
 
