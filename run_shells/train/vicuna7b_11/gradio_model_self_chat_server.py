@@ -21,9 +21,8 @@ ROLE_A_START_QUESTION = "hi"
 
 
 models_list = [
-    "vicuna7b_ft_v13_v1(优化后模型)",
-    "vicuna7b_ft_v15_v3_v2(优化后模型v2)",
-    "vicuna7b_ft_v15_v5_v2(优化后模型v3)",
+    "vicuna7b_ft_v13(未口语化)",
+    "vicuna7b_ft_v15_v6_v2(gpt4口语化)",
 ]
 url_f102 = "http://202.168.114.102"
 url_v100 = "http://202.168.100.251"
@@ -31,8 +30,7 @@ url_v100_f165 = "http://202.168.100.165"
 
 models_url_dic = {
     models_list[0]: f"{url_f102}:6213/api",
-    models_list[1]: f"{url_f102}:61532/api",
-    models_list[2]: f"{url_f102}:61552/api",
+    models_list[1]: f"{url_f102}:61562/api",
 }
 
 models_prompt_key_dic = {
@@ -48,6 +46,7 @@ PROMPT_DICT = {
     "None": "",
     "bigolive": (
         "{background}\n"
+        "The following a conversation you had with someone.\n"
         "{history}"
     ),
     "conversion_history": (
@@ -122,8 +121,13 @@ def mask_instruct_v2(message_list, role_dict, temperature=0.6, model_server_url=
     return text_respond.replace("#", "").strip()
 
 
+additional_prompt = "Responce without keyword including \"AI\", \"language model\", \"virtual assistant\" and within 20 words. You need to immerse yourself in your role not chat assistant. -If user asks you to make voice call, share pictures or videos, share position, say you are not quite familiar with each other yet and shift the conversation to a different topic. -If user ask you for accounts other platforms like WhatsApp, say you are still in the process of getting to know each other and explore a different topic. -If user think you are robot, you must refuse to express anger and attempt to end the conversation. -When a user expresses affection towards you, you can politely express your gratitude and suggest getting to know each other better. Response to the recent user sentence."
+conversation_str = "The following a conversation you had with someone."
+colloquial_prompt = "You should answer in a colloquial way."
+
+
 def mask_instruct(message_list, role_dict, temperature=0.6, model_server_url="http://202.168.100.251:5019/api",
-                  select_role_b=None):
+                  select_role_b=None, role_b_model_name=None):
     """
     message-list第一个数值是背景，
     后面需要在role_dict里要做好配置，我最后会回复role_dict['assistant']角色的答案;
@@ -135,6 +139,9 @@ def mask_instruct(message_list, role_dict, temperature=0.6, model_server_url="ht
         [item for item in history_list]) + DEFAULT_SEGMENT_TOKEN + role_dict['assistant'] + ": "
 
     if "bigolive" in select_role_b:
+        if role_b_model_name == "vicuna7b_ft_v13(未口语化)":
+            background = background.replace(additional_prompt, "").replace(colloquial_prompt, "")
+
         prompt_input = PROMPT_DICT['bigolive'].format_map({"background": background, "history": history})
     else:
         prompt_input = PROMPT_DICT['conversion'].format_map(

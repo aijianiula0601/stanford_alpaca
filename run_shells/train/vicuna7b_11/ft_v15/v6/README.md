@@ -19,3 +19,12 @@ exp_tag=add_gift_prompt： 有送礼引导的
 prompt exp_tag=prompt_optimize： 无送礼引导
 
 这个版本的训练，对话exp_tag=prompt_optimize采用原始的prompt
+
+
+## v3
+
+v2数据的基础上，添加open-platypus数据
+
+
+## v4
+

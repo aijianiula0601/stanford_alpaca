@@ -44,7 +44,7 @@ def role_b_chat(selected_temp, user_message, history, background_b, role_a_name,
                                     role_dict={"user": role_a_name,
                                                "assistant": role_b_name},
                                     temperature=selected_temp, model_server_url=models_url_dic[role_b_model_name],
-                                    select_role_b=select_role_b)
+                                    select_role_b=select_role_b,role_b_model_name=role_b_model_name)
 
     print(f"{role_b_name}({role_b_model_name}): ", role_b_question)
     history[-1][-1] = f"{role_b_name}: " + role_b_question
@@ -82,8 +82,8 @@ def update_select_role_b(role_b_key, user_name, select_role_b_model):
         {"role_a": user_name,
          "role_b": prepared_role_b_dic[role_b_key]["role_name"]})
 
-    if select_role_b_model == "vicuna7b_ft_v15_v5_v2(优化后模型v3)":
-        background_b += f" {prepared_role_b_dic[role_b_key]['role_name']} always answer in a colloquial way."
+    # if select_role_b_model == "vicuna7b_ft_v15_v5_v2(gpt35口语化)":
+    #     background_b += f" {prepared_role_b_dic[role_b_key]['role_name']} always answer in a colloquial way."
 
     examples_b = prepared_role_b_dic[role_b_key]["examples"].format_map(
         {"role_a": user_name,

@@ -4,7 +4,7 @@ from tqdm import tqdm
 base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v3"
 
 org_f = f"{base_dir}/bigolive_robot_chat_history.for_train.20230804-20230808.starter_user.v2.en_gpt4to_colloquial.txt"
-save_f = "/tmp/gpt4to_colloquial.txt"
+save_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v3/biaozhu_vots/gpt4to_colloquial.txt"
 
 turn_n_list = []
 turn_n_dic = {}
