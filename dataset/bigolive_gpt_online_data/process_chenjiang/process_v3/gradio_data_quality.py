@@ -29,8 +29,8 @@ all_user_vote_info_dic = {}
 # {"your_name":{"uid_pair":{'start_time':'~','end_time':'~'},...,}
 time_consume_dic = {}
 
-base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v3/biaozhu_vots"
-# base_dir = "/Users/jiahong/Downloads"
+# base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v3/biaozhu_vots"
+base_dir = "/Users/jiahong/Downloads"
 # 数据, only_qa.py 得到
 data_f = f"{base_dir}/gpt4to_colloquial.txt"
 
@@ -47,20 +47,23 @@ if os.path.exists(save_vote_f):
 
 def get_analysis_result():
     if len(all_user_vote_info_dic) > 0:
-        un_list = list(all_user_vote_info_dic.keys())
-        dn_list = []
+        your_name_list = list(all_user_vote_info_dic.keys())
+        finished_dialogues_list = []
         time_consume_list = []
-        for k in all_user_vote_info_dic:
-            dn_list.append(len(all_user_vote_info_dic[k].keys()))
+        for your_name in all_user_vote_info_dic:
             cur_time_consume = 0
-            for uid in all_user_vote_info_dic[k]:
-                if 'time_consume' in all_user_vote_info_dic[k][uid]:
-                    cur_time_consume += all_user_vote_info_dic[k][uid]['time_consume']
+            cur_fd = 0
+            for uid in all_user_vote_info_dic[your_name]:
+                if 'time_consume' in all_user_vote_info_dic[your_name][uid]:
+                    cur_time_consume += all_user_vote_info_dic[your_name][uid]['time_consume']
+                    cur_fd += 1
 
             time_consume_list.append(round(cur_time_consume / 60, 2))
+            finished_dialogues_list.append(cur_fd)
 
         return pd.DataFrame(
-            {'user name': un_list, 'finish dialogues': dn_list, "time_consume(hours)": time_consume_list})
+            {'user name': your_name_list, 'finish dialogues': finished_dialogues_list,
+             "time_consume(hours)": time_consume_list})
     else:
         return None
 
@@ -162,7 +165,7 @@ def submit_click(submit_btn, uid_pair, your_name, comment_text):
     return "vote done!", get_analysis_result()
 
 
-def next_dialogue_btn_click(your_name, old_uid_pair):
+def next_dialogue_btn_click(your_name, old_uid_pair, submit_text):
     if your_name is None or your_name == "":
         raise gr.Error('Must input your name')
 
@@ -170,7 +173,7 @@ def next_dialogue_btn_click(your_name, old_uid_pair):
     next_dialogue_text = f"next({done_n}/{len(example_dic_keys)})"
     history = get_chat_contents(example)
 
-    if your_name not in all_user_vote_info_dic:
+    if your_name not in all_user_vote_info_dic or submit_text != "vote done!":
         raise gr.Error('results of last vote not submitted!')
 
     # 旧对话结束时间
@@ -223,14 +226,14 @@ if __name__ == '__main__':
 
         analysis_table = gr.DataFrame(label="Evaluation results",
                                       headers=['user name', "finish dialogues", "time_consume(hours)"],
-                                      value=get_analysis_result())
+                                      value=get_analysis_result, every=2)
         your_name.change(your_name_change, [your_name],
                          [gr_chatbot, next_dialogue, background_text, uid_pair, analysis_table],
                          queue=False)
         approve_btn.click(oppose_oppose_btn_click, [approve_btn], [submit_btn])
         oppose_btn.click(oppose_oppose_btn_click, [oppose_btn], [submit_btn])
         submit_btn.click(submit_click, [submit_btn, uid_pair, your_name, comment_text], [submit_text, analysis_table])
-        next_dialogue.click(next_dialogue_btn_click, [your_name, uid_pair],
+        next_dialogue.click(next_dialogue_btn_click, [your_name, uid_pair, submit_text],
                             [gr_chatbot, next_dialogue, background_text, uid_pair, submit_btn, comment_text,
                              submit_text, analysis_table],
                             queue=False)
