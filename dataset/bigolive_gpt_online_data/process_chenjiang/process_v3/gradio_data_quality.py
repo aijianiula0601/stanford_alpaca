@@ -29,8 +29,8 @@ all_user_vote_info_dic = {}
 # {"your_name":{"uid_pair":{'start_time':'~','end_time':'~'},...,}
 time_consume_dic = {}
 
-# base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v3/biaozhu_vots"
-base_dir = "/Users/jiahong/Downloads"
+base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v3/biaozhu_vots"
+# base_dir = "/Users/jiahong/Downloads"
 # 数据, only_qa.py 得到
 data_f = f"{base_dir}/gpt4to_colloquial.txt"
 
