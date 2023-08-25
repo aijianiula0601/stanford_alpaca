@@ -61,6 +61,14 @@ def get_analysis_result():
             time_consume_list.append(round(cur_time_consume / 60, 2))
             finished_dialogues_list.append(cur_fd)
 
+        your_name_n = len(your_name_list)
+        finished_dialogues_sum = sum(finished_dialogues_list)
+        time_consume_sum = sum(time_consume_list)
+
+        your_name_list.insert(0, f"total users({your_name_n})")
+        finished_dialogues_list.insert(0, f"total finished({finished_dialogues_sum})")
+        time_consume_list.insert(0, f"total time consume({time_consume_sum})")
+
         return pd.DataFrame(
             {'user name': your_name_list, 'finish dialogues': finished_dialogues_list,
              "time_consume(hours)": time_consume_list})
