@@ -22,6 +22,7 @@ ROLE_A_START_QUESTION = "hi"
 
 models_list = [
     "vicuna7b_ft_v13(未口语化)",
+    "vicuna7b_ft_v15_v6_v3(gpt4口语化+open-platypus数据)",
     "vicuna7b_ft_v15_v6_v2(gpt4口语化)",
 ]
 url_f102 = "http://202.168.114.102"
@@ -30,7 +31,8 @@ url_v100_f165 = "http://202.168.100.165"
 
 models_url_dic = {
     models_list[0]: f"{url_f102}:6213/api",
-    models_list[1]: f"{url_f102}:61562/api",
+    models_list[1]: f"{url_v100_f165}:61563/api",
+    models_list[2]: f"{url_v100_f165}:61562/api",
 }
 
 models_prompt_key_dic = {

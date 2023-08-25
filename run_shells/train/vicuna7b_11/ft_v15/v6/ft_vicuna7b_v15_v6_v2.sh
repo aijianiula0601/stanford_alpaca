@@ -14,7 +14,7 @@ your_random_port=11224
 
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v15/v6_v2"
 llama_ckpt_and_tokenizer="eachadea/vicuna-7b-1.1"
-output_dir="${base_dir}/ft_out_2_epochs"
+output_dir="${base_dir}/ft_out"
 data_json="${base_dir}/train_data.txt"
 bigolivedata_colloquial_json="${base_dir}/bigolive_colloquial_turns.txt"
 cache_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/hungging"

@@ -28,3 +28,4 @@ v2数据的基础上，添加open-platypus数据
 
 ## v4
 
+v2的数据，除了bigolive的数据，其他数据复制一遍
