@@ -29,8 +29,8 @@ all_user_vote_info_dic = {}
 # {"your_name":{"uid_pair":{'start_time':'~','end_time':'~'},...,}
 time_consume_dic = {}
 
-base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v3/biaozhu_vots"
-# base_dir = "/Users/jiahong/Downloads"
+# base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v3/biaozhu_vots"
+base_dir = "/Users/jiahong/Downloads"
 # 数据, only_qa.py 得到
 data_f = f"{base_dir}/gpt4to_colloquial.txt"
 
@@ -165,15 +165,15 @@ def submit_click(submit_btn, uid_pair, your_name, comment_text):
         all_user_vote_info_dic[your_name] = {}
     all_user_vote_info_dic[your_name][uid_pair] = {"vote_value": vote_value, "comment": comment_text}
 
-    print_dic = {"name": your_name, "uid_pair": uid_pair, 'vote_value': vote_value, 'comment_text': comment_text}
-    opened_vote_log_f.write(f"########## submit-log: {json.dumps(print_dic)}\n")
+    # print_dic = {"name": your_name, "uid_pair": uid_pair, 'vote_value': vote_value, 'comment_text': comment_text}
+    # opened_vote_log_f.write(f"########## submit-log: {json.dumps(print_dic)}\n")
     json.dump(all_user_vote_info_dic, open(save_vote_f, 'w'))
-    opened_vote_log_f.write(f"########## save-vote-f: {your_name} save vote f to: {save_vote_f}\n")
+    # opened_vote_log_f.write(f"########## save-vote-f: {your_name} save vote f to: {save_vote_f}\n")
 
     return "vote done!", get_analysis_result()
 
 
-def next_dialogue_btn_click(your_name, old_uid_pair, submit_text):
+def next_dialogue_btn_click(your_name, old_uid_pair, submit_text, comment_text):
     if your_name is None or your_name == "":
         raise gr.Error('Must input your name')
 
@@ -192,6 +192,16 @@ def next_dialogue_btn_click(your_name, old_uid_pair, submit_text):
         all_user_vote_info_dic[your_name][old_uid_pair]['time_consume'] = round(
             (time_consume_dic[your_name][old_uid_pair]['end_time'] - time_consume_dic[your_name][old_uid_pair][
                 'start_time']).seconds / 60, 2)  # 分钟来保存
+
+        # 保存结束时间，用户统计
+        print_dic = {"name": your_name,
+                     "uid_pair": old_uid_pair,
+                     'vote_value': all_user_vote_info_dic[your_name][old_uid_pair]['vote_value'],
+                     "time_consume": all_user_vote_info_dic[your_name][old_uid_pair]['time_consume'],
+                     'end_date': time.strftime('%Y-%m-%d', time.localtime(time.time())),
+                     'comment_text': comment_text,
+                     }
+        opened_vote_log_f.write(f"########## next-dialogue: {json.dumps(print_dic)}\n")
 
         json.dump(all_user_vote_info_dic, open(save_vote_f, 'w'))
 
@@ -241,7 +251,7 @@ if __name__ == '__main__':
         approve_btn.click(oppose_oppose_btn_click, [approve_btn], [submit_btn])
         oppose_btn.click(oppose_oppose_btn_click, [oppose_btn], [submit_btn])
         submit_btn.click(submit_click, [submit_btn, uid_pair, your_name, comment_text], [submit_text, analysis_table])
-        next_dialogue.click(next_dialogue_btn_click, [your_name, uid_pair, submit_text],
+        next_dialogue.click(next_dialogue_btn_click, [your_name, uid_pair, submit_text, comment_text],
                             [gr_chatbot, next_dialogue, background_text, uid_pair, submit_btn, comment_text,
                              submit_text, analysis_table],
                             queue=False)
