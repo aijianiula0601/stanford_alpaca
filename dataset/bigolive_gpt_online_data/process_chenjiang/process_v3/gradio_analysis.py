@@ -14,8 +14,8 @@ now_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
 # ----------------------------------------------
 
 
-# base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v3/biaozhu_vots"
-base_dir = "/Users/jiahong/Downloads"
+base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v3/biaozhu_vots"
+# base_dir = "/Users/jiahong/Downloads"
 vote_log_f = f"{base_dir}/vote_log.txt"
 
 example_key_word = "########## next-dialogue:"
