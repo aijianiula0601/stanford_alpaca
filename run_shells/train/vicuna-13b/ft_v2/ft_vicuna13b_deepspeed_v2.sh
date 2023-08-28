@@ -46,6 +46,7 @@ torchrun --nproc_per_node=4 --master_port=${your_random_port} test_models/vicuna
     --logging_steps 1 \
     --report_to "tensorboard" \
     --gradient_checkpointing True \
-    --tf32 True \
+    --deepspeed run_shells/train/deepspeed_config.json \
+    --fp16 True \
     --process_name "vicuna-13b-ft_v2" \
     --lazy_load
