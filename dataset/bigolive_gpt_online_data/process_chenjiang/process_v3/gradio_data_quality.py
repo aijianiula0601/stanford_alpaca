@@ -120,7 +120,7 @@ def get_one_example(your_name):
         not_done_uid_pairs = list(set(example_dic_keys) - set(done_uid_pairs))
         done_n = len(done_uid_pairs)
 
-    uid_pair = random.sample(not_done_uid_pairs, k=1)[0]
+    uid_pair = not_done_uid_pairs[0]
     return done_n + 1, example_dic[uid_pair], uid_pair
 
 
