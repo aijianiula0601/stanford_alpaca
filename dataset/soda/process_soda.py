@@ -71,7 +71,10 @@ for turns_data in tqdm(json.load(open(org_f))):
 
 print(f"dataset name:{dataset_name},all_n:{len(soda_data)}, skip_empty_qa_n:{skip_empty_qa_n}")
 
-save_f = f"{base_dir}/soda_train_name_qas.json"
+save_f = f"{base_dir}/soda_train_name_qas.txt"
 
-json.dump(soda_data, open(save_f, 'w'))
+with open(save_f, 'w') as fw:
+    for example in soda_data:
+        fw.write(f"{json.dumps(example)}\n")
+
 print(f"save to:{save_f}")

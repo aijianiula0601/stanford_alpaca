@@ -12,7 +12,7 @@ from dataset.filter_ops import *
 base_dir = "/mnt/cephfs/hjh/common_dataset/nlp/qa/en/soda"
 
 f = f"{base_dir}/soda_train_name_qas.json"
-save_f = f"{base_dir}/soda_train_name_qas_cleaned.json"
+save_f = f"{base_dir}/soda_train_name_qas_cleaned.txt"
 
 # ---------------------------
 # 过滤
@@ -59,5 +59,8 @@ for example in tqdm(data_list):
 
 print(f"all:{all_n},skip:{skip_n}, now:{len(new_data_list)}")
 
-json.dump(new_data_list, open(save_f, 'w'))
+with open(save_f, 'w') as fw:
+    for example in new_data_list:
+        fw.write(f"{json.dumps(example)}\n")
+
 print(f"save to:{save_f}")

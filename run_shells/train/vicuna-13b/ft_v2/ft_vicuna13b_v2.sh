@@ -31,7 +31,7 @@ torchrun --nproc_per_node=4 --master_port=${your_random_port} test_models/vicuna
     --cache_dir ${cache_dir} \
     --output_dir ${output_dir} \
     --num_train_epochs 1 \
-    --per_device_train_batch_size 16 \
+    --per_device_train_batch_size 4 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 4 \
     --evaluation_strategy "no" \
@@ -46,6 +46,6 @@ torchrun --nproc_per_node=4 --master_port=${your_random_port} test_models/vicuna
     --logging_steps 1 \
     --report_to "tensorboard" \
     --gradient_checkpointing True \
-    --tf32 True \
+    --fp16 True \
     --process_name "vicuna-13b-ft_v2" \
     --lazy_load

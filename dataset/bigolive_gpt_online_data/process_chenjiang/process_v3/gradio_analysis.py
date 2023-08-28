@@ -125,8 +125,8 @@ def get_date_analysis(date_str: str):
 
 
 def analysis_table_change(input_date):
-    if input_date.strip() == "":
-        return get_all_analysis_result()
+    if input_date.strip() == "" or input_date is None:
+        return None
     else:
         return get_date_analysis(input_date)
 
@@ -140,11 +140,11 @@ if __name__ == '__main__':
             gr.Markdown("# 口语化数据质量筛选统计信息")
         with gr.Row():
             with gr.Column():
-                input_date = gr.Textbox(label="date", placeholder="输入要查询的日期，空显示全部，格式示例：2023-08-25", interactive=True)
+                input_date = gr.Textbox(label="date", placeholder="输入要查询的日期，空显示全部，格式示例：2023-08-25", interactive=True,value=None)
 
         analysis_table = gr.DataFrame(label="Evaluation results",
                                       headers=['user name', "finish dialogues", "time_consume(hours)"],
-                                      value=get_all_analysis_result)
+                                      value=None)
 
         input_date.submit(analysis_table_change, input_date, analysis_table)
 

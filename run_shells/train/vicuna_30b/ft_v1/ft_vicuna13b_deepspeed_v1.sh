@@ -12,11 +12,12 @@ cd ../../../../
 
 your_random_port=11224
 
-base_dir="/data/hjh/tmp"
-llama_ckpt_and_tokenizer='eachadea/vicuna-13b-1.1'
+
+base_dir="/data2/hjh/train_vicuna30b"
+llama_ckpt_and_tokenizer='lmsys/vicuna-33b-v1.3'
 output_dir="${base_dir}/ft_out"
 data_json="${base_dir}/train_data.txt"
-cache_dir="/data/hjh/hugging"
+cache_dir="/data2/hjh/hugging"
 
 mkdir -p ${output_dir}
 
@@ -48,5 +49,5 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna
     --gradient_checkpointing True \
     --deepspeed run_shells/train/deepspeed_config.json \
     --fp16 True \
-    --process_name "vicuna-13b-ft_v2" \
+    --process_name "vicuna-30b-ft_v1" \
     --lazy_load
