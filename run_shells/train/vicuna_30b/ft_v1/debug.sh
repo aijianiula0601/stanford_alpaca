@@ -13,11 +13,11 @@ cd ../../../../
 your_random_port=11224
 
 
-base_dir="/data/hjh/train_vicuna30b"
+base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-13b/ft_v1"
 llama_ckpt_and_tokenizer='lmsys/vicuna-33b-v1.3'
 output_dir="${base_dir}/ft_out"
 data_json="${base_dir}/train_data.txt"
-cache_dir="/data2/hjh/hugging"
+cache_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/hungging"
 
 mkdir -p ${output_dir}
 

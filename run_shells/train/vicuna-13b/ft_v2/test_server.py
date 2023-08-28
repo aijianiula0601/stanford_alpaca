@@ -14,7 +14,7 @@ import os
 import sys
 import torch
 
-setproctitle.setproctitle("vicuna7b-ft_v15_v6_v2")
+setproctitle.setproctitle("vicuna13b(口语化)")
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 # # 自动识别机器上的gpu
@@ -37,8 +37,8 @@ model = None
 tokenizer = None
 generator = None
 
-pdj = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))))
+pdj = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+print("--pdj:", pdj)
 sys.path.append(pdj)
 
 from logger import MyLogger
@@ -133,7 +133,8 @@ def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=
 
 
 logger.info("loading model ... ")
-model_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v15/v6_v2/ft_out/checkpoint-301"
+model_dir = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-13/ft_v2/checkpoint-263'
+model_dir = '/data/hjh/tmp/ft_out/checkpoint-263'
 
 print("model_dir:", model_dir)
 load_model(model_dir)
@@ -204,4 +205,4 @@ def receive():
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host="0.0.0.0", port=61562)
+    app.run(debug=False, host="0.0.0.0", port=6132)
