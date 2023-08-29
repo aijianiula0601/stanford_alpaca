@@ -17,6 +17,7 @@ now_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
 base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v3/biaozhu_vots"
 # base_dir = "/Users/jiahong/Downloads"
 vote_log_f = f"{base_dir}/vote_log.txt"
+user_vote_record_f = f"{base_dir}/user_vote_record.json"
 
 example_key_word = "########## next-dialogue:"
 
@@ -48,7 +49,7 @@ def get_user_vot_info():
 
 
 def get_all_analysis_result():
-    all_user_vote_info_dic = get_user_vot_info()
+    all_user_vote_info_dic = json.load(open(user_vote_record_f))
     if len(all_user_vote_info_dic) > 0:
         your_name_list = list(all_user_vote_info_dic.keys())
         finished_dialogues_list = []
@@ -126,7 +127,7 @@ def get_date_analysis(date_str: str):
 
 def analysis_table_change(input_date):
     if input_date.strip() == "" or input_date is None:
-        return None
+        return get_all_analysis_result()
     else:
         return get_date_analysis(input_date)
 
@@ -140,12 +141,13 @@ if __name__ == '__main__':
             gr.Markdown("# 口语化数据质量筛选统计信息")
         with gr.Row():
             with gr.Column():
-                input_date = gr.Textbox(label="date", placeholder="输入要查询的日期，空显示全部，格式示例：2023-08-25", interactive=True,
+                input_date = gr.Textbox(label="date", placeholder="输入要查询的日期，空显示全部，格式示例：2023-08-25",
+                                        interactive=True,
                                         value=None)
 
         analysis_table = gr.DataFrame(label="Evaluation results",
                                       headers=['user name', "finish dialogues", "time_consume(hours)"],
-                                      value=None)
+                                      value=get_all_analysis_result)
 
         input_date.submit(analysis_table_change, input_date, analysis_table)
 
