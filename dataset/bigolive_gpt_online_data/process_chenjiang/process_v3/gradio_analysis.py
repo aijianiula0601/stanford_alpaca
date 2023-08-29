@@ -30,7 +30,7 @@ def get_user_vot_info():
                 # 示例：{"name": "jia", "uid_pair": "1544424245_711665576", "vote_value": 1, "time_consume": 0.07, "end_date": "2023-08-25", "comment_text": "test"}
                 example = json.loads(line.replace(example_key_word, "").strip())
 
-                name = example['name']
+                name = example['name'].strip()
                 if name not in all_user_vote_info_dic:
                     all_user_vote_info_dic[name] = {}
                 all_user_vote_info_dic[name][example['uid_pair']] = example
@@ -80,6 +80,7 @@ def get_all_analysis_result():
 
 
 def get_date_analysis(date_str: str):
+    date_str = date_str.strip()
     all_user_vote_info_dic = get_user_vot_info()
 
     # 示例：{
@@ -93,13 +94,12 @@ def get_date_analysis(date_str: str):
             for uid_pair in all_user_vote_info_dic[name]:
                 end_date = all_user_vote_info_dic[name][uid_pair]['end_date']
 
-                if end_date == date_str:
-                    if end_date not in date_analysis_dic:
-                        date_analysis_dic[name] = {}
+                if end_date.strip() == date_str:
+                    if name not in date_analysis_dic:
+                        date_analysis_dic[name] = {'uid_pair_n': 0, "time_consume": 0}
 
-                    date_analysis_dic[name]['uid_pair_n'] = date_analysis_dic[name].get('uid_pair_n', 0) + 1
-                    date_analysis_dic[name]['time_consume'] = date_analysis_dic[name].get('time_consume', 0) + \
-                                                              all_user_vote_info_dic[name][uid_pair]['time_consume']
+                    date_analysis_dic[name]['uid_pair_n'] += 1
+                    date_analysis_dic[name]['time_consume'] += all_user_vote_info_dic[name][uid_pair]['time_consume']
 
         name_list = []
         finished_dialogues_list = []
@@ -140,7 +140,8 @@ if __name__ == '__main__':
             gr.Markdown("# 口语化数据质量筛选统计信息")
         with gr.Row():
             with gr.Column():
-                input_date = gr.Textbox(label="date", placeholder="输入要查询的日期，空显示全部，格式示例：2023-08-25", interactive=True,value=None)
+                input_date = gr.Textbox(label="date", placeholder="输入要查询的日期，空显示全部，格式示例：2023-08-25", interactive=True,
+                                        value=None)
 
         analysis_table = gr.DataFrame(label="Evaluation results",
                                       headers=['user name', "finish dialogues", "time_consume(hours)"],

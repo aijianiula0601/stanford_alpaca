@@ -101,9 +101,8 @@ for example in tqdm(org_data_list):
                    'who_ask_first'] == who_ask_first, f"error who ask first, {cur_example['who_ask_first']}!={who_ask_first}, example:{example}"
         del cur_example['who_ask_first']
         cur_example[BACKGROUND_KEY] = BIGOLIVE_CHAT_ROBOT
-        cur_example[BACKGROUND_KEY] = cur_example['prompt']
-        del cur_example['prompt']
         for i in range(len(cur_example[QAS_KEY])):
+            cur_example[BACKGROUND_KEY] = cur_example['prompt']
             qa = cur_example[QAS_KEY][f'turn_{i}']
             history_str = get_history(qa['history'], cur_example[HUMAN_NAME_KEY], cur_example[BOT_NAME_KEY])
             if i > 0:

@@ -14,7 +14,7 @@ your_random_port=11224
 
 base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v15/v3_v2"
 llama_ckpt_and_tokenizer="eachadea/vicuna-7b-1.1"
-output_dir="${base_dir}/ft_out"
+output_dir="${base_dir}/ft_out_fix_prompt_history_bug"#之前的数据处理有问题，这是修复后重新训练
 data_json="${base_dir}/train_data.txt"
 cache_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/hungging"
 

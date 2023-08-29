@@ -19,3 +19,6 @@ with open(bigolive_onlive_chat_f, 'w') as fw:
 print("数据分布：")
 for k in dataset_name_n:
     print(f"{k}: {dataset_name_n[k]}")
+
+
+print(f"save to:{bigolive_onlive_chat_f}")

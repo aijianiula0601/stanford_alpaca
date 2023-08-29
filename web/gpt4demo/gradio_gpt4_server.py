@@ -4,7 +4,7 @@ import json
 import requests
 import gradio as gr
 
-from gpt35_demo import *
+from gpt4demo import *
 
 # -----------------------------------------------------------------------------------
 # 跟two_persons_gpt35_llama.py的区别是：
@@ -26,10 +26,14 @@ def mask_instruct(message_list, temperature):
     print("-" * 100)
     print("message_list:", message_list)
     response = openai.ChatCompletion.create(
-        engine=gpt_config['engine'],
+        engine="gpt4-16k",
+        messages=message_list,
         temperature=temperature,
-        messages=message_list
-    )
+        max_tokens=800,
+        top_p=0.95,
+        frequency_penalty=0,
+        presence_penalty=0,
+        stop=None)
     print("response:", response)
     print("-" * 100)
 
@@ -100,17 +104,17 @@ def update_select_model():
 if __name__ == '__main__':
     with gr.Blocks() as demo:
         with gr.Row():
-            gr.Markdown("# gpt35体验demo")
+            gr.Markdown("# gpt4体验demo")
         with gr.Row():
             with gr.Column():
-                selected_temp = gr.Slider(0, 1, value=0.9, label="Temperature超参,调的越小越容易输出常见字",
+                selected_temp = gr.Slider(0, 1, value=0.7, label="Temperature超参,调的越小越容易输出常见字",
                                           interactive=True)
 
                 with gr.Row():
                     user_name = gr.Textbox(lines=1, placeholder="设置我的名字， ...", label="Human名字",
                                            value=ROLE_A_NAME, interactive=True)
                     bot_name = gr.Textbox(lines=1, placeholder="设置聊天对象的名字 ...", label="bot名字",
-                                          value=ROLE_B_NAME, interactive=True)
+                                          value=None, interactive=True)
                 background_role_b = gr.Textbox(lines=5, placeholder="设置聊天背景 ...只能用英文", label="bot角色背景")
                 role_a_question = gr.Textbox(placeholder="输入问题", label="问题", interactive=True)
             with gr.Column():

@@ -17,8 +17,8 @@ from dataset.data_utils import *
 # ------------------------------------------------------------
 
 
-org_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v15/v2/train_data.json"
-org_data_list = json.load(open(org_f))
+org_f = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v15/v2/train_data.txt"
+org_data_list = [json.loads(line) for line in open(org_f).readlines()]
 filter_bigolive_other_data_list = []
 all_n = 0
 skip_n = 0

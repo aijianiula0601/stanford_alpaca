@@ -91,7 +91,7 @@ def get_chat_contents(example: dict):
         answer = f"{bot_name}(original): {qa['answer']}"
         colloquial_answer = f"{bot_name}(colloquial): {qa['colloquial_answer']}"
         history.append([question, answer])
-        history.append([None, colloquial_answer])
+        # history.append([None, colloquial_answer])
 
     return history
 
@@ -100,12 +100,16 @@ def get_chat_contents(example: dict):
 # 加载数据
 # --------------------------------------------------------
 
+ex_str0 = "let's play a role game."
+ex_str1 = "now you will play the role of"
+
 example_dic = {}
 with open(data_f) as fr:
     for line in fr:
         example = json.loads(line)
         k = example['uid_pair']
         assert k not in example_dic, f"error key:{k}"
+        example["prompt"] = example["prompt"].replace(ex_str0, "").split(ex_str1)[0].strip()
         example_dic[k] = example
 
 example_dic_keys = [k for k in example_dic.keys()]
@@ -121,6 +125,7 @@ def get_one_example(your_name):
         done_n = len(done_uid_pairs)
 
     uid_pair = not_done_uid_pairs[0]
+    # uid_pair = random.sample(not_done_uid_pairs, k=1)[0]
     return done_n + 1, example_dic[uid_pair], uid_pair
 
 
@@ -130,7 +135,7 @@ def get_one_example(your_name):
 
 
 def your_name_change(your_name):
-    done_n, example, uid_pair = get_one_example(your_name)
+    done_n, example, uid_pair = get_one_example(your_name.strip())
     next_dialogue_text = f"next({done_n}/{len(example_dic_keys)})"
     history = get_chat_contents(example)
 
@@ -146,7 +151,8 @@ def oppose_oppose_btn_click(approve_oppose):
 
 
 def submit_click(submit_btn, uid_pair, your_name, comment_text):
-    if your_name.strip() == "":
+    your_name = your_name.strip()
+    if your_name == "":
         raise gr.Error('please input your name!')
 
     # 投票结果
@@ -174,6 +180,8 @@ def submit_click(submit_btn, uid_pair, your_name, comment_text):
 
 
 def next_dialogue_btn_click(your_name, old_uid_pair, submit_text, comment_text):
+    your_name = your_name.strip()
+
     if your_name is None or your_name == "":
         raise gr.Error('Must input your name')
 
@@ -245,7 +253,7 @@ if __name__ == '__main__':
         analysis_table = gr.DataFrame(label="Evaluation results",
                                       headers=['user name', "finish dialogues", "time_consume(hours)"],
                                       value=get_analysis_result, every=2)
-        your_name.change(your_name_change, [your_name],
+        your_name.submit(your_name_change, [your_name],
                          [gr_chatbot, next_dialogue, background_text, uid_pair, analysis_table],
                          queue=False)
         approve_btn.click(oppose_oppose_btn_click, [approve_btn], [submit_btn])

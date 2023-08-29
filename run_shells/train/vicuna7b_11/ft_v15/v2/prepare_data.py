@@ -173,8 +173,7 @@ def filter_qa(qas: dict):
 
 
 save_base_dir = sys.argv[1]
-save_f = f"{save_base_dir}/train_data.json"
-debug_save_f = f"{save_base_dir}/debug_data.json"
+save_f = f"{save_base_dir}/train_data.txt"
 
 data = soda_data_list + persona_chat_data + databricks_dolly_15k_data_list + cnn_dailymail2qas_data_list + openorca_data_list + new_bigolive_data_list + gpt_roleplay_realm_data_list
 random.shuffle(data)
@@ -208,6 +207,9 @@ for item in data:
         user_ask_first_n += 1
         print(e, f"item:{json.dumps(item)}")
 
-json.dump(checked_data, fp=open(save_f, 'w'))
+with open(save_f, "w") as fw:
+    for example in checked_data:
+        fw.write(f"{json.dumps(example)}\n")
+
 print(f"save to:{save_f}")
 print(f"skip:{user_ask_first_n},all_n:{all_n}")
