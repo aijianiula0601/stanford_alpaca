@@ -4,6 +4,7 @@ base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gp
 user_vote_data_f = f"{base_dir}/user_vote_record.json"
 org_data_f = f"{base_dir}/gpt4to_colloquial.txt"
 save_f = "/mnt/cephfs/hjh/tmp/tmp_bigolive_quality.txt"
+save1_f = "/mnt/cephfs/hjh/tmp/tmp_bigolive_quality1.txt"
 
 ex_str0 = "let's play a role game."
 ex_str1 = "now you will play the role of"
@@ -52,13 +53,13 @@ for user_name in user_vote_data:
     except Exception as e:
         pass
 
-with open(save_f, 'w') as fw:
-    for uid_pair in uid_pair_vote_dic:
-        example = uid_pair_vote_dic[uid_pair]
-        example['user_names'] = list(set(example['user_names']))
-        fw.write(f"{json.dumps(example)}\n")
+    with open(save_f, 'w') as fw:
+        for uid_pair in uid_pair_vote_dic:
+            example = uid_pair_vote_dic[uid_pair]
+            example['user_names'] = list(set(example['user_names']))
+            fw.write(f"{json.dumps(example)}\n")
 
-# print(f"save to:{save_f}")
+print(f"save to:{save_f}")
 
 # --------------------------------
 # 统计
@@ -67,14 +68,18 @@ with open(save_f, 'w') as fw:
 
 vote_value1 = 0
 vote_value_1 = 0
-for uid_pair in uid_pair_vote_dic:
-    example = uid_pair_vote_dic[uid_pair]
+with open(save1_f, 'w') as fw1:
 
-    vote_values = example['vote_values']
-    if sum(vote_values) == len(vote_values):
-        vote_value1 += 1
-    else:
-        vote_value_1 += 1
-        print(json.dumps(example))
+    for uid_pair in uid_pair_vote_dic:
+        example = uid_pair_vote_dic[uid_pair]
+
+        vote_values = example['vote_values']
+        if sum(vote_values) == len(vote_values):
+            vote_value1 += 1
+            fw1.write(f"{json.dumps(example)}\n")
+        else:
+            vote_value_1 += 1
+            # print(json.dumps(example))
 
 print(f"全部投赞成票的对话个数:{vote_value1},其他为:{vote_value_1}")
+print(f"全部投赞成票的对话保存路径:{save1_f}")
