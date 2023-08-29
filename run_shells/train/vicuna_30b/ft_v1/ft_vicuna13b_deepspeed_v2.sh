@@ -13,8 +13,8 @@ cd ../../../../
 your_random_port=11224
 
 
-base_dir="/data/hjh/train_vicuna30b"
-llama_ckpt_and_tokenizer='/data2/liujunshi/Phind-CodeLlama-34B-v1'
+base_dir="/data1/hjh/train_vicuna30b"
+llama_ckpt_and_tokenizer='/data2/liujunshi/vicuna-33b-v1.3'
 output_dir="${base_dir}/ft_out"
 data_json="/data/hjh/tmp/train_data.txt"
 
