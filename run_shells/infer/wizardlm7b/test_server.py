@@ -149,12 +149,8 @@ def bot(prompt_input, temperature=0.7, max_gen_len=256, stop_words_list=None, ro
     stream = generate_stream(model, tokenizer, params)
     generated_text = None
     for outputs in stream:
-        # print("*" * 100)
-        # print(outputs)
-        # print("*" * 100)
-        role_b_l_index = outputs.rfind(f"{role_b}:")
-        generated_text = outputs[role_b_l_index:].replace(f"{role_b}:", "").strip()
-        generated_text = generated_text.split(" ")
+        generated_text = outputs
+    generated_text = generated_text.replace(prompt_input, "").strip()
     generated_text = " ".join(generated_text)
 
     logger.info("-" * 50 + "model generate text" + '-' * 50)

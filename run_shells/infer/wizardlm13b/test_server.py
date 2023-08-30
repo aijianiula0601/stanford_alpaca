@@ -60,16 +60,20 @@ def load_model(model_name, cache_dir):
         trust_remote_code=True,
     ).cuda()
 
+    model.config.pad_token_id = tokenizer.pad_token_id = 0  # unk
+    model.config.bos_token_id = 1
+    model.config.eos_token_id = 2
+
 
 @torch.inference_mode()
 def generate_stream(model, tokenizer, params, context_len=2048, stream_interval=2, device="cuda"):
     prompt = params["prompt"]
+    print(f"------input prompt:{prompt}")
     prompt_len = len(prompt)
     temperature = float(params.get("temperature", 1.0))
     max_new_tokens = int(params.get("max_new_tokens", 256))
     stop_words_list = params.get("stop_words_list", [])
     stop_words_list.append("\n")
-    stop_words_list.append("</s>")
 
     input_ids = tokenizer(prompt).input_ids
     output_ids = list(input_ids)
@@ -149,13 +153,8 @@ def bot(prompt_input, temperature=0.7, max_gen_len=256, stop_words_list=None, ro
     stream = generate_stream(model, tokenizer, params)
     generated_text = None
     for outputs in stream:
-        # print("*" * 100)
-        # print(outputs)
-        # print("*" * 100)
-        role_b_l_index = outputs.rfind(f"{role_b}:")
-        generated_text = outputs[role_b_l_index:].replace(f"{role_b}:", "").strip()
-        generated_text = generated_text.split(" ")
-    generated_text = " ".join(generated_text)
+        generated_text = outputs
+    generated_text = generated_text.replace(prompt_input, "").strip()
 
     logger.info("-" * 50 + "model generate text" + '-' * 50)
     logger.info(generated_text)

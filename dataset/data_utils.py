@@ -72,6 +72,7 @@ PERSONA_CHAT_DATASET_NAME = "persona_chat"
 EMPATHETIC_DIALOGUES_DATASET_NAME = "empathetic_dialogues"
 INSTRUCTION_INPUT_DATASET_NAME = "instruct_input"
 ALPACA_GPT4 = "alpaca_gpt4"
+WIZARDLM_EVOL_INSTRUNCT = "WizardLM_evol_instruct_70k"
 UNNATURAL_INSTRUCTION_DATASET_NAME = "unnatural_instruction_gpt4"
 DATABRICKS_DOLLY_15K_DATASET_NAME = "databricks-dolly-15k"
 CNN_DAILYMAIL_DATASET_NAME = "cnn_dailymail"
@@ -182,7 +183,7 @@ def openorca_prompt(human_name, bot_name, background):
     return f"{background}\n\n"
 
 
-def pyg_prompt(human_name, bot_name, background):
+def qa_common_prompt(human_name, bot_name, background):
     return (f"{background}\n"
             f"The following is a conversation between {human_name} and {bot_name}.\n\n")
 
@@ -223,17 +224,17 @@ def get_dataset_prompt(dataset_name, human_name, bot_name, background):
     elif dataset_name == CROWDSOURCE_SEX_DATASET_NAME:
         return crowdsource_sex_prompt(human_name, bot_name, background)
 
-    elif dataset_name == BIGOLIVE_ONLINE_CHAT_DATASET_NAME or dataset_name == BIGOLIVE_CHAT_ROBOT or dataset_name == OPEN_PLATYPUS_DATASET_NAME:
+    elif dataset_name in [BIGOLIVE_ONLINE_CHAT_DATASET_NAME, BIGOLIVE_CHAT_ROBOT, OPEN_PLATYPUS_DATASET_NAME]:
         return bigolive_chat_prompt(human_name, bot_name, background)
 
     elif dataset_name == OPENORCA_DATASET_NAME:
         return openorca_prompt(human_name, bot_name, background)
 
     elif dataset_name == PYG_DATASET_NAME:
-        return pyg_prompt(human_name, bot_name, background)
+        return qa_common_prompt(human_name, bot_name, background)
 
-    elif dataset_name == MECHAT_DATASET_NAME:
-        return pyg_prompt(human_name, bot_name, background)
+    elif dataset_name in [MECHAT_DATASET_NAME, WIZARDLM_EVOL_INSTRUNCT]:
+        return qa_common_prompt(human_name, bot_name, background)
     elif dataset_name == SOTA_ANGLICIZA_DATASET_NAME:
         return soda_anglicize_prompt(human_name, bot_name, background)
 
