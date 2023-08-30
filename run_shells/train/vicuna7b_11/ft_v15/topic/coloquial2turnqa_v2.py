@@ -82,6 +82,9 @@ if __name__ == '__main__':
     org_f = sys.argv[1]
     # 保存为单轮的文件路径
     save_f_turns = sys.argv[2]
+    save_f_topic_names_f = sys.argv[3]
+
+    all_topic_set = set()
 
     who_ask_first = "user"
     all_n = 0
@@ -115,7 +118,12 @@ if __name__ == '__main__':
                         cur_example[
                             BACKGROUND_KEY] = f"{cur_example[BACKGROUND_KEY]} {colloquial_prompt}{additional_prompt_str}\n{conversation_str}\n"
 
-                    new_qas = {"turn_0": {QUESTION_KEY: qa[QUESTION_KEY], ANSWER_KEY: qa[ANSWER_KEY]}}
+                    assert 'topic' in qa, f"error qa:{qa}"
+                    new_qas = {
+                        "turn_0": {QUESTION_KEY: qa[QUESTION_KEY], ANSWER_KEY: qa[ANSWER_KEY], 'topic': qa['topic']}
+                    }
+
+                    all_topic_set.add(qa['topic'])
                     new_example = copy.deepcopy(cur_example)
                     del new_example['prompt']
                     new_example[QAS_KEY] = new_qas
@@ -128,3 +136,5 @@ if __name__ == '__main__':
                         fw.write(f"{json.dumps(cleaned_example)}\n")
 
     print(f"all_n:{all_n},skip:{skip_n},exist:{all_n - skip_n},save to:{save_f_turns}")
+
+    json.dump(list(all_topic_set), open(save_f_topic_names_f, 'w'))

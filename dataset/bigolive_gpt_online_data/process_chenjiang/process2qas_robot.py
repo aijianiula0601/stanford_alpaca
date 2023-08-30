@@ -57,7 +57,7 @@ def process_example(example: dict):
         qa['answer'] = answer
         if toolong_check(answer) or limit_question_n(answer):
             break
-        qas[f'turn_{i}'] = {"question": question, "answer": answer}
+        qas[f'turn_{i}'] = {"question": question, "answer": answer, 'topic': qa['topic']}
 
     if len(qas) < 1:
         return None
