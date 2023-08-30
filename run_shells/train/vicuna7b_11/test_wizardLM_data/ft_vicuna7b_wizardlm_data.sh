@@ -44,7 +44,7 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna
     --cache_dir ${cache_dir} \
     --output_dir ${output_dir} \
     --num_train_epochs 3 \
-    --per_device_train_batch_size 3 \
+    --per_device_train_batch_size 2 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 4 \
     --evaluation_strategy "no" \
