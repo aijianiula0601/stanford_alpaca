@@ -193,10 +193,8 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
         cur_question_string_token_ids, cur_question_string_token_ids_len = _tokenize_string(cur_question_string,
                                                                                             tokenizer)
 
-        print("-------cur_question_string_token_ids:",cur_question_string_token_ids)
-
-        # 去掉开头为1的id
-        assert cur_question_string_token_ids[0] == 1
+        # 去掉开头为2的id
+        assert cur_question_string_token_ids[0] == 2
         cur_question_string_token_ids = cur_question_string_token_ids[1:]
         cur_question_string_token_ids_len -= 1
 
@@ -211,8 +209,8 @@ def _preprocess_example(conversation_dic: Dict, tokenizer: transformers.PreTrain
         cur_answer_string = cur_turn_qa[ANSWER_KEY] + DEFAULT_EOS_TOKEN
         cur_answer_string_token_ids, cur_answer_string_token_ids_len = _tokenize_string(cur_answer_string, tokenizer)
 
-        # 去掉开头为1的id
-        assert cur_answer_string_token_ids[0] == 1
+        # 去掉开头为2的id
+        assert cur_answer_string_token_ids[0] == 2
         cur_answer_string_token_ids = cur_answer_string_token_ids[1:]
         cur_answer_string_token_ids_len -= 1
 
