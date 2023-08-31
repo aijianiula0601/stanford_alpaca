@@ -152,4 +152,4 @@ if __name__ == '__main__':
         input_date.submit(analysis_table_change, input_date, analysis_table)
 
     demo.queue()
-    demo.launch(server_name="0.0.0.0", server_port=9804)
+    demo.launch(server_name="0.0.0.0", server_port=9702)
