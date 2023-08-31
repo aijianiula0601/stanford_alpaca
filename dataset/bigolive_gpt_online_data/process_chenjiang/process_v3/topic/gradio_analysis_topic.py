@@ -100,8 +100,8 @@ def get_all_analysis_result():
             {'user name': your_name_list,
              'finish dialogues': finished_dialogues_list,
              'finish topic': topic_n_list,
-             "👍": vote1_value_list,
-             "👎": vote_1_value_list,
+             "👍(dialogues)": vote1_value_list,
+             "👎(dialogues)": vote_1_value_list,
              "time_consume(hours)": time_consume_list})
     else:
         return None
@@ -169,8 +169,8 @@ def get_date_analysis(date_str: str, your_name: str):
             {'user name': name_list,
              'finish dialogues': finished_dialogues_list,
              "topic": name_topic_n_list,
-             "👍": vote1_value_list,
-             "👎": vote_1_value_list,
+             "👍(dialogues)": vote1_value_list,
+             "👎(dialogues)": vote_1_value_list,
              "time_consume(hours)": time_consume_list})
 
     return None

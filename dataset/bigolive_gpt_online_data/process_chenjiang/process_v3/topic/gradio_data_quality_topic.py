@@ -92,7 +92,8 @@ def get_chat_contents(example: dict):
         qa = example['qas'][f'turn_{i}']
         topic = qa['topic']
         question = f"【{topic}】{human_name}: {qa['question']}"
-        answer = f"{bot_name}(original): {qa['answer']}"
+        answer = f"{bot_name}: {qa['answer']}"
+        # answer = f"{bot_name}(original): {qa['answer']}"
         colloquial_answer = f"{bot_name}(colloquial): {qa['colloquial_answer']}"
         history.append([question, answer])
         # history.append([None, colloquial_answer])
