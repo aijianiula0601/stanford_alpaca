@@ -153,6 +153,11 @@ def get_one_example(your_name, topic: str):
 
     # uid_pair = not_done_uid_pairs[0]
     uid_pair = random.sample(not_done_uid_pairs, k=1)[0]
+
+    if your_name not in time_consume_dic:
+        time_consume_dic[your_name] = {}
+    time_consume_dic[your_name][uid_pair] = {"start_time": datetime.datetime.now()}
+
     return done_n + 1, example_dic[uid_pair], uid_pair
 
 
@@ -165,10 +170,6 @@ def your_name_submit(your_name, topic):
     done_n, example, uid_pair = get_one_example(your_name.strip(), topic)
     next_dialogue_text = f"next({done_n}/{len(example_dic_keys)})"
     history = get_chat_contents(example)
-
-    if your_name not in time_consume_dic:
-        time_consume_dic[your_name] = {}
-    time_consume_dic[your_name][uid_pair] = {"start_time": datetime.datetime.now()}
 
     return history, next_dialogue_text, example['prompt'], uid_pair
 
@@ -200,6 +201,32 @@ def submit_click(submit_btn, uid_pair, your_name, comment_text, topic):
         all_user_vote_info_dic[your_name] = {}
     all_user_vote_info_dic[your_name][uid_pair] = {'topic': topic, "vote_value": vote_value, "comment": comment_text}
 
+    # 旧对话结束时间
+    if your_name in time_consume_dic and uid_pair in time_consume_dic[your_name]:
+        time_consume_dic[your_name][uid_pair]["end_time"] = datetime.datetime.now()
+        if uid_pair not in all_user_vote_info_dic[your_name]:
+            all_user_vote_info_dic[your_name][uid_pair] = {'topic': topic}
+        all_user_vote_info_dic[your_name][uid_pair]['time_consume'] = round(
+            (time_consume_dic[your_name][uid_pair]['end_time'] - time_consume_dic[your_name][uid_pair][
+                'start_time']).seconds / 60, 2)  # 分钟来保存
+
+        # 保存结束时间，用户统计
+        print_dic = {"name": your_name,
+                     "uid_pair": uid_pair,
+                     'topic': topic,
+                     'vote_value': all_user_vote_info_dic[your_name][uid_pair]['vote_value'],
+                     "time_consume": all_user_vote_info_dic[your_name][uid_pair]['time_consume'],
+                     'end_date': time.strftime('%Y-%m-%d', time.localtime(time.time())),
+                     'comment_text': comment_text,
+                     }
+        opened_vote_log_f.write(f"########## next-dialogue: {json.dumps(print_dic)}\n")
+
+        json.dump(all_user_vote_info_dic, open(save_vote_f, 'w'))
+
+        # 清空耗时字典
+        for k in [kk for kk in time_consume_dic[your_name]]:
+            del time_consume_dic[your_name][k]
+
     # print_dic = {"name": your_name, "uid_pair": uid_pair, 'vote_value': vote_value, 'comment_text': comment_text}
     # opened_vote_log_f.write(f"########## submit-log: {json.dumps(print_dic)}\n")
     json.dump(all_user_vote_info_dic, open(save_vote_f, 'w'))
@@ -208,7 +235,7 @@ def submit_click(submit_btn, uid_pair, your_name, comment_text, topic):
     return "vote done!"
 
 
-def next_dialogue_btn_click(your_name, old_uid_pair, submit_text, comment_text, topic):
+def next_dialogue_btn_click(your_name, submit_text, topic):
     topic = topic.split("(")[0]
     your_name = your_name.strip()
 
@@ -221,37 +248,6 @@ def next_dialogue_btn_click(your_name, old_uid_pair, submit_text, comment_text, 
 
     if your_name not in all_user_vote_info_dic or submit_text != "vote done!":
         raise gr.Error('results of last vote not submitted!')
-
-    # 旧对话结束时间
-    if your_name in time_consume_dic and old_uid_pair in time_consume_dic[your_name]:
-        time_consume_dic[your_name][old_uid_pair]["end_time"] = datetime.datetime.now()
-        if old_uid_pair not in all_user_vote_info_dic[your_name]:
-            all_user_vote_info_dic[your_name][old_uid_pair] = {'topic': topic}
-        all_user_vote_info_dic[your_name][old_uid_pair]['time_consume'] = round(
-            (time_consume_dic[your_name][old_uid_pair]['end_time'] - time_consume_dic[your_name][old_uid_pair][
-                'start_time']).seconds / 60, 2)  # 分钟来保存
-
-        # 保存结束时间，用户统计
-        print_dic = {"name": your_name,
-                     "uid_pair": old_uid_pair,
-                     'topic': topic,
-                     'vote_value': all_user_vote_info_dic[your_name][old_uid_pair]['vote_value'],
-                     "time_consume": all_user_vote_info_dic[your_name][old_uid_pair]['time_consume'],
-                     'end_date': time.strftime('%Y-%m-%d', time.localtime(time.time())),
-                     'comment_text': comment_text,
-                     }
-        opened_vote_log_f.write(f"########## next-dialogue: {json.dumps(print_dic)}\n")
-
-        json.dump(all_user_vote_info_dic, open(save_vote_f, 'w'))
-
-        # 清空耗时字典
-        for k in [kk for kk in time_consume_dic[your_name]]:
-            del time_consume_dic[your_name][k]
-
-    # 下一个对话开始时间
-    if your_name not in time_consume_dic:
-        time_consume_dic[your_name] = {}
-    time_consume_dic[your_name][uid_pair] = {"start_time": datetime.datetime.now()}
 
     return history, next_dialogue_text, example['prompt'], uid_pair, "submit", "", ""
 
@@ -304,7 +300,7 @@ if __name__ == '__main__':
         oppose_btn.click(oppose_oppose_btn_click, [oppose_btn], [submit_btn])
         submit_btn.click(submit_click, [submit_btn, uid_pair, your_name, comment_text, topic],
                          [submit_text])
-        next_dialogue.click(next_dialogue_btn_click, [your_name, uid_pair, submit_text, comment_text, topic],
+        next_dialogue.click(next_dialogue_btn_click, [your_name, submit_text, topic],
                             [gr_chatbot, next_dialogue, background_text, uid_pair, submit_btn, comment_text,
                              submit_text],
                             queue=False)
