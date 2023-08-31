@@ -263,6 +263,7 @@ if __name__ == '__main__':
     with gr.Blocks() as demo:
         with gr.Row():
             gr.Markdown("# Dialogue quality scoring web")
+            gr.Markdown("#### [result analysis](http://202.168.100.178:9702/)")
         with gr.Row():
             with gr.Column():
                 with gr.Row():
