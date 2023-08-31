@@ -164,19 +164,7 @@ def your_name_submit(your_name, topic):
         time_consume_dic[your_name] = {}
     time_consume_dic[your_name][uid_pair] = {"start_time": datetime.datetime.now()}
 
-    return history, next_dialogue_text, example['prompt'], uid_pair, get_analysis_result()
-
-
-def topic_change(your_name, topic):
-    done_n, example, uid_pair = get_one_example(your_name.strip(), topic)
-    next_dialogue_text = f"next({done_n}/{len(example_dic_keys)})"
-    history = get_chat_contents(example)
-
-    if your_name not in time_consume_dic:
-        time_consume_dic[your_name] = {}
-    time_consume_dic[your_name][uid_pair] = {"start_time": datetime.datetime.now()}
-
-    return history, next_dialogue_text, example['prompt'], uid_pair, get_analysis_result()
+    return history, next_dialogue_text, example['prompt'], uid_pair
 
 
 def oppose_oppose_btn_click(approve_oppose):
@@ -210,7 +198,7 @@ def submit_click(submit_btn, uid_pair, your_name, comment_text):
     json.dump(all_user_vote_info_dic, open(save_vote_f, 'w'))
     # opened_vote_log_f.write(f"########## save-vote-f: {your_name} save vote f to: {save_vote_f}\n")
 
-    return "vote done!", get_analysis_result()
+    return "vote done!"
 
 
 def next_dialogue_btn_click(your_name, old_uid_pair, submit_text, comment_text, topic):
@@ -256,7 +244,7 @@ def next_dialogue_btn_click(your_name, old_uid_pair, submit_text, comment_text, 
         time_consume_dic[your_name] = {}
     time_consume_dic[your_name][uid_pair] = {"start_time": datetime.datetime.now()}
 
-    return history, next_dialogue_text, example['prompt'], uid_pair, "submit", "", "", get_analysis_result()
+    return history, next_dialogue_text, example['prompt'], uid_pair, "submit", "", ""
 
 
 # --------------------------------------------------------
@@ -294,22 +282,22 @@ if __name__ == '__main__':
                 gr_chatbot = gr.Chatbot(label="Dialogue")
                 next_dialogue = gr.Button(value="next")
 
-        analysis_table = gr.DataFrame(label="Evaluation results",
-                                      headers=['user name', "finish dialogues", "time_consume(hours)"],
-                                      value=get_analysis_result, every=2)
+        # analysis_table = gr.DataFrame(label="Evaluation results",
+        #                               headers=['user name', "finish dialogues", "time_consume(hours)"],
+        #                               value=get_analysis_result, every=2)
         your_name.submit(your_name_submit, [your_name, topic],
-                         [gr_chatbot, next_dialogue, background_text, uid_pair, analysis_table],
+                         [gr_chatbot, next_dialogue, background_text, uid_pair],
                          queue=False)
         topic.change(your_name_submit, [your_name, topic],
-                     [gr_chatbot, next_dialogue, background_text, uid_pair, analysis_table],
+                     [gr_chatbot, next_dialogue, background_text, uid_pair],
                      queue=False)
         approve_btn.click(oppose_oppose_btn_click, [approve_btn], [submit_btn])
         oppose_btn.click(oppose_oppose_btn_click, [oppose_btn], [submit_btn])
         submit_btn.click(submit_click, [submit_btn, uid_pair, your_name, comment_text, topic],
-                         [submit_text, analysis_table])
+                         [submit_text])
         next_dialogue.click(next_dialogue_btn_click, [your_name, uid_pair, submit_text, comment_text, topic],
                             [gr_chatbot, next_dialogue, background_text, uid_pair, submit_btn, comment_text,
-                             submit_text, analysis_table],
+                             submit_text],
                             queue=False)
 
     demo.queue()
