@@ -107,6 +107,7 @@ def get_chat_contents(example: dict):
 ex_str0 = "let's play a role game."
 ex_str1 = "now you will play the role of"
 
+# 保存方式:{"topic": ["uid_pair1",...],..}
 topic_uid_pair_dic = {}
 example_dic = {}
 with open(data_f) as fr:
@@ -136,17 +137,21 @@ print(f"对话个数:{len(example_dic_keys)}")
 
 def get_one_example(your_name, topic: str):
     topic = topic.split("(")[0]
+    all_uid_pair_done_list = []
+    for yn in all_user_vote_info_dic:
+        all_uid_pair_done_list += list(all_user_vote_info_dic[yn].keys())
 
     if your_name not in all_user_vote_info_dic:
         done_n = 0
-        not_done_uid_pairs = example_dic_keys
+        not_done_uid_pairs = list(topic_uid_pair_dic[topic])
     else:
         done_uid_pairs = all_user_vote_info_dic[your_name].keys()
-        not_done_uid_pairs = list(set(topic_uid_pair_dic[topic]) - set(done_uid_pairs))
+        not_done_uid_pairs = list(set(topic_uid_pair_dic[topic]) - set(all_uid_pair_done_list) - set(
+            done_uid_pairs))  # 固定topic下，任何人都没做过的uid_pair
         done_n = len(done_uid_pairs)
 
-    uid_pair = not_done_uid_pairs[0]
-    # uid_pair = random.sample(not_done_uid_pairs, k=1)[0]
+    # uid_pair = not_done_uid_pairs[0]
+    uid_pair = random.sample(not_done_uid_pairs, k=1)[0]
     return done_n + 1, example_dic[uid_pair], uid_pair
 
 
@@ -226,6 +231,7 @@ def next_dialogue_btn_click(your_name, old_uid_pair, submit_text, comment_text, 
         # 保存结束时间，用户统计
         print_dic = {"name": your_name,
                      "uid_pair": old_uid_pair,
+                     'topic': topic,
                      'vote_value': all_user_vote_info_dic[your_name][old_uid_pair]['vote_value'],
                      "time_consume": all_user_vote_info_dic[your_name][old_uid_pair]['time_consume'],
                      'end_date': time.strftime('%Y-%m-%d', time.localtime(time.time())),
@@ -293,7 +299,7 @@ if __name__ == '__main__':
                      queue=False)
         approve_btn.click(oppose_oppose_btn_click, [approve_btn], [submit_btn])
         oppose_btn.click(oppose_oppose_btn_click, [oppose_btn], [submit_btn])
-        submit_btn.click(submit_click, [submit_btn, uid_pair, your_name, comment_text, topic],
+        submit_btn.click(submit_click, [submit_btn, uid_pair, your_name, comment_text],
                          [submit_text])
         next_dialogue.click(next_dialogue_btn_click, [your_name, uid_pair, submit_text, comment_text, topic],
                             [gr_chatbot, next_dialogue, background_text, uid_pair, submit_btn, comment_text,
