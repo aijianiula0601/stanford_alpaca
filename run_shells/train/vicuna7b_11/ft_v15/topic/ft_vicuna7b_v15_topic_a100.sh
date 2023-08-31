@@ -11,10 +11,13 @@ cd ../../../../../
 your_random_port=11224
 
 base_dir="/data1/hjh/train_record/nlp/stanford_alpaca/vicuna-7b/ft2_v15/topic"
-llama_ckpt_and_tokenizer="eachadea/vicuna-7b-1.1"
+#llama_ckpt_and_tokenizer="eachadea/vicuna-7b-1.1"
 output_dir="${base_dir}/ft_out"
 data_json="${base_dir}/train_data.txt"
 cache_dir="/data2/hjh/hungging"
+
+#llama_ckpt_and_tokenizer="${cache_dir}/models--eachadea--vicuna-7b-1.1/snapshots/9d8eea215e00b388a22e8f050768ea8911d41f1d"
+llama_ckpt_and_tokenizer='/data2/hjh/hugging/vicuna-7b-1.1'
 mkdir -p ${output_dir}
 
 #----------------------
@@ -36,7 +39,6 @@ fi
 torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna-7b/train_mask_control_in_data.py \
     --model_name_or_path "${llama_ckpt_and_tokenizer}" \
     --data_path ${data_json} \
-    --cache_dir ${cache_dir} \
     --output_dir ${output_dir} \
     --num_train_epochs 1 \
     --per_device_train_batch_size 16 \
