@@ -9,8 +9,11 @@ import datetime
 
 now_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
 
+must_have_comment_text = False
+limit_turn_n = 6
+
 # --------------------------------------------------------
-# 全局变量
+# 每一轮有一个话题，对数据质量进行筛选
 # --------------------------------------------------------
 
 # 存储用户投票信息的格式为：
@@ -29,10 +32,10 @@ all_user_vote_info_dic = {}
 # {"your_name":{"uid_pair":{'start_time':'~','end_time':'~'},...,}
 time_consume_dic = {}
 
-base_dir = "/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v3/biaozhu_vots"
+base_dir = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v3/topic/votes'
 # base_dir = "/Users/jiahong/Downloads"
 # 数据, only_qa.py 得到
-data_f = f"{base_dir}/gpt4to_colloquial.txt"
+data_f = f"{base_dir}/gpt4to_colloquial_topic.txt"
 
 # 投票结果保存路径
 save_vote_log_f = f"{base_dir}/vote_log.txt"
@@ -87,7 +90,8 @@ def get_chat_contents(example: dict):
     history = []
     for i in range(len(example['qas'])):
         qa = example['qas'][f'turn_{i}']
-        question = f"{human_name}: {qa['question']}"
+        topic = qa['topic']
+        question = f"【{topic}】{human_name}: {qa['question']}"
         answer = f"{bot_name}(original): {qa['answer']}"
         colloquial_answer = f"{bot_name}(colloquial): {qa['colloquial_answer']}"
         history.append([question, answer])
@@ -103,25 +107,42 @@ def get_chat_contents(example: dict):
 ex_str0 = "let's play a role game."
 ex_str1 = "now you will play the role of"
 
+topic_uid_pair_dic = {}
 example_dic = {}
 with open(data_f) as fr:
     for line in fr:
         example = json.loads(line)
-        k = example['uid_pair']
-        assert k not in example_dic, f"error key:{k}"
+
+        if len(example['qas']) < limit_turn_n:
+            continue
+
+        uid_pair = example['uid_pair']
+
+        for i in range(len(example['qas'])):
+            qa = example['qas'][f'turn_{i}']
+            topic = qa['topic']
+
+            if topic not in topic_uid_pair_dic:
+                topic_uid_pair_dic[topic] = set()
+            topic_uid_pair_dic[topic].add(uid_pair)
+
+        assert uid_pair not in example_dic, f"error key:{uid_pair}"
         example["prompt"] = example["prompt"].replace(ex_str0, "").split(ex_str1)[0].strip()
-        example_dic[k] = example
+        example_dic[uid_pair] = example
 
 example_dic_keys = [k for k in example_dic.keys()]
+print(f"对话个数:{len(example_dic_keys)}")
 
 
-def get_one_example(your_name):
+def get_one_example(your_name, topic: str):
+    topic = topic.split("(")[0]
+
     if your_name not in all_user_vote_info_dic:
         done_n = 0
         not_done_uid_pairs = example_dic_keys
     else:
         done_uid_pairs = all_user_vote_info_dic[your_name].keys()
-        not_done_uid_pairs = list(set(example_dic_keys) - set(done_uid_pairs))
+        not_done_uid_pairs = list(set(topic_uid_pair_dic[topic]) - set(done_uid_pairs))
         done_n = len(done_uid_pairs)
 
     uid_pair = not_done_uid_pairs[0]
@@ -134,8 +155,20 @@ def get_one_example(your_name):
 # --------------------------------------------------------
 
 
-def your_name_change(your_name):
-    done_n, example, uid_pair = get_one_example(your_name.strip())
+def your_name_submit(your_name, topic):
+    done_n, example, uid_pair = get_one_example(your_name.strip(), topic)
+    next_dialogue_text = f"next({done_n}/{len(example_dic_keys)})"
+    history = get_chat_contents(example)
+
+    if your_name not in time_consume_dic:
+        time_consume_dic[your_name] = {}
+    time_consume_dic[your_name][uid_pair] = {"start_time": datetime.datetime.now()}
+
+    return history, next_dialogue_text, example['prompt'], uid_pair, get_analysis_result()
+
+
+def topic_change(your_name, topic):
+    done_n, example, uid_pair = get_one_example(your_name.strip(), topic)
     next_dialogue_text = f"next({done_n}/{len(example_dic_keys)})"
     history = get_chat_contents(example)
 
@@ -163,8 +196,9 @@ def submit_click(submit_btn, uid_pair, your_name, comment_text):
     else:
         raise gr.Error('please vote first!')
 
-    if comment_text.strip() == "" or comment_text is None:
-        raise gr.Error('comment can not be empty!')
+    if must_have_comment_text:
+        if comment_text.strip() == "" or comment_text is None:
+            raise gr.Error('comment can not be empty!')
 
     # 结果写入数据库
     if your_name not in all_user_vote_info_dic:
@@ -179,13 +213,13 @@ def submit_click(submit_btn, uid_pair, your_name, comment_text):
     return "vote done!", get_analysis_result()
 
 
-def next_dialogue_btn_click(your_name, old_uid_pair, submit_text, comment_text):
+def next_dialogue_btn_click(your_name, old_uid_pair, submit_text, comment_text, topic):
     your_name = your_name.strip()
 
     if your_name is None or your_name == "":
         raise gr.Error('Must input your name')
 
-    done_n, example, uid_pair = get_one_example(your_name)
+    done_n, example, uid_pair = get_one_example(your_name, topic)
     next_dialogue_text = f"next({done_n}/{len(example_dic_keys)})"
     history = get_chat_contents(example)
 
@@ -228,13 +262,22 @@ def next_dialogue_btn_click(your_name, old_uid_pair, submit_text, comment_text):
 # --------------------------------------------------------
 # 页面构建
 # --------------------------------------------------------
+
+
+topic_select_names = [f"{k}({len(topic_uid_pair_dic[k])})" for k in topic_uid_pair_dic.keys()]
+
 if __name__ == '__main__':
     with gr.Blocks() as demo:
         with gr.Row():
             gr.Markdown("# Dialogue quality scoring web")
         with gr.Row():
             with gr.Column():
-                your_name = gr.Textbox(label="your name", placeholder="please input your name", interactive=True)
+                with gr.Row():
+                    your_name = gr.Textbox(label="your name", placeholder="please input your name", interactive=True)
+                    topic = gr.Dropdown(choices=topic_select_names,
+                                        value=topic_select_names[0],
+                                        label="select a topic",
+                                        interactive=True)
                 uid_pair = gr.Textbox(label="uid_pair", interactive=False)
                 background_text = gr.Textbox(lines=5, label="background", interactive=False)
 
@@ -253,16 +296,20 @@ if __name__ == '__main__':
         analysis_table = gr.DataFrame(label="Evaluation results",
                                       headers=['user name', "finish dialogues", "time_consume(hours)"],
                                       value=get_analysis_result, every=2)
-        your_name.submit(your_name_change, [your_name],
+        your_name.submit(your_name_submit, [your_name, topic],
                          [gr_chatbot, next_dialogue, background_text, uid_pair, analysis_table],
                          queue=False)
+        topic.change(your_name_submit, [your_name, topic],
+                     [gr_chatbot, next_dialogue, background_text, uid_pair, analysis_table],
+                     queue=False)
         approve_btn.click(oppose_oppose_btn_click, [approve_btn], [submit_btn])
         oppose_btn.click(oppose_oppose_btn_click, [oppose_btn], [submit_btn])
-        submit_btn.click(submit_click, [submit_btn, uid_pair, your_name, comment_text], [submit_text, analysis_table])
-        next_dialogue.click(next_dialogue_btn_click, [your_name, uid_pair, submit_text, comment_text],
+        submit_btn.click(submit_click, [submit_btn, uid_pair, your_name, comment_text, topic],
+                         [submit_text, analysis_table])
+        next_dialogue.click(next_dialogue_btn_click, [your_name, uid_pair, submit_text, comment_text, topic],
                             [gr_chatbot, next_dialogue, background_text, uid_pair, submit_btn, comment_text,
                              submit_text, analysis_table],
                             queue=False)
 
     demo.queue()
-    demo.launch(server_name="0.0.0.0", server_port=9801)
+    demo.launch(server_name="0.0.0.0", server_port=9803)
