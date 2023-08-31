@@ -28,7 +28,7 @@ def get_user_vot_info():
     with open(vote_log_f) as fr:
         for line in fr:
             if example_key_word in line:
-                # 示例：{"name": "jia", "uid_pair": "1544424245_711665576", "vote_value": 1, "time_consume": 0.07, "end_date": "2023-08-25", "comment_text": "test"}
+                # 示例：{"name": "jia", "uid_pair": "1544424245_711665576", "vote_value": 1, "time_consume": 0.07, "end_date": "2023-08-25", "comment_text": "test", 'topic': '~'}
                 example = json.loads(line.replace(example_key_word, "").strip())
 
                 name = example['name'].strip()
@@ -80,27 +80,30 @@ def get_all_analysis_result():
         return None
 
 
-def get_date_analysis(date_str: str):
+def get_date_analysis(date_str: str, your_name: str):
     date_str = date_str.strip()
+    your_name = your_name.strip()
     all_user_vote_info_dic = get_user_vot_info()
 
     # 示例：{
     #   'jia':{'uid_pair_n':2, 'time_consume':0.5},..., },
     #   ...
     # }
+
     date_analysis_dic = {}
     if len(all_user_vote_info_dic) > 0:
         for name in all_user_vote_info_dic:
+            if name == your_name or your_name == "":
+                print(f"-----name:{name}")
+                for uid_pair in all_user_vote_info_dic[name]:
+                    end_date = all_user_vote_info_dic[name][uid_pair]['end_date']
+                    if end_date.strip() == date_str:
+                        if name not in date_analysis_dic:
+                            date_analysis_dic[name] = {'uid_pair_n': 0, "time_consume": 0}
 
-            for uid_pair in all_user_vote_info_dic[name]:
-                end_date = all_user_vote_info_dic[name][uid_pair]['end_date']
-
-                if end_date.strip() == date_str:
-                    if name not in date_analysis_dic:
-                        date_analysis_dic[name] = {'uid_pair_n': 0, "time_consume": 0}
-
-                    date_analysis_dic[name]['uid_pair_n'] += 1
-                    date_analysis_dic[name]['time_consume'] += all_user_vote_info_dic[name][uid_pair]['time_consume']
+                        date_analysis_dic[name]['uid_pair_n'] += 1
+                        date_analysis_dic[name]['time_consume'] += all_user_vote_info_dic[name][uid_pair][
+                            'time_consume']
 
         name_list = []
         finished_dialogues_list = []
@@ -125,11 +128,11 @@ def get_date_analysis(date_str: str):
     return None
 
 
-def analysis_table_change(input_date):
-    if input_date.strip() == "" or input_date is None:
+def analysis_table_submit(input_date, your_name):
+    if (input_date.strip() == "" or input_date is None) and (your_name.strip() == "" or your_name is None):
         return get_all_analysis_result()
     else:
-        return get_date_analysis(input_date)
+        return get_date_analysis(input_date, your_name)
 
 
 # --------------------------------------------------------
@@ -140,16 +143,20 @@ if __name__ == '__main__':
         with gr.Row():
             gr.Markdown("# 口语化数据质量筛选统计信息")
         with gr.Row():
-            with gr.Column():
-                input_date = gr.Textbox(label="date", placeholder="输入要查询的日期，空显示全部，格式示例：2023-08-25",
-                                        interactive=True,
-                                        value=None)
+            input_date = gr.Textbox(label="date", placeholder="输入要查询的日期，空显示全部，格式示例：2023-08-25",
+                                    interactive=True,
+                                    value=None)
+
+            your_name = gr.Textbox(label="your name", placeholder="输入名字",
+                                   interactive=True,
+                                   value=None)
 
         analysis_table = gr.DataFrame(label="Evaluation results",
                                       headers=['user name', "finish dialogues", "time_consume(hours)"],
                                       value=get_all_analysis_result)
 
-        input_date.submit(analysis_table_change, input_date, analysis_table)
+        input_date.submit(analysis_table_submit, [input_date, your_name], analysis_table)
+        your_name.submit(analysis_table_submit, [input_date, your_name], analysis_table)
 
     demo.queue()
     demo.launch(server_name="0.0.0.0", server_port=9702)
