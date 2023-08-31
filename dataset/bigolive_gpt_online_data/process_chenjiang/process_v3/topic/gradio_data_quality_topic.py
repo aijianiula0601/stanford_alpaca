@@ -176,7 +176,8 @@ def oppose_oppose_btn_click(approve_oppose):
     return f"submit{approve_oppose}"
 
 
-def submit_click(submit_btn, uid_pair, your_name, comment_text):
+def submit_click(submit_btn, uid_pair, your_name, comment_text, topic):
+    topic = topic.split("(")[0]
     your_name = your_name.strip()
     if your_name == "":
         raise gr.Error('please input your name!')
@@ -196,7 +197,7 @@ def submit_click(submit_btn, uid_pair, your_name, comment_text):
     # 结果写入数据库
     if your_name not in all_user_vote_info_dic:
         all_user_vote_info_dic[your_name] = {}
-    all_user_vote_info_dic[your_name][uid_pair] = {"vote_value": vote_value, "comment": comment_text}
+    all_user_vote_info_dic[your_name][uid_pair] = {'topic': topic, "vote_value": vote_value, "comment": comment_text}
 
     # print_dic = {"name": your_name, "uid_pair": uid_pair, 'vote_value': vote_value, 'comment_text': comment_text}
     # opened_vote_log_f.write(f"########## submit-log: {json.dumps(print_dic)}\n")
@@ -207,6 +208,7 @@ def submit_click(submit_btn, uid_pair, your_name, comment_text):
 
 
 def next_dialogue_btn_click(your_name, old_uid_pair, submit_text, comment_text, topic):
+    topic = topic.split("(")[0]
     your_name = your_name.strip()
 
     if your_name is None or your_name == "":
@@ -223,7 +225,7 @@ def next_dialogue_btn_click(your_name, old_uid_pair, submit_text, comment_text, 
     if your_name in time_consume_dic and old_uid_pair in time_consume_dic[your_name]:
         time_consume_dic[your_name][old_uid_pair]["end_time"] = datetime.datetime.now()
         if old_uid_pair not in all_user_vote_info_dic[your_name]:
-            all_user_vote_info_dic[your_name][old_uid_pair] = {}
+            all_user_vote_info_dic[your_name][old_uid_pair] = {'topic': topic}
         all_user_vote_info_dic[your_name][old_uid_pair]['time_consume'] = round(
             (time_consume_dic[your_name][old_uid_pair]['end_time'] - time_consume_dic[your_name][old_uid_pair][
                 'start_time']).seconds / 60, 2)  # 分钟来保存
@@ -299,7 +301,7 @@ if __name__ == '__main__':
                      queue=False)
         approve_btn.click(oppose_oppose_btn_click, [approve_btn], [submit_btn])
         oppose_btn.click(oppose_oppose_btn_click, [oppose_btn], [submit_btn])
-        submit_btn.click(submit_click, [submit_btn, uid_pair, your_name, comment_text],
+        submit_btn.click(submit_click, [submit_btn, uid_pair, your_name, comment_text, topic],
                          [submit_text])
         next_dialogue.click(next_dialogue_btn_click, [your_name, uid_pair, submit_text, comment_text, topic],
                             [gr_chatbot, next_dialogue, background_text, uid_pair, submit_btn, comment_text,
