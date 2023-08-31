@@ -273,7 +273,8 @@ if __name__ == '__main__':
         with gr.Row():
             with gr.Column():
                 with gr.Row():
-                    your_name = gr.Textbox(label="your name", placeholder="please input your name", interactive=True)
+                    your_name = gr.Textbox(label="your name", placeholder="Enter your name and press the enter key.",
+                                           interactive=True)
                     topic = gr.Dropdown(choices=topic_select_names,
                                         value=topic_select_names[0],
                                         label="select a topic",
