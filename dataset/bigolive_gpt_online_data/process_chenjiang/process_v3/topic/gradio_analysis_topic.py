@@ -94,10 +94,9 @@ def get_date_analysis(date_str: str, your_name: str):
     if len(all_user_vote_info_dic) > 0:
         for name in all_user_vote_info_dic:
             if name == your_name or your_name == "":
-                print(f"-----name:{name}")
                 for uid_pair in all_user_vote_info_dic[name]:
                     end_date = all_user_vote_info_dic[name][uid_pair]['end_date']
-                    if end_date.strip() == date_str:
+                    if end_date == date_str.strip() or date_str == "" or date_str is None:
                         if name not in date_analysis_dic:
                             date_analysis_dic[name] = {'uid_pair_n': 0, "time_consume": 0}
 
