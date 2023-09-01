@@ -71,7 +71,7 @@ vote_value_1 = 0
 with open(save1_f, 'w') as fw1:
     for uid_pair in uid_pair_vote_dic:
         example = uid_pair_vote_dic[uid_pair]
-
+        # del example['user_names']
         qa_example = example['example']
         del qa_example['background']
         del qa_example['prompt_info']

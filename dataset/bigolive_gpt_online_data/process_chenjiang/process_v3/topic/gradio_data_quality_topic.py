@@ -12,6 +12,10 @@ now_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
 must_have_comment_text = False
 limit_turn_n = 6
 
+HUMAN_DEFAULT_NAME = "user"
+ASSISTANT_DEFAULT_NAME = "assistant"
+MODIFY_ANSWER_KEY = "modify_answer"
+
 # --------------------------------------------------------
 # 每一轮有一个话题，对数据质量进行筛选
 # --------------------------------------------------------
@@ -36,6 +40,9 @@ base_dir = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gp
 # base_dir = "/Users/jiahong/Downloads"
 # 数据, only_qa.py 得到
 data_f = f"{base_dir}/gpt4to_colloquial_topic.txt"
+modify_example_f = f"{base_dir}/modified_example.txt"
+opened_modify_example_f = open(modify_example_f, 'a', buffering=1)
+opened_modify_example_f.write(f"########## 重启时间:{now_time} ##########\n")
 
 # 投票结果保存路径
 save_vote_log_f = f"{base_dir}/vote_log.txt"
@@ -46,37 +53,6 @@ save_vote_f = f"{base_dir}/user_vote_record.json"
 if os.path.exists(save_vote_f):
     all_user_vote_info_dic = json.load(open(save_vote_f))
     opened_vote_log_f.write(f"########## loaded user vot info from:{save_vote_f}\n")
-
-
-def get_analysis_result():
-    if len(all_user_vote_info_dic) > 0:
-        your_name_list = list(all_user_vote_info_dic.keys())
-        finished_dialogues_list = []
-        time_consume_list = []
-        for your_name in all_user_vote_info_dic:
-            cur_time_consume = 0
-            cur_fd = 0
-            for uid in all_user_vote_info_dic[your_name]:
-                if 'time_consume' in all_user_vote_info_dic[your_name][uid]:
-                    cur_time_consume += all_user_vote_info_dic[your_name][uid]['time_consume']
-                    cur_fd += 1
-
-            time_consume_list.append(round(cur_time_consume / 60, 2))
-            finished_dialogues_list.append(cur_fd)
-
-        your_name_n = len(your_name_list)
-        finished_dialogues_sum = sum(finished_dialogues_list)
-        time_consume_sum = sum(time_consume_list)
-
-        your_name_list.insert(0, f"total users({your_name_n})")
-        finished_dialogues_list.insert(0, f"total finished({finished_dialogues_sum})")
-        time_consume_list.insert(0, f"total time consume({round(time_consume_sum, 2)})")
-
-        return pd.DataFrame(
-            {'user name': your_name_list, 'finish dialogues': finished_dialogues_list,
-             "time_consume(hours)": time_consume_list})
-    else:
-        return None
 
 
 # --------------------------------------------------------
@@ -91,12 +67,17 @@ def get_chat_contents(example: dict):
     for i in range(len(example['qas'])):
         qa = example['qas'][f'turn_{i}']
         topic = qa['topic']
-        question = f"【{topic}】{human_name}: {qa['question']}"
-        answer = f"{bot_name}: {qa['answer']}"
+        question = f"{i}:【{topic}】{qa['question']}"
+        answer = f"{i}: {qa['answer']}"
+
         # answer = f"{bot_name}(original): {qa['answer']}"
-        colloquial_answer = f"{bot_name}(colloquial): {qa['colloquial_answer']}"
+        # colloquial_answer = f"{bot_name}(colloquial): {qa['colloquial_answer']}"
         history.append([question, answer])
         # history.append([None, colloquial_answer])
+
+        if MODIFY_ANSWER_KEY in qa:
+            modify_answer = f"{i}:【modified】{qa[MODIFY_ANSWER_KEY]}"
+            history.append([None, modify_answer])
 
     return history
 
@@ -227,6 +208,17 @@ def submit_click(submit_btn, uid_pair, your_name, comment_text, topic):
         for k in [kk for kk in time_consume_dic[your_name]]:
             del time_consume_dic[your_name][k]
 
+        # 记录修改过答案的example
+        example = example_dic[uid_pair]
+        modified_flag = False
+        for i in range(len(example['qas'])):
+            qa = example['qas'][f'turn_{i}']
+            if MODIFY_ANSWER_KEY in qa:
+                modified_flag = True
+                break
+        if modified_flag:
+            opened_modify_example_f.write(f"########## modified-dialogue: {json.dumps(example)}")
+
     # print_dic = {"name": your_name, "uid_pair": uid_pair, 'vote_value': vote_value, 'comment_text': comment_text}
     # opened_vote_log_f.write(f"########## submit-log: {json.dumps(print_dic)}\n")
     json.dump(all_user_vote_info_dic, open(save_vote_f, 'w'))
@@ -250,6 +242,19 @@ def next_dialogue_btn_click(your_name, submit_text, topic):
         raise gr.Error('results of last vote not submitted!')
 
     return history, next_dialogue_text, example['prompt'], uid_pair, "submit", "", ""
+
+
+def modify_click(modify_turn_i, modified_text, uid_pair):
+    if modify_turn_i < 0:
+        raise gr.Error('The modify number is incorrect.')
+
+    example = example_dic[uid_pair]
+
+    example['qas'][f'turn_{modify_turn_i}'][MODIFY_ANSWER_KEY] = modified_text
+
+    history = get_chat_contents(example)
+
+    return history, -1, None
 
 
 # --------------------------------------------------------
@@ -287,10 +292,13 @@ if __name__ == '__main__':
             with gr.Column():
                 gr_chatbot = gr.Chatbot(label="Dialogue")
                 next_dialogue = gr.Button(value="next")
+                modify_number = gr.Number(label="Enter the serial number to be modified", value=-1, interactive=True,
+                                          precision=0)
+                modify_answer_text = gr.Textbox(label="modify text",
+                                                placeholder="Enter the modified answer text",
+                                                interactive=True)
+                modify_submit = gr.Button(value="submit your changes")
 
-        # analysis_table = gr.DataFrame(label="Evaluation results",
-        #                               headers=['user name', "finish dialogues", "time_consume(hours)"],
-        #                               value=get_analysis_result, every=2)
         your_name.submit(your_name_submit, [your_name, topic],
                          [gr_chatbot, next_dialogue, background_text, uid_pair],
                          queue=False)
@@ -305,6 +313,8 @@ if __name__ == '__main__':
                             [gr_chatbot, next_dialogue, background_text, uid_pair, submit_btn, comment_text,
                              submit_text],
                             queue=False)
+        modify_submit.click(modify_click, [modify_number, modify_answer_text, uid_pair],
+                            [gr_chatbot, modify_number, modify_answer_text], queue=False)
 
     demo.queue()
     demo.launch(server_name="0.0.0.0", server_port=9701)
