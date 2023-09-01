@@ -3,7 +3,7 @@ import sys
 import json
 import gradio as gr
 
-from gradio_model_self_chat_server import models_url_dic, get_message_list, models_list, mask_instruct, mask_instruct_v2
+from gradio_model_self_chat_server import models_url_dic, get_message_list, models_list, mask_instruct, mask_instruct_vllm
 
 # -----------------------------------------------------------------------------------
 # 跟two_persons_gpt35_llama.py的区别是：

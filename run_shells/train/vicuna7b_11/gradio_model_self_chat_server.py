@@ -27,6 +27,7 @@ models_list = [
     "vicuna-13b(gpt4口语化)",
     "wizardlm13b",
     "vicuna30b",
+    "vicuna7btopic",
 ]
 url_f102 = "http://202.168.114.102"
 url_v100 = "http://202.168.100.251"
@@ -39,6 +40,7 @@ models_url_dic = {
     models_list[2]: f"{url_f102}:6132/api",
     models_list[3]: f"{url_a100}:6131/api",
     models_list[4]: f"{url_a100}:6300/api",
+    models_list[5]: f"{url_v100_f165}:61500/api",
 }
 
 models_prompt_key_dic = {
@@ -175,6 +177,52 @@ def mask_instruct(message_list, role_dict, temperature=0.6, model_server_url="ht
     json_data = json.loads(response.text)
     text_respond = json_data["result"]
     return text_respond.replace("#", "").strip()
+
+
+def mask_instruct_vllm(message_list, role_dict, temperature=0.6, model_server_url="http://202.168.100.251:5019/api",
+                       select_role_b=None, role_b_model_name=None):
+    """
+    message-list第一个数值是背景，
+    后面需要在role_dict里要做好配置，我最后会回复role_dict['assistant']角色的答案;
+    role_dict_real用于映射history里的内容
+    """
+    background = message_list[0]["content"]
+    history_list = [role_dict[char["role"]] + ": " + char["content"] for char in message_list[1:]]
+    history = DEFAULT_SEGMENT_TOKEN + f" {DEFAULT_SEGMENT_TOKEN}".join(
+        [item for item in history_list]) + DEFAULT_SEGMENT_TOKEN + role_dict['assistant'] + ": "
+
+    if "bigolive" in select_role_b:
+        if role_b_model_name == "vicuna7b_ft_v13(未口语化)":
+            background = background.replace(additional_prompt, "").replace(colloquial_prompt, "")
+
+        prompt_input = PROMPT_DICT['bigolive'].format_map({"background": background, "history": history})
+    else:
+        prompt_input = PROMPT_DICT['conversion'].format_map(
+            {"background": background, "history": history, "role_b": role_dict['assistant']})
+
+    # 测试口语化
+    # prompt_input = PROMPT_DICT['test_anglicize'].format_map(
+    #     {"background": background, "history": history, "role_b": role_dict['assistant'], "role_a": role_dict['user']})
+
+    print("prompt input:")
+    print(prompt_input)
+    print("-" * 50)
+
+    api_url = "http://202.168.114.102:8000/generate"
+
+    pload = {
+        "prompt": prompt_input,
+        "n": 1,
+        "use_beam_search": False,
+        "temperature": temperature,
+        "max_tokens": 256,
+        "stream": False,
+    }
+
+    headers = {"User-Agent": "Test Client"}
+    response = requests.post(api_url, headers=headers, json=pload, stream=True)
+
+    return response.json()['text'][0].replace("#", "").strip()
 
 
 def get_message_list(background, history=[]):
