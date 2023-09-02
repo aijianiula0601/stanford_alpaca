@@ -382,9 +382,9 @@ if __name__ == '__main__':
         topic_analysis_table = gr.DataFrame(label="topic results",
                                             value=get_topic_analysis)
         with gr.Column():
-            owner_name = gr.Textbox(label='owner', interactive=False)
-            background_text = gr.Textbox(lines=3, label="background", interactive=False)
-            gr_chatbot = gr.Chatbot(label="Dialogue")
+            owner_name = gr.Textbox(label='评估该对话的名字', interactive=False)
+            background_text = gr.Textbox(lines=3, label="背景", interactive=False)
+            gr_chatbot = gr.Chatbot(label="对话内容")
             with gr.Row():
                 oppose_btn = gr.Button("👎")
                 approve_btn = gr.Button("👍")
