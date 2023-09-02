@@ -189,7 +189,7 @@ def analysis_table_submit(input_date, your_name):
 if __name__ == '__main__':
     with gr.Blocks() as demo:
         with gr.Row():
-            gr.Markdown("# 口语化数据质量筛选统计信息")
+            gr.Markdown("# 评估统计信息")
         with gr.Row():
             input_date = gr.Textbox(label="date", placeholder="输入要查询的日期，空显示全部，格式示例：2023-08-25",
                                     interactive=True,
