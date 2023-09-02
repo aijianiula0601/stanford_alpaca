@@ -381,14 +381,17 @@ if __name__ == '__main__':
                                       value=get_all_analysis_result)
         topic_analysis_table = gr.DataFrame(label="topic results",
                                             value=get_topic_analysis)
-        with gr.Column():
-            owner_name = gr.Textbox(label='评估该对话的名字', interactive=False)
-            background_text = gr.Textbox(lines=3, label="背景", interactive=False)
+
+        with gr.Row():
+            with gr.Column():
+                owner_name = gr.Textbox(label='评估该对话的名字', interactive=False)
+                background_text = gr.Textbox(lines=3, label="背景", interactive=False)
+                with gr.Row():
+                    oppose_btn = gr.Button("👎")
+                    approve_btn = gr.Button("👍")
+                next_dialogue = gr.Button(value="随机查看一个对话")
+
             gr_chatbot = gr.Chatbot(label="对话内容")
-            with gr.Row():
-                oppose_btn = gr.Button("👎")
-                approve_btn = gr.Button("👍")
-            next_dialogue = gr.Button(value="随机查看一个对话")
 
         input_date.submit(analysis_table_submit, [input_date, your_name], [analysis_table, topic_analysis_table])
         your_name.submit(analysis_table_submit, [input_date, your_name], [analysis_table, topic_analysis_table])
