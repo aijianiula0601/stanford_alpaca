@@ -107,6 +107,45 @@ def get_all_analysis_result():
         return None
 
 
+def get_topic_analysis(input_your_name: str = "", date_str: str = ""):
+    input_your_name = input_your_name.strip()
+    date_str = date_str.strip()
+    all_user_vote_info_dic = get_user_vot_info()
+
+    # topic存储结构,{topic:{'vote1_n':1,'vote_1_n':1}}
+    topic_info_dic = {}
+    for your_name in all_user_vote_info_dic:
+
+        if input_your_name == your_name or input_your_name == "":
+
+            for uid_pair in all_user_vote_info_dic[your_name]:
+                topic = all_user_vote_info_dic[your_name][uid_pair]['topic']
+                if topic not in topic_info_dic:
+                    topic_info_dic[topic] = {'vote1_n': 0, 'vote_1_n': 0}
+
+                # topic_info_dic[topic]['vote1_n'] += 1 if all_user_vote_info_dic[your_name][uid_pair][
+                #                                              'vote_value'] == 1 else 0
+                # topic_info_dic[topic]['vote_1_n'] += 1 if all_user_vote_info_dic[your_name][uid_pair][
+                #                                               'vote_value'] == -1 else 0
+
+                if all_user_vote_info_dic[your_name][uid_pair]['vote_value'] == 1:
+                    if date_str == all_user_vote_info_dic[your_name][uid_pair]['end_date'] or date_str == "":
+                        topic_info_dic[topic]['vote1_n'] += 1
+
+                if all_user_vote_info_dic[your_name][uid_pair]['vote_value'] == -1:
+                    if date_str == all_user_vote_info_dic[your_name][uid_pair]['end_date'] or date_str == "":
+                        topic_info_dic[topic]['vote_1_n'] += 1
+
+    topic_names = list(topic_info_dic.keys())
+    topic_vote1_n_list = [topic_info_dic[t]['vote1_n'] for t in topic_info_dic]
+    topic_vote_1_n_list = [topic_info_dic[t]['vote_1_n'] for t in topic_info_dic]
+
+    return pd.DataFrame(
+        {f'topic({len(topic_names)})': topic_names,
+         f"👍(dialogues){sum(topic_vote1_n_list)}": topic_vote1_n_list,
+         f"👎(dialogues){sum(topic_vote_1_n_list)}": topic_vote_1_n_list})
+
+
 def get_date_analysis(date_str: str, your_name: str):
     date_str = date_str.strip()
     your_name = your_name.strip()
@@ -178,9 +217,9 @@ def get_date_analysis(date_str: str, your_name: str):
 
 def analysis_table_submit(input_date, your_name):
     if (input_date.strip() == "" or input_date is None) and (your_name.strip() == "" or your_name is None):
-        return get_all_analysis_result()
+        return get_all_analysis_result(), get_topic_analysis()
     else:
-        return get_date_analysis(input_date, your_name)
+        return get_date_analysis(input_date, your_name), get_topic_analysis(your_name, input_date)
 
 
 # --------------------------------------------------------
@@ -201,9 +240,11 @@ if __name__ == '__main__':
 
         analysis_table = gr.DataFrame(label="Evaluation results",
                                       value=get_all_analysis_result)
+        topic_analysis_table = gr.DataFrame(label="topic results",
+                                            value=get_topic_analysis)
 
-        input_date.submit(analysis_table_submit, [input_date, your_name], analysis_table)
-        your_name.submit(analysis_table_submit, [input_date, your_name], analysis_table)
+        input_date.submit(analysis_table_submit, [input_date, your_name], [analysis_table, topic_analysis_table])
+        your_name.submit(analysis_table_submit, [input_date, your_name], [analysis_table, topic_analysis_table])
 
     demo.queue()
     demo.launch(server_name="0.0.0.0", server_port=9702)
