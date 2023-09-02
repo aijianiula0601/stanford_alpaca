@@ -16,9 +16,75 @@ now_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
 
 
 base_dir = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v3/topic/votes'
-# base_dir = "/Users/jiahong/Downloads"
+# base_dir = "/Users/hjh/Downloads"
+
+gpt4to_colloquial_topic_f = f"{base_dir}/gpt4to_colloquial_topic.txt"
 vote_log_f = f"{base_dir}/vote_log.txt"
 user_vote_record_f = f"{base_dir}/user_vote_record.json"
+modified_example_f = f"{base_dir}/modified_example.txt"
+
+MODIFY_ANSWER_KEY = "modify_answer"
+
+
+def process_example(example: dict):
+    prompt = example['prompt']
+    human_name = example['human_name']
+    bot_name = example['bot_name']
+
+    new_qas = {}
+    for i in range(len(example['qas'])):
+        qa = example['qas'][f'turn_{i}']
+        new_qas[f'turn_{i}'] = {'question': qa['question'], 'answer': qa['answer']}
+        if MODIFY_ANSWER_KEY in qa:
+            new_qas[MODIFY_ANSWER_KEY] = qa[MODIFY_ANSWER_KEY]
+
+    return {"prompt:": prompt, 'human_name': human_name, 'bot_name': bot_name, 'qas': new_qas}
+
+
+def get_chat_contents(example: dict):
+    human_name = example['human_name']
+    bot_name = example['bot_name']
+
+    history = []
+    for i in range(len(example['qas'])):
+        qa = example['qas'][f'turn_{i}']
+        topic = qa['topic']
+        question = f"{i}:【{topic}】{qa['question']}"
+        answer = f"{i}: {qa['answer']}"
+
+        # answer = f"{bot_name}(original): {qa['answer']}"
+        # colloquial_answer = f"{bot_name}(colloquial): {qa['colloquial_answer']}"
+        history.append([question, answer])
+        # history.append([None, colloquial_answer])
+
+        if MODIFY_ANSWER_KEY in qa:
+            modify_answer = f"{i}:【modified】{qa[MODIFY_ANSWER_KEY]}"
+            history.append([None, modify_answer])
+
+    return history
+
+
+all_example_dic = {}
+with open(gpt4to_colloquial_topic_f) as fr:
+    for line in fr:
+        example = json.loads(line)
+        uid_pair = example['uid_pair']
+        all_example_dic[uid_pair] = example
+
+print(f"所有对话个数:{len(all_example_dic)}")
+
+modified_examples_dic = {}
+with open(modified_example_f) as fr:
+    for line in fr:
+        if line.startswith("####"):
+            continue
+        example = json.loads(line)
+        uid_pair = example['uid_pair']
+        modified_examples_dic[uid_pair] = example
+print(f"修改过的example的个数为:{len(modified_examples_dic)}")
+
+for k in modified_examples_dic:
+    all_example_dic[k] = modified_examples_dic[k]
 
 example_key_word = "########## next-dialogue:"
 
@@ -222,6 +288,79 @@ def analysis_table_submit(input_date, your_name):
         return get_date_analysis(input_date, your_name), get_topic_analysis(your_name, input_date)
 
 
+def oppose_oppose_btn_click(approve_oppose):
+    return f"随机查看一个对话{approve_oppose}"
+
+
+def next_dialogue_click(next_dialogue, input_your_name="", input_date_str=""):
+    oppose_oppose = next_dialogue.replace("随机查看一个对话", "")
+    if oppose_oppose == "👍":
+        vote_value_k = 'vote1'
+    elif oppose_oppose == "👎":
+        vote_value_k = 'vote_1'
+    else:
+        vote_value_k = None
+
+    all_user_vote_info_dic = get_user_vot_info()
+
+    # {"jia": {'vote1':[{'name':'', 'uid_pair': '!'}], 'vote_1':[{'name':'', 'uid_pair': '!'}] } }
+    your_name_uid_pair_list_dic = {}
+    # {'jia_2023-01-09': {'vote1':[{'name':'', 'uid_pair': '!'}], 'vote_1':[{'name':'', 'uid_pair': '!'}] } }
+    your_name_date_str_uid_pair_list_dic = {}
+    # {"2023-01-09": {'vote1':[{'name':'', 'uid_pair': '!'}], 'vote_1':[{'name':'', 'uid_pair': '!'}] } }
+    date_str_uid_pair_list_dic = {}
+    # {'vote1':[{'name':'', 'uid_pair': '!'}], 'vote_1':[{'name':'', 'uid_pair': '!'}] } }
+    all_uid_pair_dic = {'vote1': [], 'vote_1': []}
+    for yn in all_user_vote_info_dic:
+        for uid_pair in all_user_vote_info_dic[yn]:
+            cur_value = {'name': yn, 'uid_pair': uid_pair}
+            if yn not in your_name_uid_pair_list_dic:
+                your_name_uid_pair_list_dic[yn] = {'vote1': [], 'vote_1': []}
+
+            your_name_date_k = f"{yn}#{all_user_vote_info_dic[yn][uid_pair]['end_date']}"
+            if your_name_date_k not in your_name_date_str_uid_pair_list_dic:
+                your_name_date_str_uid_pair_list_dic[your_name_date_k] = {'vote1': [], 'vote_1': []}
+
+            end_date = all_user_vote_info_dic[yn][uid_pair]['end_date']
+            if end_date not in date_str_uid_pair_list_dic:
+                date_str_uid_pair_list_dic[end_date] = {'vote1': [], 'vote_1': []}
+
+            vote_value = all_user_vote_info_dic[yn][uid_pair]['vote_value']
+            if vote_value == 1:
+                your_name_uid_pair_list_dic[yn]['vote1'].append(cur_value)
+                your_name_date_str_uid_pair_list_dic[your_name_date_k]['vote1'].append(cur_value)
+                date_str_uid_pair_list_dic[end_date]['vote1'].append(cur_value)
+                all_uid_pair_dic['vote1'].append(cur_value)
+            else:
+                your_name_uid_pair_list_dic[yn]['vote_1'].append(cur_value)
+                your_name_date_str_uid_pair_list_dic[your_name_date_k]['vote_1'].append(cur_value)
+                date_str_uid_pair_list_dic[end_date]['vote_1'].append(cur_value)
+                all_uid_pair_dic['vote_1'].append(cur_value)
+
+    if input_your_name != "" and input_date_str == "":
+        vote1_vote_1_dic = your_name_uid_pair_list_dic[input_your_name]
+    elif input_your_name == "" and input_date_str != "":
+        vote1_vote_1_dic = date_str_uid_pair_list_dic[input_date_str]
+    elif input_your_name != "" and input_date_str != "":
+        your_name_date_k = f"{input_your_name}#{input_date_str}"
+        vote1_vote_1_dic = your_name_date_str_uid_pair_list_dic[your_name_date_k]
+    else:
+        vote1_vote_1_dic = all_uid_pair_dic
+
+    if vote_value_k is None:
+        name_uid_pair = random.choice(vote1_vote_1_dic['vote1'] + vote1_vote_1_dic['vote_1'])
+    else:
+        name_uid_pair = random.choice(vote1_vote_1_dic[vote_value_k])
+
+    out_name = name_uid_pair['name']
+    choice_uid_pair = name_uid_pair['uid_pair']
+
+    prompt = all_example_dic[choice_uid_pair]['prompt']
+    chat_history = get_chat_contents(all_example_dic[choice_uid_pair])
+
+    return out_name, prompt, chat_history
+
+
 # --------------------------------------------------------
 # 页面构建
 # --------------------------------------------------------
@@ -242,9 +381,23 @@ if __name__ == '__main__':
                                       value=get_all_analysis_result)
         topic_analysis_table = gr.DataFrame(label="topic results",
                                             value=get_topic_analysis)
+        with gr.Column():
+            owner_name = gr.Textbox(label='owner', interactive=False)
+            background_text = gr.Textbox(lines=3, label="background", interactive=False)
+            gr_chatbot = gr.Chatbot(label="Dialogue")
+            with gr.Row():
+                oppose_btn = gr.Button("👎")
+                approve_btn = gr.Button("👍")
+            next_dialogue = gr.Button(value="随机查看一个对话")
 
         input_date.submit(analysis_table_submit, [input_date, your_name], [analysis_table, topic_analysis_table])
         your_name.submit(analysis_table_submit, [input_date, your_name], [analysis_table, topic_analysis_table])
+
+        approve_btn.click(oppose_oppose_btn_click, [approve_btn], [next_dialogue])
+        oppose_btn.click(oppose_oppose_btn_click, [oppose_btn], [next_dialogue])
+
+        next_dialogue.click(next_dialogue_click, [next_dialogue, your_name, input_date],
+                            [owner_name, background_text, gr_chatbot])
 
     demo.queue()
     demo.launch(server_name="0.0.0.0", server_port=9702)
