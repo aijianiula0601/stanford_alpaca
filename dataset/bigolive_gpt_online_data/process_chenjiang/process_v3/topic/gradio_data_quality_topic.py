@@ -238,7 +238,8 @@ def submit_click(submit_btn, uid_pair, your_name, comment_text, topic):
 def next_dialogue_btn_click(your_name, submit_text, topic, old_uid_pair):
     topic = topic.split("(")[0]
     your_name = your_name.strip()
-    uid_pair_in_done_set.remove(old_uid_pair)
+    if old_uid_pair in uid_pair_in_done_set:
+        uid_pair_in_done_set.remove(old_uid_pair)
 
     if your_name is None or your_name == "":
         raise gr.Error('Must input your name')
