@@ -106,7 +106,7 @@ def get_user_vot_info():
     # 示例： {
     #  jia: {
     #           '1544424245_711665576': {"name": "jia", "uid_pair": "1544424245_711665576", "vote_value": 1, "time_consume": 0.07, "end_date": "2023-08-25",
-    #           "comment_text": "test"},
+    #           "comment_text": "test"，'topic:',"~"},
     #           ...
     #       },
     #  ...
@@ -116,7 +116,9 @@ def get_user_vot_info():
 
 
 def get_all_analysis_result():
-    all_user_vote_info_dic = json.load(open(user_vote_record_f))
+    # all_user_vote_info_dic = json.load(open(user_vote_record_f))
+    all_user_vote_info_dic = get_user_vot_info()
+
     if len(all_user_vote_info_dic) > 0:
         your_name_list = list(all_user_vote_info_dic.keys())
         finished_dialogues_list = []
@@ -125,30 +127,37 @@ def get_all_analysis_result():
         all_topic_n_list = set()
         vote1_value_list = []
         vote_1_value_list = []
+        all_uid_pair_set = set()
         for your_name in all_user_vote_info_dic:
             cur_time_consume = 0
             cur_fd = 0
             cur_topic_set = set()
-            cur_vote1_list = []
-            cur_vote_1_list = []
+            cur_vote1_n = 0
+            cur_vote_1_n = 0
             for uid in all_user_vote_info_dic[your_name]:
-                if 'time_consume' in all_user_vote_info_dic[your_name][uid]:
-                    cur_time_consume += all_user_vote_info_dic[your_name][uid]['time_consume']
-                    cur_fd += 1
 
-                    cur_topic_set.add(all_user_vote_info_dic[your_name][uid]['topic'])
-                    all_topic_n_list.add(all_user_vote_info_dic[your_name][uid]['topic'])
-                    vote_value = all_user_vote_info_dic[your_name][uid]['vote_value']
-                    if vote_value == 1:
-                        cur_vote1_list.append(vote_value)
-                    else:
-                        cur_vote_1_list.append(vote_value)
+                # 防止统计重复
+                if uid in all_uid_pair_set:
+                    continue
+                all_uid_pair_set.add(uid)
+
+                cur_time_consume += all_user_vote_info_dic[your_name][uid]['time_consume']
+                cur_fd += 1
+
+                cur_topic_set.add(all_user_vote_info_dic[your_name][uid]['topic'])
+                all_topic_n_list.add(all_user_vote_info_dic[your_name][uid]['topic'])
+
+                vote_value = all_user_vote_info_dic[your_name][uid]['vote_value']
+                if vote_value == 1:
+                    cur_vote1_n += 1
+                else:
+                    cur_vote_1_n += 1
 
             time_consume_list.append(round(cur_time_consume / 60, 2))
             finished_dialogues_list.append(cur_fd)
             topic_n_list.append(len(cur_topic_set))
-            vote1_value_list.append(len(cur_vote1_list))
-            vote_1_value_list.append(len(cur_vote_1_list))
+            vote1_value_list.append(cur_vote1_n)
+            vote_1_value_list.append(cur_vote_1_n)
 
         your_name_n = len(your_name_list)
         finished_dialogues_sum = sum(finished_dialogues_list)
@@ -173,34 +182,31 @@ def get_topic_analysis(input_your_name: str = "", date_str: str = ""):
 
     # topic存储结构,{topic:{'vote1_n':1,'vote_1_n':1}}
     topic_info_dic = {}
+    all_uid_pair_set = set()
     for your_name in all_user_vote_info_dic:
-
         if input_your_name == your_name or input_your_name == "":
-
             for uid_pair in all_user_vote_info_dic[your_name]:
+                # 防止统计重复
+                if uid_pair in all_uid_pair_set:
+                    continue
+                all_uid_pair_set.add(uid_pair)
                 topic = all_user_vote_info_dic[your_name][uid_pair]['topic']
                 if topic not in topic_info_dic:
                     topic_info_dic[topic] = {'vote1_n': 0, 'vote_1_n': 0}
 
-                # topic_info_dic[topic]['vote1_n'] += 1 if all_user_vote_info_dic[your_name][uid_pair][
-                #                                              'vote_value'] == 1 else 0
-                # topic_info_dic[topic]['vote_1_n'] += 1 if all_user_vote_info_dic[your_name][uid_pair][
-                #                                               'vote_value'] == -1 else 0
-
                 if all_user_vote_info_dic[your_name][uid_pair]['vote_value'] == 1:
                     if date_str == all_user_vote_info_dic[your_name][uid_pair]['end_date'] or date_str == "":
                         topic_info_dic[topic]['vote1_n'] += 1
-
-                if all_user_vote_info_dic[your_name][uid_pair]['vote_value'] == -1:
+                else:
                     if date_str == all_user_vote_info_dic[your_name][uid_pair]['end_date'] or date_str == "":
                         topic_info_dic[topic]['vote_1_n'] += 1
 
-    topic_names = list(topic_info_dic.keys())
+    topic_names_len = list(topic_info_dic.keys())
     topic_vote1_n_list = [topic_info_dic[t]['vote1_n'] for t in topic_info_dic]
     topic_vote_1_n_list = [topic_info_dic[t]['vote_1_n'] for t in topic_info_dic]
 
     return pd.DataFrame(
-        {f'topic({len(topic_names)})': topic_names,
+        {f'topic({len(topic_names_len)})': topic_names_len,
          f"👍(dialogues){sum(topic_vote1_n_list)}": topic_vote1_n_list,
          f"👎(dialogues){sum(topic_vote_1_n_list)}": topic_vote_1_n_list})
 
