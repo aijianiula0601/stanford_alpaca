@@ -281,11 +281,11 @@ def analysis_table_submit(input_date, your_name):
 
 
 def oppose_oppose_btn_click(approve_oppose):
-    return f"随机查看一个对话{approve_oppose}"
+    return f"抽查一个{approve_oppose}对话"
 
 
 def next_dialogue_click(next_dialogue, input_your_name="", input_date_str=""):
-    oppose_oppose = next_dialogue.replace("随机查看一个对话", "")
+    oppose_oppose = next_dialogue.replace("抽查一个", "").replace("对话", "")
     if oppose_oppose == "👍":
         vote_value_k = 'vote1'
     elif oppose_oppose == "👎":
@@ -305,7 +305,11 @@ def next_dialogue_click(next_dialogue, input_your_name="", input_date_str=""):
     all_uid_pair_dic = {'vote1': [], 'vote_1': []}
     for yn in all_user_vote_info_dic:
         for uid_pair in all_user_vote_info_dic[yn]:
-            cur_value = {'name': yn, 'uid_pair': uid_pair}
+            cur_value = {
+                'name': yn,
+                'uid_pair': uid_pair,
+                'comment_text': all_user_vote_info_dic[yn][uid_pair]['comment_text']
+            }
             if yn not in your_name_uid_pair_list_dic:
                 your_name_uid_pair_list_dic[yn] = {'vote1': [], 'vote_1': []}
 
@@ -346,11 +350,12 @@ def next_dialogue_click(next_dialogue, input_your_name="", input_date_str=""):
 
     out_name = name_uid_pair['name']
     choice_uid_pair = name_uid_pair['uid_pair']
+    comment_text = name_uid_pair['comment_text']
 
     prompt = all_example_dic[choice_uid_pair]['prompt']
     chat_history = get_chat_contents(all_example_dic[choice_uid_pair])
 
-    return out_name, prompt, chat_history
+    return out_name, comment_text, prompt, chat_history
 
 
 # --------------------------------------------------------
@@ -376,12 +381,14 @@ if __name__ == '__main__':
 
         with gr.Row():
             with gr.Column():
-                owner_name = gr.Textbox(label='评估该对话的名字', interactive=False)
-                background_text = gr.Textbox(lines=3, label="背景", interactive=False)
+                next_dialogue = gr.Button(value="抽查一个对话")
                 with gr.Row():
                     oppose_btn = gr.Button("👎")
                     approve_btn = gr.Button("👍")
-                next_dialogue = gr.Button(value="随机查看一个对话")
+                with gr.Row():
+                    owner_name = gr.Textbox(label='评估该对话的名字', interactive=False)
+                    comment_text = gr.Textbox(label='评语', interactive=False)
+                background_text = gr.Textbox(lines=3, label="背景", interactive=False)
 
             gr_chatbot = gr.Chatbot(label="对话内容")
 
@@ -392,7 +399,7 @@ if __name__ == '__main__':
         oppose_btn.click(oppose_oppose_btn_click, [oppose_btn], [next_dialogue])
 
         next_dialogue.click(next_dialogue_click, [next_dialogue, your_name, input_date],
-                            [owner_name, background_text, gr_chatbot])
+                            [owner_name, comment_text, background_text, gr_chatbot])
 
     demo.queue()
     demo.launch(server_name="0.0.0.0", server_port=9702)
