@@ -37,7 +37,7 @@ all_user_vote_info_dic = {}
 time_consume_dic = {}
 
 base_dir = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v3/topic/votes'
-# base_dir = "/Users/jiahong/Downloads"
+# base_dir = "/Users/hjh/Downloads"
 # 数据, only_qa.py 得到
 data_f = f"{base_dir}/gpt4to_colloquial_topic.txt"
 modify_example_f = f"{base_dir}/modified_example.txt"
@@ -53,6 +53,9 @@ save_vote_f = f"{base_dir}/user_vote_record.json"
 if os.path.exists(save_vote_f):
     all_user_vote_info_dic = json.load(open(save_vote_f))
     opened_vote_log_f.write(f"########## loaded user vot info from:{save_vote_f}\n")
+
+# 正在做评测的uid
+uid_pair_in_done_set = set()
 
 
 # --------------------------------------------------------
@@ -119,21 +122,23 @@ print(f"对话个数:{len(example_dic_keys)}")
 
 def get_one_example(your_name, topic: str):
     topic = topic.split("(")[0]
+    # 所有已经做评测的uid
     all_uid_pair_done_list = []
     for yn in all_user_vote_info_dic:
         all_uid_pair_done_list += list(all_user_vote_info_dic[yn].keys())
 
     if your_name not in all_user_vote_info_dic:
         done_n = 0
-        not_done_uid_pairs = list(topic_uid_pair_dic[topic])
+        not_done_uid_pairs = list(set(topic_uid_pair_dic[topic]) - set(all_uid_pair_done_list) - uid_pair_in_done_set)
     else:
         done_uid_pairs = all_user_vote_info_dic[your_name].keys()
         not_done_uid_pairs = list(set(topic_uid_pair_dic[topic]) - set(all_uid_pair_done_list) - set(
-            done_uid_pairs))  # 固定topic下，任何人都没做过的uid_pair
+            done_uid_pairs) - uid_pair_in_done_set)  # 固定topic下，任何人都没做过的uid_pair
         done_n = len(done_uid_pairs)
 
     # uid_pair = not_done_uid_pairs[0]
     uid_pair = random.sample(not_done_uid_pairs, k=1)[0]
+    uid_pair_in_done_set.add(uid_pair)
 
     if your_name not in time_consume_dic:
         time_consume_dic[your_name] = {}
@@ -164,6 +169,9 @@ def submit_click(submit_btn, uid_pair, your_name, comment_text, topic):
     your_name = your_name.strip()
     if your_name == "":
         raise gr.Error('please input your name!')
+
+    if comment_text.strip() == "":
+        raise gr.Error('comment can not be empty!')
 
     # 投票结果
     if submit_btn.replace("submit", "") == "👍":
@@ -227,9 +235,10 @@ def submit_click(submit_btn, uid_pair, your_name, comment_text, topic):
     return "vote done!"
 
 
-def next_dialogue_btn_click(your_name, submit_text, topic):
+def next_dialogue_btn_click(your_name, submit_text, topic, old_uid_pair):
     topic = topic.split("(")[0]
     your_name = your_name.strip()
+    uid_pair_in_done_set.remove(old_uid_pair)
 
     if your_name is None or your_name == "":
         raise gr.Error('Must input your name')
@@ -309,7 +318,7 @@ if __name__ == '__main__':
         oppose_btn.click(oppose_oppose_btn_click, [oppose_btn], [submit_btn])
         submit_btn.click(submit_click, [submit_btn, uid_pair, your_name, comment_text, topic],
                          [submit_text])
-        next_dialogue.click(next_dialogue_btn_click, [your_name, submit_text, topic],
+        next_dialogue.click(next_dialogue_btn_click, [your_name, submit_text, topic, uid_pair],
                             [gr_chatbot, next_dialogue, background_text, uid_pair, submit_btn, comment_text,
                              submit_text],
                             queue=False)
