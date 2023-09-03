@@ -155,20 +155,13 @@ def get_all_analysis_result():
         time_consume_sum = sum(time_consume_list)
         topic_n_sum = len(set(all_topic_n_list))
 
-        your_name_list.insert(0, f"total users({your_name_n})")
-        finished_dialogues_list.insert(0, f"total finished({finished_dialogues_sum})")
-        vote1_value_list.insert(0, f"{sum(vote1_value_list)}")
-        vote_1_value_list.insert(0, f"{sum(vote_1_value_list)}")
-        time_consume_list.insert(0, f"total time consume({round(time_consume_sum, 2)})")
-        topic_n_list.insert(0, f"total topic({topic_n_sum})")
-
         return pd.DataFrame(
-            {'user name': your_name_list,
-             'finish dialogues': finished_dialogues_list,
-             'finish topic': topic_n_list,
-             "👍(dialogues)": vote1_value_list,
-             "👎(dialogues)": vote_1_value_list,
-             "time_consume(hours)": time_consume_list})
+            {f'user name({your_name_n})': your_name_list,
+             f'finish dialogues({finished_dialogues_sum})': finished_dialogues_list,
+             f'finish topic({topic_n_sum})': topic_n_list,
+             f"👍(dialogues){sum(vote1_value_list)}": vote1_value_list,
+             f"👎(dialogues){sum(vote_1_value_list)}": vote_1_value_list,
+             f"time_consume({round(time_consume_sum, 2)}hours)": time_consume_list})
     else:
         return None
 
@@ -263,20 +256,13 @@ def get_date_analysis(date_str: str, your_name: str):
                 topic_name_set.add(topic)
         topic_n_sum = len(topic_name_set)
 
-        name_list.insert(0, f"total users({your_name_n})")
-        finished_dialogues_list.insert(0, f"total finished({finished_dialogues_sum})")
-        name_topic_n_list.insert(0, f"total topics({topic_n_sum})")
-        time_consume_list.insert(0, f"total time consume({round(time_consume_sum, 2)})")
-        vote1_value_list.insert(0, f"{vote1_n}")
-        vote_1_value_list.insert(0, f"{vote_1_n}")
-
         return pd.DataFrame(
-            {'user name': name_list,
-             'finish dialogues': finished_dialogues_list,
-             "topic": name_topic_n_list,
-             "👍(dialogues)": vote1_value_list,
-             "👎(dialogues)": vote_1_value_list,
-             "time_consume(hours)": time_consume_list})
+            {f'user name({your_name_n})': name_list,
+             f'finish dialogues({finished_dialogues_sum})': finished_dialogues_list,
+             f"topic({topic_n_sum})": name_topic_n_list,
+             f"👍(dialogues){vote1_n}": vote1_value_list,
+             f"👎(dialogues){vote_1_n}": vote_1_value_list,
+             f"time_consume({round(time_consume_sum, 2)}hours)": time_consume_list})
 
     return None
 
