@@ -308,7 +308,8 @@ def next_dialogue_click(next_dialogue, input_your_name="", input_date_str=""):
             cur_value = {
                 'name': yn,
                 'uid_pair': uid_pair,
-                'comment_text': all_user_vote_info_dic[yn][uid_pair]['comment_text']
+                'comment_text': all_user_vote_info_dic[yn][uid_pair]['comment_text'],
+                'vote_value': all_user_vote_info_dic[yn][uid_pair]['vote_value'],
             }
             if yn not in your_name_uid_pair_list_dic:
                 your_name_uid_pair_list_dic[yn] = {'vote1': [], 'vote_1': []}
@@ -351,11 +352,13 @@ def next_dialogue_click(next_dialogue, input_your_name="", input_date_str=""):
     out_name = name_uid_pair['name']
     choice_uid_pair = name_uid_pair['uid_pair']
     comment_text = name_uid_pair['comment_text']
+    vote_value = name_uid_pair['vote_value']
 
     prompt = all_example_dic[choice_uid_pair]['prompt']
     chat_history = get_chat_contents(all_example_dic[choice_uid_pair])
+    vote_info = '👍' if vote_value == 1 else '👎'
 
-    return out_name, comment_text, prompt, chat_history
+    return out_name, f"{vote_info} {comment_text}", prompt, chat_history
 
 
 # --------------------------------------------------------
