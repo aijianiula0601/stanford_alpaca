@@ -7,6 +7,7 @@ import random
 import json
 import traceback
 import aiohttp
+from colorama import Fore, Back, Style
 
 engine_name = "bigo-gpt35"
 
