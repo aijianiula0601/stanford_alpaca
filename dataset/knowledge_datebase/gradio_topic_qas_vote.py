@@ -7,7 +7,7 @@ import pandas as pd
 import gradio as gr
 import datetime
 
-from topic2dialogue_sort import sore_example_list
+from org_data import get_topic2qas_dic
 
 now_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
 
@@ -38,8 +38,8 @@ all_user_vote_info_dic = {}
 # {"your_name":{"uid_pair":{'start_time':'~','end_time':'~'},...,}
 time_consume_dic = {}
 
-base_dir = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v3/topic/votes/formal_vote'
-# base_dir = "/Users/hjh/Downloads"
+# base_dir = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v3/topic/votes/formal_vote'
+base_dir = "/Users/jiahong/Downloads"
 # 数据, only_qa.py 得到
 data_f = f"{base_dir}/gpt4to_colloquial_topic.txt"
 modify_example_f = f"{base_dir}/modified_example.txt"
@@ -65,15 +65,13 @@ uid_pair_in_done_set = set()
 # --------------------------------------------------------
 
 def get_chat_contents(example: dict):
-    human_name = example['human_name']
-    bot_name = example['bot_name']
-
     history = []
-    for i in range(len(example['qas'])):
-        qa = example['qas'][f'turn_{i}']
+    for k in example['qas']:
+        qa = example['qas'][k]
+        i_str = k.replace('turn_', '')
         topic = qa['topic']
-        question = f"{i}:【{topic}】{qa['question']}"
-        answer = f"{i}: {qa['answer']}"
+        question = f"{i_str}:【{topic}】{qa['question']}"
+        answer = f"{i_str}: {qa['answer']}"
 
         # answer = f"{bot_name}(original): {qa['answer']}"
         # colloquial_answer = f"{bot_name}(colloquial): {qa['colloquial_answer']}"
@@ -81,7 +79,7 @@ def get_chat_contents(example: dict):
         # history.append([None, colloquial_answer])
 
         if MODIFY_ANSWER_KEY in qa:
-            modify_answer = f"{i}:【modified】{qa[MODIFY_ANSWER_KEY]}"
+            modify_answer = f"{i_str}:【modified】{qa[MODIFY_ANSWER_KEY]}"
             history.append([None, modify_answer])
 
     return history
@@ -95,30 +93,9 @@ ex_str0 = "let's play a role game."
 ex_str1 = "now you will play the role of"
 
 # 保存方式:{"topic": ["uid_pair1",...],..}
-topic_uid_pair_dic = {}
-example_dic = {}
-with open(data_f) as fr:
-    for line in fr:
-        example = json.loads(line)
+_, topic_uid_pair_dic, uid_pair2qa_example_dic = get_topic2qas_dic(limit_turn_n=limit_turn_n)
 
-        if len(example['qas']) < limit_turn_n:
-            continue
-
-        uid_pair = example['uid_pair']
-
-        for i in range(len(example['qas'])):
-            qa = example['qas'][f'turn_{i}']
-            topic = qa['topic']
-
-            if topic not in topic_uid_pair_dic:
-                topic_uid_pair_dic[topic] = set()
-            topic_uid_pair_dic[topic].add(uid_pair)
-
-        assert uid_pair not in example_dic, f"error key:{uid_pair}"
-        example["prompt"] = example["prompt"].replace(ex_str0, "").split(ex_str1)[0].strip()
-        example_dic[uid_pair] = example
-
-example_dic_keys = [k for k in example_dic.keys()]
+example_dic_keys = [k for k in uid_pair2qa_example_dic.keys()]
 print(f"对话个数:{len(example_dic_keys)}")
 
 
@@ -142,12 +119,7 @@ def get_one_example(your_name, topic: str):
     # 获取需要做评估的uid_pair
     # ------------------------
     # uid_pair = not_done_uid_pairs[0]
-    random_i = random.randint(1, 10)
-    if random_i > 6:
-        uid_pair = random.sample(not_done_uid_pairs, k=1)[0]
-    else:
-        _, sorted_ids = sore_example_list([example_dic[ud] for ud in not_done_uid_pairs])
-        uid_pair = not_done_uid_pairs[sorted_ids[0]]
+    uid_pair = random.sample(not_done_uid_pairs, k=1)[0]
 
     # 加入在评估集合
     uid_pair_in_done_set.add(uid_pair)
@@ -156,7 +128,7 @@ def get_one_example(your_name, topic: str):
         time_consume_dic[your_name] = {}
     time_consume_dic[your_name][uid_pair] = {"start_time": datetime.datetime.now()}
 
-    return done_n + 1, example_dic[uid_pair], uid_pair
+    return done_n + 1, uid_pair2qa_example_dic[uid_pair], uid_pair
 
 
 # --------------------------------------------------------
@@ -231,7 +203,7 @@ def submit_click(submit_btn, uid_pair, your_name, comment_text, topic):
             del time_consume_dic[your_name][k]
 
         # 记录修改过答案的example
-        example = example_dic[uid_pair]
+        example = uid_pair2qa_example_dic[uid_pair]
         modified_flag = False
         for i in range(len(example['qas'])):
             qa = example['qas'][f'turn_{i}']
@@ -272,7 +244,7 @@ def modify_click(modify_turn_i, modified_text, uid_pair):
     if modify_turn_i < 0:
         raise gr.Error('The modify number is incorrect.')
 
-    example = example_dic[uid_pair]
+    example = uid_pair2qa_example_dic[uid_pair]
 
     example['qas'][f'turn_{modify_turn_i}'][MODIFY_ANSWER_KEY] = modified_text
 
@@ -292,7 +264,7 @@ if __name__ == '__main__':
     with gr.Blocks() as demo:
         with gr.Row():
             gr.Markdown("# Dialogue quality scoring web")
-            gr.Markdown("#### [result analysis](http://202.168.100.181:9702/)")
+            gr.Markdown("#### [result analysis](http://0.0.0.0:9702/)")
         with gr.Row():
             with gr.Column():
                 with gr.Row():
