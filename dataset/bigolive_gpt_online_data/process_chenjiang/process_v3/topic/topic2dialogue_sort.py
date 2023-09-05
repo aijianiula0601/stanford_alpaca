@@ -119,4 +119,42 @@ def sore_example_list(example_list: list):
 
 
 if __name__ == '__main__':
-    print()
+    base_dir = "/Users/jiahong/Downloads"
+    data_f = f"{base_dir}/gpt4to_colloquial_topic.txt"
+
+    save_f = f"{base_dir}/test_sort.txt"
+    topi_specify = "hobby_football"
+
+    limit_turn_n = 6
+
+    # 保存方式:{"topic": ["uid_pair1",...],..}
+    topic_uid_pair_dic = {}
+    example_dic = {}
+    with open(data_f) as fr:
+        for line in fr:
+            example = json.loads(line)
+            del example['background']
+            del example['prompt_info']
+            if len(example['qas']) < limit_turn_n:
+                continue
+            uid_pair = example['uid_pair']
+            for i in range(len(example['qas'])):
+                qa = example['qas'][f'turn_{i}']
+                topic = qa['topic']
+                del qa['history']
+                del qa['context_send_to_gpt']
+                del qa['colloquial_answer']
+                if topic not in topic_uid_pair_dic:
+                    topic_uid_pair_dic[topic] = set()
+                topic_uid_pair_dic[topic].add(uid_pair)
+            assert uid_pair not in example_dic, f"error key:{uid_pair}"
+            example["prompt"] = example["prompt"]
+            example_dic[uid_pair] = example
+    example_dic_keys = [k for k in example_dic.keys()]
+    print(f"对话个数:{len(example_dic_keys)}")
+
+    sorted_examples, sorted_ids = sore_example_list([example_dic[uid] for uid in topic_uid_pair_dic[topi_specify]])
+    with open(save_f, 'w') as fw:
+        for example in sorted_examples:
+            fw.write(f"{json.dumps(example)}\n")
+    print(f"save to:{save_f}")
