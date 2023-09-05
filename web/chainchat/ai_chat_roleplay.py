@@ -9,6 +9,8 @@ import traceback
 import aiohttp
 from colorama import Fore, Back, Style
 
+from my_server_api import get_my_server_result
+
 engine_name = "bigo-gpt35"
 
 
@@ -95,6 +97,8 @@ def get_completion(prompt, if_gpt4=False, temperature=0.7):
                 request_timeout=30,
                 temperature=temperature,  # this is the degree of randomness of the model's output
             )
+
+            # response = get_my_server_result(messages, temperature)
             break
         except RateLimitError:
             print(
@@ -124,9 +128,9 @@ def get_completion(prompt, if_gpt4=False, temperature=0.7):
     if 'content' not in response["choices"][0]["message"].keys():
         print("Problemetic message:", response)
         return "Error calling openai"
-    print(response.usage)
-    stat["total_use"] += response.usage["total_tokens"]
-    return response.choices[0].message["content"]
+    print(response['usage'])
+    stat["total_use"] += response['usage']["total_tokens"]
+    return response['choices'][0]['message']["content"]
 
 
 def get_completion_list(prompt_list, if_gpt4=False, temperature=0.7):
@@ -149,6 +153,9 @@ def get_completion_list(prompt_list, if_gpt4=False, temperature=0.7):
                 request_timeout=30,
                 temperature=temperature,  # this is the degree of randomness of the model's output
             )
+
+            # response = get_my_server_result(messages, temperature)
+
             break
         except RateLimitError:
             print(
@@ -178,9 +185,9 @@ def get_completion_list(prompt_list, if_gpt4=False, temperature=0.7):
     if 'content' not in response["choices"][0]["message"].keys():
         print("Problemetic message:", response)
         return "Error calling openai"
-    print(response.usage)
-    stat["total_use"] += response.usage["total_tokens"]
-    return response.choices[0].message["content"]
+    print(response['usage'])
+    stat["total_use"] += response['usage']["total_tokens"]
+    return response['choices'][0]['message']["content"]
 
 
 class AIChat:
