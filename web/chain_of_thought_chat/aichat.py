@@ -59,7 +59,7 @@ class ChainOfThoughtChat:
             raise EnvironmentError("must be set the gpt environment")
 
     def question_response(self, last_summary: str, latest_history: str, current_user_question: str, user_state: str,
-                          user_intention: str, user_topic: str):
+                          user_intention: str, user_topic: str, role_robot: str):
         """获取用户问题答案"""
 
         format_map_dic = {
@@ -74,7 +74,7 @@ class ChainOfThoughtChat:
         }
         prompt = config.PROMPT_DIC['chat'].format_map(format_map_dic)
         message_list = [{"role": 'system', 'content': prompt}, {"role": 'user', 'content': current_user_question}]
-        res = get_gpt_result(self.engine_name, message_list)
+        res = get_gpt_result(self.engine_name, message_list).lstrip(role_robot).lstrip(":").strip()
 
         print("-" * 100)
         print('question_response')
@@ -100,7 +100,7 @@ class ChainOfThoughtChat:
         res_text = get_gpt_result(self.engine_name, message_list)
         intention = parse_intention_state(res_text, 'user_intention')
         state = parse_intention_state(res_text, 'user_state')
-        topic = parse_intention_state(res_text, 'topic_of_question')
+        topic = parse_intention_state(res_text, 'topic_question')
 
         print("-" * 100)
         print('intention_status_analysis')

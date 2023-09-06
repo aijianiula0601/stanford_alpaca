@@ -47,7 +47,8 @@ def chat_f(history: list,
                                             current_user_question=user_question,
                                             user_state=user_state,
                                             user_intention=user_intention,
-                                            user_topic=user_topic)
+                                            user_topic=user_topic,
+                                            role_robot=role_robot)
 
     history[-1][-1] = f"{role_robot}: {answer_text}"
 
