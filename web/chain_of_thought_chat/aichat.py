@@ -59,7 +59,7 @@ class ChainOfThoughtChat:
             raise EnvironmentError("must be set the gpt environment")
 
     def question_response(self, last_summary: str, latest_history: str, current_user_question: str, user_state: str,
-                          user_intention: str, user_topic: str, role_robot: str):
+                          user_intention: str, role_robot: str):
         """获取用户问题答案"""
 
         format_map_dic = {
@@ -69,12 +69,12 @@ class ChainOfThoughtChat:
             'current_user_question': current_user_question,
             'user_state': user_state,
             'user_intention': user_intention,
-            'user_topic': user_topic,
+            # 'user_topic': user_topic,
 
         }
         prompt = config.PROMPT_DIC['chat'].format_map(format_map_dic)
         message_list = [{"role": 'system', 'content': prompt}, {"role": 'user', 'content': current_user_question}]
-        res = get_gpt_result(self.engine_name, message_list).lstrip(role_robot).lstrip(":").strip()
+        res = get_gpt_result(self.engine_name, message_list)
 
         print("-" * 100)
         print('question_response')
@@ -86,6 +86,7 @@ class ChainOfThoughtChat:
         print(res)
         print("-" * 100)
 
+        # return res.lstrip(f"{role_robot}:").strip()
         return res
 
     def intention_status_analysis(self, chat_history: str, user_question: str):
@@ -98,9 +99,9 @@ class ChainOfThoughtChat:
         prompt = config.PROMPT_DIC['intention_state'].format_map(format_map_dic)
         message_list = [{"role": "user", "content": prompt}]
         res_text = get_gpt_result(self.engine_name, message_list)
-        intention = parse_intention_state(res_text, 'user_intention')
-        state = parse_intention_state(res_text, 'user_state')
-        topic = parse_intention_state(res_text, 'topic_question')
+        intention = parse_intention_state(res_text, 'intention')
+        state = parse_intention_state(res_text, 'state')
+        # topic = parse_intention_state(res_text, 'topic_question')
 
         print("-" * 100)
         print('intention_status_analysis')
@@ -111,7 +112,7 @@ class ChainOfThoughtChat:
         print("=" * 20)
         print(res_text)
 
-        return res_text, intention, state, topic
+        return res_text, intention, state
 
     def history_summary(self, chat_history: str, last_summary: str = "", persona_name: str = ''):
         """

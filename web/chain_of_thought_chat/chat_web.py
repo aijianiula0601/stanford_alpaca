@@ -35,7 +35,7 @@ def chat_f(history: list,
     # ---------------------
     limit_history = get_limit_history(history, limit_turn_n)
 
-    user_intention_state_text, user_intention, user_state, user_topic = ai_chat.intention_status_analysis(
+    user_intention_state_text, user_intention, user_state = ai_chat.intention_status_analysis(
         chat_history=limit_history,
         user_question=user_question)
 
@@ -47,7 +47,6 @@ def chat_f(history: list,
                                             current_user_question=user_question,
                                             user_state=user_state,
                                             user_intention=user_intention,
-                                            user_topic=user_topic,
                                             role_robot=role_robot)
 
     history[-1][-1] = f"{role_robot}: {answer_text}"
