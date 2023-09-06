@@ -4,20 +4,25 @@ from aichat import ChainOfThoughtChat
 ai_chat = ChainOfThoughtChat()
 
 
-def get_limit_history(history: list[list], limit_turn_n=5):
-    return '\n'.join([q_a for qa in history[limit_turn_n:] for q_a in qa])
+def get_limit_history(history: list[list], limit_turn_n=0):
+    history_list = []
+    for qa in history[-limit_turn_n:]:
+        for q_a in qa:
+            if q_a is not None:
+                history_list.append(q_a)
+
+    return '\n'.join(history_list)
 
 
-def bot(history: list,
-        user_question: str,
-        last_summary: str,
-        role_human: str = "user",
-        role_robot: str = "robot",
-        gpt_version: str = '4'):
-    history.append([user_question, None])
-
-    role_a = role_human + ": "
-    role_b = role_robot + ": "
+def chat_f(history: list,
+           user_question: str,
+           last_summary: str,
+           role_human: str = "user",
+           role_robot: str = "robot",
+           limit_turn_n: int = 5,
+           gpt_version: str = '4',
+           ):
+    history.append([f"{role_human}: {user_question}", None])
 
     # ---------------------
     # 重新设置环境
@@ -28,30 +33,35 @@ def bot(history: list,
     # ---------------------
     # 分析用户意图和状态
     # ---------------------
+    limit_history = get_limit_history(history, limit_turn_n)
+
     user_intention_state_text, user_intention, user_state = ai_chat.intention_status_analysis(
-        chat_history=get_limit_history(history),
+        chat_history=limit_history,
         user_question=user_question)
-
-
 
     # ---------------------
     # 实际说什么
     # ---------------------
     answer_text = ai_chat.question_response(last_summary=last_summary,
-                                            latest_history=get_limit_history(history, limit_turn_n=5),
+                                            latest_history=limit_history,
                                             current_user_question=user_question,
                                             user_state=user_state,
                                             user_intention=user_intention)
 
-    history[-1][-1] = role_b + answer_text
-
+    history[-1][-1] = f"{role_robot}: {answer_text}"
 
     # ---------------------
     # 根据新的回复进行summary
     # ---------------------
-    # robot_summary, cost_time = ai_chat.summarize_chat(robot_summary, history[-1])
 
-    return history, user_intention_state_text
+    if len(history) > limit_turn_n * 2:
+        chat_history = get_limit_history(history[:-limit_turn_n][-limit_turn_n:])
+        history_summary = ai_chat.history_summary(chat_history=chat_history, last_summary=last_summary,
+                                                  persona_name=role_robot)
+    else:
+        history_summary = None
+
+    return history, user_intention_state_text, None, history_summary
 
 
 def clear_def():
@@ -63,12 +73,14 @@ with gr.Blocks() as demo:
         gr.Markdown("# chain-of-thought 聊天demo")
     with gr.Row():
         with gr.Column():
+            limit_turn_n = gr.Slider(1, 10, step=1, value=2, label="保留的历史记录轮次", interactive=True)
+
             with gr.Row():
                 role_human = gr.Textbox(lines=1, value="user", label="human name", interactive=False)
                 role_robot = gr.Textbox(lines=1, value="Angelie", label="live robot name", interactive=False)
 
             user_intention_state = gr.Textbox(lines=3, value=None, label="用户意图状态分析", interactive=False)
-            history_summary = gr.Textbox(lines=3, value="Angelie want to chat with the user.", label="聊天历史总结",
+            history_summary = gr.Textbox(lines=3, value=None, label="聊天历史总结",
                                          interactive=False)
 
             user_input = gr.Textbox(placeholder="input(Enter确定)", label="INPUT")
@@ -77,8 +89,8 @@ with gr.Blocks() as demo:
             clear = gr.Button("clean history")
             chatbot = gr.Chatbot(label="history")
 
-    user_input.submit(bot, [chatbot, user_input, history_summary, role_human, role_robot],
-                      [chatbot, user_intention_state], queue=False)
+    user_input.submit(chat_f, [chatbot, user_input, history_summary, role_human, role_robot, limit_turn_n],
+                      [chatbot, user_intention_state, user_input, history_summary], queue=False)
 
     clear.click(clear_def, inputs=[], outputs=[chatbot])
 

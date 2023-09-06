@@ -5,8 +5,7 @@ import re
 import config
 
 
-def get_gpt_result(engine_name: str, role: str, content: str):
-    message_list = [{"role": role, 'content': content}]
+def get_gpt_result(engine_name: str, message_list: list):
     response = openai.ChatCompletion.create(
         engine=engine_name,
         messages=message_list,
@@ -48,12 +47,16 @@ class ChainOfThoughtChat:
             openai.api_version = "2023-03-15-preview"
             openai.api_key = "0ea6b47ac9e3423cab22106d4db65d9d"
             self.engine_name = "bigo-gpt35"
-        if gpt_version == '4':
+            print(f"set gpt engine_name to:{self.engine_name}")
+        elif gpt_version == '4':
             openai.api_type = "azure"
             openai.api_base = "https://gpt4-test-cj-0803.openai.azure.com/"
             openai.api_version = "2023-03-15-preview"
             openai.api_key = "bca8eef9f9c04c7bb1e573b4353e71ae"
             self.engine_name = "gpt4-16k"
+            print(f"set gpt engine_name to:{self.engine_name}")
+        else:
+            raise EnvironmentError("must be set the gpt environment")
 
     def question_response(self, last_summary: str, latest_history: str, current_user_question: str, user_state: str,
                           user_intention: str):
@@ -69,12 +72,13 @@ class ChainOfThoughtChat:
 
         }
         prompt = config.PROMPT_DIC['chat'].format_map(format_map_dic)
+        message_list = [{"role": 'system', 'content': prompt}, {"role": 'user', 'content': current_user_question}]
+        res = get_gpt_result(self.engine_name, message_list)
 
         print("-" * 100)
         print('question_response')
         print("-" * 100)
         print(f'prompt:\n{prompt}')
-        res = get_gpt_result(self.engine_name, role="user", content=prompt)
         print("=" * 20)
         print("res:")
         print("=" * 20)
@@ -91,7 +95,8 @@ class ChainOfThoughtChat:
             'user_question': user_question,
         }
         prompt = config.PROMPT_DIC['intention_state'].format_map(format_map_dic)
-        res_text = get_gpt_result(self.engine_name, role="user", content=prompt)
+        message_list = [{"role": "user", "content": prompt}]
+        res_text = get_gpt_result(self.engine_name, message_list)
         intention = parse_intention_state(res_text, 'user_intention')
         state = parse_intention_state(res_text, 'user_state')
 
@@ -106,7 +111,7 @@ class ChainOfThoughtChat:
 
         return res_text, intention, state
 
-    def history_summary(self, chat_history: str, last_summary: str = ""):
+    def history_summary(self, chat_history: str, last_summary: str = "", persona_name: str = ''):
         """
         历史信息总结
         不是每一轮都总结历史，而是特定轮次后才总结。
@@ -115,7 +120,19 @@ class ChainOfThoughtChat:
         format_map_dic = {
             "chat_history": chat_history,
             "last_summary": last_summary,
+            "persona_name": persona_name,
         }
         prompt = config.PROMPT_DIC['history_summary'].format_map(format_map_dic)
+        message_list = [{"role": "user", "content": prompt}]
+        res_text = get_gpt_result(self.engine_name, message_list)
 
-        return get_gpt_result(self.engine_name, role="user", content=prompt)
+        print("-" * 100)
+        print('history_summary')
+        print("-" * 100)
+        print(f'prompt:\n{prompt}')
+        print("=" * 20)
+        print(f"res:")
+        print("=" * 20)
+        print(res_text)
+
+        return res_text

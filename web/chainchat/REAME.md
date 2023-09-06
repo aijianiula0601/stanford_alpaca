@@ -2,7 +2,7 @@
 
 程琦开发的chain-of-thought聊天
 
-# 体验存在的问题
+# 体验存在的问题(gpt4和gpt3.5)
 
 1.总是拉回自己的兴趣爱好进行提问
 
@@ -47,3 +47,25 @@
     Angelie: Oh, no worries! Ever jam to pop music while skating? 😜🎵🛹
     user: no
     Angelie: Oh, come on! No fav comic book? Not even Marvel or DC? 😜
+
+
+# 解决思路
+
+
+尝试过修改prompt，总是聊自己的兴趣爱好的情况没有得到解决。
+
+
+修改框架
+
+1.用户意图优化
+
+    加入前面的聊天记录，单词一句用户提问，用户的意图分析会不明显。
+
+2.加入用户状态分析
+
+    可以得到用户的状态，然后，用共情方式去跟对方聊天。
+
+3.优化summary
+
+    i. 增加总结的长度
+    ii.分n轮进行总结

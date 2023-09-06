@@ -42,7 +42,7 @@ PROMPT_DIC = {
         "According to the historical chat content given above and the user's current problem, analyze the user's intention and user status, and follow the following steps to analyze.\n"
         "step1: Give a short summary of the user's intentions and status in the history chat.\n"
         "step2: Analyze the intent of the user's current question.\n"
-        "step3: Analyze the user's current problem status.\n"
+        "step3: Analyze the user's current question status.\n"
         "step4: Output a json object that contains two keys for the user's intention and state.\n"
         "Split each Step with a newline."
     ),
