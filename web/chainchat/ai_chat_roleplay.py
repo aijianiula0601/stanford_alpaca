@@ -7,9 +7,6 @@ import random
 import json
 import traceback
 import aiohttp
-from colorama import Fore, Back, Style
-
-from my_server_api import get_my_server_result
 
 engine_name = "bigo-gpt35"
 
@@ -90,15 +87,13 @@ def get_completion(prompt, if_gpt4=False, temperature=0.7):
     for attempt in range(num_retries):
         backoff = 2 ** (attempt + 2)
         try:
-            # response = openai.ChatCompletion.create(
-            #     # model=model,
-            #     engine=engine_local,
-            #     messages=messages,
-            #     request_timeout=30,
-            #     temperature=temperature,  # this is the degree of randomness of the model's output
-            # )
-
-            response = get_my_server_result(messages, temperature)
+            response = openai.ChatCompletion.create(
+                # model=model,
+                engine=engine_local,
+                messages=messages,
+                request_timeout=30,
+                temperature=temperature,  # this is the degree of randomness of the model's output
+            )
             break
         except RateLimitError:
             print(
@@ -146,16 +141,13 @@ def get_completion_list(prompt_list, if_gpt4=False, temperature=0.7):
     for attempt in range(num_retries):
         backoff = 2 ** (attempt + 2)
         try:
-            # response = openai.ChatCompletion.create(
-            #     # model=model,
-            #     engine=engine_local,
-            #     messages=messages,
-            #     request_timeout=30,
-            #     temperature=temperature,  # this is the degree of randomness of the model's output
-            # )
-            #
-            response = get_my_server_result(messages, temperature)
-
+            response = openai.ChatCompletion.create(
+                # model=model,
+                engine=engine_local,
+                messages=messages,
+                request_timeout=30,
+                temperature=temperature,  # this is the degree of randomness of the model's output
+            )
             break
         except RateLimitError:
             print(
