@@ -10,6 +10,8 @@ import traceback
 
 from topic2dialogue_sort import sore_example_list
 
+random.seed(1234)
+
 now_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
 
 must_have_comment_text = False
@@ -98,6 +100,8 @@ ex_str1 = "now you will play the role of"
 # 保存方式:{"topic": ["uid_pair1",...],..}
 topic_uid_pair_dic = {}
 example_dic = {}
+already_allocated_uid_pair = set()
+topic_uid_pair_tuple_list = []
 with open(data_f) as fr:
     for line in fr:
         example = json.loads(line)
@@ -111,14 +115,43 @@ with open(data_f) as fr:
             qa = example['qas'][f'turn_{i}']
             topic = qa['topic']
 
-            if topic not in topic_uid_pair_dic:
-                topic_uid_pair_dic[topic] = set()
-            topic_uid_pair_dic[topic].add(uid_pair)
+            topic_uid_pair_tuple_list.append((topic, uid_pair))
 
         assert uid_pair not in example_dic, f"error key:{uid_pair}"
         example["prompt"] = example["prompt"].replace(ex_str0, "").split(ex_str1)[0].strip()
         example_dic[uid_pair] = example
 
+# 为了防止topic下的uid_pair重复
+exclude_topic_list = ['replay_good_or_not', 'None', 'greeting']
+exclude_topic_uid_pair_list = []
+random.shuffle(topic_uid_pair_tuple_list)
+d_i = 0
+for topic_uid_pair in topic_uid_pair_tuple_list:
+    topic = topic_uid_pair[0]
+    uid_pair = topic_uid_pair[1]
+    if topic in exclude_topic_list:
+        exclude_topic_uid_pair_list.append(topic_uid_pair)
+        continue
+    if topic not in topic_uid_pair_dic:
+        topic_uid_pair_dic[topic] = set()
+    if uid_pair not in already_allocated_uid_pair:
+        topic_uid_pair_dic[topic].add(uid_pair)
+        already_allocated_uid_pair.add(uid_pair)
+        d_i += 1
+
+# 剩下exclude中的topic进行分配
+for topic_uid_pair in exclude_topic_uid_pair_list:
+    topic = topic_uid_pair[0]
+    uid_pair = topic_uid_pair[1]
+    if topic not in topic_uid_pair_dic:
+        topic_uid_pair_dic[topic] = set()
+    if uid_pair not in already_allocated_uid_pair:
+        topic_uid_pair_dic[topic].add(uid_pair)
+        already_allocated_uid_pair.add(uid_pair)
+        d_i += 1
+
+print("dialogue_i:", d_i)
+already_allocated_uid_pair.clear()
 example_dic_keys = [k for k in example_dic.keys()]
 print(f"对话个数:{len(example_dic_keys)}")
 
@@ -143,7 +176,7 @@ def get_one_example(your_name, topic: str):
     # 获取需要做评估的uid_pair
     # ------------------------
     if len(not_done_uid_pairs) <= 0:
-        raise gr.Error(f'There is no conversation under this topic({topic})')
+        raise gr.Error(f'There is no dialogues under this topic:({topic})')
 
     # uid_pair = not_done_uid_pairs[0]
     random_i = random.randint(1, 10)
