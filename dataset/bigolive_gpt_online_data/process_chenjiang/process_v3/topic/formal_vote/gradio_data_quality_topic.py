@@ -6,6 +6,7 @@ import time
 import pandas as pd
 import gradio as gr
 import datetime
+import traceback
 
 from topic2dialogue_sort import sore_example_list
 
@@ -39,7 +40,7 @@ all_user_vote_info_dic = {}
 time_consume_dic = {}
 
 base_dir = '/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/dataset/bigolive_gpt_online_data/chengjiang_data/v3/topic/votes/formal_vote'
-# base_dir = "/Users/hjh/Downloads"
+# base_dir = "/Users/jiahong/Downloads"
 # 数据, only_qa.py 得到
 data_f = f"{base_dir}/gpt4to_colloquial_topic.txt"
 modify_example_f = f"{base_dir}/modified_example.txt"
@@ -141,6 +142,9 @@ def get_one_example(your_name, topic: str):
     # ------------------------
     # 获取需要做评估的uid_pair
     # ------------------------
+    if len(not_done_uid_pairs) <= 0:
+        raise gr.Error(f'There is no conversation under this topic({topic})')
+
     # uid_pair = not_done_uid_pairs[0]
     random_i = random.randint(1, 10)
     if random_i > 6:
