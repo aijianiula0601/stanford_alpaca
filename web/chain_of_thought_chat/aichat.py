@@ -86,7 +86,7 @@ class ChainOfThoughtChat:
         print(res)
         print("-" * 100)
 
-        # return res.lstrip(f"{role_robot}:").strip()
+        res = res if not res.startswith(f"{role_robot}:") else res[len(f"{role_robot}:"):]
         return res
 
     def intention_status_analysis(self, chat_history: str, user_question: str):

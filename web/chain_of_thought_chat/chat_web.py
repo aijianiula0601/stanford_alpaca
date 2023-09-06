@@ -60,7 +60,7 @@ def chat_f(history: list,
         history_summary = ai_chat.history_summary(chat_history=chat_history, last_summary=last_summary,
                                                   persona_name=role_robot)
     else:
-        history_summary = None
+        history_summary = last_summary
 
     return history, user_intention_state_text, None, history_summary
 

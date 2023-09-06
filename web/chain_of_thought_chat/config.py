@@ -27,8 +27,14 @@ PROMPT_DIC = {
         "```\n"
         "user:{current_user_question}\n"
         "```\n"
-        "Combine the last_summary and Latest chat history, focusing on the user's state({user_state}) and intention(user_intention), and respond to the current user's question in less than 15 words.  "
-        "Reply with empathy, compassion, flirtation, and colloquial language."
+        # "Combine the last_summary and Latest chat history, focusing on the user's state({user_state}) and intention({user_intention}), and respond to the current user's question in less than 15 words.  "
+        "User's state: {user_state}\n"
+        "user's intention: {user_intention}\n"
+        "Now focus on the user's state and intention. "
+        "Reply with empathy, compassion, flirtation, and colloquial language. "
+        "Respond based on the summarized chat history and the latest user input, and considering your persona, " 
+        "Respond should in short brief, flirtatious conversational style, less than 15 words. " 
+        "You can add a few spelling errors or abbreviations seems more like human."
     ),
     "intention_state": (
         "You are a professional psychoanalyst who can accurately analyze the intention and state of the interlocutor based on the chat record."
