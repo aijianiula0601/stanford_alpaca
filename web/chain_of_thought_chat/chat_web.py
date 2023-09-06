@@ -20,7 +20,7 @@ def chat_f(history: list,
            role_human: str = "user",
            role_robot: str = "robot",
            limit_turn_n: int = 5,
-           gpt_version: str = '4',
+           gpt_version: str = 'gpt3.5',
            ):
     history.append([f"{role_human}: {user_question}", None])
 
@@ -35,7 +35,7 @@ def chat_f(history: list,
     # ---------------------
     limit_history = get_limit_history(history, limit_turn_n)
 
-    user_intention_state_text, user_intention, user_state = ai_chat.intention_status_analysis(
+    user_intention_state_text, user_intention, user_state, user_topic = ai_chat.intention_status_analysis(
         chat_history=limit_history,
         user_question=user_question)
 
@@ -46,7 +46,8 @@ def chat_f(history: list,
                                             latest_history=limit_history,
                                             current_user_question=user_question,
                                             user_state=user_state,
-                                            user_intention=user_intention)
+                                            user_intention=user_intention,
+                                            user_topic=user_topic)
 
     history[-1][-1] = f"{role_robot}: {answer_text}"
 
@@ -73,7 +74,10 @@ with gr.Blocks() as demo:
         gr.Markdown("# chain-of-thought 聊天demo")
     with gr.Row():
         with gr.Column():
-            limit_turn_n = gr.Slider(1, 10, step=1, value=2, label="保留的历史记录轮次", interactive=True)
+            with gr.Row():
+                limit_turn_n = gr.Slider(1, 10, step=1, value=2, label="保留的历史记录轮次", interactive=True)
+                gpt_select = gr.Dropdown(value='gpt3.5', choices=['gpt3.5', 'gpt4'], label="gpt引擎选择",
+                                         interactive=True)
 
             with gr.Row():
                 role_human = gr.Textbox(lines=1, value="user", label="human name", interactive=False)
@@ -89,7 +93,7 @@ with gr.Blocks() as demo:
             clear = gr.Button("clean history")
             chatbot = gr.Chatbot(label="history")
 
-    user_input.submit(chat_f, [chatbot, user_input, history_summary, role_human, role_robot, limit_turn_n],
+    user_input.submit(chat_f, [chatbot, user_input, history_summary, role_human, role_robot, limit_turn_n, gpt_select],
                       [chatbot, user_intention_state, user_input, history_summary], queue=False)
 
     clear.click(clear_def, inputs=[], outputs=[chatbot])

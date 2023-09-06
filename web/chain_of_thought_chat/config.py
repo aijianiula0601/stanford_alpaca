@@ -27,7 +27,7 @@ PROMPT_DIC = {
         "```\n"
         "user:{current_user_question}\n"
         "```\n"
-        "Extract useful information based on last_summary and Latest chat history, focusing on the user's state({user_state}) and intention(user_intention), and respond to the current user's question in less than 30 words.  Reply with empathy, compassion, flirtation, and colloquial language."
+        "Combine the last_summary and Latest chat history, focusing on the user's state({user_state}), intention(user_intention) and topic({user_topic}), and respond to the current user's question in less than 30 words.  Reply with empathy, compassion, flirtation, and colloquial language."
     ),
     "intention_state": (
         "You are a professional psychoanalyst who can accurately analyze the intention and state of the interlocutor based on the chat record."
@@ -43,7 +43,8 @@ PROMPT_DIC = {
         "step1: Give a short summary of the user's intentions and status in the history chat.\n"
         "step2: Analyze the intent of the user's current question.\n"
         "step3: Analyze the user's current question status.\n"
-        "step4: Output a json object that contains two keys for the user's intention and state.\n"
+        "step4: Based on the chat history and the user's current question, output the topic of the question the user is currently asking.\n"
+        "step5: Output a json object that contains three keys for the user's intention、user's state and topic of user's question.\n"
         "Split each Step with a newline."
     ),
     "history_summary": (

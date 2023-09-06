@@ -41,14 +41,14 @@ class ChainOfThoughtChat:
 
     def set_gpt_env(self, gpt_version: str = 3.5):
         """设置gpt接口类型，3.5还是4"""
-        if gpt_version == "3.5":
+        if gpt_version == "gpt3.5":
             openai.api_type = "azure"
             openai.api_base = "https://bigo-chatgpt.openai.azure.com/"
             openai.api_version = "2023-03-15-preview"
             openai.api_key = "0ea6b47ac9e3423cab22106d4db65d9d"
             self.engine_name = "bigo-gpt35"
             print(f"set gpt engine_name to:{self.engine_name}")
-        elif gpt_version == '4':
+        elif gpt_version == 'gpt4':
             openai.api_type = "azure"
             openai.api_base = "https://gpt4-test-cj-0803.openai.azure.com/"
             openai.api_version = "2023-03-15-preview"
@@ -59,7 +59,7 @@ class ChainOfThoughtChat:
             raise EnvironmentError("must be set the gpt environment")
 
     def question_response(self, last_summary: str, latest_history: str, current_user_question: str, user_state: str,
-                          user_intention: str):
+                          user_intention: str, user_topic: str):
         """获取用户问题答案"""
 
         format_map_dic = {
@@ -69,6 +69,7 @@ class ChainOfThoughtChat:
             'current_user_question': current_user_question,
             'user_state': user_state,
             'user_intention': user_intention,
+            'user_topic': user_topic,
 
         }
         prompt = config.PROMPT_DIC['chat'].format_map(format_map_dic)
@@ -99,6 +100,7 @@ class ChainOfThoughtChat:
         res_text = get_gpt_result(self.engine_name, message_list)
         intention = parse_intention_state(res_text, 'user_intention')
         state = parse_intention_state(res_text, 'user_state')
+        topic = parse_intention_state(res_text, 'topic_of_question')
 
         print("-" * 100)
         print('intention_status_analysis')
@@ -109,7 +111,7 @@ class ChainOfThoughtChat:
         print("=" * 20)
         print(res_text)
 
-        return res_text, intention, state
+        return res_text, intention, state, topic
 
     def history_summary(self, chat_history: str, last_summary: str = "", persona_name: str = ''):
         """
