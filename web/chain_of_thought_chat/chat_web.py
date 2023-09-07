@@ -75,7 +75,7 @@ with gr.Blocks() as demo:
     with gr.Row():
         with gr.Column():
             with gr.Row():
-                limit_turn_n = gr.Slider(1, 10, step=1, value=2, label="保留的历史记录轮次", interactive=True)
+                limit_turn_n = gr.Slider(1, 10, step=1, value=5, label="保留的历史记录轮次", interactive=True)
                 gpt_select = gr.Dropdown(value='gpt3.5', choices=['gpt3.5', 'gpt4'], label="gpt引擎选择",
                                          interactive=True)
 
