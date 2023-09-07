@@ -69,7 +69,7 @@ def chat_f(history: list,
         user_question=user_question)
 
     # ---------------------
-    # 实际说什么
+    # 模型回复
     # ---------------------
     answer_text = ai_chat.question_response(last_summary=last_summary,
                                             latest_history=get_history_str(latest_history),
