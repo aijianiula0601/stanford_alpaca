@@ -84,7 +84,7 @@ with gr.Blocks() as demo:
                 role_robot = gr.Textbox(lines=1, value="Angelie", label="live robot name", interactive=False)
 
             user_intention_state = gr.Textbox(lines=3, value=None, label="用户意图状态分析", interactive=False)
-            history_summary = gr.Textbox(lines=3, value=None, label="聊天历史总结",
+            history_summary = gr.Textbox(lines=3, value=None, label="聊天历史总结(只会在积累足够轮次后才开始做对话总结)",
                                          interactive=False)
 
             user_input = gr.Textbox(placeholder="input(Enter确定)", label="INPUT")
