@@ -4,14 +4,43 @@ from aichat import ChainOfThoughtChat
 ai_chat = ChainOfThoughtChat()
 
 
-def get_limit_history(history: list[list], limit_turn_n=0, end_turn_i: int = None):
+# def get_limit_history(history: list[list], limit_turn_n=0, end_turn_i: int = None):
+#     history_list = []
+#     for qa in history[-limit_turn_n:end_turn_i]:
+#         for q_a in qa:
+#             if q_a is not None:
+#                 history_list.append(q_a)
+#
+#     return '\n'.join(history_list)
+
+
+def get_history_str(history: list):
+    if len(history) <= 0:
+        return ''
     history_list = []
-    for qa in history[-limit_turn_n:end_turn_i]:
+    for qa in history:
         for q_a in qa:
             if q_a is not None:
                 history_list.append(q_a)
-
     return '\n'.join(history_list)
+
+
+def get_latest_history(history: list, limit_turn_n: int):
+    to_summary_history = []
+    new_summary_flag = False
+    if len(history) % limit_turn_n == 0 and len(history) // limit_turn_n > 1:
+        if len(history) >= limit_turn_n * 2:
+            new_summary_flag = True
+            # 给过去做总结的历史
+            to_summary_history = history[:-limit_turn_n][-limit_turn_n:]
+
+    if new_summary_flag:
+        latest_history = history[-limit_turn_n:]
+    else:
+        cur_turn_n = limit_turn_n + len(history) % limit_turn_n
+        latest_history = history[-cur_turn_n:]
+
+    return to_summary_history, latest_history
 
 
 def chat_f(history: list,
@@ -33,17 +62,17 @@ def chat_f(history: list,
     # ---------------------
     # 分析用户意图和状态
     # ---------------------
-    limit_history = get_limit_history(history, limit_turn_n, end_turn_i=-1)
+    _, latest_history = get_latest_history(history[:-1], limit_turn_n)
 
     user_intention_state_text, user_intention, user_state = ai_chat.intention_status_analysis(
-        chat_history=limit_history,
+        chat_history=get_history_str(latest_history),
         user_question=user_question)
 
     # ---------------------
     # 实际说什么
     # ---------------------
     answer_text = ai_chat.question_response(last_summary=last_summary,
-                                            latest_history=limit_history,
+                                            latest_history=get_history_str(latest_history),
                                             current_user_question=user_question,
                                             user_state=user_state,
                                             user_intention=user_intention,
@@ -54,14 +83,17 @@ def chat_f(history: list,
     # ---------------------
     # 根据新的回复进行summary
     # ---------------------
+    to_summary_history, _ = get_latest_history(history, limit_turn_n)
 
-    if len(history) > limit_turn_n * 2:
-        chat_history = get_limit_history(history[:-limit_turn_n][-limit_turn_n:])
-        history_summary = ai_chat.history_summary(chat_history=chat_history, last_summary=last_summary,
-                                                  persona_name=role_robot)
-    else:
+    if len(to_summary_history) <= 0:
         history_summary = last_summary
-
+    else:
+        history_summary = ai_chat.history_summary(chat_history=get_history_str(to_summary_history),
+                                                  last_summary=last_summary,
+                                                  persona_name=role_robot)
+    print("+" * 200)
+    print("new chat")
+    print("+" * 200)
     return history, user_intention_state_text, None, history_summary
 
 

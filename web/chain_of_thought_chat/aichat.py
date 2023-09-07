@@ -101,7 +101,10 @@ class ChainOfThoughtChat:
         res_text = get_gpt_result(self.engine_name, message_list)
         intention = parse_intention_state(res_text, 'intention')
         state = parse_intention_state(res_text, 'state')
-        # topic = parse_intention_state(res_text, 'topic_question')
+        if intention is None:
+            intention = parse_intention_state(res_text, 'user_intention')
+        if state is None:
+            state = parse_intention_state(res_text, 'user_state')
 
         print("-" * 100)
         print('intention_status_analysis')
