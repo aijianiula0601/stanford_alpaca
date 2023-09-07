@@ -4,9 +4,9 @@ from aichat import ChainOfThoughtChat
 ai_chat = ChainOfThoughtChat()
 
 
-def get_limit_history(history: list[list], limit_turn_n=0):
+def get_limit_history(history: list[list], limit_turn_n=0, end_turn_i: int = None):
     history_list = []
-    for qa in history[-limit_turn_n:]:
+    for qa in history[-limit_turn_n:end_turn_i]:
         for q_a in qa:
             if q_a is not None:
                 history_list.append(q_a)
@@ -33,7 +33,7 @@ def chat_f(history: list,
     # ---------------------
     # 分析用户意图和状态
     # ---------------------
-    limit_history = get_limit_history(history, limit_turn_n)
+    limit_history = get_limit_history(history, limit_turn_n, end_turn_i=-1)
 
     user_intention_state_text, user_intention, user_state = ai_chat.intention_status_analysis(
         chat_history=limit_history,
@@ -76,7 +76,7 @@ with gr.Blocks() as demo:
         with gr.Column():
             with gr.Row():
                 limit_turn_n = gr.Slider(1, 10, step=1, value=5, label="保留的历史记录轮次", interactive=True)
-                gpt_select = gr.Dropdown(value='gpt3.5', choices=['gpt3.5', 'gpt4'], label="gpt引擎选择",
+                gpt_select = gr.Dropdown(value='gpt4', choices=['gpt3.5', 'gpt4'], label="gpt引擎选择",
                                          interactive=True)
 
             with gr.Row():
