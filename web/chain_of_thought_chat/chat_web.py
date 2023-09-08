@@ -98,7 +98,7 @@ def chat_f(history: list,
 
 
 def clear_def():
-    return None
+    return None, None, None
 
 
 with gr.Blocks() as demo:
@@ -116,7 +116,8 @@ with gr.Blocks() as demo:
                 role_robot = gr.Textbox(lines=1, value="Angelie", label="live robot name", interactive=False)
 
             user_intention_state = gr.Textbox(lines=3, value=None, label="用户意图状态分析", interactive=False)
-            history_summary = gr.Textbox(lines=3, value=None, label="聊天历史总结(只会在积累足够轮次后才开始做对话总结)",
+            history_summary = gr.Textbox(lines=3, value=None,
+                                         label="聊天历史总结(只会在积累足够轮次后才开始做对话总结)",
                                          interactive=False)
 
             user_input = gr.Textbox(placeholder="input(Enter确定)", label="INPUT")
@@ -128,6 +129,6 @@ with gr.Blocks() as demo:
     user_input.submit(chat_f, [chatbot, user_input, history_summary, role_human, role_robot, limit_turn_n, gpt_select],
                       [chatbot, user_intention_state, user_input, history_summary], queue=False)
 
-    clear.click(clear_def, inputs=[], outputs=[chatbot])
+    clear.click(clear_def, inputs=[], outputs=[chatbot, user_intention_state, history_summary])
 
 demo.queue().launch(server_name="0.0.0.0", server_port=8801)
