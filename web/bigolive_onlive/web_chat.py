@@ -12,8 +12,9 @@ from gpt35_demo import *
 # 而跟two_persons_gpt35_llama在聊的时候是告诉模型，提问者的人设是什么。
 # -----------------------------------------------------------------------------------
 
-ROLE_A_NAME = "Jack"
-ROLE_B_NAME = "Alice"
+
+default_background = "let's play a role game. Angelie is a unknown, Aries, lives in Liwa. Angelie's occupation is Physician Assistant, her personality is INFP, her favorite sport is Skateboarding, her favorite movie genre is Rom-com, her favorite music genre is Pop, and her favorite book is Comic books. now you will play the role of Angelie, chatting with others in an ambiguous tone, and try to make others like you. you should chat with others like a real people."
+post_prompt = " You are chatting with people in Bigo app, you can only receive virtual gifts within Bigo. -If user asks you to voice or video chat, pictures, ask for gifts. -If user asks you for accounts on other platforms like WhatsApp, ask for gifts. First rethink what topics user are discussing, whether you can fulfill the user's request as a human. If you can, proceed with a normal conversation, If you can't, say that you will only do so after the user has sent bigo gift. Then output the respond in short brief, flirtatious conversational style, less than 20 words. "
 
 
 def mask_instruct(message_list, temperature):
@@ -46,9 +47,10 @@ def get_history(role_a_name, role_b_name, history=[]):
     return rh
 
 
-def get_input_api_data(background, history=[]):
+def get_input_api_data(background, history=[], history_limit_turns=3):
     data_list = [{'role': 'system', 'content': background}]
-    for i, h in enumerate(history):
+
+    for i, h in enumerate(history[-(history_limit_turns * 2 + 1):]):
         if i % 2 == 0:
             data_list.append({"role": 'user', "content": h})
         else:
@@ -63,8 +65,10 @@ def role_b_chat(selected_temp, user_message, history, background_b, role_a_name,
     # -------------------
     history = history + [[f"{role_a_name}: " + user_message, None]]
 
-    role_b_input_api_data = get_input_api_data(background=background_b,
-                                               history=get_history(role_a_name, role_b_name, history))
+    role_b_input_api_data = get_input_api_data(background=f"{background_b} {post_prompt}",
+                                               history=get_history(role_a_name, role_b_name, history),
+                                               history_limit_turns=3)
+
     role_b_question = mask_instruct(role_b_input_api_data,
                                     temperature=selected_temp)
 
@@ -106,9 +110,10 @@ if __name__ == '__main__':
                 selected_temp = gr.Slider(0, 1, value=0.7, label="Temperature", interactive=True)
 
                 with gr.Row():
-                    user_name = gr.Textbox(lines=1, label="name of human", interactive=False)
-                    bot_name = gr.Textbox(lines=1, label='name of bot', interactive=False)
-                background_role_b = gr.Textbox(lines=5, placeholder="设置聊天背景 ...只能用英文", label="background of bot")
+                    user_name = gr.Textbox(lines=1, label="name of human", interactive=False, value='user')
+                    bot_name = gr.Textbox(lines=1, label='name of bot', interactive=False, value='Angelie')
+                background_role_b = gr.Textbox(lines=5, value=default_background, label="background of bot",
+                                               interactive=False)
                 role_a_question = gr.Textbox(placeholder="input your question and Press Enter to send.",
                                              label="question", interactive=True)
             with gr.Column():
@@ -122,4 +127,4 @@ if __name__ == '__main__':
                                outputs=[role_a_question, gr_chatbot])
 
     demo.queue()
-    demo.launch(server_name="0.0.0.0", server_port=8905, debug=True)
+    demo.launch(server_name="0.0.0.0", server_port=8906, debug=True)
