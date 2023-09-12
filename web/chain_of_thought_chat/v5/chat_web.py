@@ -43,6 +43,16 @@ def get_latest_history(history: list, limit_turn_n: int):
     return to_summary_history, latest_history
 
 
+def get_answer(gpt_output: str):
+    answer_index = gpt_output.find("###")
+
+    answer_text = gpt_output[answer_index:].replace("#", "").strip()
+
+    res = answer_text if not answer_text.startswith(f"{role_robot}:") else answer_text[len(f"{role_robot}:"):]
+
+    return res.replace("\n", "").rstrip(':)')
+
+
 def chat_f(history: list,
            user_question: str,
            last_summary: str,
@@ -60,31 +70,14 @@ def chat_f(history: list,
     ai_chat.set_gpt_env(gpt_version)
 
     # ---------------------
-    # 分析用户意图和状态
-    # ---------------------
-    _, latest_history = get_latest_history(history[:-1], limit_turn_n)
-
-    user_intention_state_text, user_intention, user_state = ai_chat.intention_status_analysis(
-        chat_history=get_history_str(latest_history),
-        user_question=user_question)
-
-    # ---------------------
     # 模型回复
     # ---------------------
-    if user_question == "I'm new to this app. Can you tell me how to use this app?":
-        print("-------找到相似问题")
-        database_similar_responses = 'bigo app is a live stream-based software, which can bring people a lot of happiness. You can follow your favorite anchors on the home page, enter their live broadcast room when they live, and send your gifts to show your encouragement. You also go to my page in the top corner, follow me, I will let you know when I live.'
-    else:
-        database_similar_responses = ''
-
-    answer_text = ai_chat.question_response(last_summary=last_summary,
-                                            latest_history=get_history_str(latest_history),
-                                            current_user_question=user_question,
-                                            user_state=user_state,
-                                            user_intention=user_intention,
-                                            role_robot=role_robot,
-                                            database_similar_responses=database_similar_responses
-                                            )
+    _, latest_history = get_latest_history(history[:-1], limit_turn_n)
+    gpt_output = ai_chat.question_response(last_summary=last_summary,
+                                           latest_history=get_history_str(latest_history),
+                                           current_user_question=user_question,
+                                           role_robot=role_robot)
+    answer_text = get_answer(gpt_output)
 
     history[-1][-1] = f"{role_robot}: {answer_text}"
 
@@ -102,7 +95,7 @@ def chat_f(history: list,
     print("+" * 200)
     print("new chat")
     print("+" * 200)
-    return history, user_intention_state_text, None, history_summary
+    return history, gpt_output, None, history_summary
 
 
 def clear_def():

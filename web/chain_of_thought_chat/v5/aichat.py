@@ -58,8 +58,7 @@ class ChainOfThoughtChat:
         else:
             raise EnvironmentError("must be set the gpt environment")
 
-    def question_response(self, last_summary: str, latest_history: str, current_user_question: str, user_state: str,
-                          user_intention: str, role_robot: str, database_similar_responses: str = ''):
+    def question_response(self, last_summary: str, latest_history: str, current_user_question: str, role_robot: str):
         """获取用户问题答案"""
 
         format_map_dic = {
@@ -67,10 +66,6 @@ class ChainOfThoughtChat:
             'last_summary': last_summary,
             'latest_history': latest_history,
             'current_user_question': current_user_question,
-            'database_similar_responses': database_similar_responses,
-            'user_state': user_state,
-            'user_intention': user_intention,
-            # 'user_topic': user_topic,
 
         }
         prompt = config.PROMPT_DIC['chat'].format_map(format_map_dic)
@@ -87,36 +82,7 @@ class ChainOfThoughtChat:
         print(res)
         print("-" * 100)
 
-        res = res if not res.startswith(f"{role_robot}:") else res[len(f"{role_robot}:"):]
-        return res.rstrip(':)')
-
-    def intention_status_analysis(self, chat_history: str, user_question: str):
-        """用户提问的意图的状态分析"""
-
-        format_map_dic = {
-            'chat_history': chat_history,
-            'user_question': user_question,
-        }
-        prompt = config.PROMPT_DIC['intention_state'].format_map(format_map_dic)
-        message_list = [{"role": "user", "content": prompt}]
-        res_text = get_gpt_result(self.engine_name, message_list)
-        intention = parse_intention_state(res_text, 'intention')
-        state = parse_intention_state(res_text, 'state')
-        if intention is None:
-            intention = parse_intention_state(res_text, 'user_intention')
-        if state is None:
-            state = parse_intention_state(res_text, 'user_state')
-
-        print("-" * 100)
-        print('intention_status_analysis')
-        print("-" * 100)
-        print(f'prompt:\n{prompt}')
-        print("=" * 20)
-        print(f"res:")
-        print("=" * 20)
-        print(res_text)
-
-        return res_text, intention, state
+        return res
 
     def history_summary(self, chat_history: str, last_summary: str = "", persona_name: str = ''):
         """
