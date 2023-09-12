@@ -4,16 +4,6 @@ from aichat import ChainOfThoughtChat
 ai_chat = ChainOfThoughtChat()
 
 
-# def get_limit_history(history: list[list], limit_turn_n=0, end_turn_i: int = None):
-#     history_list = []
-#     for qa in history[-limit_turn_n:end_turn_i]:
-#         for q_a in qa:
-#             if q_a is not None:
-#                 history_list.append(q_a)
-#
-#     return '\n'.join(history_list)
-
-
 def get_history_str(history: list):
     if len(history) <= 0:
         return ''
@@ -43,14 +33,11 @@ def get_latest_history(history: list, limit_turn_n: int):
     return to_summary_history, latest_history
 
 
-def get_answer(gpt_output: str):
-    answer_index = gpt_output.find("###")
-
-    answer_text = gpt_output[answer_index:].replace("#", "").strip()
-
+def get_answer(gpt_output: str, role_robot: str):
+    answer_text = gpt_output.strip("\n").split("\n")[-1].strip()
     res = answer_text if not answer_text.startswith(f"{role_robot}:") else answer_text[len(f"{role_robot}:"):]
 
-    return res.replace("\n", "").rstrip(':)')
+    return res.replace("\n", "").rstrip(':)').strip()
 
 
 def chat_f(history: list,
@@ -77,7 +64,7 @@ def chat_f(history: list,
                                            latest_history=get_history_str(latest_history),
                                            current_user_question=user_question,
                                            role_robot=role_robot)
-    answer_text = get_answer(gpt_output)
+    answer_text = get_answer(gpt_output, role_robot)
 
     history[-1][-1] = f"{role_robot}: {answer_text}"
 

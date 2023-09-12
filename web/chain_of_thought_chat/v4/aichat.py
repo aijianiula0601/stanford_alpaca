@@ -2,7 +2,7 @@ import json
 import openai
 import re
 
-import config
+import prompt_data as config
 
 
 def get_gpt_result(engine_name: str, message_list: list):
@@ -58,7 +58,7 @@ class ChainOfThoughtChat:
         else:
             raise EnvironmentError("must be set the gpt environment")
 
-    def question_response(self, last_summary: str, latest_history: str, current_user_question: str, user_state: str,
+    def question_response(self, last_summary: str, latest_history: str, current_user_question: str,
                           user_intention: str, role_robot: str):
         """获取用户问题答案"""
 
@@ -67,9 +67,7 @@ class ChainOfThoughtChat:
             'last_summary': last_summary,
             'latest_history': latest_history,
             'current_user_question': current_user_question,
-            'user_state': user_state,
             'user_intention': user_intention,
-            # 'user_topic': user_topic,
 
         }
         prompt = config.PROMPT_DIC['chat'].format_map(format_map_dic)
@@ -100,11 +98,11 @@ class ChainOfThoughtChat:
         message_list = [{"role": "user", "content": prompt}]
         res_text = get_gpt_result(self.engine_name, message_list)
         intention = parse_intention_state(res_text, 'intention')
-        state = parse_intention_state(res_text, 'state')
+        # state = parse_intention_state(res_text, 'state')
         if intention is None:
             intention = parse_intention_state(res_text, 'user_intention')
-        if state is None:
-            state = parse_intention_state(res_text, 'user_state')
+        # if state is None:
+        #     state = parse_intention_state(res_text, 'user_state')
 
         print("-" * 100)
         print('intention_status_analysis')
@@ -115,7 +113,7 @@ class ChainOfThoughtChat:
         print("=" * 20)
         print(res_text)
 
-        return res_text, intention, state
+        return res_text, intention
 
     def history_summary(self, chat_history: str, last_summary: str = "", persona_name: str = ''):
         """

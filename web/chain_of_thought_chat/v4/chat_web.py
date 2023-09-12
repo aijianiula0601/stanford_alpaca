@@ -4,16 +4,6 @@ from aichat import ChainOfThoughtChat
 ai_chat = ChainOfThoughtChat()
 
 
-# def get_limit_history(history: list[list], limit_turn_n=0, end_turn_i: int = None):
-#     history_list = []
-#     for qa in history[-limit_turn_n:end_turn_i]:
-#         for q_a in qa:
-#             if q_a is not None:
-#                 history_list.append(q_a)
-#
-#     return '\n'.join(history_list)
-
-
 def get_history_str(history: list):
     if len(history) <= 0:
         return ''
@@ -64,7 +54,7 @@ def chat_f(history: list,
     # ---------------------
     _, latest_history = get_latest_history(history[:-1], limit_turn_n)
 
-    user_intention_state_text, user_intention, user_state = ai_chat.intention_status_analysis(
+    user_intention_state_text, user_intention = ai_chat.intention_status_analysis(
         chat_history=get_history_str(latest_history),
         user_question=user_question)
 
@@ -74,7 +64,6 @@ def chat_f(history: list,
     answer_text = ai_chat.question_response(last_summary=last_summary,
                                             latest_history=get_history_str(latest_history),
                                             current_user_question=user_question,
-                                            user_state=user_state,
                                             user_intention=user_intention,
                                             role_robot=role_robot)
 
@@ -113,7 +102,7 @@ with gr.Blocks() as demo:
 
             with gr.Row():
                 role_human = gr.Textbox(lines=1, value="user", label="human name", interactive=False)
-                role_robot = gr.Textbox(lines=1, value="Angelie", label="live robot name", interactive=False)
+                role_robot = gr.Textbox(lines=1, value="Britney", label="live robot name", interactive=False)
 
             user_intention_state = gr.Textbox(lines=3, value=None, label="用户意图状态分析", interactive=False)
             history_summary = gr.Textbox(lines=3, value=None,
