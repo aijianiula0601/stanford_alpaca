@@ -6,10 +6,13 @@ import gradio as gr
 
 from gpt35_demo import *
 
+# pjd = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# sys.path.append(pjd)
+#
+# from web.bigolive_onlive.gpt35_demo import *
+
 # -----------------------------------------------------------------------------------
-# 跟two_persons_gpt35_llama.py的区别是：
-# 在聊的时候，告诉模型它的人设是什么。让A模型生成的时候，模型A知道自己的人设，不知道提问者人设。
-# 而跟two_persons_gpt35_llama在聊的时候是告诉模型，提问者的人设是什么。
+# 模型线上gpt3.5的聊天
 # -----------------------------------------------------------------------------------
 
 
