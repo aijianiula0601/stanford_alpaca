@@ -1,6 +1,8 @@
 import os
 import sys
 import gradio as gr
+import time
+import datetime
 
 pjd = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 print(f"pdj:{pjd}")
@@ -35,20 +37,32 @@ def get_model2_answer(history, user_question, role_a_name, role_b_name, selected
     return model_answer
 
 
-def chat_f(history, user_question, role_human, role_bot, selected_temp=0.7):
+def chat_f(your_name, history, user_question, role_human, role_bot, last_choice_answer, selected_temp=0.7):
+    if your_name.strip() == "":
+        raise gr.Error('your_name must input!')
+
+    # --------------------
+    # 获取选择的answer
+    # --------------------
+    if history and len(history) >= 2:
+        if history[-1][0] is not None or last_choice_answer.strip() == "":
+            raise gr.Error('no answer to choose!')
+
+        last_question = history[-2][0]
+        history = history[:-2] + [[last_question, f"{role_bot}: {last_choice_answer}"]]
+
     # model1_answer = get_model1_answer(history, user_question, role_human, role_bot, selected_temp)
     # model2_answer = get_model1_answer(history, user_question, role_human, role_bot, selected_temp)
-
     model1_answer = "Hello! How are you today?111"
     model2_answer = "Hello! How are you today?222"
 
-    history += [[f"{role_human}: " + user_question, f"{role_bot}(model1):{model1_answer}"]]
-    history += [[None, f"{role_bot}(model1):{model2_answer}"]]
+    history += [[f"{role_human}: " + user_question, f"{role_bot}(model1): {model1_answer}"]]
+    history += [[None, f"{role_bot}(model2): {model2_answer}"]]
 
-    return history
+    return history, ""
 
 
-def choice_btn_click(approve_oppose, history):
+def get_choice_answer(approve_oppose, history):
     choice_answer = None
 
     if history and len(history) >= 2:
@@ -56,27 +70,21 @@ def choice_btn_click(approve_oppose, history):
         if history[-1][0] is not None:
             raise gr.Error('no answer to choose!')
 
-        model_1_answer = history[-2][-1]
-        model_2_answer = history[-1][-1]
+        model_1_answer = history[-2][-1].split("): ")[-1]
+        model_2_answer = history[-1][-1].split("): ")[-1]
 
         if approve_oppose == "model1👍":
             choice_answer = model_1_answer
         if approve_oppose == "model2👍":
             choice_answer = model_2_answer
 
-    return f"submit({approve_oppose})", choice_answer
+    return choice_answer
 
 
-def vote_submit_click(choice_answer, history, role_bot):
-    if choice_answer.strip() == "":
-        raise gr.Error('must choice a answer!')
+def your_name_input_f(your_name):
+    now_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+    return f"{your_name}#{now_time}"
 
-    if history and len(history) >= 2:
-        question = history[-2][0]
-        history = history[:-2]
-        history += [[question, f"{role_bot}: {choice_answer}"]]
-
-    return history, ""
 
 
 def clear_def():
@@ -89,15 +97,18 @@ with gr.Blocks() as demo:
 
     with gr.Row():
         with gr.Column():
-            your_name = gr.Textbox(label="your name", placeholder="please input your name", interactive=True)
+            with gr.Row():
+                your_name = gr.Textbox(label="your name", placeholder="please input your name", interactive=True)
+                dialogue_id = gr.Textbox(label="dialogue id", interactive=False)
 
             with gr.Row():
                 role_human = gr.Textbox(lines=1, value="user", label="human name", interactive=False)
                 role_robot = gr.Textbox(lines=1, value="Angelie", label="robot name", interactive=False)
 
-            background = gr.Textbox(lines=3, value=None, label="Personal information", interactive=False)
+            background = gr.Textbox(lines=4, value=None, label="Personal information", interactive=False)
 
             user_input = gr.Textbox(placeholder="input(Enter)", label="INPUT")
+            dialogues_submit_btn = gr.Button(value="submit dialogues")
 
         with gr.Column():
             clear = gr.Button("clean history")
@@ -107,12 +118,11 @@ with gr.Blocks() as demo:
                 model1_vote_btn = gr.Button(value="model1👍")
                 model2_vote_btn = gr.Button(value="model2👍")
 
-            choice_btn = gr.Button("submit")
+    model1_vote_btn.click(get_choice_answer, [model1_vote_btn, chatbot], [choice_answer])
+    model2_vote_btn.click(get_choice_answer, [model2_vote_btn, chatbot], [choice_answer])
 
-    model1_vote_btn.click(choice_btn_click, [model1_vote_btn, chatbot], [choice_btn, choice_answer])
-    model2_vote_btn.click(choice_btn_click, [model2_vote_btn, chatbot], [choice_btn, choice_answer])
-
-    user_input.submit(chat_f, [chatbot, user_input, role_human, role_robot], [chatbot])
-    choice_btn.click(vote_submit_click, [choice_answer, chatbot, role_robot], [chatbot, choice_answer])
+    user_input.submit(chat_f, [your_name, chatbot, user_input, role_human, role_robot, choice_answer],
+                      [chatbot, choice_answer])
+    your_name.submit(your_name_input_f, your_name, dialogue_id)
 
 demo.queue().launch(server_name="0.0.0.0", server_port=7801)
