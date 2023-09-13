@@ -115,7 +115,7 @@ if __name__ == '__main__':
                     gpt_select = gr.Dropdown(value='gpt3.5', choices=['gpt3.5', 'gpt4'], label="gpt引擎选择",
                                              interactive=True)
 
-                history_turn_n = gr.Slider(1, 10, step=1, value=1, label="remain history turns", interactive=True)
+                history_turn_n = gr.Slider(1, 10, step=10, value=1, label="remain history turns", interactive=True)
 
                 with gr.Row():
                     user_name = gr.Textbox(lines=1, label="name of human", interactive=False, value='user')
