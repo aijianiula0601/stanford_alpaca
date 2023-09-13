@@ -113,7 +113,7 @@ with gr.Blocks() as demo:
 
             with gr.Row():
                 role_human = gr.Textbox(lines=1, value="user", label="human name", interactive=False)
-                role_robot = gr.Dropdown(value='Angelie', choices=['Angelie', 'Angelie_test'], label="gpt引擎选择",
+                role_robot = gr.Dropdown(value='Angelie_test', choices=['Angelie', 'Angelie_test'], label="gpt引擎选择",
                                          interactive=True)
 
             user_intention_state = gr.Textbox(lines=3, value=None, label="用户意图状态分析", interactive=False)
@@ -132,4 +132,4 @@ with gr.Blocks() as demo:
 
     clear.click(clear_def, inputs=[], outputs=[chatbot, user_intention_state, history_summary])
 
-demo.queue().launch(server_name="0.0.0.0", server_port=8801)
+demo.queue().launch(server_name="0.0.0.0", server_port=8802)

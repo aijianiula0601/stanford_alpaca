@@ -6,7 +6,7 @@ import gradio as gr
 
 from gpt35_demo import *
 import prompt_config
-
+from aichat import ChatObject
 
 # pjd = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # sys.path.append(pjd)
@@ -16,6 +16,9 @@ import prompt_config
 # -----------------------------------------------------------------------------------
 # 模型线上gpt3.5的聊天
 # -----------------------------------------------------------------------------------
+
+
+ai_chat = ChatObject()
 
 
 def mask_instruct(message_list, temperature):
@@ -48,7 +51,7 @@ def get_history(role_a_name, role_b_name, history=[]):
     return rh
 
 
-def get_input_api_data(background, history=[], history_limit_turns=3):
+def get_message_list(background, history=[], history_limit_turns=3):
     data_list = [{'role': 'system', 'content': background}]
 
     for i, h in enumerate(history[-(history_limit_turns * 2 + 1):]):
@@ -60,28 +63,37 @@ def get_input_api_data(background, history=[], history_limit_turns=3):
     return data_list
 
 
-def role_b_chat(selected_temp, user_message, history, background_b, role_a_name, role_b_name, history_turn_n):
+def role_b_chat(selected_temp, user_message, history, background_b, role_a_name, role_b_name, history_turn_n,
+                gpt_version):
+    # ---------------------
+    # 重新设置环境
+    # ---------------------
+    ai_chat.set_role(role_b_name)
+    ai_chat.set_gpt_env(gpt_version)
+
     # -------------------
     # role_b回答
     # -------------------
     history = history + [[f"{role_a_name}: " + user_message, None]]
 
-    role_b_input_api_data = get_input_api_data(background=background_b,
-                                               history=get_history(role_a_name, role_b_name, history),
-                                               history_limit_turns=history_turn_n)
+    message_list = get_message_list(background=background_b,
+                                    history=get_history(role_a_name, role_b_name, history),
+                                    history_limit_turns=history_turn_n)
 
-    role_b_question = mask_instruct(role_b_input_api_data,
-                                    temperature=selected_temp)
+    role_b_answer = ai_chat.question_response(message_list, selected_temp)
 
-    print(f"{role_b_name}: ", role_b_question)
-    history[-1][-1] = f"{role_b_name}: " + role_b_question
-    print("-" * 100)
+    print(f"{role_b_name}: ", role_b_answer)
+    history[-1][-1] = f"{role_b_name}: " + role_b_answer
+    print("*" * 50)
+    print("new chat:")
+    print("*" * 50)
+
     return '', history
 
 
-def toggle(user_message, selected_temp, chatbot, background_b, role_a_name, role_b_name, history_turn_n):
+def toggle(user_message, selected_temp, chatbot, background_b, role_a_name, role_b_name, history_turn_n, gpt_select):
     user_message, history = role_b_chat(selected_temp, user_message, chatbot, background_b, role_a_name,
-                                        role_b_name, history_turn_n)
+                                        role_b_name, history_turn_n, gpt_select)
     chatbot += history[len(chatbot):]
     return user_message, chatbot
 
@@ -112,7 +124,11 @@ if __name__ == '__main__':
             gr.Markdown("# bigolive online test demo")
         with gr.Row():
             with gr.Column():
-                selected_temp = gr.Slider(0, 1, value=0.7, label="Temperature", interactive=True)
+                with gr.Row():
+                    selected_temp = gr.Slider(0, 1, value=0.7, label="Temperature", interactive=True)
+                    gpt_select = gr.Dropdown(value='gpt3.5', choices=['gpt3.5', 'gpt4'], label="gpt引擎选择",
+                                             interactive=True)
+
                 history_turn_n = gr.Slider(1, 10, step=1, value=1, label="remain history turns", interactive=True)
 
                 with gr.Row():
@@ -134,7 +150,7 @@ if __name__ == '__main__':
         clear.click(clear_f, None, [gr_chatbot, role_a_question])
         role_a_question.submit(toggle,
                                inputs=[role_a_question, selected_temp, gr_chatbot, background_role_b, user_name,
-                                       bot_name, history_turn_n],
+                                       bot_name, history_turn_n, gpt_select],
                                outputs=[role_a_question, gr_chatbot])
 
         bot_name.change(bot_name_change, [bot_name], [background_role_b])
