@@ -58,15 +58,22 @@ class ChatObject:
         else:
             raise EnvironmentError("must be set the gpt environment")
 
-    def question_response(self, message_list: list, selected_temp: float = 0.7):
+    def question_response(self, latest_history: str, current_user_question: str, selected_temp: float = 0.7):
         """获取用户问题答案"""
 
-        response = get_gpt_result(self.engine_name, message_list, selected_temp)
+        format_map_dic = {
+            'persona_background': self.persona['background'],
+            'latest_history': latest_history,
+            'current_user_question': current_user_question,
+
+        }
+        prompt = config.PROMPT_DIC['chat'].format_map(format_map_dic)
+        message_list = [{"role": 'system', 'content': prompt}, {"role": 'user', 'content': current_user_question}]
+        res = get_gpt_result(self.engine_name, message_list, selected_temp)
 
         print("-" * 100)
-        print('message_list:')
-        for item in message_list:
-            print(item)
+        print("prompt:")
+        print(prompt)
         print("-" * 100)
 
-        return response
+        return res

@@ -20,61 +20,68 @@ from aichat import ChatObject
 ai_chat = ChatObject()
 
 
-def get_history(role_a_name, role_b_name, history=[]):
-    rh = []
+def get_history_str(history: list):
+    if len(history) <= 0:
+        return ''
+    history_list = []
     for qa in history:
-        rh.append(qa[0].lstrip(f"{role_a_name}:").strip())
-        if qa[1] is not None:
-            rh.append(qa[1].lstrip(f"{role_b_name}:").strip())
-
-    return rh
-
-
-def get_message_list(background, history=[], history_limit_turns=3):
-    data_list = [{'role': 'system', 'content': background}]
-
-    for i, h in enumerate(history[-(history_limit_turns * 2 + 1):]):
-        if i % 2 == 0:
-            data_list.append({"role": 'user', "content": h})
-        else:
-            data_list.append({'role': 'assistant', 'content': h})
-
-    return data_list
+        for q_a in qa:
+            if q_a is not None:
+                history_list.append(q_a)
+    return '\n'.join(history_list)
 
 
-def role_b_chat(selected_temp, user_message, history, background_b, role_a_name, role_b_name, history_turn_n,
-                gpt_version):
+def get_latest_history(history: list, limit_turn_n: int):
+    to_summary_history = []
+    new_summary_flag = False
+    if len(history) % limit_turn_n == 0 and len(history) // limit_turn_n > 1:
+        if len(history) >= limit_turn_n * 2:
+            new_summary_flag = True
+            # 给过去做总结的历史
+            to_summary_history = history[:-limit_turn_n][-limit_turn_n:]
+
+    if new_summary_flag:
+        latest_history = history[-limit_turn_n:]
+    else:
+        cur_turn_n = limit_turn_n + len(history) % limit_turn_n
+        latest_history = history[-cur_turn_n:]
+
+    return to_summary_history, latest_history
+
+
+def chat_f(history: list,
+           user_question: str,
+           role_human: str = "user",
+           role_robot: str = "robot",
+           limit_turn_n: int = 5,
+           gpt_version: str = 'gpt3.5',
+           selected_temp: float = 0.7
+           ):
+    history.append([f"{role_human}: {user_question}", None])
+
     # ---------------------
     # 重新设置环境
     # ---------------------
-    ai_chat.set_role(role_b_name)
+    ai_chat.set_role(role_robot)
     ai_chat.set_gpt_env(gpt_version)
 
-    # -------------------
-    # role_b回答
-    # -------------------
-    history = history + [[f"{role_a_name}: " + user_message, None]]
+    _, latest_history = get_latest_history(history[:-1], limit_turn_n)
 
-    message_list = get_message_list(background=background_b,
-                                    history=get_history(role_a_name, role_b_name, history),
-                                    history_limit_turns=history_turn_n)
+    # ---------------------
+    # 模型回复
+    # ---------------------
+    answer_text = ai_chat.question_response(latest_history=get_history_str(latest_history),
+                                            current_user_question=user_question,
+                                            selected_temp=selected_temp)
 
-    role_b_answer = ai_chat.question_response(message_list, selected_temp)
-
-    print(f"{role_b_name}: ", role_b_answer)
-    history[-1][-1] = f"{role_b_name}: " + role_b_answer
+    print(f"answer:{answer_text}")
     print("*" * 50)
-    print("new chat:")
+    print("new chat")
     print("*" * 50)
 
-    return '', history
+    history[-1][-1] = f"{role_robot}: {answer_text}"
 
-
-def toggle(user_message, selected_temp, chatbot, background_b, role_a_name, role_b_name, history_turn_n, gpt_select):
-    user_message, history = role_b_chat(selected_temp, user_message, chatbot, background_b, role_a_name,
-                                        role_b_name, history_turn_n, gpt_select)
-    chatbot += history[len(chatbot):]
-    return user_message, chatbot
+    return history, None
 
 
 def clear_f():
@@ -120,17 +127,17 @@ if __name__ == '__main__':
                                                value=prompt_config.PERSONA_DICT[default_role_name]['background'],
                                                label="background of bot",
                                                interactive=False)
-                role_a_question = gr.Textbox(placeholder="input your question and Press Enter to send.",
-                                             label="question", interactive=True)
+                user_question = gr.Textbox(placeholder="input your question and Press Enter to send.",
+                                           label="question", interactive=True)
             with gr.Column():
                 gr_chatbot = gr.Chatbot(label="chat bot")
                 clear = gr.Button("clear history")
 
-        clear.click(clear_f, None, [gr_chatbot, role_a_question])
-        role_a_question.submit(toggle,
-                               inputs=[role_a_question, selected_temp, gr_chatbot, background_role_b, user_name,
-                                       bot_name, history_turn_n, gpt_select],
-                               outputs=[role_a_question, gr_chatbot])
+        clear.click(clear_f, None, [gr_chatbot, user_question])
+        user_question.submit(chat_f,
+                             inputs=[gr_chatbot, user_question, user_name, bot_name, history_turn_n, gpt_select,
+                                     selected_temp],
+                             outputs=[gr_chatbot, user_question])
 
         bot_name.change(bot_name_change, [bot_name], [background_role_b])
 
