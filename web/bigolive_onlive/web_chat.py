@@ -4,7 +4,6 @@ import json
 import requests
 import gradio as gr
 
-from gpt35_demo import *
 import prompt_config
 from aichat import ChatObject
 
@@ -19,26 +18,6 @@ from aichat import ChatObject
 
 
 ai_chat = ChatObject()
-
-
-def mask_instruct(message_list, temperature):
-    """
-    message-list第一个数值是背景，
-    后面需要在role_dict里要做好配置，我最后会回复role_dict['assistant']角色的答案;
-    role_dict_real用于映射history里的内容
-    """
-
-    print("-" * 100)
-    print("message_list:", message_list)
-    response = openai.ChatCompletion.create(
-        engine=gpt_config['engine'],
-        temperature=temperature,
-        messages=message_list
-    )
-    print("response:", response)
-    print("-" * 100)
-
-    return response['choices'][0]['message']['content']
 
 
 def get_history(role_a_name, role_b_name, history=[]):
