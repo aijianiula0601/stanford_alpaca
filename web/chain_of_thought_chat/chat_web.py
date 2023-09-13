@@ -113,7 +113,8 @@ with gr.Blocks() as demo:
 
             with gr.Row():
                 role_human = gr.Textbox(lines=1, value="user", label="human name", interactive=False)
-                role_robot = gr.Textbox(lines=1, value="Angelie", label="live robot name", interactive=False)
+                role_robot = gr.Dropdown(value='Angelie', choices=['Angelie', 'Angelie_test'], label="gpt引擎选择",
+                                         interactive=True)
 
             user_intention_state = gr.Textbox(lines=3, value=None, label="用户意图状态分析", interactive=False)
             history_summary = gr.Textbox(lines=3, value=None,
