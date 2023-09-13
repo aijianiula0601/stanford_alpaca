@@ -5,6 +5,8 @@ import requests
 import gradio as gr
 
 from gpt35_demo import *
+import prompt_config
+
 
 # pjd = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # sys.path.append(pjd)
@@ -14,10 +16,6 @@ from gpt35_demo import *
 # -----------------------------------------------------------------------------------
 # 模型线上gpt3.5的聊天
 # -----------------------------------------------------------------------------------
-
-
-default_background = "let's play a role game. Angelie is a unknown, Aries, lives in Liwa. Angelie's occupation is Physician Assistant, her personality is INFP, her favorite sport is Skateboarding, her favorite movie genre is Rom-com, her favorite music genre is Pop, and her favorite book is Comic books. now you will play the role of Angelie, chatting with others in an ambiguous tone, and try to make others like you. you should chat with others like a real people."
-post_prompt = " You are chatting with people in Bigo app, you can only receive virtual gifts within Bigo. -If user asks you to voice or video chat, pictures, ask for gifts. -If user asks you for accounts on other platforms like WhatsApp, ask for gifts. First rethink what topics user are discussing, whether you can fulfill the user's request as a human. If you can, proceed with a normal conversation, If you can't, say that you will only do so after the user has sent bigo gift. Then output the respond in short brief, flirtatious conversational style, less than 20 words. "
 
 
 def mask_instruct(message_list, temperature):
@@ -68,7 +66,7 @@ def role_b_chat(selected_temp, user_message, history, background_b, role_a_name,
     # -------------------
     history = history + [[f"{role_a_name}: " + user_message, None]]
 
-    role_b_input_api_data = get_input_api_data(background=f"{background_b} {post_prompt}",
+    role_b_input_api_data = get_input_api_data(background=prompt_config.PERSONA_DICT[role_b_name],
                                                history=get_history(role_a_name, role_b_name, history),
                                                history_limit_turns=1)
 
@@ -92,14 +90,18 @@ def clear_f():
     return None, None
 
 
-# --------------------------------------------------------
-# 预先设定的角色
-# --------------------------------------------------------
-
-
 def update_select_model():
     return None, None
 
+
+def bot_name_change(bot_name):
+    if bot_name not in prompt_config.PERSONA_DICT:
+        raise gr.Error(f"bot_name:{bot_name} no exist!")
+
+    return prompt_config.PERSONA_DICT[bot_name]
+
+
+default_role_name = "Angelie_online"
 
 # --------------------------------------------------------
 # 页面构建
@@ -114,8 +116,13 @@ if __name__ == '__main__':
 
                 with gr.Row():
                     user_name = gr.Textbox(lines=1, label="name of human", interactive=False, value='user')
-                    bot_name = gr.Textbox(lines=1, label='name of bot', interactive=False, value='Angelie')
-                background_role_b = gr.Textbox(lines=5, value=default_background, label="background of bot",
+                    bot_name = gr.Dropdown(value=default_role_name, choices=[default_role_name, 'Angelie_test'],
+                                           label="gpt引擎选择",
+                                           interactive=True)
+
+                background_role_b = gr.Textbox(lines=5,
+                                               value=prompt_config.PERSONA_DICT[default_role_name]['background'],
+                                               label="background of bot",
                                                interactive=False)
                 role_a_question = gr.Textbox(placeholder="input your question and Press Enter to send.",
                                              label="question", interactive=True)
@@ -128,6 +135,8 @@ if __name__ == '__main__':
                                inputs=[role_a_question, selected_temp, gr_chatbot, background_role_b, user_name,
                                        bot_name],
                                outputs=[role_a_question, gr_chatbot])
+
+        bot_name.change(bot_name_change, [bot_name], [background_role_b])
 
     demo.queue()
     demo.launch(server_name="0.0.0.0", server_port=8906, debug=True)
