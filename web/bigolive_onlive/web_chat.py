@@ -98,7 +98,7 @@ def bot_name_change(bot_name):
     if bot_name not in prompt_config.PERSONA_DICT:
         raise gr.Error(f"bot_name:{bot_name} no exist!")
 
-    return prompt_config.PERSONA_DICT[bot_name]
+    return prompt_config.PERSONA_DICT[bot_name]['background']
 
 
 default_role_name = "Angelie_online"
@@ -116,7 +116,7 @@ if __name__ == '__main__':
 
                 with gr.Row():
                     user_name = gr.Textbox(lines=1, label="name of human", interactive=False, value='user')
-                    bot_name = gr.Dropdown(value=default_role_name, choices=[default_role_name, 'Angelie_test'],
+                    bot_name = gr.Dropdown(value=default_role_name, choices=list(prompt_config.PERSONA_DICT.keys()),
                                            label="gpt引擎选择",
                                            interactive=True)
 
