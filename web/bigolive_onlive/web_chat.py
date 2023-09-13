@@ -70,7 +70,7 @@ def role_b_chat(selected_temp, user_message, history, background_b, role_a_name,
 
     role_b_input_api_data = get_input_api_data(background=f"{background_b} {post_prompt}",
                                                history=get_history(role_a_name, role_b_name, history),
-                                               history_limit_turns=3)
+                                               history_limit_turns=1)
 
     role_b_question = mask_instruct(role_b_input_api_data,
                                     temperature=selected_temp)
