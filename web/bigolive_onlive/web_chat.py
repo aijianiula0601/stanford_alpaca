@@ -60,15 +60,15 @@ def get_input_api_data(background, history=[], history_limit_turns=3):
     return data_list
 
 
-def role_b_chat(selected_temp, user_message, history, background_b, role_a_name, role_b_name):
+def role_b_chat(selected_temp, user_message, history, background_b, role_a_name, role_b_name, history_turn_n):
     # -------------------
     # role_b回答
     # -------------------
     history = history + [[f"{role_a_name}: " + user_message, None]]
 
-    role_b_input_api_data = get_input_api_data(background=prompt_config.PERSONA_DICT[role_b_name],
+    role_b_input_api_data = get_input_api_data(background=background_b,
                                                history=get_history(role_a_name, role_b_name, history),
-                                               history_limit_turns=1)
+                                               history_limit_turns=history_turn_n)
 
     role_b_question = mask_instruct(role_b_input_api_data,
                                     temperature=selected_temp)
@@ -79,9 +79,9 @@ def role_b_chat(selected_temp, user_message, history, background_b, role_a_name,
     return '', history
 
 
-def toggle(user_message, selected_temp, chatbot, background_b, role_a_name, role_b_name):
+def toggle(user_message, selected_temp, chatbot, background_b, role_a_name, role_b_name, history_turn_n):
     user_message, history = role_b_chat(selected_temp, user_message, chatbot, background_b, role_a_name,
-                                        role_b_name)
+                                        role_b_name, history_turn_n)
     chatbot += history[len(chatbot):]
     return user_message, chatbot
 
@@ -113,6 +113,7 @@ if __name__ == '__main__':
         with gr.Row():
             with gr.Column():
                 selected_temp = gr.Slider(0, 1, value=0.7, label="Temperature", interactive=True)
+                history_turn_n = gr.Slider(1, 10, step=1, value=1, label="remain history turns", interactive=True)
 
                 with gr.Row():
                     user_name = gr.Textbox(lines=1, label="name of human", interactive=False, value='user')
@@ -133,7 +134,7 @@ if __name__ == '__main__':
         clear.click(clear_f, None, [gr_chatbot, role_a_question])
         role_a_question.submit(toggle,
                                inputs=[role_a_question, selected_temp, gr_chatbot, background_role_b, user_name,
-                                       bot_name],
+                                       bot_name, history_turn_n],
                                outputs=[role_a_question, gr_chatbot])
 
         bot_name.change(bot_name_change, [bot_name], [background_role_b])
