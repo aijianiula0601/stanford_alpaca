@@ -58,13 +58,15 @@ class ChatObject:
         else:
             raise EnvironmentError("must be set the gpt environment")
 
-    def question_response(self, latest_history: str, current_user_question: str, selected_temp: float = 0.7):
+    def question_response(self, latest_history: str, current_user_question: str, role_robot: str,
+                          selected_temp: float = 0.7):
         """获取用户问题答案"""
 
         format_map_dic = {
             'persona_background': self.persona['background'],
             'latest_history': latest_history,
             'current_user_question': current_user_question,
+            'initial_message': self.persona.get('initial_message', '')
 
         }
         prompt = config.PROMPT_DIC['chat'].format_map(format_map_dic)
@@ -76,4 +78,5 @@ class ChatObject:
         print(prompt)
         print("-" * 100)
 
-        return res
+        res = res if not res.startswith(f"{role_robot}:") else res[len(f"{role_robot}:"):]
+        return res.rstrip(':)')

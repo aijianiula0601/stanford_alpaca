@@ -8,7 +8,7 @@ pjd = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))
 print(f"pdj:{pjd}")
 sys.path.append(pjd)
 
-from web.bigolive_onlive.web_chat import get_input_api_data, mask_instruct, get_history
+from web.bigolive_onlive.web_chat import get_message_list, mask_instruct, get_history
 
 default_background = "let's play a role game. Angelie is a unknown, Aries, lives in Liwa. Angelie's occupation is Physician Assistant, her personality is INFP, her favorite sport is Skateboarding, her favorite movie genre is Rom-com, her favorite music genre is Pop, and her favorite book is Comic books. now you will play the role of Angelie, chatting with others in an ambiguous tone, and try to make others like you. you should chat with others like a real people."
 
@@ -16,9 +16,9 @@ default_background = "let's play a role game. Angelie is a unknown, Aries, lives
 def get_model1_answer(history, user_question, role_a_name, role_b_name, selected_temp=0.7):
     history = history + [[f"{role_a_name}: " + user_question, None]]
 
-    model_input_api_data = get_input_api_data(background=f"{default_background}",
-                                              history=get_history(role_a_name, role_b_name, history),
-                                              history_limit_turns=3)
+    model_input_api_data = get_message_list(background=f"{default_background}",
+                                            history=get_history(role_a_name, role_b_name, history),
+                                            history_limit_turns=3)
 
     model_answer = mask_instruct(model_input_api_data, temperature=selected_temp)
 
@@ -28,9 +28,9 @@ def get_model1_answer(history, user_question, role_a_name, role_b_name, selected
 def get_model2_answer(history, user_question, role_a_name, role_b_name, selected_temp=0.7):
     history = history + [[f"{role_a_name}: " + user_question, None]]
 
-    model_input_api_data = get_input_api_data(background=f"{default_background}",
-                                              history=get_history(role_a_name, role_b_name, history),
-                                              history_limit_turns=3)
+    model_input_api_data = get_message_list(background=f"{default_background}",
+                                            history=get_history(role_a_name, role_b_name, history),
+                                            history_limit_turns=3)
 
     model_answer = mask_instruct(model_input_api_data, temperature=selected_temp)
 

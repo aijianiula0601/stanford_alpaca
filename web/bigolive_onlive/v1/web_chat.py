@@ -71,6 +71,7 @@ def chat_f(history: list,
     # 模型回复
     # ---------------------
     answer_text = ai_chat.question_response(latest_history=get_history_str(latest_history),
+                                            role_robot=role_robot,
                                             current_user_question=user_question,
                                             selected_temp=selected_temp)
 
@@ -99,7 +100,7 @@ def bot_name_change(bot_name):
     return prompt_config.PERSONA_DICT[bot_name]['background']
 
 
-default_role_name = "Angelie_online"
+all_role_name_list = list(prompt_config.PERSONA_DICT.keys())
 
 # --------------------------------------------------------
 # 页面构建
@@ -115,16 +116,16 @@ if __name__ == '__main__':
                     gpt_select = gr.Dropdown(value='gpt3.5', choices=['gpt3.5', 'gpt4'], label="gpt引擎选择",
                                              interactive=True)
 
-                history_turn_n = gr.Slider(1, 10, step=10, value=1, label="remain history turns", interactive=True)
+                history_turn_n = gr.Slider(1, 10, step=1, value=10, label="remain history turns", interactive=True)
 
                 with gr.Row():
                     user_name = gr.Textbox(lines=1, label="name of human", interactive=False, value='user')
-                    bot_name = gr.Dropdown(value=default_role_name, choices=list(prompt_config.PERSONA_DICT.keys()),
+                    bot_name = gr.Dropdown(value=all_role_name_list[-1], choices=all_role_name_list,
                                            label="gpt引擎选择",
                                            interactive=True)
 
                 background_role_b = gr.Textbox(lines=5,
-                                               value=prompt_config.PERSONA_DICT[default_role_name]['background'],
+                                               value=prompt_config.PERSONA_DICT[all_role_name_list[-1]]['background'],
                                                label="background of bot",
                                                interactive=False)
                 user_question = gr.Textbox(placeholder="input your question and Press Enter to send.",
