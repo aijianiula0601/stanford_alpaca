@@ -80,6 +80,7 @@ def chat_f(history: list,
     print("new chat")
     print("*" * 50)
 
+    role_robot = role_robot.split("(")[0]
     history[-1][-1] = f"{role_robot}: {answer_text}"
 
     return history, None
@@ -121,7 +122,7 @@ if __name__ == '__main__':
                 with gr.Row():
                     user_name = gr.Textbox(lines=1, label="name of human", interactive=False, value='user')
                     bot_name = gr.Dropdown(value=all_role_name_list[-1], choices=all_role_name_list,
-                                           label="gpt引擎选择",
+                                           label="角色选择",
                                            interactive=True)
 
                 background_role_b = gr.Textbox(lines=5,
