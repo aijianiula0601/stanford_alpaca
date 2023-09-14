@@ -111,6 +111,10 @@ PROMPT_DIC = {
         "step4: Output a json object that contains two keys for the user's intention and state.\n"
         "Split each Step with a newline."
     ),
+    "state_generate": (
+        # 状态生成器
+
+    ),
     "history_summary": (
         "You're an intelligent robot who's good at summarizing conversations.\n"
         "last summary:\n"

@@ -1,5 +1,6 @@
 import gradio as gr
 from aichat import ChainOfThoughtChat
+import config
 
 ai_chat = ChainOfThoughtChat()
 
@@ -101,6 +102,8 @@ def clear_def():
     return None, None, None
 
 
+all_role_name_list = list(config.PERSONA_DICT.keys())
+
 with gr.Blocks() as demo:
     with gr.Row():
         gr.Markdown("# chain-of-thought 聊天demo")
@@ -113,7 +116,7 @@ with gr.Blocks() as demo:
 
             with gr.Row():
                 role_human = gr.Textbox(lines=1, value="user", label="human name", interactive=False)
-                role_robot = gr.Dropdown(value='Angelie_test', choices=['Angelie', 'Angelie_test'], label="gpt引擎选择",
+                role_robot = gr.Dropdown(value=all_role_name_list[-1], choices=all_role_name_list, label="角色选择",
                                          interactive=True)
 
             user_intention_state = gr.Textbox(lines=3, value=None, label="用户意图状态分析", interactive=False)
