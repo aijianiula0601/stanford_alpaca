@@ -90,6 +90,7 @@ class ChainOfThoughtChat:
             'last_summary': last_summary,
             'latest_history': latest_history,
             'current_user_question': current_user_question,
+            # 'initial_message': self.persona['initial_message'],
             'user_state': user_state,
             'user_intention': user_intention,
             # 'user_topic': user_topic,
