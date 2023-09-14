@@ -143,4 +143,4 @@ with gr.Blocks() as demo:
 
     clear.click(clear_def, inputs=[], outputs=[chatbot, user_intention_state, history_summary, user_status])
 
-demo.queue().launch(server_name="0.0.0.0", server_port=8802)
+demo.queue().launch(server_name="0.0.0.0", server_port=8806)

@@ -25,6 +25,7 @@ PERSONA_DICT = {
 
 PROMPT_DIC = {
     "chat": (
+        # 聊天回复
         "{persona_background}\n"
         "last_summary:\n"
         "```\n"
@@ -48,6 +49,7 @@ PROMPT_DIC = {
         "You can make spelling mistakes or abbreviations in the reply content with a 30% probability, making the reply look more human."
     ),
     "intention_state": (
+        # 用户意图和状态识别
         "You are a professional psychoanalyst who can accurately analyze the intention and state of the interlocutor based on the chat record.\n"
         "Related chat History:\n"
         "```\n"
@@ -73,6 +75,7 @@ PROMPT_DIC = {
         "In less than 40 words, imagine a specific bad encounter that happened that day based on only one piece of information, based on the described occupation or interest."
     ),
     "history_summary": (
+        # 历史聊天总结
         "You're an intelligent robot who's good at summarizing conversations.\n"
         "last summary:\n"
         "```\n"
