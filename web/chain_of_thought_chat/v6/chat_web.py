@@ -46,6 +46,7 @@ def get_latest_history(history: list, limit_turn_n: int):
 
 def chat_f(history: list,
            user_question: str,
+           user_status: str,
            last_summary: str,
            role_human: str = "user",
            role_robot: str = "robot",
@@ -59,6 +60,12 @@ def chat_f(history: list,
     # ---------------------
     ai_chat.set_role(role_robot)
     ai_chat.set_gpt_env(gpt_version)
+
+    # ---------------------
+    # 构建状态
+    # ---------------------
+    if user_status == "" or user_status is None:
+        user_status = ai_chat.user_state()
 
     # ---------------------
     # 分析用户意图和状态
@@ -92,14 +99,15 @@ def chat_f(history: list,
         history_summary = ai_chat.history_summary(chat_history=get_history_str(to_summary_history),
                                                   last_summary=last_summary,
                                                   persona_name=role_robot)
+    print("\n" * 5)
     print("+" * 200)
     print("new chat")
     print("+" * 200)
-    return history, user_intention_state_text, None, history_summary
+    return history, user_intention_state_text, None, history_summary, user_status
 
 
 def clear_def():
-    return None, None, None
+    return None, None, None, None
 
 
 all_role_name_list = list(config.PERSONA_DICT.keys())
@@ -120,9 +128,8 @@ with gr.Blocks() as demo:
                                          interactive=True)
 
             user_intention_state = gr.Textbox(lines=3, value=None, label="用户意图状态分析", interactive=False)
-            history_summary = gr.Textbox(lines=3, value=None,
-                                         label="聊天历史总结(只会在积累足够轮次后才开始做对话总结)",
-                                         interactive=False)
+            user_status = gr.Textbox(lines=1, value=None, label="构建用户当前状态", interactive=False)
+            history_summary = gr.Textbox(lines=3, value=None, label="聊天历史总结(只会在积累足够轮次后才开始做对话总结)", interactive=False)
 
             user_input = gr.Textbox(placeholder="input(Enter确定)", label="INPUT")
 
@@ -130,9 +137,10 @@ with gr.Blocks() as demo:
             clear = gr.Button("clean history")
             chatbot = gr.Chatbot(label="history")
 
-    user_input.submit(chat_f, [chatbot, user_input, history_summary, role_human, role_robot, limit_turn_n, gpt_select],
-                      [chatbot, user_intention_state, user_input, history_summary], queue=False)
+    user_input.submit(chat_f, [chatbot, user_input, user_status, history_summary, role_human, role_robot, limit_turn_n,
+                               gpt_select],
+                      [chatbot, user_intention_state, user_input, history_summary, user_status], queue=False)
 
-    clear.click(clear_def, inputs=[], outputs=[chatbot, user_intention_state, history_summary])
+    clear.click(clear_def, inputs=[], outputs=[chatbot, user_intention_state, history_summary, user_status])
 
 demo.queue().launch(server_name="0.0.0.0", server_port=8802)

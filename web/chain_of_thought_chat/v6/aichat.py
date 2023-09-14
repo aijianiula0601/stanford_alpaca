@@ -58,6 +58,29 @@ class ChainOfThoughtChat:
         else:
             raise EnvironmentError("must be set the gpt environment")
 
+    def user_state(self):
+        """构建用户状态"""
+
+        format_map_dic = {
+            'user_profile': self.persona['personality']
+
+        }
+        prompt = config.PROMPT_DIC['state_generator'].format_map(format_map_dic)
+        message_list = [{"role": 'user', 'content': prompt}]
+        res = get_gpt_result(self.engine_name, message_list)
+        self.persona['background'] = self.persona['background'].format_map({'recent_status': res})
+
+        print("-" * 100)
+        print('user_state')
+        print("-" * 100)
+        print(f'prompt:\n{prompt}')
+        print("=" * 20)
+        print(f"res:{res}")
+        print("=" * 20)
+        print("-" * 100)
+
+        return res
+
     def question_response(self, last_summary: str, latest_history: str, current_user_question: str, user_state: str,
                           user_intention: str, role_robot: str):
         """获取用户问题答案"""
@@ -81,9 +104,8 @@ class ChainOfThoughtChat:
         print("-" * 100)
         print(f'prompt:\n{prompt}')
         print("=" * 20)
-        print("res:")
+        print(f"res:{res}")
         print("=" * 20)
-        print(res)
         print("-" * 100)
 
         res = res if not res.startswith(f"{role_robot}:") else res[len(f"{role_robot}:"):]
@@ -111,9 +133,8 @@ class ChainOfThoughtChat:
         print("-" * 100)
         print(f'prompt:\n{prompt}')
         print("=" * 20)
-        print(f"res:")
+        print(f"res:{res_text}")
         print("=" * 20)
-        print(res_text)
 
         return res_text, intention, state
 
@@ -137,8 +158,7 @@ class ChainOfThoughtChat:
         print("-" * 100)
         print(f'prompt:\n{prompt}')
         print("=" * 20)
-        print(f"res:")
+        print(f"res:{res_text}")
         print("=" * 20)
-        print(res_text)
 
         return res_text
