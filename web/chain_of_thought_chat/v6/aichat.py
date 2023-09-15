@@ -65,7 +65,12 @@ class ChainOfThoughtChat:
             'user_profile': self.persona['personality']
 
         }
-        prompt = config.PROMPT_DIC['state_generator'].format_map(format_map_dic)
+        if "(色情)" in self.role_name:
+            print("-------using sex state generator------")
+            prompt = config.PROMPT_DIC['state_generator_sex'].format_map(format_map_dic)
+        else:
+            prompt = config.PROMPT_DIC['state_generator'].format_map(format_map_dic)
+
         message_list = [{"role": 'user', 'content': prompt}]
         res = get_gpt_result(self.engine_name, message_list)
         self.persona['background'] = self.persona['background'].format_map({'recent_status': res})
