@@ -2,17 +2,9 @@ import gradio as gr
 from aichat import ChainOfThoughtChat
 import config
 
-ai_chat = ChainOfThoughtChat()
+all_role_name_list = list(config.PERSONA_DICT.keys())
 
-
-# def get_limit_history(history: list[list], limit_turn_n=0, end_turn_i: int = None):
-#     history_list = []
-#     for qa in history[-limit_turn_n:end_turn_i]:
-#         for q_a in qa:
-#             if q_a is not None:
-#                 history_list.append(q_a)
-#
-#     return '\n'.join(history_list)
+ai_chat = ChainOfThoughtChat(all_role_name_list[-1])
 
 
 def get_history_str(history: list):
@@ -85,7 +77,7 @@ def chat_f(history: list,
                                             user_state=user_state,
                                             user_intention=user_intention,
                                             role_robot=role_robot)
-
+    role_robot = role_robot.split("(")[0]
     history[-1][-1] = f"{role_robot}: {answer_text}"
 
     # ---------------------
@@ -109,8 +101,6 @@ def chat_f(history: list,
 def clear_def():
     return None, None, None, None
 
-
-all_role_name_list = list(config.PERSONA_DICT.keys())
 
 with gr.Blocks() as demo:
     with gr.Row():

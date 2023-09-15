@@ -109,6 +109,7 @@ class ChainOfThoughtChat:
         print("=" * 20)
         print("-" * 100)
 
+        role_robot = role_robot.split("(")[0]
         res = res if not res.startswith(f"{role_robot}:") else res[len(f"{role_robot}:"):]
         return res.rstrip(':)')
 
