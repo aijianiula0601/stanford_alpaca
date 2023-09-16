@@ -59,6 +59,10 @@ PROMPT_DIC = {
     "chat": (
         # 聊天回复
         "{persona_background}\n"
+        "initial message:\n"
+        "```\n"
+        "{initial_message}\n"
+        "```\n"
         "last_summary:\n"
         "```\n"
         "{last_summary}\n"
@@ -112,7 +116,7 @@ PROMPT_DIC = {
         "```\n"
         "{user_profile}\n"
         "```\n"
-        "In less than 40 words, Fantasize about an experience that is a passionate, one-night stand scenario."
+        "In less than 35 words, Imagine an experience from yesterday that was passionate and exciting."
     ),
     "history_summary": (
         # 历史聊天总结

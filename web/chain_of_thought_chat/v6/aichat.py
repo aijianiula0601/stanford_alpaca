@@ -95,10 +95,9 @@ class ChainOfThoughtChat:
             'last_summary': last_summary,
             'latest_history': latest_history,
             'current_user_question': current_user_question,
-            # 'initial_message': self.persona['initial_message'],
+            'initial_message': self.persona['initial_message'],
             'user_state': user_state,
             'user_intention': user_intention,
-            # 'user_topic': user_topic,
 
         }
         prompt = config.PROMPT_DIC['chat'].format_map(format_map_dic)
@@ -116,7 +115,7 @@ class ChainOfThoughtChat:
 
         role_robot = role_robot.split("(")[0]
         res = res if not res.startswith(f"{role_robot}:") else res[len(f"{role_robot}:"):]
-        return res.rstrip(':)')
+        return res.rstrip(':)').rstrip(';)')
 
     def intention_status_analysis(self, chat_history: str, user_question: str):
         """用户提问的意图的状态分析"""
