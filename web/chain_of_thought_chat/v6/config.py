@@ -117,7 +117,7 @@ PROMPT_DIC = {
         "```\n"
         "{user_profile}\n"
         "```\n"
-        "In less than 35 words, Imagine an experience from yesterday that was passionate and exciting."
+        "In less than 35 words, Imagine an experience that was passionate and exciting, it happened on yesterday."
     ),
     "history_summary": (
         # 历史聊天总结
