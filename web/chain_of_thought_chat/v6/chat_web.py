@@ -98,8 +98,11 @@ def chat_f(history: list,
     return history, user_intention_state_text, None, history_summary, user_status
 
 
-def clear_def():
+def clear_f():
     return None, None, None, None
+
+
+# def robot_image(ro)
 
 
 with gr.Blocks() as demo:
@@ -114,6 +117,7 @@ with gr.Blocks() as demo:
 
             with gr.Row():
                 role_human = gr.Textbox(lines=1, value="user", label="human name", interactive=False)
+                # role_robot_image = gr.Image()
                 role_robot = gr.Dropdown(value=all_role_name_list[-1], choices=all_role_name_list, label="角色选择",
                                          interactive=True)
 
@@ -132,6 +136,7 @@ with gr.Blocks() as demo:
                                gpt_select],
                       [chatbot, user_intention_state, user_input, history_summary, user_status], queue=False)
 
-    clear.click(clear_def, inputs=[], outputs=[chatbot, user_intention_state, history_summary, user_status])
+    clear.click(clear_f, inputs=[], outputs=[chatbot, user_intention_state, history_summary, user_status])
+    role_robot.change(clear_f, inputs=[], outputs=[chatbot, user_intention_state, history_summary, user_status])
 
 demo.queue().launch(server_name="0.0.0.0", server_port=8806)
