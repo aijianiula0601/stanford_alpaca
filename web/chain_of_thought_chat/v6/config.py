@@ -82,14 +82,6 @@ PROMPT_DIC = {
         "```\n"
         "In less than 40 words, imagine a particularly bad encounter that happened today, based on the hobby or occupation described."
     ),
-    "state_generator_sex": (
-        # 色情状态生成器
-        "Now you're a fantasist with a high imagination. Based on the following information, please imagine a current state for her. Here is her profile:\n"
-        "```\n"
-        "{user_profile}\n"
-        "```\n"
-        "In less than 35 words, Imagine an experience that was passionate and exciting, it happened on yesterday."
-    ),
     "history_summary": (
         # 历史聊天总结
         "You're an intelligent robot who's good at summarizing conversations.\n"
