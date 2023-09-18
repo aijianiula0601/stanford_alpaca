@@ -73,7 +73,8 @@ class ChainOfThoughtChat:
 
         message_list = [{"role": 'user', 'content': prompt}]
         res = get_gpt_result(self.engine_name, message_list)
-        self.persona['background'] = self.persona['background'].format_map({'recent_status': res})
+        self.persona['background'] = self.persona['background'].format_map(
+            {'recent_status': res, 'user_personality': self.persona['personality']})
 
         print("-" * 100)
         print('user_state')
