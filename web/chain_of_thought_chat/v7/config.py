@@ -125,6 +125,6 @@ PROMPT_DIC = {
         "```\n"
         "{chat_history}\n"
         "```\n"
-        "Combined with the last summary and recent chat history, summarize the chat content between {persona_name} and user with the shortest description of no more than 200 words. The content of greeting does not need to be summarized."
+        "Combined with the last summary and recent chat history, summarize the chat content between {persona_name} and user with the shortest description of no more than 300 words. The content of greeting does not need to be summarized."
     ),
 }

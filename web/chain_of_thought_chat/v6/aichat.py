@@ -97,9 +97,9 @@ class ChainOfThoughtChat:
 
         }
         prompt = config.PROMPT_DIC['chat'].format_map(format_map_dic)
-        # 如果用户没有任何输入，将问是否在线之类的话语。
-        if current_user_question is None:
-            current_user_question = ''
+        # 如果用户没有任何输入，将问是否在线之类的话语，模拟线上用户长时间不回复，gpt主动发信息。
+        if current_user_question is None or current_user_question == '':
+            current_user_question = 'None'
         message_list = [{"role": 'system', 'content': prompt}, {"role": 'user', 'content': current_user_question}]
         res = get_gpt_result(self.engine_name, message_list)
 
