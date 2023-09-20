@@ -73,6 +73,12 @@ class ChainOfThoughtChat:
 
         message_list = [{"role": 'user', 'content': prompt}]
         res = get_gpt_result(self.engine_name, message_list)
+
+        # 出现AI language model,说明触发chatgpt的保护机制
+        if 'AI language model' in res:
+            print(f"==========触发了gpt的保护机制，设置为None，原始为:{res}")
+            res = 'None'
+
         self.persona['background'] = self.persona['background'].format_map(
             {'recent_status': res, 'user_personality': self.persona['personality']})
 
