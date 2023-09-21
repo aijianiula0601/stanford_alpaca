@@ -1,10 +1,19 @@
 import gradio as gr
 from aichat import ChainOfThoughtChat
 import config
+import random
 
 all_role_name_list = list(config.PERSONA_DICT.keys())
 
 ai_chat = ChainOfThoughtChat(all_role_name_list[-1])
+
+initialize_greet_list = open('initialize_greet.txt', 'r').readlines()
+print(f"---- initialize_greet_list len:{len(initialize_greet_list)} ----")
+
+
+def get_initialize_greet_text(role_human, role_robot):
+    return random.sample(initialize_greet_list, k=1)[0].format_map(
+        {"YourName": role_robot.split('(')[0], "UserName": role_human})
 
 
 def get_history_str(history: list):
@@ -98,11 +107,11 @@ def chat_f(history: list,
     return history, user_intention_state_text, None, history_summary, user_status
 
 
-def clear_f():
-    return None, None, None, None
+def clear_f(role_human, role_robot):
+    # 初始化机器人主动打招呼问候语
+    history = [[None, f"{role_robot.split('(')[0]}: {get_initialize_greet_text(role_human, role_robot)}"]]
 
-
-# def robot_image(ro)
+    return history, None, None, None
 
 
 with gr.Blocks() as demo:
@@ -130,13 +139,16 @@ with gr.Blocks() as demo:
 
         with gr.Column():
             clear = gr.Button("clean history")
-            chatbot = gr.Chatbot(label="history")
+            chatbot = gr.Chatbot(label="history", value=[
+                [None, f"{role_robot.value.split('(')[0]}: {get_initialize_greet_text(role_human, role_robot.value)}"]])
 
     user_input.submit(chat_f, [chatbot, user_input, user_status, history_summary, role_human, role_robot, limit_turn_n,
                                gpt_select],
                       [chatbot, user_intention_state, user_input, history_summary, user_status], queue=False)
 
-    clear.click(clear_f, inputs=[], outputs=[chatbot, user_intention_state, history_summary, user_status])
-    role_robot.change(clear_f, inputs=[], outputs=[chatbot, user_intention_state, history_summary, user_status])
+    clear.click(clear_f, inputs=[role_human, role_robot],
+                outputs=[chatbot, user_intention_state, history_summary, user_status])
+    role_robot.change(clear_f, inputs=[role_human, role_robot],
+                      outputs=[chatbot, user_intention_state, history_summary, user_status])
 
-demo.queue().launch(server_name="0.0.0.0", server_port=8806)
+demo.queue().launch(server_name="0.0.0.0", server_port=8808)
