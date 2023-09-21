@@ -83,7 +83,7 @@ class ChainOfThoughtChat:
         return res
 
     def question_response(self, last_summary: str, latest_history: str, current_user_question: str, user_state: str,
-                          user_intention: str, role_robot: str):
+                          user_intention: str, role_robot: str, current_time: str):
         """获取用户问题答案"""
 
         format_map_dic = {
@@ -94,6 +94,7 @@ class ChainOfThoughtChat:
             'initial_message': self.persona['initial_message'],
             'user_state': user_state,
             'user_intention': user_intention,
+            'current_time': current_time,
 
         }
         prompt = config.PROMPT_DIC['chat'].format_map(format_map_dic)

@@ -2,6 +2,7 @@ import gradio as gr
 from aichat import ChainOfThoughtChat
 import config
 import random
+import time
 
 all_role_name_list = list(config.PERSONA_DICT.keys())
 
@@ -49,6 +50,7 @@ def chat_f(history: list,
            user_question: str,
            user_status: str,
            last_summary: str,
+           current_time: str,
            role_human: str = "user",
            role_robot: str = "robot",
            limit_turn_n: int = 5,
@@ -85,7 +87,8 @@ def chat_f(history: list,
                                             current_user_question=user_question,
                                             user_state=user_state,
                                             user_intention=user_intention,
-                                            role_robot=role_robot)
+                                            role_robot=role_robot,
+                                            current_time=current_time)
     role_robot = role_robot.split("(")[0]
     history[-1][-1] = f"{role_robot}: {answer_text}"
 
@@ -126,23 +129,24 @@ with gr.Blocks() as demo:
 
             with gr.Row():
                 role_human = gr.Textbox(lines=1, value="user", label="human name", interactive=False)
-                # role_robot_image = gr.Image()
                 role_robot = gr.Dropdown(value=all_role_name_list[-1], choices=all_role_name_list, label="角色选择",
                                          interactive=True)
+                current_time = gr.Textbox(lines=1, value=time.strftime("%H:%M:%S", time.localtime()),
+                                          label="now time", interactive=True)
 
             user_intention_state = gr.Textbox(lines=3, value=None, label="用户意图状态分析", interactive=False)
             user_status = gr.Textbox(lines=1, value=None, label="构建用户当前状态", interactive=True)
             history_summary = gr.Textbox(lines=3, value=None,
                                          label="聊天历史总结(只会在积累足够轮次后才开始做对话总结)", interactive=False)
 
-            user_input = gr.Textbox(placeholder="input(Enter确定)", label="INPUT")
-
         with gr.Column():
             clear = gr.Button("clean history")
             chatbot = gr.Chatbot(label="history", value=[
                 [None, f"{role_robot.value.split('(')[0]}: {get_initialize_greet_text(role_human, role_robot.value)}"]])
+            user_input = gr.Textbox(placeholder="input(Enter确定)", label="INPUT")
 
-    user_input.submit(chat_f, [chatbot, user_input, user_status, history_summary, role_human, role_robot, limit_turn_n,
+    user_input.submit(chat_f, [chatbot, user_input, user_status, history_summary, current_time, role_human, role_robot,
+                               limit_turn_n,
                                gpt_select],
                       [chatbot, user_intention_state, user_input, history_summary, user_status], queue=False)
 
