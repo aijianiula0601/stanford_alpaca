@@ -150,6 +150,7 @@ PROMPT_DIC = {
         "```\n"
         "User's state: {user_state}\n"
         "user's intention: {user_intention}\n"
+        "Now focus on the user's state, intention and topic of user's question. "
         "You can refer to the initial message to greet to others. "
         "According to your role positioning, combined with the summary of the chat history, to respond to the latest user questions. "
         "Do not add emojis frequently. Try not to ask users how their day was. You are not a receptionist, so don't respond in a reception tone. "
