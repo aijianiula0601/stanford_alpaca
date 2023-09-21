@@ -50,7 +50,6 @@ def chat_f(history: list,
            user_question: str,
            user_status: str,
            last_summary: str,
-           current_time: str,
            role_human: str = "user",
            role_robot: str = "robot",
            limit_turn_n: int = 5,
@@ -82,6 +81,7 @@ def chat_f(history: list,
     # ---------------------
     # 模型回复
     # ---------------------
+    current_time = time.strftime("%H:%M:%S", time.localtime())
     answer_text = ai_chat.question_response(last_summary=last_summary,
                                             latest_history=get_history_str(latest_history),
                                             current_user_question=user_question,
@@ -107,7 +107,7 @@ def chat_f(history: list,
     print("+" * 200)
     print("new chat")
     print("+" * 200)
-    return history, user_intention_state_text, None, history_summary, user_status
+    return history, user_intention_state_text, None, history_summary, user_status, current_time
 
 
 def clear_f(role_human, role_robot):
@@ -145,10 +145,10 @@ with gr.Blocks() as demo:
                 [None, f"{role_robot.value.split('(')[0]}: {get_initialize_greet_text(role_human, role_robot.value)}"]])
             user_input = gr.Textbox(placeholder="input(Enter确定)", label="INPUT")
 
-    user_input.submit(chat_f, [chatbot, user_input, user_status, history_summary, current_time, role_human, role_robot,
-                               limit_turn_n,
-                               gpt_select],
-                      [chatbot, user_intention_state, user_input, history_summary, user_status], queue=False)
+    user_input.submit(chat_f, [chatbot, user_input, user_status, history_summary, role_human, role_robot,
+                               limit_turn_n, gpt_select],
+                      [chatbot, user_intention_state, user_input, history_summary, user_status, current_time],
+                      queue=False)
 
     clear.click(clear_f, inputs=[role_human, role_robot],
                 outputs=[chatbot, user_intention_state, history_summary, user_status])
