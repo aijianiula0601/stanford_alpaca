@@ -117,6 +117,31 @@ def clear_f(role_human, role_robot):
     return history, None, None, None
 
 
+save_f = "chat_log.log"
+
+open_save_f = open(save_f, 'a', buffering=1)
+
+
+def save_chat_f(history: list):
+    if len(history) > 0:
+        open_save_f.write("-" * 100 + "\n")
+        open_save_f.write("new chat\n")
+        open_save_f.write("-" * 100 + "\n")
+
+        for qa in history:
+
+            if qa[0] is not None:
+                open_save_f.write(f"{qa[0]}\n")
+            if qa[1] is not None:
+                open_save_f.write(f"{qa[1]}\n")
+            open_save_f.write("\n")
+
+        gr.Info("save chat done!")
+
+    else:
+        gr.Warning("chat is empty!!!")
+
+
 with gr.Blocks() as demo:
     with gr.Row():
         gr.Markdown("# chain-of-thought 聊天demo")
@@ -140,7 +165,9 @@ with gr.Blocks() as demo:
                                          label="聊天历史总结(只会在积累足够轮次后才开始做对话总结)", interactive=False)
 
         with gr.Column():
-            clear = gr.Button("clean history")
+            with gr.Row():
+                clear = gr.Button("clean history")
+                save_chat = gr.Button("save to chat")
             chatbot = gr.Chatbot(label="history", value=[
                 [None, f"{role_robot.value.split('(')[0]}: {get_initialize_greet_text(role_human, role_robot.value)}"]])
             user_input = gr.Textbox(placeholder="input(Enter确定)", label="INPUT")
@@ -154,5 +181,7 @@ with gr.Blocks() as demo:
                 outputs=[chatbot, user_intention_state, history_summary, user_status])
     role_robot.change(clear_f, inputs=[role_human, role_robot],
                       outputs=[chatbot, user_intention_state, history_summary, user_status])
+
+    save_chat.click(save_chat_f, chatbot, None)
 
 demo.queue().launch(server_name="0.0.0.0", server_port=8808)
