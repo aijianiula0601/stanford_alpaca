@@ -117,7 +117,7 @@ def clear_f(role_human, role_robot):
     return history, None, None, None
 
 
-save_f = "chat_log.log"
+save_f = "/tmp/chat_log.log"
 
 open_save_f = open(save_f, 'a', buffering=1)
 
@@ -136,7 +136,7 @@ def save_chat_f(history: list):
                 open_save_f.write(f"{qa[1]}\n")
             open_save_f.write("\n")
 
-        gr.Info("save chat done!")
+        gr.Info(f"save chat done, save file:{save_f}")
 
     else:
         gr.Warning("chat is empty!!!")
