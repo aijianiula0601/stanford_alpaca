@@ -114,7 +114,7 @@ def clear_f(role_human, role_robot):
     # 初始化机器人主动打招呼问候语
     history = [[None, f"{role_robot.split('(')[0]}: {get_initialize_greet_text(role_human, role_robot)}"]]
 
-    return history, None, None, None
+    return history, None, None, None, None
 
 
 save_f = "/tmp/chat_log.log"
@@ -184,7 +184,7 @@ with gr.Blocks() as demo:
                       queue=False)
 
     clear.click(clear_f, inputs=[role_human, role_robot],
-                outputs=[chatbot, user_intention_state, history_summary, user_status])
+                outputs=[chatbot, user_intention_state, history_summary, user_status, comment_text])
     role_robot.change(clear_f, inputs=[role_human, role_robot],
                       outputs=[chatbot, user_intention_state, history_summary, user_status])
 
