@@ -97,7 +97,12 @@ class ChainOfThoughtChat:
             'current_time': current_time,
 
         }
-        prompt = config.PROMPT_DIC['chat'].format_map(format_map_dic)
+
+        prompt_key = 'chat'
+        if self.role_name.split("(")[-1].replace(")", "") in ['轻色情', '色情']:
+            prompt_key = 'chat_sex'
+
+        prompt = config.PROMPT_DIC[prompt_key].format_map(format_map_dic)
         # 如果用户没有任何输入，将问是否在线之类的话语，模拟线上用户长时间不回复，gpt主动发信息。
         if current_user_question is None or current_user_question == '':
             current_user_question = 'None'

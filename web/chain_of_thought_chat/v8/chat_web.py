@@ -157,7 +157,7 @@ with gr.Blocks() as demo:
 
             with gr.Row():
                 role_human = gr.Textbox(lines=1, value="user", label="human name", interactive=False)
-                role_robot = gr.Dropdown(value=all_role_name_list[0], choices=all_role_name_list, label="角色选择",
+                role_robot = gr.Dropdown(value=all_role_name_list[-1], choices=all_role_name_list, label="角色选择",
                                          interactive=True)
                 current_time = gr.Textbox(lines=1, value=time.strftime("%H:%M:%S", time.localtime()),
                                           label="now time", interactive=True)
