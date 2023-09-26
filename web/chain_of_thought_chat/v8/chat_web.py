@@ -122,10 +122,13 @@ save_f = "/tmp/chat_log.log"
 open_save_f = open(save_f, 'a', buffering=1)
 
 
-def save_chat_f(history: list):
+def save_chat_f(history: list, role_robot: str, gpt_version: str, comment_text: str):
     if len(history) > 0:
         open_save_f.write("-" * 100 + "\n")
         open_save_f.write("new chat\n")
+        open_save_f.write(f"role_robot:{role_robot}\n")
+        open_save_f.write(f"gpt:{gpt_version}\n")
+        open_save_f.write(f"comment_text:{comment_text}\n")
         open_save_f.write("-" * 100 + "\n")
 
         for qa in history:
@@ -154,7 +157,7 @@ with gr.Blocks() as demo:
 
             with gr.Row():
                 role_human = gr.Textbox(lines=1, value="user", label="human name", interactive=False)
-                role_robot = gr.Dropdown(value=all_role_name_list[-1], choices=all_role_name_list, label="角色选择",
+                role_robot = gr.Dropdown(value=all_role_name_list[0], choices=all_role_name_list, label="角色选择",
                                          interactive=True)
                 current_time = gr.Textbox(lines=1, value=time.strftime("%H:%M:%S", time.localtime()),
                                           label="now time", interactive=True)
@@ -166,8 +169,11 @@ with gr.Blocks() as demo:
 
         with gr.Column():
             with gr.Row():
-                clear = gr.Button("clean history")
-                save_chat = gr.Button("save to chat")
+                with gr.Column():
+                    clear = gr.Button("clean history")
+                    save_chat = gr.Button("save to chat")
+                comment_text = gr.Textbox(value=None, label="评论", interactive=True)
+
             chatbot = gr.Chatbot(label="history", value=[
                 [None, f"{role_robot.value.split('(')[0]}: {get_initialize_greet_text(role_human, role_robot.value)}"]])
             user_input = gr.Textbox(placeholder="input(Enter确定)", label="INPUT")
@@ -182,6 +188,6 @@ with gr.Blocks() as demo:
     role_robot.change(clear_f, inputs=[role_human, role_robot],
                       outputs=[chatbot, user_intention_state, history_summary, user_status])
 
-    save_chat.click(save_chat_f, chatbot, None)
+    save_chat.click(save_chat_f, [chatbot, role_robot, gpt_select, comment_text], None)
 
 demo.queue().launch(server_name="0.0.0.0", server_port=8808)
