@@ -13,25 +13,23 @@ cd ../../../../
 your_random_port=11224
 
 
-base_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/vicuna-13b/ft_v1"
-llama_ckpt_and_tokenizer='lmsys/vicuna-33b-v1.3'
-output_dir="${base_dir}/ft_out"
-data_json="${base_dir}/train_data.txt"
-cache_dir="/mnt/cephfs/hjh/train_record/nlp/stanford_alpaca/pretrain_models/hungging"
+base_dir="/data1/hjh/train_vicuna30b"
+llama_ckpt_and_tokenizer='/data2/liujunshi/vicuna-33b-v1.3'
+output_dir="${base_dir}/debug"
+data_json="/data/hjh/tmp/train_data.txt"
 
 mkdir -p ${output_dir}
 
 
-##----------------------
-## train
-##----------------------
-#CUDA_VISIBLE_DEVICES=4,5,6,7 \
+#----------------------
+# train
+#----------------------
+CUDA_VISIBLE_DEVICES=4,5,6,7 \
 torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna-7b/train_mask_control_in_data.py \
     --model_name_or_path "${llama_ckpt_and_tokenizer}" \
     --data_path ${data_json} \
-    --cache_dir ${cache_dir} \
     --output_dir ${output_dir} \
-    --num_train_epochs 1 \
+    --num_train_epochs 100 \
     --per_device_train_batch_size 8 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 4 \
