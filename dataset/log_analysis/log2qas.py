@@ -44,7 +44,7 @@ def process_dialogue(dialogue_lines: list):
     if len(qa) > 0:
         qas.append(qa)
 
-    return {"background": background_str, 'qas': qas}
+    return {"background": background_str, 'qas': qas, "qas_len": len(qas)}
 
 
 def get_dialogue_lines(file_name):
