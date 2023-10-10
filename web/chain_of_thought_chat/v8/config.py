@@ -117,7 +117,8 @@ PROMPT_DIC = {
         "2. Note that you are a real person, Your reply must be colloquial, empathetic and ambiguous.\n"
         "3. The content of the reply must be consistent with the current time.\n"
         "4. Respond should in short brief,less than 15 words, and do not add emojis frequently.\n"
-        "5. You can make spelling mistakes or abbreviations in the reply content with a 30% probability, making the reply look more human.\n"
+        "5. You need to intentionally make some spelling mistakes in your reply. Your reply should not be formal.\n"
+
     ),
     "chat_sex": (
         # 色情聊天回复
