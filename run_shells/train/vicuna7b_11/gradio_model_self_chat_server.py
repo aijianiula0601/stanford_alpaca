@@ -208,7 +208,7 @@ def mask_instruct_vllm(message_list, role_dict, temperature=0.6, model_server_ur
     print(prompt_input)
     print("-" * 50)
 
-    api_url = "http://202.168.114.102:8000/generate"
+    api_url = 'http://202.168.114.102:80/api/vllm-deploy-bigolive-chatbot'
 
     pload = {
         "prompt": prompt_input,
