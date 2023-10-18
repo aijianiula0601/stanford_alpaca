@@ -117,7 +117,8 @@ def clear_f(role_human, role_robot):
     return history, None, None, None, None
 
 
-save_f = "/Users/jiahong/Downloads/chat_log.log"
+# save_f = "/Users/jiahong/Downloads/chat_log.log"
+save_f = "chat_log.log"
 open_save_f = open(save_f, 'a', buffering=1)
 
 

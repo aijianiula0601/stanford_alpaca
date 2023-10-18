@@ -1,4 +1,5 @@
 import numpy as np
+import math
 import matplotlib.pyplot as plt
 
 from utils import get_get_dialogue_qas
@@ -39,6 +40,7 @@ def turns_proportion(limit_turn_n, all_turn_n_list):
     # 小于指定轮次的对话个数
     less_turn_count = 0
     for n in all_turn_n_list:
+        # if math.floor(n) == limit_turn_n:
         if n >= limit_turn_n:
             greater_turn_count += 1
         else:
@@ -91,19 +93,20 @@ def f1(all_turn_n_list, limit_turn_n):
 
 
 if __name__ == '__main__':
-    f_gpt4 = '/Users/jiahong/Library/Containers/com.tencent.WeWorkMac/Data/Documents/Profiles/B7B28C02E7C396716ACE2C633FA37E42/Caches/Files/2023-10/67bf2616340ee966fb5b0b147d636c34/bigolive_robot_chat_history.20230918.cot_gpt4.en.txt'
-    f_gpt35 = "/Users/jiahong/Library/Containers/com.tencent.WeWorkMac/Data/Documents/Profiles/B7B28C02E7C396716ACE2C633FA37E42/Caches/Files/2023-10/17518fdfa98c1a39a67970ca93658471/bigolive_robot_chat_history.20230918.cot_gpt35.en.txt"
+    f_gpt4 = '/Users/jiahong/Downloads/bigolive_robot_chat_history.20230917.cot_gpt4.en.txt.1'
+    f_gpt35 = '/Users/jiahong/Downloads/bigolive_robot_chat_history.20230917.cot_gpt35.en.txt.1'
 
     f_list = [f_gpt4, f_gpt35]
 
-    # for f in f_list:
-    #     all_dialogue_qa = get_get_dialogue_qas(f)
-    #
-    #     qa_turn_n_list = get_qa_turn_n_list(all_dqa=all_dialogue_qa, limit_turn_n=0)
-    #
-    #     show_cdf(qa_turn_n_list)
-    #     data_proportion(qa_turn_n_list)
-    #     print("-" * 100)
+    for f in f_list:
+        print(f"file:{f}")
+        all_dialogue_qa = get_get_dialogue_qas(f)
+
+        qa_turn_n_list = get_qa_turn_n_list(all_dqa=all_dialogue_qa, limit_turn_n=0)
+
+        show_cdf(qa_turn_n_list)
+        data_proportion(qa_turn_n_list)
+        print("-" * 100)
 
     # -----------------------------------
     # 对比gpt35和gpt4大于多少轮后的占比

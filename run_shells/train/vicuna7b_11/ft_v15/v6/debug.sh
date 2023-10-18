@@ -49,7 +49,7 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna
     --data_path ${data_json} \
     --cache_dir ${cache_dir} \
     --output_dir ${output_dir} \
-    --num_train_epochs 1 \
+    --num_train_epochs 50000 \
     --per_device_train_batch_size 6 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 4 \
@@ -57,7 +57,7 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna
     --save_strategy "epoch" \
     --save_on_each_node \
     --model_max_length 2048 \
-    --save_total_limit 10 \
+    --save_total_limit 1 \
     --learning_rate 2e-5 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \
@@ -67,6 +67,6 @@ torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna
     --gradient_checkpointing True \
     --deepspeed run_shells/train/deepspeed_config.json \
     --fp16 True \
-    --process_name "vicuna-7b-v15_v6_v3" \
+    --process_name "vicuna-debug" \
     --lazy_load
 

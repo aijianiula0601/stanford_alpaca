@@ -1,3 +1,4 @@
+import math
 from utils import get_get_dialogue_qas
 
 
@@ -9,9 +10,9 @@ def check_limit_turn_dialogue(all_dialogue_qa, limit_turn_n):
     re_dia_list = []
 
     for dia in all_dialogue_qa:
-        if len(dia) > limit_turn_n:
+        if math.floor(len(dia) / 2) == limit_turn_n:
 
-            new_dia=[]
+            new_dia = []
             for qa in dia:
                 if " robot" in qa:
                     qa = "robot: " + qa.split(" says:")[-1]
@@ -26,8 +27,8 @@ def check_limit_turn_dialogue(all_dialogue_qa, limit_turn_n):
 
 
 if __name__ == '__main__':
-    f_gpt4 = '/Users/jiahong/Library/Containers/com.tencent.WeWorkMac/Data/Documents/Profiles/B7B28C02E7C396716ACE2C633FA37E42/Caches/Files/2023-10/67bf2616340ee966fb5b0b147d636c34/bigolive_robot_chat_history.20230918.cot_gpt4.en.txt'
-    f_gpt35 = "/Users/jiahong/Library/Containers/com.tencent.WeWorkMac/Data/Documents/Profiles/B7B28C02E7C396716ACE2C633FA37E42/Caches/Files/2023-10/17518fdfa98c1a39a67970ca93658471/bigolive_robot_chat_history.20230918.cot_gpt35.en.txt"
+    f_gpt4 = '/Users/jiahong/Downloads/bigolive_robot_chat_history.20230917.cot_gpt4.en.txt.1'
+    f_gpt35 = '/Users/jiahong/Downloads/bigolive_robot_chat_history.20230917.cot_gpt35.en.txt.1'
 
     f_list = [f_gpt4, f_gpt35]
 
