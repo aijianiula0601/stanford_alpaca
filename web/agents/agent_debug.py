@@ -60,7 +60,7 @@ if __name__ == '__main__':
         "For example, When you would like to move to another place, you can output in the following format:\n"
         "Thought: (your thought here)\n"
         "Action: MoveTo\n"
-        """Action Input: ("to": "name_of_the_place")\n"""
+        "Action Input: (\"to\": \"name_of_the_place\")\n"
 
         "The friends you can talk to include:\n"
         "- Bei Bei: Your good friend. \n"
