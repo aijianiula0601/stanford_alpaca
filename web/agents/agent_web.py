@@ -10,6 +10,12 @@ all_pet_names = list(config.pets_dic.keys())
 # 初始化用户示例
 glob_pet_obj: PersonPet = PersonPet(all_pet_names[0])
 
+feed_type_list = ["萝卜", "草", "芒果", "香蕉", "水", "大蒜", "啤酒", "巧克力"]
+stroke_type_list = ["头部", "肚子", "脚", "手", "背部", "鼻子"]
+time_list = ["00:00:00", "1:00:00", "2:00:00", "3:00:00", "4:00:00", "5:00:00", "6:00:00", "7:00:00", "8:00:00",
+             "9:00:00", "10:00:00", "11:00:00", "12:00:00", "13:00:00", "14:00:00", "15:00:00", "16:00:00",
+             "17:00:00", "18:00:00", "19:00:00", "20:00:00", "21:00:00", "22:00:00", "23:00:00", "24:00:00"]
+
 
 def get_history_str(history: list):
     if len(history) <= 0:
@@ -78,10 +84,14 @@ def select_pet(pet_name, gpt_version):
     return get_pet_info_str(pet_name), None, None, None, None, None, None, None, None, None, None, None, None
 
 
-def get_state(pet_name, curr_time, history_list: list, cur_state: str, next_plan: str, day_plan: str = None):
+def get_state(pet_name, curr_time: str, history_list: list, cur_state: str, next_plan: str, day_plan: str = None):
     """
     获取宠物的状态
     """
+    # --------------------
+    # 时间推进一个小时
+    # --------------------
+    curr_time = time_list[(time_list.index(curr_time) + 1) % len(time_list)]
 
     # --------------------
     # 宠物接下来的计划
@@ -113,7 +123,7 @@ def get_state(pet_name, curr_time, history_list: list, cur_state: str, next_plan
     leave_message = glob_pet_obj.leave_message(curr_time=curr_time, current_state=cur_state)
     history_list.append([f"{pet_name}: {leave_message}", None])
 
-    return pet_satiety, pet_mood, pet_local, cur_state, next_plan, leave_message, history_list, day_plan
+    return pet_satiety, pet_mood, pet_local, cur_state, next_plan, leave_message, history_list, day_plan, curr_time
 
 
 def give_feed(curr_time: str, cur_state: str, feed_type: str):
@@ -152,17 +162,17 @@ def stroke_pet(curr_time: str, cur_state: str):
     return per_res
 
 
-feed_type_list = ["萝卜", "草", "芒果", "香蕉", "水", "大蒜", "啤酒", "巧克力"]
-stroke_type_list = ["头部", "肚子", "脚", "手", "背部", "鼻子"]
-
 with gr.Blocks() as demo:
     with gr.Row():
         gr.Markdown("# AI宠物聊天demo")
     with gr.Row():
         with gr.Column():
             with gr.Row():
-                current_time_txtbox = gr.Textbox(lines=1, value=time.strftime("%H:%M:%S", time.localtime()),
-                                                 label="now time", interactive=True)
+                # current_time_txtbox = gr.Textbox(lines=1, value=time.strftime("%H:%M:%S", time.localtime()),
+                #                                  label="当前时间", interactive=True)
+
+                current_time_txtbox = gr.Dropdown(value=time_list[0], choices=time_list, label="选择当前时间",
+                                                  interactive=True)
                 gpt_select_dpd = gr.Dropdown(value='gpt3.5', choices=['gpt3.5', 'gpt4'], label="gpt引擎选择",
                                              interactive=True)
                 pet_select_dpd = gr.Dropdown(value=all_pet_names[0], choices=all_pet_names, label="领养你的宠物",
@@ -217,7 +227,8 @@ with gr.Blocks() as demo:
                         inputs=[pet_select_dpd, current_time_txtbox, chatbot, pet_state_txtbox, next_plan_txtbox,
                                 pet_day_plan_txtbox],
                         outputs=[pet_satiety_txtbox, pet_mood_txtbox, pet_local_txtbox, pet_state_txtbox,
-                                 next_plan_txtbox, announcement_info_txtbox, chatbot, pet_day_plan_txtbox])
+                                 next_plan_txtbox, announcement_info_txtbox, chatbot, pet_day_plan_txtbox,
+                                 current_time_txtbox])
 
     # 点击推送
     push_info_btn.click(get_push_message, inputs=[current_time_txtbox, pet_state_txtbox],
