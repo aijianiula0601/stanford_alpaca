@@ -78,15 +78,22 @@ def select_pet(pet_name, gpt_version):
     return get_pet_info_str(pet_name), None, None, None, None, None, None, None, None, None, None, None, None
 
 
-def get_state(pet_name, curr_time, history_list: list):
+def get_state(pet_name, curr_time, history_list: list, cur_state: str, next_plan: str, day_plan: str = None):
     """
     获取宠物的状态
     """
 
     # --------------------
+    # 宠物接下来的计划
+    # --------------------
+    # next_plan = glob_pet_obj.plan(current_state=cur_state, curr_time=curr_time)
+    if day_plan is None or day_plan == '':
+        day_plan = glob_pet_obj.day_plan()
+
+    # --------------------
     # 状态
     # --------------------
-    cur_state = glob_pet_obj.state(curr_time=curr_time)
+    cur_state = glob_pet_obj.state(curr_time=curr_time, day_plan=day_plan, cur_state=cur_state, next_plan=next_plan)
 
     def get_value(key):
         for line in cur_state.split("\n"):
@@ -97,6 +104,7 @@ def get_state(pet_name, curr_time, history_list: list):
     pet_satiety = get_value("饱腹感:")
     pet_thought = get_value("思考:")
     pet_state = get_value("状态:")
+    next_plan = get_value("下一步计划:")
     pet_local = get_value("位置:")
 
     # --------------------
@@ -105,12 +113,7 @@ def get_state(pet_name, curr_time, history_list: list):
     leave_message = glob_pet_obj.leave_message(curr_time=curr_time, current_state=cur_state)
     history_list.append([f"{pet_name}: {leave_message}", None])
 
-    # --------------------
-    # 宠物接下来的计划
-    # --------------------
-    next_plan = glob_pet_obj.plan(current_state=cur_state, curr_time=curr_time)
-
-    return pet_satiety, pet_mood, pet_local, cur_state, leave_message, history_list, next_plan
+    return pet_satiety, pet_mood, pet_local, cur_state, next_plan, leave_message, history_list, day_plan
 
 
 def give_feed(curr_time: str, cur_state: str, feed_type: str):
@@ -129,9 +132,10 @@ def give_feed(curr_time: str, cur_state: str, feed_type: str):
     pet_mood = get_value("心情:")
     pet_thought = get_value("思考:")
     pet_state = get_value("状态:")
+    next_plan = get_value("下一步计划:")
     pet_local = get_value("位置:")
 
-    return to_user_msg, pet_satiety, pet_mood, cur_state, pet_local
+    return to_user_msg, pet_satiety, pet_mood, cur_state, pet_local, next_plan
 
 
 def summon_pet(pet_name: str, curr_time: str, cur_state: str, history: list):
@@ -190,11 +194,13 @@ with gr.Blocks() as demo:
                 pet_local_txtbox = gr.Textbox(lines=1, value=None, label="宠物位置", interactive=True)
 
             with gr.Row():
-                announcement_info_txtbox = gr.Textbox(lines=5, value=None, label="推送信息", interactive=True)
                 with gr.Column():
-                    pet_message_txtbox = gr.Textbox(lines=1, value=None, label="宠物留言", interactive=True)
-                    pet_state_txtbox = gr.Textbox(lines=1, value=None, label="宠物当前状态", interactive=True)
-                pet_plan_txtbox = gr.Textbox(lines=1, value=None, label="宠物的计划行程", interactive=True)
+                    announcement_info_txtbox = gr.Textbox(lines=2, value=None, label="推送信息", interactive=True)
+                    pet_day_plan_txtbox = gr.Textbox(lines=2, value=None, label="宠物的计划行程", interactive=True)
+
+                with gr.Column():
+                    pet_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物当前状态", interactive=True)
+                    next_plan_txtbox = gr.Textbox(lines=2, value=None, label="下一步计划", interactive=True)
 
         with gr.Column():
             # clear = gr.Button("clean history")
@@ -202,14 +208,16 @@ with gr.Blocks() as demo:
             user_input = gr.Textbox(placeholder="input(Enter确定)", label="INPUT")
 
     user_input.submit(chat_f, inputs=[current_time_txtbox, pet_state_txtbox, chatbot, pet_select_dpd, user_input,
-                                      pet_message_txtbox, pet_plan_txtbox],
+                                      announcement_info_txtbox, pet_day_plan_txtbox],
                       outputs=[chatbot, user_input],
                       queue=False)
 
     # 点击获取宠物状态
-    pet_state_btn.click(get_state, inputs=[pet_select_dpd, current_time_txtbox, chatbot],
+    pet_state_btn.click(get_state,
+                        inputs=[pet_select_dpd, current_time_txtbox, chatbot, pet_state_txtbox, next_plan_txtbox,
+                                pet_day_plan_txtbox],
                         outputs=[pet_satiety_txtbox, pet_mood_txtbox, pet_local_txtbox, pet_state_txtbox,
-                                 pet_message_txtbox, chatbot, pet_plan_txtbox])
+                                 next_plan_txtbox, announcement_info_txtbox, chatbot, pet_day_plan_txtbox])
 
     # 点击推送
     push_info_btn.click(get_push_message, inputs=[current_time_txtbox, pet_state_txtbox],
@@ -220,12 +228,13 @@ with gr.Blocks() as demo:
                           outputs=[pet_info_txtbox, push_info_btn, summon_my_pet_btn, give_feed_btn, pet_satiety_txtbox,
                                    pet_mood_txtbox,
                                    pet_local_txtbox,
-                                   announcement_info_txtbox, pet_message_txtbox, pet_plan_txtbox, chatbot, user_input])
+                                   announcement_info_txtbox, announcement_info_txtbox, pet_day_plan_txtbox, chatbot,
+                                   user_input])
 
     # 投喂
     give_feed_btn.click(give_feed, inputs=[current_time_txtbox, pet_state_txtbox, feed_type_dpd],
                         outputs=[announcement_info_txtbox, pet_satiety_txtbox, pet_mood_txtbox, pet_state_txtbox,
-                                 pet_local_txtbox])
+                                 pet_local_txtbox, next_plan_txtbox])
 
     # 主人召唤
     summon_my_pet_btn.click(summon_pet, inputs=[pet_select_dpd, current_time_txtbox, pet_state_txtbox, chatbot],

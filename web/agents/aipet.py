@@ -201,6 +201,21 @@ class PersonPet(AiPet):
         message_list = [{"role": "user", "content": prompt}]
         return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
 
+    def day_plan(self):
+        """
+        规划一天的行程
+        """
+        prompt = config.day_plan_prompt.format_map(
+            {'role_name': self.name,
+             'role_description': self.pet_info(),
+             'all_place': PETWORLD_OBJ.place_str,
+             })
+        print("-" * 100)
+        print(f"day plan prompt:\n{prompt}")
+        print("-" * 100)
+        message_list = [{"role": "user", "content": prompt}]
+        return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
+
     def retrieve(self, top_k_m=10):
         """
         取回记忆
@@ -224,13 +239,13 @@ class PersonPet(AiPet):
         message_list = [{"role": "user", "content": prompt}]
         return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
 
-    def state(self, curr_time: str):
+    def state(self, curr_time: str, day_plan: str, cur_state: str, next_plan: str):
         """
         获取宠物当前状态：心情、饱腹感、思考，当前在干什么
         """
         prompt = config.state_prompt.format_map(
             {'role_name': self.name, 'role_description': self.pet_info(), 'all_place': PETWORLD_OBJ.place_str,
-             'curr_time': curr_time
+             'curr_time': curr_time, 'day_plan': day_plan, 'cur_state': cur_state, 'next_plan': next_plan,
              })
         print("-" * 100)
         print(f"plan prompt:\n{prompt}")
@@ -297,7 +312,6 @@ class PersonPet(AiPet):
         if res.startswith(f"{self.name}:") or res.startswith(f"{self.name}："):
             return res.replace(f"{self.name}:", "").strip()
         return res
-
 
     def stroke(self, curr_time: str, current_state: str):
         """
