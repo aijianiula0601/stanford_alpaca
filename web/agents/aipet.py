@@ -5,7 +5,7 @@ from abc import ABCMeta, abstractmethod
 import config
 
 
-def get_gpt_result(engine_name: str, message_list: list):
+def get_gpt_result(engine_name: str, message_list: list) -> str:
     response = openai.ChatCompletion.create(
         engine=engine_name,
         messages=message_list,
@@ -151,12 +151,47 @@ class PersonPet(AiPet):
         """
         self.memory_list.append(observation)
 
-    def plan(self):
+    def user_pet_chat(self, curr_time: str, current_state: str, user_question: str, pet_question: str,
+                      conversation_history_str: str, your_plans: str):
+        """
+        主人和宠物的聊天(宠物主动找主人来聊天，主人主动找宠物可能还不需要---开会说的)
+        """
+
+        prompt = config.chat_prompt.format_map(
+            {'role_name': self.name,
+             'role_description': self.pet_info(),
+             'all_place': PETWORLD_OBJ.place_str,
+             'your_plans': your_plans,
+             'curr_time': curr_time,
+             'current_state': current_state,
+             'conversation_history': conversation_history_str,
+             'user_question': user_question,
+             'pet_question': pet_question,
+
+             })
+        print("-" * 100)
+        print(f"plan prompt:\n{prompt}")
+        print("-" * 100)
+        message_list = [{"role": "user", "content": prompt}]
+
+        res = get_gpt_result(engine_name=self.engine_name, message_list=message_list)
+
+        if res.startswith(f"{self.name}:") or res.startswith(f"{self.name}："):
+            return res.replace(f"{self.name}:", "").strip()
+
+        return res
+
+    def plan(self, current_state: str, curr_time: str):
         """
         根据初始状态、近期状态、记忆 以后的计划
         """
         prompt = config.plan_prompt.format_map(
-            {'role_name': self.name, 'role_description': self.pet_info(), 'all_place': PETWORLD_OBJ.place_str})
+            {'role_name': self.name,
+             'role_description': self.pet_info(),
+             'all_place': PETWORLD_OBJ.place_str,
+             'current_state': current_state,
+             'curr_time': curr_time
+             })
         print("-" * 100)
         print(f"plan prompt:\n{prompt}")
         print("-" * 100)
@@ -180,16 +215,19 @@ class PersonPet(AiPet):
             {'role_name': self.name, 'role_description': self.pet_info(), 'all_place': PETWORLD_OBJ.place_str,
              'your_plans': cur_plan,
              'current_state': current_state})
+        print("-" * 100)
+        print(f"actor prompt:\n{prompt}")
+        print("-" * 100)
         message_list = [{"role": "user", "content": prompt}]
         return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
 
-    def get_state(self, cur_plan: str):
+    def state(self, curr_time: str):
         """
-        初始状态
+        获取宠物当前状态：心情、饱腹感、思考，当前在干什么
         """
         prompt = config.state_prompt.format_map(
             {'role_name': self.name, 'role_description': self.pet_info(), 'all_place': PETWORLD_OBJ.place_str,
-             'your_plans': cur_plan
+             'curr_time': curr_time
              })
         print("-" * 100)
         print(f"plan prompt:\n{prompt}")
@@ -197,18 +235,65 @@ class PersonPet(AiPet):
         message_list = [{"role": "user", "content": prompt}]
         return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
 
+    def push(self, curr_time: str, current_state: str):
+        """
+        推送信息
+        """
+        prompt = config.push_prompt.format_map(
+            {'role_name': self.name, 'role_description': self.pet_info(), 'current_state': current_state,
+             'curr_time': curr_time
+             })
+        print("-" * 100)
+        print(f"push prompt:\n{prompt}")
+        print("-" * 100)
+        message_list = [{"role": "user", "content": prompt}]
+        return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
+
+    def leave_message(self, curr_time: str, current_state: str):
+        """
+        给主人留言的信息
+        """
+        prompt = config.leave_message_prompt.format_map(
+            {'role_name': self.name, 'role_description': self.pet_info(), 'current_state': current_state,
+             'curr_time': curr_time
+             })
+        print("-" * 100)
+        print(f"leave_message prompt:\n{prompt}")
+        print("-" * 100)
+        message_list = [{"role": "user", "content": prompt}]
+        return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
+
+    def give_feed(self, curr_time: str, current_state: str):
+        """
+        投喂食物
+        """
+        prompt = config.give_feed_prompt.format_map(
+            {'role_name': self.name, 'role_description': self.pet_info(), 'curr_time': curr_time,
+             'current_state': current_state
+             })
+        print("-" * 100)
+        print(f"give_feed prompt:\n{prompt}")
+        print("-" * 100)
+        message_list = [{"role": "user", "content": prompt}]
+        return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
+
 
 if __name__ == '__main__':
-    pp = PersonPet(name="Molly", gpt_version="gpt3.5")
+    pp = PersonPet(name="莫莉", gpt_version="gpt3.5")
     cur_plan = pp.plan()
     print("-" * 100)
     print(cur_plan)
     print("-" * 100)
-    current_status = pp.get_state(cur_plan)
+
+    curr_time = "11:30:00"
+    current_status = pp.state(curr_time)
     print("current_status:\n", current_status)
 
     print("-" * 100)
-
     cur_actor = pp.actor(cur_plan, current_status)
     print("cur_actor:\n", cur_actor)
     print("-" * 100)
+
+    cur_push = pp.push(curr_time, current_status)
+    print('cur_psh:', cur_push)
+    print('-' * 100)
