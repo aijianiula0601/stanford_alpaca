@@ -280,6 +280,24 @@ class PersonPet(AiPet):
         message_list = [{"role": "user", "content": prompt}]
         return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
 
+    def summon(self, curr_time: str, current_state: str):
+        """
+        主人召唤了
+        """
+        prompt = config.summon_prompt.format_map(
+            {'role_name': self.name, 'role_description': self.pet_info(), 'curr_time': curr_time,
+             'current_state': current_state
+             })
+        print("-" * 100)
+        print(f"summon prompt:\n{prompt}")
+        print("-" * 100)
+        message_list = [{"role": "user", "content": prompt}]
+
+        res = get_gpt_result(engine_name=self.engine_name, message_list=message_list)
+        if res.startswith(f"{self.name}:") or res.startswith(f"{self.name}："):
+            return res.replace(f"{self.name}:", "").strip()
+        return res
+
 
 if __name__ == '__main__':
     pp = PersonPet(name="莫莉", gpt_version="gpt3.5")

@@ -139,6 +139,8 @@ summon_prompt = pet_world_str + (
     "{current_state}\n\n"
 
     "当前时间是: {curr_time}\n"
+    
+    "现在你的主人召唤你了，根据你当前的状态，回应你的主人吧。回复限制在30个字以内。"
 
 )
 
