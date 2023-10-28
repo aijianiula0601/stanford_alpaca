@@ -142,7 +142,14 @@ def summon_pet(pet_name: str, curr_time: str, cur_state: str, history: list):
     return per_res, history
 
 
+def stroke_pet(curr_time: str, cur_state: str):
+    per_res = glob_pet_obj.stroke(curr_time=curr_time, current_state=cur_state)
+
+    return per_res
+
+
 feed_type_list = ["萝卜", "草", "芒果", "香蕉", "水", "大蒜", "啤酒", "巧克力"]
+stroke_type_list = ["头部", "肚子", "脚", "手", "背部", "鼻子"]
 
 with gr.Blocks() as demo:
     with gr.Row():
@@ -165,12 +172,17 @@ with gr.Blocks() as demo:
             pet_state_btn = gr.Button("点击获取宠物当前状态(模拟一段时间自动刷新宠物状态)")
 
             with gr.Row():
-                push_info_btn = gr.Button("推送信息")
-                summon_my_pet_btn = gr.Button("召唤宠物")
+                with gr.Column():
+                    stroke_type_dpd = gr.Dropdown(label="选择抚摸部位", value=stroke_type_list[0], choices=stroke_type_list,
+                                                  interactive=True)
+                    stroke_btn = gr.Button("抚摸")
                 with gr.Column():
                     feed_type_dpd = gr.Dropdown(label="选择投喂的食物", value=feed_type_list[-1], choices=feed_type_list,
                                                 interactive=True)
                     give_feed_btn = gr.Button("投喂")
+                with gr.Column():
+                    push_info_btn = gr.Button("推送信息")
+                    summon_my_pet_btn = gr.Button("召唤宠物")
 
             with gr.Row():
                 pet_satiety_txtbox = gr.Textbox(lines=1, value=None, label="宠物饱腹感", interactive=True)
@@ -218,5 +230,9 @@ with gr.Blocks() as demo:
     # 主人召唤
     summon_my_pet_btn.click(summon_pet, inputs=[pet_select_dpd, current_time_txtbox, pet_state_txtbox, chatbot],
                             outputs=[announcement_info_txtbox, chatbot])
+
+    # 主人抚摸
+    stroke_btn.click(stroke_pet, inputs=[current_time_txtbox, pet_state_txtbox],
+                     outputs=[announcement_info_txtbox])
 
 demo.queue().launch(server_name="0.0.0.0", server_port=8700)
