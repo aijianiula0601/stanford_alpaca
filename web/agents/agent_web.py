@@ -53,6 +53,15 @@ def get_pet_info_str(pet_name):
     return '\n'.join(pet_info_list)
 
 
+def get_place_info_str():
+    place_list = []
+    for k in config.places_dic:
+        place_list.append(f"{k}: {config.places_dic[k]}")
+    place_list_str = '\n'.join(place_list)
+
+    return place_list_str
+
+
 def get_push_message(current_time, current_state):
     """
     推送信息
@@ -141,17 +150,21 @@ with gr.Blocks() as demo:
                                          interactive=True)
                 pet_select = gr.Dropdown(value=all_pet_names[0], choices=all_pet_names, label="领养你的宠物",
                                          interactive=True)
+            with gr.Row():
+                pet_info = gr.Textbox(lines=2, value=get_pet_info_str(all_pet_names[0]), label="宠物信息",
+                                      interactive=False)
 
-            pet_info = gr.Textbox(lines=2, value=get_pet_info_str(all_pet_names[0]), label="宠物信息",
-                                  interactive=False)
+                place_info = gr.Textbox(lines=2, value=get_place_info_str(), label="可活动位置", interactive=False)
+
             pet_state_btn = gr.Button("点击获取宠物当前状态(模拟一段时间自动刷新宠物状态)")
 
             with gr.Row():
                 push_info_btn = gr.Button("推送信息")
                 summon_my_pet_btn = gr.Button("召唤宠物")
-                feed_type = gr.Dropdown(label="选择投喂的食物", value=feed_type_list[-1], choices=feed_type_list,
-                                        interactive=True)
-                give_feed_btn = gr.Button("投喂")
+                with gr.Column():
+                    feed_type = gr.Dropdown(label="选择投喂的食物", value=feed_type_list[-1], choices=feed_type_list,
+                                            interactive=True)
+                    give_feed_btn = gr.Button("投喂")
 
             with gr.Row():
                 pet_satiety = gr.Textbox(lines=1, value=None, label="宠物饱腹感", interactive=True)
