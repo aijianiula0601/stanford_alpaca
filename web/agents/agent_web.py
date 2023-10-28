@@ -104,11 +104,13 @@ def get_state(pet_name, curr_time, history_list: list):
     return pet_satiety, pet_mood, pet_local, cur_state, leave_message, history_list, next_plan
 
 
-def give_feed(curr_time: str, cur_state: str):
+def give_feed(curr_time: str, cur_state: str, feed_type: str):
     # --------------------
     # 状态
     # --------------------
-    cur_state = glob_pet_obj.give_feed(curr_time=curr_time, current_state=cur_state)
+    cur_state = glob_pet_obj.give_feed(curr_time=curr_time, current_state=cur_state, feed_type=feed_type)
+
+    print("--------cur_state:", cur_state)
 
     def get_value(key):
         for line in cur_state.split("\n"):
@@ -125,6 +127,8 @@ def give_feed(curr_time: str, cur_state: str):
     return to_user_msg, pet_satiety, pet_mood, cur_state, pet_local
 
 
+feed_type_list = ["萝卜", "草", "芒果", "香蕉", "水", "大蒜", "啤酒", "巧克力"]
+
 with gr.Blocks() as demo:
     with gr.Row():
         gr.Markdown("# AI宠物聊天demo")
@@ -138,12 +142,15 @@ with gr.Blocks() as demo:
                 pet_select = gr.Dropdown(value=all_pet_names[0], choices=all_pet_names, label="领养你的宠物",
                                          interactive=True)
 
-            pet_info = gr.Textbox(lines=2, value=get_pet_info_str(all_pet_names[0]), label="宠物信息", interactive=False)
+            pet_info = gr.Textbox(lines=2, value=get_pet_info_str(all_pet_names[0]), label="宠物信息",
+                                  interactive=False)
             pet_state_btn = gr.Button("点击获取宠物当前状态(模拟一段时间自动刷新宠物状态)")
 
             with gr.Row():
                 push_info_btn = gr.Button("推送信息")
                 summon_my_pet_btn = gr.Button("召唤宠物")
+                feed_type = gr.Dropdown(label="选择投喂的食物", value=feed_type_list[-1], choices=feed_type_list,
+                                        interactive=True)
                 give_feed_btn = gr.Button("投喂")
 
             with gr.Row():
@@ -159,7 +166,7 @@ with gr.Blocks() as demo:
                 pet_plan = gr.Textbox(lines=1, value=None, label="宠物的计划行程", interactive=True)
 
         with gr.Column():
-            clear = gr.Button("clean history")
+            # clear = gr.Button("clean history")
             chatbot = gr.Chatbot(label="宠物跟主人的聊天历史", value=None)
             user_input = gr.Textbox(placeholder="input(Enter确定)", label="INPUT")
 
@@ -181,7 +188,7 @@ with gr.Blocks() as demo:
                                announcement_info, pet_message, pet_plan, chatbot, user_input])
 
     # 投喂
-    give_feed_btn.click(give_feed, inputs=[current_time, pet_state],
+    give_feed_btn.click(give_feed, inputs=[current_time, pet_state, feed_type],
                         outputs=[announcement_info, pet_satiety, pet_mood, pet_state, pet_local])
 
 demo.queue().launch(server_name="0.0.0.0", server_port=8700)

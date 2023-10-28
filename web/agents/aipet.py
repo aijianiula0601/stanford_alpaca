@@ -15,7 +15,10 @@ def get_gpt_result(engine_name: str, message_list: list) -> str:
         frequency_penalty=0,
         presence_penalty=0,
         stop=None)
-    return response['choices'][0]['message']['content']
+    res_text = response['choices'][0]['message']['content']
+    print("=" * 50)
+    print(f"response_text:{res_text}")
+    return res_text
 
 
 def set_gpt_env(gpt_version: str = 3.5):
@@ -263,13 +266,13 @@ class PersonPet(AiPet):
         message_list = [{"role": "user", "content": prompt}]
         return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
 
-    def give_feed(self, curr_time: str, current_state: str):
+    def give_feed(self, curr_time: str, current_state: str, feed_type: str):
         """
         投喂食物
         """
         prompt = config.give_feed_prompt.format_map(
             {'role_name': self.name, 'role_description': self.pet_info(), 'curr_time': curr_time,
-             'current_state': current_state
+             'current_state': current_state, 'feed_type': feed_type
              })
         print("-" * 100)
         print(f"give_feed prompt:\n{prompt}")
