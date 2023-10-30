@@ -81,7 +81,10 @@ def select_pet(pet_name, gpt_version):
     """
     global glob_pet_obj
     glob_pet_obj = PersonPet(name=pet_name, gpt_version=gpt_version)
-    return get_pet_info_str(pet_name), None, None, None, None, None, None, None, None, None, None, None
+    return get_pet_info_str(pet_name), None, None, None, None, None, None, None, None, time.strftime("%H:00:00",
+                                                                                                     time.localtime()), \
+           stroke_type_list[0], \
+           feed_type_list[0]
 
 
 def get_state(pet_name, curr_time: str, history_list: list, cur_state: str, next_plan: str, day_plan: str = None):
@@ -239,10 +242,10 @@ with gr.Blocks() as demo:
 
     # 重新选择宠物
     pet_select_dpd.change(select_pet, inputs=[pet_select_dpd, gpt_select_dpd],
-                          outputs=[pet_info_txtbox, announcement_info_txtbox, pet_local_txtbox, feed_type_dpd,
-                                   pet_satiety_txtbox,
-                                   pet_mood_txtbox, pet_local_txtbox, announcement_info_txtbox,
-                                   announcement_info_txtbox, pet_day_plan_txtbox, chatbot, user_input])
+                          outputs=[pet_info_txtbox, pet_satiety_txtbox, pet_mood_txtbox, pet_local_txtbox,
+                                   announcement_info_txtbox,
+                                   pet_day_plan_txtbox, pet_state_txtbox, next_plan_txtbox, chatbot,
+                                   current_time_txtbox, stroke_type_dpd, feed_type_dpd])
 
     # 投喂
     give_feed_btn.click(give_feed, inputs=[current_time_txtbox, pet_state_txtbox, feed_type_dpd],
