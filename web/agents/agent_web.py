@@ -121,7 +121,7 @@ def get_state(pet_name, curr_time: str, history_list: list, cur_state: str, next
     # 留言
     # --------------------
     leave_message = glob_pet_obj.leave_message(curr_time=curr_time, current_state=cur_state)
-    history_list.append([f"{pet_name}: {leave_message}", None])
+    history_list.append([None, f"{pet_name}: {leave_message}"])
 
     return pet_satiety, pet_mood, pet_local, cur_state, next_plan, leave_message, history_list, day_plan, curr_time
 
@@ -151,7 +151,7 @@ def give_feed(curr_time: str, cur_state: str, feed_type: str):
 def summon_pet(pet_name: str, curr_time: str, cur_state: str, history: list):
     per_res = glob_pet_obj.summon(curr_time=curr_time, current_state=cur_state)
 
-    history.append([f"{pet_name}: {per_res}", None])
+    history.append([None, f"{pet_name}: {per_res}"])
 
     return per_res, history
 
@@ -160,6 +160,11 @@ def stroke_pet(curr_time: str, cur_state: str):
     per_res = glob_pet_obj.stroke(curr_time=curr_time, current_state=cur_state)
 
     return per_res
+
+
+def clear_all():
+    return None, None, None, None, None, None, None, None, time.strftime("%H:00:00", time.localtime()), \
+           stroke_type_list[0], feed_type_list[-1]
 
 
 with gr.Blocks() as demo:
@@ -171,7 +176,8 @@ with gr.Blocks() as demo:
                 # current_time_txtbox = gr.Textbox(lines=1, value=time.strftime("%H:%M:%S", time.localtime()),
                 #                                  label="当前时间", interactive=True)
 
-                current_time_txtbox = gr.Dropdown(value=time_list[0], choices=time_list, label="选择当前时间",
+                current_time_txtbox = gr.Dropdown(value=time.strftime("%H:00:00", time.localtime()), choices=time_list,
+                                                  label="选择当前时间",
                                                   interactive=True)
                 gpt_select_dpd = gr.Dropdown(value='gpt3.5', choices=['gpt3.5', 'gpt4'], label="gpt引擎选择",
                                              interactive=True)
@@ -213,7 +219,7 @@ with gr.Blocks() as demo:
                     next_plan_txtbox = gr.Textbox(lines=2, value=None, label="下一步计划", interactive=True)
 
         with gr.Column():
-            # clear = gr.Button("clean history")
+            clear_btn = gr.Button("重置")
             chatbot = gr.Chatbot(label="宠物跟主人的聊天历史", value=None)
             user_input = gr.Textbox(placeholder="input(Enter确定)", label="INPUT")
 
@@ -254,5 +260,11 @@ with gr.Blocks() as demo:
     # 主人抚摸
     stroke_btn.click(stroke_pet, inputs=[current_time_txtbox, pet_state_txtbox],
                      outputs=[announcement_info_txtbox])
+
+    # 重置
+    clear_btn.click(clear_all, inputs=[],
+                    outputs=[pet_satiety_txtbox, pet_mood_txtbox, pet_local_txtbox, announcement_info_txtbox,
+                             pet_day_plan_txtbox, pet_state_txtbox, next_plan_txtbox, chatbot, current_time_txtbox,
+                             stroke_type_dpd, feed_type_dpd])
 
 demo.queue().launch(server_name="0.0.0.0", server_port=8700)

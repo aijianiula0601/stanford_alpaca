@@ -182,6 +182,9 @@ class PersonPet(AiPet):
         if res.startswith(f"{self.name}:") or res.startswith(f"{self.name}："):
             return res.replace(f"{self.name}:", "").strip()
 
+        if res.startswith(f"{self.name}："):
+            return res.replace(f"{self.name}：", "").strip()
+
         return res
 
     def plan(self, current_state: str, curr_time: str):
