@@ -137,7 +137,7 @@ def give_feed(curr_time: str, cur_state: str, feed_type: str):
             if str(line).startswith(key):
                 return line.replace(key, "").strip()
 
-    to_user_msg = get_value("对主人说:")
+    to_user_msg = get_value("回应主人:")
     pet_satiety = get_value("饱腹感:")
     pet_mood = get_value("心情:")
     pet_thought = get_value("思考:")
@@ -183,26 +183,30 @@ with gr.Blocks() as demo:
                                              interactive=True)
                 pet_select_dpd = gr.Dropdown(value=all_pet_names[0], choices=all_pet_names, label="领养你的宠物",
                                              interactive=True)
+
+            pet_state_btn = gr.Button("点击获取宠物当前状态(模拟1h后自动刷新宠物状态)")
             with gr.Row():
                 pet_info_txtbox = gr.Textbox(lines=2, value=get_pet_info_str(all_pet_names[0]), label="宠物信息",
                                              interactive=False)
 
-                place_info_txtbox = gr.Textbox(lines=2, value=get_place_info_str(), label="可活动位置", interactive=False)
-
-            pet_state_btn = gr.Button("点击获取宠物当前状态(模拟1h后自动刷新宠物状态)")
+                place_info_txtbox = gr.Textbox(lines=2, value=get_place_info_str(), label="可活动位置", interactive=False,
+                                               visible=False)
 
             with gr.Row():
-                with gr.Column():
-                    stroke_type_dpd = gr.Dropdown(label="选择抚摸部位", value=stroke_type_list[0], choices=stroke_type_list,
-                                                  interactive=True)
-                    stroke_btn = gr.Button("抚摸")
-                with gr.Column():
-                    feed_type_dpd = gr.Dropdown(label="选择投喂的食物", value=feed_type_list[-1], choices=feed_type_list,
-                                                interactive=True)
-                    give_feed_btn = gr.Button("投喂")
-                with gr.Column():
-                    push_info_btn = gr.Button("推送信息")
-                    summon_my_pet_btn = gr.Button("召唤宠物")
+                stroke_type_dpd = gr.Dropdown(label="选择抚摸部位", value=stroke_type_list[0], choices=stroke_type_list,
+                                              interactive=True)
+                stroke_btn = gr.Button("抚摸")
+            with gr.Row():
+                feed_type_dpd = gr.Dropdown(label="选择投喂的食物", value=feed_type_list[-1], choices=feed_type_list,
+                                            interactive=True)
+                give_feed_btn = gr.Button("投喂")
+
+            push_info_btn = gr.Button("推送信息")
+            summon_my_pet_btn = gr.Button("召唤宠物")
+            clear_btn = gr.Button("重置")
+
+        with gr.Column():
+
 
             with gr.Row():
                 pet_satiety_txtbox = gr.Textbox(lines=1, value=None, label="宠物饱腹感", interactive=True)
@@ -219,7 +223,6 @@ with gr.Blocks() as demo:
                     next_plan_txtbox = gr.Textbox(lines=2, value=None, label="下一步计划", interactive=True)
 
         with gr.Column():
-            clear_btn = gr.Button("重置")
             chatbot = gr.Chatbot(label="宠物跟主人的聊天历史", value=None)
             user_input = gr.Textbox(placeholder="input(Enter确定)", label="INPUT")
 
@@ -242,7 +245,8 @@ with gr.Blocks() as demo:
 
     # 重新选择宠物
     pet_select_dpd.change(select_pet, inputs=[pet_select_dpd, gpt_select_dpd],
-                          outputs=[pet_info_txtbox, announcement_info_txtbox, pet_local_txtbox, feed_type_dpd, pet_satiety_txtbox,
+                          outputs=[pet_info_txtbox, announcement_info_txtbox, pet_local_txtbox, feed_type_dpd,
+                                   pet_satiety_txtbox,
                                    pet_mood_txtbox, pet_local_txtbox, announcement_info_txtbox,
                                    announcement_info_txtbox, pet_day_plan_txtbox, chatbot, user_input])
 
