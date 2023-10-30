@@ -206,21 +206,15 @@ with gr.Blocks() as demo:
             clear_btn = gr.Button("重置")
 
         with gr.Column():
-
-
             with gr.Row():
                 pet_satiety_txtbox = gr.Textbox(lines=1, value=None, label="宠物饱腹感", interactive=True)
                 pet_mood_txtbox = gr.Textbox(lines=1, value=None, label="宠物心情", interactive=True)
                 pet_local_txtbox = gr.Textbox(lines=1, value=None, label="宠物位置", interactive=True)
 
-            with gr.Row():
-                with gr.Column():
-                    announcement_info_txtbox = gr.Textbox(lines=2, value=None, label="推送信息", interactive=True)
-                    pet_day_plan_txtbox = gr.Textbox(lines=2, value=None, label="宠物的计划行程", interactive=True)
-
-                with gr.Column():
-                    pet_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物当前状态", interactive=True)
-                    next_plan_txtbox = gr.Textbox(lines=2, value=None, label="下一步计划", interactive=True)
+            announcement_info_txtbox = gr.Textbox(lines=2, value=None, label="推送信息", interactive=True)
+            pet_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物当前状态", interactive=True)
+            next_plan_txtbox = gr.Textbox(lines=2, value=None, label="下一步计划", interactive=True)
+            pet_day_plan_txtbox = gr.Textbox(lines=2, value=None, label="宠物的计划行程", interactive=True)
 
         with gr.Column():
             chatbot = gr.Chatbot(label="宠物跟主人的聊天历史", value=None)
