@@ -81,7 +81,7 @@ def select_pet(pet_name, gpt_version):
     """
     global glob_pet_obj
     glob_pet_obj = PersonPet(name=pet_name, gpt_version=gpt_version)
-    return get_pet_info_str(pet_name), None, None, None, None, None, None, None, None, None, None, None, None
+    return get_pet_info_str(pet_name), None, None, None, None, None, None, None, None, None, None, None
 
 
 def get_state(pet_name, curr_time: str, history_list: list, cur_state: str, next_plan: str, day_plan: str = None):
@@ -189,7 +189,7 @@ with gr.Blocks() as demo:
 
                 place_info_txtbox = gr.Textbox(lines=2, value=get_place_info_str(), label="可活动位置", interactive=False)
 
-            pet_state_btn = gr.Button("点击获取宠物当前状态(模拟一段时间自动刷新宠物状态)")
+            pet_state_btn = gr.Button("点击获取宠物当前状态(模拟1h后自动刷新宠物状态)")
 
             with gr.Row():
                 with gr.Column():
@@ -242,11 +242,9 @@ with gr.Blocks() as demo:
 
     # 重新选择宠物
     pet_select_dpd.change(select_pet, inputs=[pet_select_dpd, gpt_select_dpd],
-                          outputs=[pet_info_txtbox, push_info_btn, summon_my_pet_btn, give_feed_btn, pet_satiety_txtbox,
-                                   pet_mood_txtbox,
-                                   pet_local_txtbox,
-                                   announcement_info_txtbox, announcement_info_txtbox, pet_day_plan_txtbox, chatbot,
-                                   user_input])
+                          outputs=[pet_info_txtbox, announcement_info_txtbox, pet_local_txtbox, feed_type_dpd, pet_satiety_txtbox,
+                                   pet_mood_txtbox, pet_local_txtbox, announcement_info_txtbox,
+                                   announcement_info_txtbox, pet_day_plan_txtbox, chatbot, user_input])
 
     # 投喂
     give_feed_btn.click(give_feed, inputs=[current_time_txtbox, pet_state_txtbox, feed_type_dpd],
