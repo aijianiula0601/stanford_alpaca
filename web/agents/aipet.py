@@ -316,13 +316,13 @@ class PersonPet(AiPet):
             return res.replace(f"{self.name}:", "").strip()
         return res
 
-    def stroke(self, curr_time: str, current_state: str):
+    def stroke(self, curr_time: str, current_state: str, stroke_type: str):
         """
         主人抚摸
         """
         prompt = config.stroke_prompt.format_map(
             {'role_name': self.name, 'role_description': self.pet_info(), 'curr_time': curr_time,
-             'current_state': current_state
+             'current_state': current_state, "stroke_type": stroke_type
              })
         print("-" * 100)
         print(f"stroke prompt:\n{prompt}")

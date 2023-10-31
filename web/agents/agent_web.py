@@ -12,8 +12,8 @@ glob_pet_obj: PersonPet = PersonPet(all_pet_names[0])
 
 feed_type_list = ["萝卜", "草", "芒果", "香蕉", "水", "大蒜", "啤酒", "巧克力"]
 stroke_type_list = ["头部", "肚子", "脚", "手", "背部", "鼻子"]
-time_list = ["00:00:00", "1:00:00", "2:00:00", "3:00:00", "4:00:00", "5:00:00", "6:00:00", "7:00:00", "8:00:00",
-             "9:00:00", "10:00:00", "11:00:00", "12:00:00", "13:00:00", "14:00:00", "15:00:00", "16:00:00",
+time_list = ["00:00:00", "01:00:00", "02:00:00", "03:00:00", "04:00:00", "05:00:00", "06:00:00", "07:00:00", "08:00:00",
+             "09:00:00", "10:00:00", "11:00:00", "12:00:00", "13:00:00", "14:00:00", "15:00:00", "16:00:00",
              "17:00:00", "18:00:00", "19:00:00", "20:00:00", "21:00:00", "22:00:00", "23:00:00", "24:00:00"]
 
 
@@ -152,15 +152,28 @@ def give_feed(curr_time: str, cur_state: str, feed_type: str):
 
 
 def summon_pet(pet_name: str, curr_time: str, cur_state: str, history: list):
-    per_res = glob_pet_obj.summon(curr_time=curr_time, current_state=cur_state)
+    cur_state = glob_pet_obj.summon(curr_time=curr_time, current_state=cur_state)
+
+    def get_value(key):
+        for line in cur_state.split("\n"):
+            if str(line).startswith(key):
+                return line.replace(key, "").strip()
+
+    per_res = get_value("回应主人:")
+    pet_satiety = get_value("饱腹感:")
+    pet_mood = get_value("心情:")
+    pet_thought = get_value("思考:")
+    pet_state = get_value("状态:")
+    next_plan = get_value("下一步计划:")
+    pet_local = get_value("位置:")
 
     history.append([None, f"{pet_name}: {per_res}"])
 
-    return per_res, history
+    return per_res, pet_satiety, pet_mood, cur_state, pet_local, next_plan, history
 
 
-def stroke_pet(curr_time: str, cur_state: str):
-    per_res = glob_pet_obj.stroke(curr_time=curr_time, current_state=cur_state)
+def stroke_pet(curr_time: str, cur_state: str, stroke_type: str):
+    per_res = glob_pet_obj.stroke(curr_time=curr_time, current_state=cur_state, stroke_type=stroke_type)
 
     return per_res
 
@@ -217,10 +230,10 @@ with gr.Blocks() as demo:
             announcement_info_txtbox = gr.Textbox(lines=2, value=None, label="推送信息", interactive=True)
             pet_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物当前状态", interactive=True)
             next_plan_txtbox = gr.Textbox(lines=2, value=None, label="下一步计划", interactive=True)
-            pet_day_plan_txtbox = gr.Textbox(lines=2, value=None, label="宠物的计划行程", interactive=True)
+            pet_day_plan_txtbox = gr.Textbox(lines=2, value=None, label="宠物的行程计划", interactive=True)
 
         with gr.Column():
-            chatbot = gr.Chatbot(label="宠物跟主人的聊天历史", value=None)
+            chatbot = gr.Chatbot(label="宠物跟主人的聊天历史", value=None, height=650)
             user_input = gr.Textbox(placeholder="input(Enter确定)", label="INPUT")
 
     user_input.submit(chat_f, inputs=[current_time_txtbox, pet_state_txtbox, chatbot, pet_select_dpd, user_input,
@@ -254,10 +267,11 @@ with gr.Blocks() as demo:
 
     # 主人召唤
     summon_my_pet_btn.click(summon_pet, inputs=[pet_select_dpd, current_time_txtbox, pet_state_txtbox, chatbot],
-                            outputs=[announcement_info_txtbox, chatbot])
+                            outputs=[announcement_info_txtbox, pet_satiety_txtbox, pet_mood_txtbox, pet_state_txtbox,
+                                     pet_local_txtbox, next_plan_txtbox, chatbot])
 
     # 主人抚摸
-    stroke_btn.click(stroke_pet, inputs=[current_time_txtbox, pet_state_txtbox],
+    stroke_btn.click(stroke_pet, inputs=[current_time_txtbox, pet_state_txtbox, stroke_type_dpd],
                      outputs=[announcement_info_txtbox])
 
     # 重置
