@@ -242,13 +242,14 @@ class PersonPet(AiPet):
         message_list = [{"role": "user", "content": prompt}]
         return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
 
-    def state(self, curr_time: str, day_plan: str, cur_state: str, next_plan: str):
+    def state(self, curr_time: str, next_time: str, day_plan: str, cur_state: str, next_plan: str):
         """
         获取宠物当前状态：心情、饱腹感、思考，当前在干什么
         """
         prompt = config.state_prompt.format_map(
             {'role_name': self.name, 'role_description': self.pet_info(), 'all_place': PETWORLD_OBJ.place_str,
              'curr_time': curr_time, 'day_plan': day_plan, 'cur_state': cur_state, 'next_plan': next_plan,
+             'next_time': next_time
              })
         print("-" * 100)
         print(f"plan prompt:\n{prompt}")
@@ -284,13 +285,13 @@ class PersonPet(AiPet):
         message_list = [{"role": "user", "content": prompt}]
         return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
 
-    def give_feed(self, curr_time: str, current_state: str, feed_type: str):
+    def give_feed(self, curr_time: str, next_time: str, current_state: str, feed_type: str):
         """
         投喂食物
         """
         prompt = config.give_feed_prompt.format_map(
             {'role_name': self.name, 'role_description': self.pet_info(), 'curr_time': curr_time,
-             'current_state': current_state, 'feed_type': feed_type
+             'current_state': current_state, 'feed_type': feed_type, 'next_time': next_time
              })
         print("-" * 100)
         print(f"give_feed prompt:\n{prompt}")
@@ -298,13 +299,13 @@ class PersonPet(AiPet):
         message_list = [{"role": "user", "content": prompt}]
         return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
 
-    def summon(self, curr_time: str, current_state: str):
+    def summon(self, curr_time: str, next_time: str, current_state: str):
         """
         主人召唤了
         """
         prompt = config.summon_prompt.format_map(
             {'role_name': self.name, 'role_description': self.pet_info(), 'curr_time': curr_time,
-             'current_state': current_state
+             'current_state': current_state, "next_time": next_time
              })
         print("-" * 100)
         print(f"summon prompt:\n{prompt}")

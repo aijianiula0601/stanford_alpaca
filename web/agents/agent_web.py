@@ -95,6 +95,7 @@ def get_state(pet_name, curr_time: str, history_list: list, cur_state: str, next
     # 时间推进一个小时
     # --------------------
     curr_time = time_list[(time_list.index(curr_time) + 1) % len(time_list)]
+    next_time = time_list[(time_list.index(curr_time) + 2) % len(time_list)]
 
     # --------------------
     # 宠物接下来的计划
@@ -106,19 +107,20 @@ def get_state(pet_name, curr_time: str, history_list: list, cur_state: str, next
     # --------------------
     # 状态
     # --------------------
-    cur_state = glob_pet_obj.state(curr_time=curr_time, day_plan=day_plan, cur_state=cur_state, next_plan=next_plan)
+    cur_state = glob_pet_obj.state(curr_time=curr_time, next_time=next_time, day_plan=day_plan, cur_state=cur_state,
+                                   next_plan=next_plan)
 
     def get_value(key):
         for line in cur_state.split("\n"):
-            if str(line).startswith(key):
-                return line.replace(key, "").strip()
+            if str(line).startswith(key) or str(line).startswith(f"{key}："):
+                return line.replace(f"{key}:", "").replace(f"{key}：", "").strip()
 
-    pet_mood = get_value("心情:")
-    pet_satiety = get_value("饱腹感:")
-    pet_thought = get_value("思考:")
-    pet_state = get_value("状态:")
-    next_plan = get_value("下一步计划:")
-    pet_local = get_value("位置:")
+    pet_mood = get_value("心情")
+    pet_satiety = get_value("饱腹感")
+    pet_thought = get_value("思考")
+    pet_state = get_value("状态")
+    next_plan = get_value("下一步计划")
+    pet_local = get_value("位置")
 
     # --------------------
     # 留言
@@ -133,39 +135,41 @@ def give_feed(curr_time: str, cur_state: str, feed_type: str):
     # --------------------
     # 状态
     # --------------------
-    cur_state = glob_pet_obj.give_feed(curr_time=curr_time, current_state=cur_state, feed_type=feed_type)
+    next_time = time_list[(time_list.index(curr_time) + 2) % len(time_list)]
+    cur_state = glob_pet_obj.give_feed(curr_time=curr_time, next_time=next_time, current_state=cur_state,
+                                       feed_type=feed_type)
 
     def get_value(key):
         for line in cur_state.split("\n"):
-            if str(line).startswith(key):
-                return line.replace(key, "").strip()
+            if str(line).startswith(key) or str(line).startswith(f"{key}："):
+                return line.replace(f"{key}:", "").replace(f"{key}：", "").strip()
 
-    to_user_msg = get_value("回应主人:")
-    pet_satiety = get_value("饱腹感:")
-    pet_mood = get_value("心情:")
-    pet_thought = get_value("思考:")
-    pet_state = get_value("状态:")
-    next_plan = get_value("下一步计划:")
-    pet_local = get_value("位置:")
+    to_user_msg = get_value("回应主人")
+    pet_satiety = get_value("饱腹感")
+    pet_mood = get_value("心情")
+    pet_thought = get_value("思考")
+    pet_state = get_value("状态")
+    next_plan = get_value("下一步计划")
+    pet_local = get_value("位置")
 
     return to_user_msg, pet_satiety, pet_mood, cur_state, pet_local, next_plan
 
 
-def summon_pet(pet_name: str, curr_time: str, cur_state: str, history: list):
-    cur_state = glob_pet_obj.summon(curr_time=curr_time, current_state=cur_state)
+def summon_pet(pet_name: str, curr_time: str, next_time: str, cur_state: str, history: list):
+    cur_state = glob_pet_obj.summon(curr_time=curr_time, next_time=next_time, current_state=cur_state)
 
     def get_value(key):
         for line in cur_state.split("\n"):
-            if str(line).startswith(key):
-                return line.replace(key, "").strip()
+            if str(line).startswith(key) or str(line).startswith(f"{key}："):
+                return line.replace(f"{key}:", "").replace(f"{key}：", "").strip()
 
-    per_res = get_value("回应主人:")
-    pet_satiety = get_value("饱腹感:")
-    pet_mood = get_value("心情:")
-    pet_thought = get_value("思考:")
-    pet_state = get_value("状态:")
-    next_plan = get_value("下一步计划:")
-    pet_local = get_value("位置:")
+    per_res = get_value("回应主人")
+    pet_satiety = get_value("饱腹感")
+    pet_mood = get_value("心情")
+    pet_thought = get_value("思考")
+    pet_state = get_value("状态")
+    next_plan = get_value("下一步计划")
+    pet_local = get_value("位置")
 
     history.append([None, f"{pet_name}: {per_res}"])
 
@@ -205,7 +209,8 @@ with gr.Blocks() as demo:
                 pet_info_txtbox = gr.Textbox(lines=2, value=get_pet_info_str(all_pet_names[0]), label="宠物信息",
                                              interactive=False)
 
-                place_info_txtbox = gr.Textbox(lines=2, value=get_place_info_str(), label="可活动位置", interactive=False,
+                place_info_txtbox = gr.Textbox(lines=2, value=get_place_info_str(), label="可活动位置",
+                                               interactive=False,
                                                visible=False)
 
             with gr.Row():
