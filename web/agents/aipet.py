@@ -256,13 +256,14 @@ class PersonPet(AiPet):
         """
         return "\n".join(self.state_memory)
 
-    def state(self, curr_time: str, next_time: str, day_plan: str, cur_state: str):
+    def state(self, curr_time: str, next_time: str, day_plan: str, cur_state: str, conversation_history: str):
         """
         获取宠物当前状态：心情、饱腹感、思考，当前在干什么
         """
         prompt = config.state_prompt.format_map(
             {'role_name': self.name, 'role_description': self.pet_info(), 'all_place': PETWORLD_OBJ.place_str,
              'curr_time': curr_time, 'day_plan': day_plan, 'cur_state': cur_state,
+             'conversation_history': conversation_history,
              'next_time': next_time
              })
         print("-" * 100)

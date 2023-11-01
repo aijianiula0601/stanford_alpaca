@@ -114,7 +114,8 @@ def get_state(pet_name, curr_time: str, history_list: list, cur_state: str, day_
     # --------------------
     # 状态
     # --------------------
-    cur_state = glob_pet_obj.state(curr_time=curr_time, next_time=next_time, day_plan=day_plan, cur_state=cur_state)
+    cur_state = glob_pet_obj.state(curr_time=curr_time, next_time=next_time, day_plan=day_plan, cur_state=cur_state,
+                                   conversation_history=get_history_str(history=history_list))
 
     pet_mood = get_state_value("心情", cur_state)
     pet_satiety = get_state_value("饱腹感", cur_state)
