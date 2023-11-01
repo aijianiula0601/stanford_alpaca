@@ -16,8 +16,9 @@ def get_gpt_result(engine_name: str, message_list: list) -> str:
         presence_penalty=0,
         stop=None)
     res_text = response['choices'][0]['message']['content']
-    print("=" * 50)
-    print(f"response_text:{res_text}")
+    print("=" * 100)
+    print(f"response_text:\n{res_text}")
+    print("=" * 100 + "\n\n")
     return res_text
 
 
@@ -132,6 +133,7 @@ class PersonPet(AiPet):
         self.memory_list = []
         self.conversation_memory = None
         self.engine_name = set_gpt_env(gpt_version)
+        self.state_memory = []
 
     def get_name(self):
         return self.name
@@ -242,17 +244,29 @@ class PersonPet(AiPet):
         message_list = [{"role": "user", "content": prompt}]
         return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
 
-    def state(self, curr_time: str, next_time: str, day_plan: str, cur_state: str, next_plan: str):
+    def save_state(self, cur_state: str):
+        """
+        状态记忆
+        """
+        self.state_memory.append(cur_state)
+
+    def get_state(self):
+        """
+        获取状态记忆
+        """
+        return "\n".join(self.state_memory)
+
+    def state(self, curr_time: str, next_time: str, day_plan: str, cur_state: str):
         """
         获取宠物当前状态：心情、饱腹感、思考，当前在干什么
         """
         prompt = config.state_prompt.format_map(
             {'role_name': self.name, 'role_description': self.pet_info(), 'all_place': PETWORLD_OBJ.place_str,
-             'curr_time': curr_time, 'day_plan': day_plan, 'cur_state': cur_state, 'next_plan': next_plan,
+             'curr_time': curr_time, 'day_plan': day_plan, 'cur_state': cur_state,
              'next_time': next_time
              })
         print("-" * 100)
-        print(f"plan prompt:\n{prompt}")
+        print(f"state prompt:\n{prompt}")
         print("-" * 100)
         message_list = [{"role": "user", "content": prompt}]
         return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
@@ -317,13 +331,13 @@ class PersonPet(AiPet):
             return res.replace(f"{self.name}:", "").strip()
         return res
 
-    def stroke(self, curr_time: str, current_state: str, stroke_type: str):
+    def stroke(self, curr_time: str, current_state: str, stroke_type: str, next_time: str, day_plan: str):
         """
         主人抚摸
         """
         prompt = config.stroke_prompt.format_map(
             {'role_name': self.name, 'role_description': self.pet_info(), 'curr_time': curr_time,
-             'current_state': current_state, "stroke_type": stroke_type
+             'current_state': current_state, "stroke_type": stroke_type, 'next_time': next_time, 'day_plan': day_plan,
              })
         print("-" * 100)
         print(f"stroke prompt:\n{prompt}")
