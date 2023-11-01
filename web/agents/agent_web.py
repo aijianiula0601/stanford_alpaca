@@ -258,7 +258,8 @@ with gr.Blocks() as demo:
 
             pet_state_btn = gr.Button("点击获取宠物当前状态(模拟1h后自动刷新宠物状态)")
             with gr.Row():
-                pet_info_txtbox = gr.Textbox(lines=2, value=get_pet_info_str(all_pet_names[0]), label="宠物信息",
+                pet_info_txtbox = gr.Textbox(lines=1, max_lines=4, value=get_pet_info_str(all_pet_names[0]),
+                                             label="宠物信息",
                                              interactive=False)
 
                 place_info_txtbox = gr.Textbox(lines=2, value=get_place_info_str(), label="可活动位置",
@@ -286,7 +287,8 @@ with gr.Blocks() as demo:
 
             displace_info_txtbox = gr.Textbox(lines=2, value=None, label="公告信息", max_lines=3, interactive=False)
             pet_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物当前状态", interactive=True)
-            pet_hidden_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物隐藏的当前状态", interactive=True)
+            pet_hidden_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物隐藏的当前状态", interactive=True,
+                                                 visible=False)
             next_plan_txtbox = gr.Textbox(lines=2, value=None, label="下一步计划", visible=False)
             pet_day_plan_txtbox = gr.Textbox(lines=2, value=None, label="宠物的行程计划", interactive=True)
 

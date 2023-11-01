@@ -230,19 +230,19 @@ class PersonPet(AiPet):
             m_list.append(m)
         return '\n'.join(m_list)
 
-    def actor(self, cur_plan: str, current_state: str):
-        """
-        根据当前状态、计划、近期记忆 做出下一步的动作
-        """
-        prompt = config.actor_prompt.format_map(
-            {'role_name': self.name, 'role_description': self.pet_info(), 'all_place': PETWORLD_OBJ.place_str,
-             'your_plans': cur_plan,
-             'current_state': current_state})
-        print("-" * 100)
-        print(f"actor prompt:\n{prompt}")
-        print("-" * 100)
-        message_list = [{"role": "user", "content": prompt}]
-        return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
+    # def actor(self, cur_plan: str, current_state: str):
+    #     """
+    #     根据当前状态、计划、近期记忆 做出下一步的动作
+    #     """
+    #     prompt = config.actor_prompt.format_map(
+    #         {'role_name': self.name, 'role_description': self.pet_info(), 'all_place': PETWORLD_OBJ.place_str,
+    #          'your_plans': cur_plan,
+    #          'current_state': current_state})
+    #     print("-" * 100)
+    #     print(f"actor prompt:\n{prompt}")
+    #     print("-" * 100)
+    #     message_list = [{"role": "user", "content": prompt}]
+    #     return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
 
     def save_state(self, cur_state: str):
         """
