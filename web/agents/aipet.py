@@ -320,6 +320,7 @@ class PersonPet(AiPet):
         """
         prompt = config.summon_prompt.format_map(
             {'role_name': self.name, 'role_description': self.pet_info(), 'curr_time': curr_time,
+             'all_place': PETWORLD_OBJ.place_str,
              'current_state': current_state, "next_time": next_time
              })
         print("-" * 100)
@@ -338,6 +339,7 @@ class PersonPet(AiPet):
         """
         prompt = config.stroke_prompt.format_map(
             {'role_name': self.name, 'role_description': self.pet_info(), 'curr_time': curr_time,
+             'all_place': PETWORLD_OBJ.place_str,
              'current_state': current_state, "stroke_type": stroke_type, 'next_time': next_time, 'day_plan': day_plan,
              })
         print("-" * 100)
