@@ -411,6 +411,18 @@ class PetChat:
         message_list = [{"role": "user", "content": prompt}]
         return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
 
+    def doing_evn(self, current_state: str):
+        """
+        现在做什么
+        """
+        prompt = config.doing_prompt.format_map(
+            {'role_name': self.role_name,
+             'role_description': self.pet_info(),
+             'current_state': current_state,
+             })
+        message_list = [{"role": "user", "content": prompt}]
+        return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
+
 
 def init_two_pets():
     moli = PetChat(role_name="莫莉", gpt_version="4")
