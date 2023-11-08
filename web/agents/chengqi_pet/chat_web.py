@@ -238,9 +238,11 @@ def time_forward_call(now_time, now_feed, now_emotion, today_work, pet_push_hist
     friend_focused_env = friend_ai_chat.get_focused_env(friend_act_place, friend_work_status)
 
     chat_deci_moli = ai_chat.decide_chat_plan(current_state=work_status, scenario=act_place,
+                                              scenario_frind=friend_act_place,
                                               focused_mem=focused_env, pet_friend='波波',
                                               friend_current=friend_work_status)
     chat_deci_bobo = friend_ai_chat.decide_chat_plan(current_state=friend_work_status, scenario=friend_act_place,
+                                                     scenario_frind=act_place,
                                                      focused_mem=friend_focused_env, pet_friend='莫莉',
                                                      friend_current=work_status)
 
@@ -261,14 +263,17 @@ def time_forward_call(now_time, now_feed, now_emotion, today_work, pet_push_hist
         focused_env = ai_chat.get_focused_env(act_place, work_status)
         friend_focused_env = friend_ai_chat.get_focused_env(act_place, friend_work_status)
     else:
-        plan_moli = ai_chat.act_plan(act_place=act_place, current_state=work_status)
-        plan_bobo = friend_ai_chat.act_plan(act_place=friend_act_place, current_state=friend_work_status)
+        plan_moli = ai_chat.act_plan(act_place=act_place, current_state=work_status, scenario_friend=friend_act_place,
+                                     pet_friend="波波")
+        plan_bobo = friend_ai_chat.act_plan(act_place=friend_act_place, current_state=friend_work_status,
+                                            scenario_friend=friend_act_place, pet_friend="莫莉")
         print('-' * 100)
         print("+++++++++++++++++++      制定的计划    +++++++++++++++++++++++++++++++")
         print(plan_moli)
         print(plan_bobo)
-        work_status = ai_chat.new_state(act_place=act_place, plan=plan_moli)
-        friend_work_status = friend_ai_chat.new_state(act_place=friend_act_place, plan=plan_bobo)
+        work_status = ai_chat.new_state(act_place=act_place, plan=plan_moli, pet_friend="波波", plan_friend=plan_bobo)
+        friend_work_status = friend_ai_chat.new_state(act_place=friend_act_place, plan=plan_bobo, pet_friend="莫莉",
+                                                      plan_friend=plan_moli)
         print("+++++++++++++++++++      当前的状态    +++++++++++++++++++++++++++++++")
         print(work_status)
         print(friend_work_status)
@@ -294,30 +299,26 @@ with gr.Blocks() as demo:
 
             with gr.Row():
                 role_human = gr.Textbox(lines=1, value="user", label="主人名字", interactive=False, visible=False)
-                role_robot = gr.Dropdown(value=all_role_name_list[-1], choices=all_role_name_list, label="角色选择",
-                                         interactive=True)
+                role_robot = gr.Dropdown(value=all_role_name_list[0], choices=all_role_name_list, label="角色选择",
+                                         interactive=False)
                 current_time = gr.Textbox(lines=1, value=time.strftime("%H:%M:%S", time.localtime()),
                                           label="now time", interactive=True)
 
-            with gr.Column():
-                with gr.Row():
-                    # 饱食度、心情、现在工作、今日总结
-                    feed_num = gr.Textbox(lines=1, value=100, label="饱食度", interactive=True)
-                    emotion_num = gr.Textbox(lines=1, value=100, visible=False, label="心情", interactive=True)
-                    emotion_text = gr.Textbox(lines=1, value="非常快乐", label="心情", interactive=True)
-                    work_status = gr.Textbox(lines=1, value="莫莉正在看电视", label="现在在干嘛", interactive=True)
+            with gr.Row():
+                # 饱食度、心情、现在工作、今日总结
+                feed_num = gr.Textbox(lines=1, value=100, label="饱食度", interactive=True)
+                emotion_num = gr.Textbox(lines=1, value=100, visible=False, label="心情", interactive=True)
+                emotion_text = gr.Textbox(lines=1, value="非常快乐", label="心情", interactive=True)
 
-                with gr.Row():
-                    friend_work_status = gr.Textbox(lines=1, value="波波正在看电视", label="朋友宠物现在在干嘛", interactive=True)
-                    focused_env = gr.Textbox(lines=1, value=None, label="当前关注的事件", interactive=True)
-                    friend_focused_env = gr.Textbox(lines=1, value=None, label="朋友当前关注的事件", interactive=True)
-
-            public_screen = gr.Textbox(lines=3, value=None, label="公屏信息", interactive=True)
-
+            with gr.Row():
+                work_status = gr.Textbox(lines=1, value="莫莉正在看电视", label="宠物现在在干嘛", interactive=True)
+                friend_work_status = gr.Textbox(lines=1, value="波波正在看电视", label="朋友宠物现在在干嘛", interactive=True)
+                focused_env = gr.Textbox(lines=1, value=None, label="当前关注的事件", interactive=True, visible=False)
+                friend_focused_env = gr.Textbox(lines=1, value=None, label="朋友当前关注的事件", interactive=True, visible=False)
 
             with gr.Row():
                 pet_push = gr.Textbox(lines=3, value=None, label="小组件推送", interactive=True)
-                # public_screen = gr.Textbox(lines=3, value=None, label="公屏信息", interactive=True)
+                public_screen = gr.Textbox(lines=3, value=None, label="公屏信息", interactive=True)
 
             with gr.Row():
                 time_radio = gr.Radio(["1h", "4h", "8h", "12h", "24h"], interactive=True, value="1h", label="时间拨动",

@@ -352,7 +352,7 @@ class PetChat:
         focused_event = [self.memory_list[reterived_mem_idx[i]] for i in range(len(reterived_mem_idx))]
         return focused_event
 
-    def decide_chat_plan(self, current_state, scenario, focused_mem, pet_friend, friend_current):
+    def decide_chat_plan(self, current_state, scenario, scenario_frind, focused_mem, pet_friend, friend_current):
         """
         规划一天的行程
         """
@@ -361,6 +361,7 @@ class PetChat:
              'role_description': self.pet_info(),
              'current_state': current_state,
              'scenario': scenario,
+             'scenario_frind': scenario_frind,
              'focused_mem': focused_mem,
              'pet_friend': pet_friend,
              'friend_current': friend_current
@@ -372,7 +373,7 @@ class PetChat:
         message_list = [{"role": "user", "content": prompt}]
         return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
 
-    def act_plan(self, act_place: str, current_state: str):
+    def act_plan(self, act_place: str, current_state: str, scenario_friend: str, pet_friend: str):
         """
         根据初始状态、近期状态、记忆 以后的计划
         """
@@ -380,6 +381,8 @@ class PetChat:
             {'role_name': self.role_name,
              'role_description': self.pet_info(),
              'act_place': act_place,
+             'scenario_frind': scenario_friend,
+             'pet_friend': pet_friend,
              'current_state': current_state,
              })
         """
@@ -389,7 +392,7 @@ class PetChat:
         message_list = [{"role": "user", "content": prompt}]
         return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
 
-    def new_state(self, act_place: str, plan: str):
+    def new_state(self, act_place: str, plan: str, pet_friend, plan_friend):
         """
         根据初始状态、近期状态、记忆 以后的计划
         """
@@ -398,6 +401,8 @@ class PetChat:
              'role_description': self.pet_info(),
              'act_place': act_place,
              'plan': plan,
+             'pet_friend': pet_friend,
+             'plan_friend': plan_friend
              })
         """
         print("-" * 100)

@@ -3,6 +3,10 @@ import openai
 import re
 import time
 import config
+import config
+from numpy import dot
+from numpy.linalg import norm
+import copy
 
 
 def get_gpt_result(engine_name: str, message_list: list):
@@ -16,35 +20,6 @@ def get_gpt_result(engine_name: str, message_list: list):
         presence_penalty=0,
         stop=None)
     return response['choices'][0]['message']['content']
-
-
-import config
-from numpy import dot
-from numpy.linalg import norm
-import copy
-
-
-def get_gpt_result(engine_name: str, message_list: list) -> str:
-    key = 'bca8eef9f9c04c7bb1e573b4353e71ae'
-
-    openai.api_type = "azure"
-    openai.api_base = "https://gpt4-test-cj-0803.openai.azure.com/"
-    openai.api_version = "2023-03-15-preview"
-    openai.api_key = 'bca8eef9f9c04c7bb1e573b4353e71ae'
-    response = openai.ChatCompletion.create(
-        engine=engine_name,
-        messages=message_list,
-        temperature=0.7,
-        max_tokens=800,
-        top_p=0.95,
-        frequency_penalty=0,
-        presence_penalty=0,
-        stop=None)
-    res_text = response['choices'][0]['message']['content']
-    """
-    print("=" * 50)
-    print(f"response_text:{res_text}")"""
-    return res_text
 
 
 def get_response(prompt=None, content=None):
@@ -142,68 +117,6 @@ def pets_chat(pet1, pet2, state1, state2, foc_mem1, foc_mem2, act_place):
     print(f"act place prompt:\n{prompt}")
     print("-" * 100)"""
     return get_response(prompt=prompt)
-
-
-## 他会自动创建波波和莫莉，给予他们一些过往状态，让他们自由展开对话。
-def two_pets_act(epoch=5):
-    moli = PetChat(role_name="莫莉", gpt_version="4")
-    bobo = PetChat(role_name="波波", gpt_version="4")
-
-    add_prev_mem(moli, bobo)
-    current_moli = "莫莉正在看电视"
-    current_bobo = "波波正在喝咖啡"
-
-    act_place_moli = moli.decide_act_place(current_moli)
-    act_place_bobo = bobo.decide_act_place(current_bobo)
-
-    focused_env_moli = moli.get_focused_env(act_place_moli, current_moli)
-    focused_env_bobo = bobo.get_focused_env(act_place_bobo, current_bobo)
-
-    for i in range(epoch):
-        print('-' * 100)
-        print(f"第{i}轮")
-        chat_deci_moli = moli.decide_chat_plan(current_state=current_moli, scenario=act_place_moli,
-                                               focused_mem=focused_env_moli, pet_friend='波波',
-                                               friend_current=current_bobo)
-        chat_deci_bobo = moli.decide_chat_plan(current_state=current_bobo, scenario=act_place_bobo,
-                                               focused_mem=focused_env_bobo, pet_friend='莫莉',
-                                               friend_current=current_moli)
-        print('-' * 100)
-        print('moli:' + chat_deci_moli + '                bobo' + chat_deci_bobo)
-        if '1' in chat_deci_moli and '1' in chat_deci_bobo:
-            chat_content = pets_chat(pet1=moli, pet2=bobo, state1=current_moli, state2=current_bobo,
-                                     foc_mem1=focused_env_moli, foc_mem2=focused_env_bobo, act_place=act_place_moli)
-            print('-' * 100)
-            print("+++++++++++++++++++      开始聊天    +++++++++++++++++++++++++++++++")
-            print(chat_content)
-            summarized_chat = get_response(config.get_summarized_chat.format_map({'chat': chat_content}))
-            moli.memory_list.append(summarized_chat)
-            bobo.memory_list.append(summarized_chat)
-            current_moli = "刚刚结束一段关于：\n" + summarized_chat + "\n 的对话"
-            current_bobo = "刚刚结束一段关于：\n" + summarized_chat + "\n 的对话"
-            ## 更新状态
-            act_place_moli = moli.decide_act_place(current_moli)
-            act_place_bobo = bobo.decide_act_place(current_bobo)
-            focused_env_moli = moli.get_focused_env(act_place_moli, current_moli)
-            focused_env_bobo = bobo.get_focused_env(act_place_bobo, current_bobo)
-        else:
-            plan_moli = moli.act_plan(act_place=act_place_moli, current_state=current_moli)
-            plan_bobo = bobo.act_plan(act_place=act_place_bobo, current_state=current_bobo)
-            print('-' * 100)
-            print("+++++++++++++++++++      制定的计划    +++++++++++++++++++++++++++++++")
-            print(plan_moli)
-            print(plan_bobo)
-            current_moli = moli.new_state(act_place=act_place_moli, plan=plan_moli)
-            current_bobo = bobo.new_state(act_place=act_place_bobo, plan=plan_bobo)
-            print("+++++++++++++++++++      当前的状态    +++++++++++++++++++++++++++++++")
-            print(current_moli)
-            print(current_bobo)
-            moli.memory_list.append(plan_moli)
-            bobo.memory_list.append(plan_bobo)
-            act_place_moli = moli.decide_act_place(current_moli)
-            act_place_bobo = bobo.decide_act_place(current_bobo)
-            focused_env_moli = moli.get_focused_env(act_place_moli, current_moli)
-            focused_env_bobo = bobo.get_focused_env(act_place_bobo, current_bobo)
 
 
 class PetWorld:
@@ -487,5 +400,64 @@ class PetChat:
         return get_response(prompt)
 
 
-if __name__ == '__main__':
-    two_pets_act(5)
+def init_two_pets():
+    moli = PetChat(role_name="莫莉", gpt_version="4")
+    bobo = PetChat(role_name="波波", gpt_version="4")
+
+    add_prev_mem(moli, bobo)
+    moli.current = "莫莉正在看电视"
+    bobo.current = "波波正在喝咖啡"
+
+    moli.act_place = moli.decide_act_place(moli.current)
+    bobo.act_place = bobo.decide_act_place(bobo.current)
+
+    moli.focused_env = moli.get_focused_env(moli.act_place, moli.current)
+    bobo.focused_env = bobo.get_focused_env(bobo.act_place, bobo.current)
+    return moli, bobo
+
+
+moli, bobo = init_two_pets()
+
+
+def run_two_pets_act(moli=moli, bobo=bobo):
+    print('-' * 100)
+    chat_deci_moli = moli.decide_chat_plan(current_state=moli.current, scenario=moli.act_place,
+                                           focused_mem=moli.focused_env, pet_friend='波波', friend_current=bobo.current)
+    chat_deci_bobo = moli.decide_chat_plan(current_state=bobo.current, scenario=bobo.act_place,
+                                           focused_mem=bobo.focused_env, pet_friend='莫莉', friend_current=moli.current)
+    print('-' * 100)
+    print('moli:' + chat_deci_moli + '                bobo' + chat_deci_bobo)
+    if '1' in chat_deci_moli and '1' in chat_deci_bobo:
+        chat_content = pets_chat(pet1=moli, pet2=bobo, state1=moli.current, state2=bobo.current,
+                                 foc_mem1=moli.focused_env, foc_mem2=bobo.focused_env, act_place=moli.act_place)
+        print('-' * 100)
+        print("+++++++++++++++++++      开始聊天    +++++++++++++++++++++++++++++++")
+        print(chat_content)
+        summarized_chat = get_response(config.get_summarized_chat.format_map({'chat': chat_content}))
+        moli.memory_list.append(summarized_chat)
+        bobo.memory_list.append(summarized_chat)
+        moli.current = "刚刚结束一段关于：\n" + summarized_chat + "\n 的对话"
+        bobo.current = "刚刚结束一段关于：\n" + summarized_chat + "\n 的对话"
+        ## 更新状态
+        moli.act_place = moli.decide_act_place(moli.current)
+        bobo.act_place = bobo.decide_act_place(bobo.current)
+        moli.focused_env = moli.get_focused_env(moli.act_place, moli.current)
+        bobo.focused_env = bobo.get_focused_env(bobo.act_place, bobo.current)
+    else:
+        plan_moli = moli.act_plan(act_place=moli.act_place, current_state=moli.current)
+        plan_bobo = bobo.act_plan(act_place=bobo.act_place, current_state=bobo.current)
+        print('-' * 100)
+        print("+++++++++++++++++++      制定的计划    +++++++++++++++++++++++++++++++")
+        print(plan_moli)
+        print(plan_bobo)
+        moli.current = moli.new_state(act_place=moli.act_place, plan=plan_moli)
+        bobo.current = bobo.new_state(act_place=bobo.act_place, plan=plan_bobo)
+        print("+++++++++++++++++++      当前的状态    +++++++++++++++++++++++++++++++")
+        print(moli.current)
+        print(bobo.current)
+        moli.memory_list.append(plan_moli)
+        bobo.memory_list.append(plan_bobo)
+        moli.act_place = moli.decide_act_place(moli.current)
+        bobo.act_place = bobo.decide_act_place(bobo.current)
+        moli.focused_env = moli.get_focused_env(moli.act_place, moli.current)
+        bobo.focused_env = bobo.get_focused_env(bobo.act_place, bobo.current)
