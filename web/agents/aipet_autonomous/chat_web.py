@@ -233,7 +233,7 @@ def time_forward_call(now_time, now_feed, now_emotion, today_work, pet_push_hist
     # -----------------------
     act_place = ai_chat.decide_act_place(work_status)
     friend_act_place = friend_ai_chat.decide_act_place(friend_work_status)
-    print("-------------------- 活动位置 ----------------------")
+    print("+++++++++++++++++++      活动位置    +++++++++++++++++++++++++++++++")
     print("莫莉活动位置:", act_place)
     print("波波活动位置:", friend_act_place)
 
@@ -286,20 +286,21 @@ def time_forward_call(now_time, now_feed, now_emotion, today_work, pet_push_hist
         friend_ai_chat.memory_list.append(plan_bobo)
 
         if public_screen is None or public_screen == "":
-            public_screen = f"[{now_time}] 【宠物】{work_status} \n     【朋友宠物】{friend_work_status}\n"
+            public_screen = f"[{now_time}] 【宠物】{work_status} 【朋友宠物】{friend_work_status}\n"
         else:
-            public_screen = public_screen + f"[{now_time}] 【宠物】{work_status}\n      【朋友宠物】{friend_work_status}\n"
+            public_screen = public_screen + f"[{now_time}] 【宠物】{work_status}【朋友宠物】{friend_work_status}\n"
 
-    print("-------------------- 决定的下一步动作 ----------------------")
+
+    print("+++++++++++++++++++      决定的下一步动作    +++++++++++++++++++++++++++++++")
     print("莫莉决定的动作:", act_place)
     print("波波决定的动作:", friend_act_place)
 
     doing_now = ai_chat.doing_evn(work_status)
     friend_doing_now = friend_ai_chat.doing_evn(friend_work_status)
 
-    print("-----------现在在做什么 -------------")
-    print(f"----dong_now:{doing_now}")
-    print(f"----friend_dong_now:{friend_doing_now}")
+    print("+++++++++++++++++++      现在在做什么    +++++++++++++++++++++++++++++++")
+    print(f"----宠物现在干什么:{doing_now}")
+    print(f"----朋友宠物现在干什么:{friend_doing_now}")
 
     return res_text, now_time, now_feed, now_emotion, emotion_text, now_work, today_summary, pet_push_history, doing_now, friend_doing_now, focused_env, friend_focused_env, public_screen, chat_content
 
