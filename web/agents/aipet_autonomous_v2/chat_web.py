@@ -201,7 +201,7 @@ def pets_chat(pet1, pet2, state1, state2, foc_mem1, foc_mem2, act_place):
 
 
 def time_forward_call(now_time, now_feed, now_emotion, today_work, pet_push_history, time_radio, work_status: str,
-                      friend_work_status: str, public_screen: str):
+                      on_place: str, friend_on_place: str, friend_work_status: str, public_screen: str):
     """
     时间拨动一个小时
     """
@@ -231,27 +231,36 @@ def time_forward_call(now_time, now_feed, now_emotion, today_work, pet_push_hist
     # -----------------------
     # 宠物自行行动，状态、事件
     # -----------------------
-    act_place = ai_chat.decide_act_place(work_status)
-    friend_act_place = friend_ai_chat.decide_act_place(friend_work_status)
-    print("+++++++++++++++++++      活动位置    +++++++++++++++++++++++++++++++")
-    # print("莫莉接下来计划:", next_plan)
-    print("莫莉接下来的活动位置:", act_place)
-    # print("波波接下来计划:", friend_next_plan)
-    print("波波接下来活动位置:", friend_act_place)
+    print("+++++++++++++++++++      当前所在位置    +++++++++++++++++++++++++++++++")
+    print("莫莉当前的活动位置:", on_place)
+    print("波波当前的活动位置:", friend_on_place)
 
-    focused_env = ai_chat.get_focused_env(act_place, work_status)
-    friend_focused_env = friend_ai_chat.get_focused_env(friend_act_place, friend_work_status)
-    print("+++++++++++++++++++      关注的事件    +++++++++++++++++++++++++++++++")
-    print("宠物当前关注的事件:", focused_env)
-    print("朋友宠物当前关注的事件:", focused_env)
+    print("+++++++++++++++++++      过往记忆    +++++++++++++++++++++++++++++++")
+    memory_env = ai_chat.get_focused_env(on_place, work_status)
+    friend_memory_env = friend_ai_chat.get_focused_env(friend_on_place, friend_work_status)
+    print("宠物记忆:\n", memory_env)
+    print("朋友宠物记忆:\n", friend_memory_env)
+
+    print("+++++++++++++++++++      制定下一步的计划    +++++++++++++++++++++++++++++++")
+    next_plan, next_plan_place = ai_chat.act_plan(act_place=on_place, current_state=work_status, memory_env=memory_env,
+                                                  friend_state=friend_work_status, friend_name=friend_ai_chat.role_name)
+    friend_next_plan, friend_next_plan_place = friend_ai_chat.act_plan(act_place=friend_on_place,
+                                                                       current_state=friend_work_status,
+                                                                       memory_env=friend_memory_env,
+                                                                       friend_state=work_status,
+                                                                       friend_name=ai_chat.role_name)
+    print("莫莉的计划：", next_plan)
+    print("莫莉的计划位置：", next_plan_place)
+    print("波波的计划：", friend_next_plan)
+    print("波波的计划位置：", friend_next_plan_place)
 
     # chat_deci_moli = ai_chat.decide_chat_plan(current_state=work_status, scenario=act_place,
     #                                           scenario_frind=friend_act_place,
-    #                                           focused_mem=focused_env, pet_friend='波波',
+    #                                           focused_mem=memory_env, pet_friend='波波',
     #                                           friend_current=friend_work_status)
     # chat_deci_bobo = friend_ai_chat.decide_chat_plan(current_state=friend_work_status, scenario=friend_act_place,
     #                                                  scenario_frind=act_place,
-    #                                                  focused_mem=friend_focused_env, pet_friend='莫莉',
+    #                                                  focused_mem=friend_memory_env, pet_friend='莫莉',
     #                                                  friend_current=work_status)
 
     chat_deci_moli = '2'
@@ -260,7 +269,7 @@ def time_forward_call(now_time, now_feed, now_emotion, today_work, pet_push_hist
     chat_content = None
     if '1' in chat_deci_moli and '1' in chat_deci_bobo:
         chat_content = pets_chat(pet1=ai_chat, pet2=friend_ai_chat, state1=work_status, state2=friend_work_status,
-                                 foc_mem1=focused_env, foc_mem2=friend_focused_env, act_place=act_place)
+                                 foc_mem1=memory_env, foc_mem2=friend_memory_env, act_place=next_plan_place)
         print('-' * 100)
         print("+++++++++++++++++++      开始聊天    +++++++++++++++++++++++++++++++")
         print(chat_content)
@@ -276,24 +285,18 @@ def time_forward_call(now_time, now_feed, now_emotion, today_work, pet_push_hist
             public_screen = public_screen + f"[{now_time}] 【刚宠物的对话】{work_status}\n"
 
     else:
-        plan_moli = ai_chat.act_plan(act_place=act_place, current_state=work_status,
-                                     scenario_friend=friend_act_place,
-                                     pet_friend="波波")
-        plan_bobo = friend_ai_chat.act_plan(act_place=friend_act_place, current_state=friend_work_status,
-                                            scenario_friend=friend_act_place, pet_friend="莫莉")
-        print('-' * 100)
-        print("+++++++++++++++++++      制定的计划    +++++++++++++++++++++++++++++++")
-        print("莫莉的计划：", plan_moli)
-        print("波波的计划：", plan_bobo)
-        work_status = ai_chat.new_state(act_place=act_place, plan=plan_moli, pet_friend="波波",
-                                        plan_friend=plan_bobo)
-        friend_work_status = friend_ai_chat.new_state(act_place=friend_act_place, plan=plan_bobo, pet_friend="莫莉",
-                                                      plan_friend=plan_moli)
-        print("+++++++++++++++++++      当前的状态    +++++++++++++++++++++++++++++++")
+        work_status = ai_chat.new_state(next_plan_place=next_plan_place, next_plan=next_plan,
+                                        friend_next_plan=friend_next_plan, friend_name=friend_ai_chat.role_name)
+        friend_work_status = friend_ai_chat.new_state(next_plan_place=friend_next_plan_place,
+                                                      next_plan=friend_next_plan, friend_next_plan=next_plan,
+                                                      friend_name=ai_chat.role_name)
+        print("+++++++++++++++++++      计划后的当前的状态    +++++++++++++++++++++++++++++++")
         print(work_status)
         print(friend_work_status)
-        ai_chat.memory_list.append(plan_moli)
-        friend_ai_chat.memory_list.append(plan_bobo)
+
+        # 把当前状态加入记忆流
+        ai_chat.add_memory(work_status)
+        friend_ai_chat.add_memory(friend_next_plan)
 
         if public_screen is None or public_screen == "":
             public_screen = f"[{now_time}] 【宠物】{work_status} 【朋友宠物】{friend_work_status}\n"
@@ -301,8 +304,8 @@ def time_forward_call(now_time, now_feed, now_emotion, today_work, pet_push_hist
             public_screen = public_screen + f"[{now_time}] 【宠物】{work_status}【朋友宠物】{friend_work_status}\n"
 
     print("+++++++++++++++++++      决定的下一步动作    +++++++++++++++++++++++++++++++")
-    print("莫莉决定的动作:", act_place)
-    print("波波决定的动作:", friend_act_place)
+    print("莫莉决定的当前的状态:", work_status)
+    print("波波决定的当前状态:", friend_work_status)
 
     doing_now = ai_chat.doing_evn(work_status)
     friend_doing_now = friend_ai_chat.doing_evn(friend_work_status)
@@ -311,7 +314,7 @@ def time_forward_call(now_time, now_feed, now_emotion, today_work, pet_push_hist
     print(f"----宠物现在干什么:{doing_now}")
     print(f"----朋友宠物现在干什么:{friend_doing_now}")
 
-    return res_text, now_time, now_feed, now_emotion, emotion_text, now_work, today_summary, pet_push_history, doing_now, friend_doing_now, focused_env, friend_focused_env, public_screen, chat_content
+    return res_text, now_time, now_feed, now_emotion, emotion_text, now_work, today_summary, pet_push_history, doing_now, friend_doing_now, memory_env, friend_memory_env, public_screen, chat_content, next_plan_place, friend_next_plan_place
 
 
 with gr.Blocks() as demo:
@@ -342,11 +345,8 @@ with gr.Blocks() as demo:
                 work_status = gr.Textbox(lines=1, value="莫莉正在看电视", label="宠物现在在干嘛", interactive=True)
                 friend_work_status = gr.Textbox(lines=1, value="波波正在看电视", label="朋友宠物现在在干嘛",
                                                 interactive=True)
-
-                on_place= gr.Textbox(lines=1, value="家-客厅", label="宠物所在位置", interactive=True)
-                friend_on_place= gr.Textbox(lines=1, value="家-客厅", label="宠物所在位置", interactive=True)
-
-
+                on_place = gr.Textbox(lines=1, value="家-客厅", label="宠物所在位置", interactive=True)
+                friend_on_place = gr.Textbox(lines=1, value="家-客厅", label="朋友宠物所在位置", interactive=True)
 
                 focused_env = gr.Textbox(lines=1, value=None, label="当前关注的事件", interactive=True, visible=False)
                 friend_focused_env = gr.Textbox(lines=1, value=None, label="朋友当前关注的事件", interactive=True,
@@ -394,10 +394,11 @@ with gr.Blocks() as demo:
 
     # 时间波动一个小时
     push_1h.click(time_forward_call,
-                  [current_time, feed_num, emotion_num, today_summary, pet_push, time_radio, work_status,
-                   friend_work_status, public_screen],
+                  [current_time, feed_num, emotion_num, today_summary, pet_push, time_radio, work_status, on_place,
+                   friend_on_place, friend_work_status, public_screen],
                   [debug_text, current_time, feed_num, emotion_num, emotion_text, work_status, today_summary, pet_push,
-                   work_status, friend_work_status, focused_env, friend_focused_env, public_screen, tow_pet_chat_tb],
+                   work_status, friend_work_status, focused_env, friend_focused_env, public_screen, tow_pet_chat_tb,
+                   on_place, friend_on_place],
                   queue=False)
 
     # 抚摸

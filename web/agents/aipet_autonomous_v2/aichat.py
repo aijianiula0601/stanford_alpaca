@@ -189,6 +189,8 @@ class PetChat:
         """
         disc_list = []
         for k in config.PERSONA_DICT[self.role_name]:
+            if '记忆' == k:
+                continue
             v = config.PERSONA_DICT[self.role_name][k]
             disc_list.append(f"{k}: {v}")
         disc_str = '\n'.join(disc_list)
@@ -330,15 +332,19 @@ class PetChat:
         return next_place
 
     def get_focused_env(self, act_place, current_state):
-        perceived = "你现在正在：" + act_place + "\n" + "你现在正在做的事是：\n" + current_state
-        perceived = [perceived]
-        reterived_mem_dic, _, _ = get_revelant_past_mem(perceived=perceived, prev_mem=self.memory_list)
-        reterived_mem_idx = []
-        for k in reterived_mem_dic.keys():
-            for i in range(len(reterived_mem_dic[k])):
-                if reterived_mem_dic[k][i] not in reterived_mem_idx:
-                    reterived_mem_idx.append(reterived_mem_dic[k][i])
-        focused_event = [self.memory_list[reterived_mem_idx[i]] for i in range(len(reterived_mem_idx))]
+        # perceived = "你现在正在：" + act_place + "\n" + "你现在正在做的事是：\n" + current_state
+        # perceived = [perceived]
+        # reterived_mem_dic, _, _ = get_revelant_past_mem(perceived=perceived, prev_mem=self.memory_list)
+        # reterived_mem_idx = []
+        # for k in reterived_mem_dic.keys():
+        #     for i in range(len(reterived_mem_dic[k])):
+        #         if reterived_mem_dic[k][i] not in reterived_mem_idx:
+        #             reterived_mem_idx.append(reterived_mem_dic[k][i])
+        # focused_event = [self.memory_list[reterived_mem_idx[i]] for i in range(len(reterived_mem_idx))]
+
+        # 直接拿出所有的记忆
+        focused_event = '\n'.join(self.memory_list[:20])
+
         return focused_event
 
     def decide_chat_plan(self, current_state, scenario, scenario_frind, focused_mem, pet_friend, friend_current):
@@ -362,7 +368,7 @@ class PetChat:
         message_list = [{"role": "user", "content": prompt}]
         return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
 
-    def act_plan(self, act_place: str, current_state: str, scenario_friend: str, pet_friend: str):
+    def act_plan(self, act_place: str, current_state: str, memory_env: str, friend_state: str, friend_name: str):
         """
         根据初始状态、近期状态、记忆 以后的计划
         """
@@ -370,28 +376,35 @@ class PetChat:
             {'role_name': self.role_name,
              'role_description': self.pet_info(),
              'act_place': act_place,
-             'scenario_frind': scenario_friend,
-             'pet_friend': pet_friend,
+             'memory_env': memory_env,
+             'friend_state': friend_state,
+             'friend_name': friend_name,
              'current_state': current_state,
              })
-        """
-        print("-" * 100)
-        print(f"plan prompt:\n{prompt}")
-        print("-" * 100)"""
-        message_list = [{"role": "user", "content": prompt}]
-        return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
 
-    def new_state(self, act_place: str, plan: str, pet_friend, plan_friend):
+        print("-" * 100)
+        print("act plan:", prompt)
+        print("-" * 100)
+
+        message_list = [{"role": "user", "content": prompt}]
+        res_text = get_gpt_result(engine_name=self.engine_name, message_list=message_list)
+
+        next_plan = parse_intention_state(res_text, '下一步计划')
+        next_plan_place = parse_intention_state(res_text, '下一步计划的位置')
+
+        return next_plan, next_plan_place
+
+    def new_state(self, next_plan_place: str, next_plan: str, friend_next_plan: str, friend_name: str):
         """
         根据初始状态、近期状态、记忆 以后的计划
         """
         prompt = config.new_state_prompt.format_map(
             {'role_name': self.role_name,
              'role_description': self.pet_info(),
-             'act_place': act_place,
-             'plan': plan,
-             'pet_friend': pet_friend,
-             'plan_friend': plan_friend
+             'act_place': next_plan_place,
+             'friend_next_plan': friend_next_plan,
+             'friend_name': friend_name,
+             'plan': next_plan,
              })
         """
         print("-" * 100)
@@ -469,8 +482,8 @@ if __name__ == '__main__':
             print("+++++++++++++++++++      制定的计划    +++++++++++++++++++++++++++++++")
             print(plan_moli)
             print(plan_bobo)
-            moli.current = moli.new_state(act_place=moli.act_place, plan=plan_moli)
-            bobo.current = bobo.new_state(act_place=bobo.act_place, plan=plan_bobo)
+            moli.current = moli.new_state(next_plan_place=moli.act_place, next_plan=plan_moli)
+            bobo.current = bobo.new_state(next_plan_place=bobo.act_place, next_plan=plan_bobo)
             print("+++++++++++++++++++      当前的状态    +++++++++++++++++++++++++++++++")
             print(moli.current)
             print(bobo.current)
