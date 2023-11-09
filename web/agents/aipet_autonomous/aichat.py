@@ -333,7 +333,7 @@ class PetChat:
         if '0' in act_place:
             scenario = '家'
         elif '1' in act_place:
-            scenario = '医院'
+            scenario = '朋友家'
         elif '2' in act_place:
             scenario = '公园'
         elif '3' in act_place:

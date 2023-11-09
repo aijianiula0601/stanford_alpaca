@@ -233,9 +233,9 @@ def time_forward_call(now_time, now_feed, now_emotion, today_work, pet_push_hist
     # -----------------------
     act_place = ai_chat.decide_act_place(work_status)
     friend_act_place = friend_ai_chat.decide_act_place(friend_work_status)
-    print("-------------------- 决定的动作 ----------------------")
-    print("莫莉决定去的地方:", act_place)
-    print("波波决定去的地方:", friend_act_place)
+    print("-------------------- 活动位置 ----------------------")
+    print("莫莉活动位置:", act_place)
+    print("波波活动位置:", friend_act_place)
 
     focused_env = ai_chat.get_focused_env(act_place, work_status)
     friend_focused_env = friend_ai_chat.get_focused_env(friend_act_place, friend_work_status)
@@ -249,6 +249,7 @@ def time_forward_call(now_time, now_feed, now_emotion, today_work, pet_push_hist
                                                      focused_mem=friend_focused_env, pet_friend='莫莉',
                                                      friend_current=work_status)
 
+    chat_content = None
     if '1' in chat_deci_moli and '1' in chat_deci_bobo:
         chat_content = pets_chat(pet1=ai_chat, pet2=friend_ai_chat, state1=work_status, state2=friend_work_status,
                                  foc_mem1=focused_env, foc_mem2=friend_focused_env, act_place=act_place)
@@ -258,13 +259,14 @@ def time_forward_call(now_time, now_feed, now_emotion, today_work, pet_push_hist
         summarized_chat = get_response(config.get_summarized_chat.format_map({'chat': chat_content}))
         ai_chat.memory_list.append(summarized_chat)
         friend_ai_chat.memory_list.append(summarized_chat)
-        work_status = "刚刚结束一段关于：\n" + summarized_chat + "\n 的对话"
-        friend_work_status = "刚刚结束一段关于：\n" + summarized_chat + "\n 的对话"
-        ## 更新状态
-        # act_place = ai_chat.decide_act_place(work_status)
-        # friend_act_place = friend_ai_chat.decide_act_place(friend_work_status)
-        # focused_env = ai_chat.get_focused_env(act_place, work_status)
-        # friend_focused_env = friend_ai_chat.get_focused_env(friend_act_place, friend_work_status)
+        work_status = "刚刚莫莉和波波结束了一段对话，主要内容为：" + summarized_chat
+        friend_work_status = "刚刚莫莉和波波结束了一段对话，主要内容为：" + summarized_chat
+
+        if public_screen is None or public_screen == "":
+            public_screen = f"[{now_time}] 【对话情况】{work_status} \n"
+        else:
+            public_screen = public_screen + f"[{now_time}] 【对话情况】{work_status}\n"
+
     else:
         plan_moli = ai_chat.act_plan(act_place=act_place, current_state=work_status, scenario_friend=friend_act_place,
                                      pet_friend="波波")
@@ -282,19 +284,15 @@ def time_forward_call(now_time, now_feed, now_emotion, today_work, pet_push_hist
         print(friend_work_status)
         ai_chat.memory_list.append(plan_moli)
         friend_ai_chat.memory_list.append(plan_bobo)
-        # act_place = ai_chat.decide_act_place(work_status)
-        # friend_act_place = friend_ai_chat.decide_act_place(friend_work_status)
-        # focused_env = ai_chat.get_focused_env(act_place, work_status)
-        # friend_focused_env = friend_ai_chat.get_focused_env(friend_act_place, friend_work_status)
+
+        if public_screen is None or public_screen == "":
+            public_screen = f"[{now_time}] 【宠物】{work_status} \n     【朋友宠物】{friend_work_status}\n"
+        else:
+            public_screen = public_screen + f"[{now_time}] 【宠物】{work_status}\n      【朋友宠物】{friend_work_status}\n"
 
     print("-------------------- 决定的下一步动作 ----------------------")
     print("莫莉决定的动作:", act_place)
     print("波波决定的动作:", friend_act_place)
-
-    if public_screen is None or public_screen == "":
-        public_screen = f"[{now_time}] 宠物状态：{work_status}||朋友宠物状态:{friend_work_status}\n"
-    else:
-        public_screen = public_screen + f"\n[{now_time}] 宠物状态：{work_status}||朋友宠物状态:{friend_work_status}\n"
 
     doing_now = ai_chat.doing_evn(work_status)
     friend_doing_now = friend_ai_chat.doing_evn(friend_work_status)
@@ -303,7 +301,7 @@ def time_forward_call(now_time, now_feed, now_emotion, today_work, pet_push_hist
     print(f"----dong_now:{doing_now}")
     print(f"----friend_dong_now:{friend_doing_now}")
 
-    return res_text, now_time, now_feed, now_emotion, emotion_text, now_work, today_summary, pet_push_history, doing_now, friend_doing_now, focused_env, friend_focused_env, public_screen
+    return res_text, now_time, now_feed, now_emotion, emotion_text, now_work, today_summary, pet_push_history, doing_now, friend_doing_now, focused_env, friend_focused_env, public_screen, chat_content
 
 
 with gr.Blocks() as demo:
@@ -339,8 +337,8 @@ with gr.Blocks() as demo:
                                                 visible=False)
 
             with gr.Row():
-                pet_push = gr.Textbox(lines=2, max_lines=4, value=None, label="小组件推送", interactive=True)
-                public_screen = gr.Textbox(lines=2, max_lines=4, value=None, label="公屏信息", interactive=True)
+                pet_push = gr.Textbox(lines=3, max_lines=6, value=None, label="小组件推送", interactive=True)
+                public_screen = gr.Textbox(lines=3, max_lines=6, value=None, label="公屏信息", interactive=True)
 
             with gr.Row():
                 time_radio = gr.Radio(["1h", "4h", "8h", "12h", "24h"], interactive=True, value="1h", label="时间拨动",
@@ -361,12 +359,15 @@ with gr.Blocks() as demo:
                 touch_human = gr.Button("模拟触摸宠物")
                 feed_human = gr.Button("模拟投喂宠物")
 
-            user_input = gr.Textbox(placeholder="input(Enter确定)", label="INPUT")
-
     today_summary = gr.Textbox(lines=3, value="在8点起床后，一直在无聊的等待主人", label="今天行为总结",
                                interactive=True, visible=False)
     debug_text = gr.Textbox(lines=3, value="", label="Debug内容", interactive=False, visible=False)
-    chatbot = gr.Chatbot()
+
+    with gr.Row():
+        with gr.Column():
+            user_input = gr.Textbox(placeholder="input(Enter确定)", label="INPUT")
+            chatbot = gr.Chatbot()
+        tow_pet_chat_tb = gr.Textbox(lines=1, value=None, label="两个宠物的对话内容", interactive=True)
 
     # 主人跟宠物的聊天
     user_input.submit(chat_f, [chatbot, user_input,
@@ -380,7 +381,7 @@ with gr.Blocks() as demo:
                   [current_time, feed_num, emotion_num, today_summary, pet_push, time_radio, work_status,
                    friend_work_status, public_screen],
                   [debug_text, current_time, feed_num, emotion_num, emotion_text, work_status, today_summary, pet_push,
-                   work_status, friend_work_status, focused_env, friend_focused_env, public_screen],
+                   work_status, friend_work_status, focused_env, friend_focused_env, public_screen, tow_pet_chat_tb],
                   queue=False)
 
     # 抚摸
@@ -393,4 +394,4 @@ with gr.Blocks() as demo:
                      [current_time, feed_num, emotion_num, emotion_text, work_status, pet_push],
                      queue=False)
 
-demo.queue().launch(server_name="0.0.0.0", server_port=8909)
+demo.queue().launch(server_name="0.0.0.0", server_port=8991)
