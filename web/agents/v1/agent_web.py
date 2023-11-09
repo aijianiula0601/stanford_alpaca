@@ -1,6 +1,5 @@
 import gradio as gr
 import config
-import random
 import time
 
 from aipet import PersonPet
@@ -8,7 +7,7 @@ from aipet import PersonPet
 all_pet_names = list(config.pets_dic.keys())
 
 # 初始化用户示例
-glob_pet_obj: PersonPet = PersonPet(all_pet_names[0])
+glob_pet_obj: PersonPet = PersonPet(all_pet_names[0], gpt_version='gpt4')
 
 feed_type_list = ["萝卜", "草", "芒果", "香蕉", "水", "大蒜", "啤酒", "巧克力"]
 stroke_type_list = ["头部", "肚子", "脚", "手", "背部", "鼻子"]

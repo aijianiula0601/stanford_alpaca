@@ -1,5 +1,4 @@
 import openai
-from queue import Queue, LifoQueue, PriorityQueue
 
 from abc import ABCMeta, abstractmethod
 import config
