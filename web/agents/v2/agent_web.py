@@ -135,9 +135,9 @@ def get_state(pet_name, curr_time: str, history_list: list, cur_state: str, day_
     # 组装公告信息
     # --------------------
     if displace_info_txtbox is None or displace_info_txtbox == "":
-        displace_time_str = f"【{curr_time}】心情：{pet_mood}，饱腹感：{pet_satiety}"
+        public_screen_str = f"【{curr_time}】【思考】{pet_thought}【状态】{pet_state}【下一步计划】{next_plan}"
     else:
-        displace_time_str = f"{displace_info_txtbox}\n【{curr_time}】心情：{pet_mood}，饱腹感：{pet_satiety}"
+        public_screen_str = f"{displace_info_txtbox}\n【{curr_time}】【思考】{pet_thought}【状态】{pet_state}【下一步计划】{next_plan}"
 
     # --------------------
     # 状态存储
@@ -145,10 +145,13 @@ def get_state(pet_name, curr_time: str, history_list: list, cur_state: str, day_
     state_event = f"【时间:{curr_time}】{pet_state}"
     glob_pet_obj.save_state(state_event)
 
-    return pet_satiety, pet_mood, pet_local, displace_state, next_plan, leave_message, history_list, day_plan, curr_time, displace_time_str, cur_state
+    return pet_satiety, pet_mood, pet_local, displace_state, next_plan, leave_message, history_list, day_plan, curr_time, public_screen_str, cur_state
 
 
-def give_feed(curr_time: str, cur_state: str, feed_type: str, displace_info_txtbox: str = None):
+def give_feed(curr_time: str, cur_state: str, feed_type: str, public_screen_txtbox: str = None):
+    """
+    投喂
+    """
     # --------------------
     # 状态
     # --------------------
@@ -169,20 +172,23 @@ def give_feed(curr_time: str, cur_state: str, feed_type: str, displace_info_txtb
     # --------------------
     # 组装公告信息
     # --------------------
-    if displace_info_txtbox is None or displace_info_txtbox == "":
-        displace_time_str = f"【{curr_time}】心情：{pet_mood}，饱腹感：{pet_satiety} (投喂：{feed_type})"
+    if public_screen_txtbox is None or public_screen_txtbox == "":
+        public_screen_str = f"【{curr_time}】【投喂】{feed_type}【回应主人】{to_user_msg}"
     else:
-        displace_time_str = f"{displace_info_txtbox}\n【{curr_time}】心情：{pet_mood}，饱腹感：{pet_satiety} (投喂：{feed_type})"
+        public_screen_str = f"{public_screen_txtbox}\n【{curr_time}】【投喂】{feed_type}【回应主人】{to_user_msg}"
 
     # --------------------
     # 更新隐藏的状态
     # --------------------
     hidden_state = f"饱腹感：{pet_satiety}\n心情：{pet_mood}\n思考：{pet_thought}\n状态：{pet_state}\n下一步计划：{next_plan}"
 
-    return to_user_msg, pet_satiety, pet_mood, displace_state, pet_local, next_plan, displace_time_str, hidden_state
+    return pet_satiety, pet_mood, displace_state, pet_local, next_plan, public_screen_str, hidden_state
 
 
 def summon_pet(pet_name: str, curr_time: str, cur_state: str, history: list, displace_info_txtbox: str):
+    """
+    召唤
+    """
     next_time = time_list[(time_list.index(curr_time) + 1) % len(time_list)]
 
     cur_state = glob_pet_obj.summon(curr_time=curr_time, next_time=next_time, current_state=cur_state)
@@ -203,11 +209,11 @@ def summon_pet(pet_name: str, curr_time: str, cur_state: str, history: list, dis
     # 组装公告信息
     # --------------------
     if displace_info_txtbox is None or displace_info_txtbox == "":
-        displace_time_str = f"【{curr_time}】心情：{pet_mood}，饱腹感：{pet_satiety} (主人召唤)"
+        public_screen_str = f"【{curr_time}】心情：{pet_mood}，饱腹感：{pet_satiety} (主人召唤)"
     else:
-        displace_time_str = f"{displace_info_txtbox}\n【{curr_time}】心情：{pet_mood}，饱腹感：{pet_satiety} (主人召唤)"
+        public_screen_str = f"{displace_info_txtbox}\n【{curr_time}】心情：{pet_mood}，饱腹感：{pet_satiety} (主人召唤)"
 
-    return per_res, pet_satiety, pet_mood, displace_state, pet_local, next_plan, history, displace_time_str
+    return per_res, pet_satiety, pet_mood, displace_state, pet_local, next_plan, history, public_screen_str
 
 
 def stroke_pet(curr_time: str, cur_state: str, stroke_type: str, pet_satiety: str, displace_info_txtbox: str,
@@ -237,13 +243,13 @@ def stroke_pet(curr_time: str, cur_state: str, stroke_type: str, pet_satiety: st
     # 组装公告信息
     # --------------------
     if displace_info_txtbox is None or displace_info_txtbox == "":
-        displace_time_str = f"【{curr_time}】心情：{pet_mood}，饱腹感：{pet_satiety} (抚摸:{stroke_type})"
+        public_screen_str = f"【{curr_time}】【抚摸】{stroke_type}【回应主人】{per_res}"
     else:
-        displace_time_str = f"{displace_info_txtbox}\n【{curr_time}】心情：{pet_mood}，饱腹感：{pet_satiety} (抚摸：{stroke_type})"
+        public_screen_str = f"{displace_info_txtbox}\n【{curr_time}】【抚摸】{stroke_type}【回应主人】{per_res}"
 
     displace_state = f"【回应主人】{per_res}\n【思考】{pet_thought}\n【状态】{pet_state}\n【下一步计划】{next_plan}"
 
-    return per_res, displace_state, displace_time_str, pet_mood
+    return displace_state, public_screen_str, pet_mood, pet_satiety
 
 
 def clear_all():
@@ -254,70 +260,85 @@ def clear_all():
 with gr.Blocks() as demo:
     with gr.Row():
         gr.Markdown("# AI宠物聊天demo")
-    with gr.Row():
-        with gr.Column():
-            with gr.Row():
-                # current_time_txtbox = gr.Dropdown(value=time.strftime("%H:00:00", time.localtime()), choices=time_list,label="选择当前时间",interactive=True)
-                current_time_txtbox = gr.Dropdown(value=time_list[7], choices=time_list, label="选择当前时间",
-                                                  interactive=True)
-                gpt_select_dpd = gr.Dropdown(value='gpt4', choices=['gpt3.5', 'gpt4'], label="gpt引擎选择",
-                                             interactive=True)
-                pet_select_dpd = gr.Dropdown(value=all_pet_names[0], choices=all_pet_names, label="领养你的宠物",
-                                             interactive=True)
-
-            pet_state_btn = gr.Button("点击获取宠物当前状态(模拟1h后自动刷新宠物状态)")
-            with gr.Row():
-                pet_info_txtbox = gr.Textbox(lines=1, max_lines=4, value=get_pet_info_str(all_pet_names[0]),
-                                             label="宠物信息",
-                                             interactive=False)
-
-                place_info_txtbox = gr.Textbox(lines=2, value=get_place_info_str(), label="可活动位置",
-                                               interactive=False,
-                                               visible=False)
-
-            with gr.Row():
-                stroke_type_dpd = gr.Dropdown(label="选择抚摸部位", value=stroke_type_list[0], choices=stroke_type_list,
+    with gr.Column():
+        with gr.Row():
+            pet_select_dpd = gr.Dropdown(value=all_pet_names[0], choices=all_pet_names, label="领养你的宠物",
+                                         interactive=True)
+            # current_time_txtbox = gr.Dropdown(value=time.strftime("%H:00:00", time.localtime()), choices=time_list,label="选择当前时间",interactive=True)
+            current_time_txtbox = gr.Dropdown(value=time_list[7], choices=time_list, label="选择当前时间",
                                               interactive=True)
-                stroke_btn = gr.Button("抚摸")
+            gpt_select_dpd = gr.Dropdown(value='gpt4', choices=['gpt3.5', 'gpt4'], label="gpt引擎选择",
+                                         interactive=True, visible=False)
+
+            pet_satiety_txtbox = gr.Textbox(lines=1, value='70', label="宠物饱腹感", interactive=True)
+            pet_mood_txtbox = gr.Textbox(lines=1, value=None, label="宠物心情", interactive=True)
+
+        with gr.Column():
+            # with gr.Row():
+            #     pet_satiety_txtbox = gr.Textbox(lines=1, value='70', label="宠物饱腹感", interactive=True)
+            #     pet_mood_txtbox = gr.Textbox(lines=1, value=None, label="宠物心情", interactive=True)
+
             with gr.Row():
-                feed_type_dpd = gr.Dropdown(label="选择投喂的食物", value=feed_type_list[-1], choices=feed_type_list,
-                                            interactive=True)
+                pet_local_txtbox = gr.Textbox(lines=1, value=None, label="宠物位置", interactive=True)
+                announcement_info_txtbox = gr.Textbox(lines=1, value=None, label="推送信息", interactive=False)
+                pet_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物当前状态", interactive=True,
+                                              visible=False)
+                pet_hidden_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物隐藏的当前状态", interactive=True,
+                                                     visible=False)
+
+            public_screen_txtbox = gr.Textbox(lines=2, value=None, label="公告信息", max_lines=4, interactive=False)
+
+        with gr.Row():
+            pet_info_txtbox = gr.Textbox(lines=1, max_lines=4, value=get_pet_info_str(all_pet_names[0]),
+                                         label="宠物信息",
+                                         interactive=False, visible=False)
+
+            place_info_txtbox = gr.Textbox(lines=2, value=get_place_info_str(), label="可活动位置",
+                                           interactive=False,
+                                           visible=False)
+
+        with gr.Row():
+            pet_state_btn = gr.Button("刷新状态(推进1小时)", button_color='red')
+
+            with gr.Column():
+                # stroke_type_dpd = gr.Dropdown(label="选择抚摸部位", value=stroke_type_list[0], choices=stroke_type_list,
+                #                               interactive=True)
+                stroke_type_dpd = gr.Radio(stroke_type_list, label="抚摸部位", interactive=True,
+                                           value=stroke_type_list[0])
+
+                stroke_btn = gr.Button("抚摸")
+            with gr.Column():
+                # feed_type_dpd = gr.Dropdown(label="选择投喂的食物", value=feed_type_list[-1], choices=feed_type_list,
+                #                         interactive=True)
+                feed_type_dpd = gr.Radio(feed_type_list, interactive=True, value=feed_type_list[-1],
+                                         label="选择投喂的食物")
+
                 give_feed_btn = gr.Button("投喂")
 
-            push_info_btn = gr.Button("推送信息")
-            summon_my_pet_btn = gr.Button("召唤宠物")
-            clear_btn = gr.Button("重置")
+        push_info_btn = gr.Button("推送信息", visible=False)
+        summon_my_pet_btn = gr.Button("召唤宠物", visible=False)
+        clear_btn = gr.Button("重置", visible=False)
 
+    next_plan_txtbox = gr.Textbox(lines=2, value=None, label="下一步计划", visible=False)
+
+    with gr.Row():
         with gr.Column():
-            with gr.Row():
-                pet_satiety_txtbox = gr.Textbox(lines=1, value=70, label="宠物饱腹感", interactive=True)
-                pet_mood_txtbox = gr.Textbox(lines=1, value=None, label="宠物心情", interactive=True)
-                pet_local_txtbox = gr.Textbox(lines=1, value=None, label="宠物位置", interactive=True)
-
-            displace_info_txtbox = gr.Textbox(lines=2, value=None, label="公告信息", max_lines=4, interactive=False)
-            pet_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物当前状态", interactive=True)
-            pet_hidden_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物隐藏的当前状态", interactive=True,
-                                                 visible=False)
-            next_plan_txtbox = gr.Textbox(lines=2, value=None, label="下一步计划", visible=False)
-            pet_day_plan_txtbox = gr.Textbox(lines=2, value=None, label="宠物的行程计划", interactive=True)
-
-        with gr.Column():
-            announcement_info_txtbox = gr.Textbox(lines=2, value=None, label="推送信息", interactive=False)
-            chatbot = gr.Chatbot(label="宠物跟主人的聊天历史", value=None, height=550)
+            chatbot = gr.Chatbot(label="宠物跟主人的聊天历史", value=None)
             user_input = gr.Textbox(placeholder="input(Enter确定)", label="INPUT")
+        pet_day_plan_txtbox = gr.Textbox(lines=2, value=None, label="宠物的行程计划", interactive=True, visible=False)
 
     user_input.submit(chat_f, inputs=[current_time_txtbox, pet_state_txtbox, chatbot, pet_select_dpd, user_input,
                                       announcement_info_txtbox, pet_day_plan_txtbox],
                       outputs=[chatbot, user_input],
                       queue=False)
 
-    # 点击获取宠物状态
+    # 刷新一小时
     pet_state_btn.click(get_state,
                         inputs=[pet_select_dpd, current_time_txtbox, chatbot, pet_hidden_state_txtbox,
-                                pet_day_plan_txtbox, displace_info_txtbox],
+                                pet_day_plan_txtbox, public_screen_txtbox],
                         outputs=[pet_satiety_txtbox, pet_mood_txtbox, pet_local_txtbox, pet_state_txtbox,
                                  next_plan_txtbox, announcement_info_txtbox, chatbot, pet_day_plan_txtbox,
-                                 current_time_txtbox, displace_info_txtbox, pet_hidden_state_txtbox])
+                                 current_time_txtbox, public_screen_txtbox, pet_hidden_state_txtbox])
 
     # 点击推送
     push_info_btn.click(get_push_message, inputs=[current_time_txtbox, pet_state_txtbox],
@@ -332,21 +353,22 @@ with gr.Blocks() as demo:
 
     # 投喂
     give_feed_btn.click(give_feed,
-                        inputs=[current_time_txtbox, pet_hidden_state_txtbox, feed_type_dpd, displace_info_txtbox],
-                        outputs=[announcement_info_txtbox, pet_satiety_txtbox, pet_mood_txtbox, pet_state_txtbox,
-                                 pet_local_txtbox, next_plan_txtbox, displace_info_txtbox, pet_hidden_state_txtbox])
+                        inputs=[current_time_txtbox, pet_hidden_state_txtbox, feed_type_dpd, public_screen_txtbox],
+                        outputs=[pet_satiety_txtbox, pet_mood_txtbox, pet_state_txtbox,
+                                 pet_local_txtbox, next_plan_txtbox, public_screen_txtbox, pet_hidden_state_txtbox])
 
     # 主人召唤
     summon_my_pet_btn.click(summon_pet, inputs=[pet_select_dpd, current_time_txtbox, pet_state_txtbox, chatbot,
-                                                displace_info_txtbox],
+                                                public_screen_txtbox],
                             outputs=[announcement_info_txtbox, pet_satiety_txtbox, pet_mood_txtbox, pet_state_txtbox,
-                                     pet_local_txtbox, next_plan_txtbox, chatbot, displace_info_txtbox])
+                                     pet_local_txtbox, next_plan_txtbox, chatbot, public_screen_txtbox])
 
     # 主人抚摸
     stroke_btn.click(stroke_pet,
                      inputs=[current_time_txtbox, pet_state_txtbox, stroke_type_dpd, pet_satiety_txtbox,
-                             displace_info_txtbox, pet_day_plan_txtbox],
-                     outputs=[announcement_info_txtbox, pet_state_txtbox, displace_info_txtbox, pet_mood_txtbox])
+                             public_screen_txtbox, pet_day_plan_txtbox],
+                     outputs=[pet_state_txtbox, public_screen_txtbox, pet_mood_txtbox,
+                              pet_satiety_txtbox])
 
     # 重置
     clear_btn.click(clear_all, inputs=[],
@@ -354,4 +376,4 @@ with gr.Blocks() as demo:
                              pet_day_plan_txtbox, pet_state_txtbox, next_plan_txtbox, chatbot, current_time_txtbox,
                              stroke_type_dpd, feed_type_dpd])
 
-demo.queue().launch(server_name="0.0.0.0", server_port=8700)
+demo.queue().launch(server_name="0.0.0.0", server_port=8701)
