@@ -267,7 +267,7 @@ class PetChat:
         return res
 
     def status_analysis(self, now_time, now_feed, now_emotion, today_work, time_radio):
-        """小鸡当前状态分析"""
+        """当前状态分析"""
 
         # 计算增加一小时后的时间戳
         parsed_time = time.strptime(now_time, "%H:%M:%S")
@@ -315,7 +315,7 @@ class PetChat:
 
     def decide_act_place(self, current_state):
         """
-        计划
+        计划要去的地方
         """
         prompt = config.decide_act_place_prompt.format_map(
             {'role_name': self.role_name,
@@ -323,22 +323,11 @@ class PetChat:
              'all_place': PETWORLD_OBJ.place_str,
              'current_state': current_state,
              })
-        """
-        print("-" * 100)
-        print(f"act place prompt:\n{prompt}")
-        print("-" * 100)"""
         message_list = [{"role": "user", "content": prompt}]
-        act_place = get_gpt_result(engine_name=self.engine_name, message_list=message_list)
-
-        if '0' in act_place:
-            scenario = '家'
-        elif '1' in act_place:
-            scenario = '朋友家'
-        elif '2' in act_place:
-            scenario = '公园'
-        elif '3' in act_place:
-            scenario = '商店'
-        return scenario
+        res_text = get_gpt_result(engine_name=self.engine_name, message_list=message_list)
+        # next_plan, next_place = parse_intention_state(res_text, '下一步计划'), parse_intention_state(res_text, '准备活动的位置')
+        next_place = parse_intention_state(res_text, '准备活动的位置')
+        return next_place
 
     def get_focused_env(self, act_place, current_state):
         perceived = "你现在正在：" + act_place + "\n" + "你现在正在做的事是：\n" + current_state
