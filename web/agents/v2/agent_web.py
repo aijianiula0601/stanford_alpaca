@@ -7,7 +7,8 @@ from aipet import PersonPet
 all_pet_names = list(config.pets_dic.keys())
 
 # 初始化用户示例
-glob_pet_obj: PersonPet = PersonPet(all_pet_names[0], gpt_version='gpt4')
+default_pet_name = all_pet_names[0]
+glob_pet_obj: PersonPet = PersonPet(default_pet_name, gpt_version='gpt4')
 
 feed_type_list = ["萝卜", "草", "芒果", "香蕉", "水", "大蒜", "啤酒", "巧克力"]
 stroke_type_list = ["头部", "肚子", "脚", "手", "背部", "鼻子"]
@@ -83,7 +84,7 @@ def select_pet(pet_name, gpt_version):
     return get_pet_info_str(pet_name), None, None, None, None, None, None, None, None, time.strftime("%H:00:00",
                                                                                                      time.localtime()), \
            stroke_type_list[0], \
-           feed_type_list[0]
+           feed_type_list[0], None
 
 
 def get_state_value(key, cur_state):
@@ -262,7 +263,7 @@ with gr.Blocks() as demo:
         gr.Markdown("# AI宠物聊天demo")
     with gr.Column():
         with gr.Row():
-            pet_select_dpd = gr.Dropdown(value=all_pet_names[0], choices=all_pet_names, label="领养你的宠物",
+            pet_select_dpd = gr.Dropdown(value=default_pet_name, choices=all_pet_names, label="领养你的宠物",
                                          interactive=True)
             # current_time_txtbox = gr.Dropdown(value=time.strftime("%H:00:00", time.localtime()), choices=time_list,label="选择当前时间",interactive=True)
             current_time_txtbox = gr.Dropdown(value=time_list[7], choices=time_list, label="选择当前时间",
@@ -274,10 +275,6 @@ with gr.Blocks() as demo:
             pet_mood_txtbox = gr.Textbox(lines=1, value=None, label="宠物心情", interactive=True)
 
         with gr.Column():
-            # with gr.Row():
-            #     pet_satiety_txtbox = gr.Textbox(lines=1, value='70', label="宠物饱腹感", interactive=True)
-            #     pet_mood_txtbox = gr.Textbox(lines=1, value=None, label="宠物心情", interactive=True)
-
             with gr.Row():
                 pet_local_txtbox = gr.Textbox(lines=1, value=None, label="宠物位置", interactive=True)
                 announcement_info_txtbox = gr.Textbox(lines=1, value=None, label="推送信息", interactive=False)
@@ -289,7 +286,7 @@ with gr.Blocks() as demo:
             public_screen_txtbox = gr.Textbox(lines=2, value=None, label="公告信息", max_lines=4, interactive=False)
 
         with gr.Row():
-            pet_info_txtbox = gr.Textbox(lines=1, max_lines=4, value=get_pet_info_str(all_pet_names[0]),
+            pet_info_txtbox = gr.Textbox(lines=1, max_lines=4, value=get_pet_info_str(default_pet_name),
                                          label="宠物信息",
                                          interactive=False, visible=False)
 
@@ -298,7 +295,7 @@ with gr.Blocks() as demo:
                                            visible=False)
 
         with gr.Row():
-            pet_state_btn = gr.Button("刷新状态(推进1小时)", button_color='red')
+            pet_state_btn = gr.Button("刷新状态(推进1小时)")
 
             with gr.Column():
                 # stroke_type_dpd = gr.Dropdown(label="选择抚摸部位", value=stroke_type_list[0], choices=stroke_type_list,
@@ -349,7 +346,7 @@ with gr.Blocks() as demo:
                           outputs=[pet_info_txtbox, pet_satiety_txtbox, pet_mood_txtbox, pet_local_txtbox,
                                    announcement_info_txtbox,
                                    pet_day_plan_txtbox, pet_state_txtbox, next_plan_txtbox, chatbot,
-                                   current_time_txtbox, stroke_type_dpd, feed_type_dpd])
+                                   current_time_txtbox, stroke_type_dpd, feed_type_dpd, public_screen_txtbox])
 
     # 投喂
     give_feed_btn.click(give_feed,
