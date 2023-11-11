@@ -226,24 +226,3 @@ class PersonPet(AiPet):
         if res.startswith(f"{self.name}:") or res.startswith(f"{self.name}："):
             return res.replace(f"{self.name}:", "").strip()
         return res
-
-
-if __name__ == '__main__':
-    pp = PersonPet(name="莫莉", gpt_version="gpt3.5")
-    cur_plan = pp.plan()
-    print("-" * 100)
-    print(cur_plan)
-    print("-" * 100)
-
-    curr_time = "11:30:00"
-    current_status = pp.state(curr_time)
-    print("current_status:\n", current_status)
-
-    print("-" * 100)
-    cur_actor = pp.actor(cur_plan, current_status)
-    print("cur_actor:\n", cur_actor)
-    print("-" * 100)
-
-    cur_push = pp.push(curr_time, current_status)
-    print('cur_psh:', cur_push)
-    print('-' * 100)
