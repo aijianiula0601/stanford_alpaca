@@ -204,6 +204,7 @@ with gr.Blocks() as demo:
         with gr.Row():
             pet_select_dpd = gr.Dropdown(value=default_pet_name, choices=all_pet_names, label="领养你的宠物",
                                          interactive=True)
+            journey_rad = gr.Radio(choices=["出门旅行", "无旅行计划"], label="旅行选择", value="无旅行计划", interactive=True)
             # current_time_txtbox = gr.Dropdown(value=time.strftime("%H:00:00", time.localtime()), choices=time_list,label="选择当前时间",interactive=True)
             current_time_txtbox = gr.Dropdown(value=time_list[7], choices=time_list, label="选择当前时间",
                                               interactive=True)
