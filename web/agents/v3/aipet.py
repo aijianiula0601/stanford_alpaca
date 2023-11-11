@@ -194,34 +194,6 @@ class PersonPet(AiPet):
         message_list = [{"role": "user", "content": prompt}]
         return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
 
-    def push(self, curr_time: str, current_state: str):
-        """
-        推送信息
-        """
-        prompt = config.push_prompt.format_map(
-            {'role_name': self.name, 'role_description': self.pet_info(), 'current_state': current_state,
-             'curr_time': curr_time
-             })
-        print("-" * 100)
-        print(f"push prompt:\n{prompt}")
-        print("-" * 100)
-        message_list = [{"role": "user", "content": prompt}]
-        return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
-
-    def leave_message(self, curr_time: str, current_state: str):
-        """
-        给主人留言的信息
-        """
-        prompt = config.leave_message_prompt.format_map(
-            {'role_name': self.name, 'role_description': self.pet_info(), 'current_state': current_state,
-             'curr_time': curr_time
-             })
-        print("-" * 100)
-        print(f"leave_message prompt:\n{prompt}")
-        print("-" * 100)
-        message_list = [{"role": "user", "content": prompt}]
-        return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
-
     def give_feed(self, curr_time: str, next_time: str, current_state: str, feed_type: str):
         """
         投喂食物

@@ -1,6 +1,7 @@
+import re
+import time
 import gradio as gr
 import config
-import time
 
 from aipet import PersonPet
 
@@ -15,6 +16,30 @@ stroke_type_list = ["头部", "肚子", "脚", "手", "背部", "鼻子"]
 time_list = ["00:00:00", "01:00:00", "02:00:00", "03:00:00", "04:00:00", "05:00:00", "06:00:00", "07:00:00", "08:00:00",
              "09:00:00", "10:00:00", "11:00:00", "12:00:00", "13:00:00", "14:00:00", "15:00:00", "16:00:00",
              "17:00:00", "18:00:00", "19:00:00", "20:00:00", "21:00:00", "22:00:00", "23:00:00", "24:00:00"]
+
+friend_state_list = [
+    "我很饿，饿死了。",
+    "在家刷牙时候不小心牙刷捅到牙龈，嘴巴出血了。",
+    "我现在在院子玩耍，碰到一直松鼠，在追它的时候，摔倒受伤了。",
+]
+
+
+def parse_res_text(res_text: str, key: str):
+    pattern = r'"{0}"\s*:\s*("[^"]*"|[^",]*)'.format(key)
+    # pattern = r'"{0}"：\s*"([^"]*)"'.format(key)
+
+    match = re.search(pattern, res_text)
+    if match:
+        value = match.group(1)
+        return value
+    else:
+        pattern = r'"{0}"\s*：\s*("[^"]*"|[^",]*)'.format(key)
+        match = re.search(pattern, res_text)
+        if match:
+            value = match.group(1)
+            return value
+        else:
+            return None
 
 
 def get_pet_info_str(pet_name):
@@ -35,13 +60,6 @@ def get_place_info_str():
     place_list_str = '\n'.join(place_list)
 
     return place_list_str
-
-
-def get_push_message(current_time, current_state):
-    """
-    推送信息
-    """
-    return glob_pet_obj.push(curr_time=current_time, current_state=current_state)
 
 
 def select_pet(pet_name, gpt_version):
@@ -82,32 +100,28 @@ def get_state(curr_time: str, cur_state: str, day_plan: str = None,
     # --------------------
     # 状态
     # --------------------
-    cur_state = glob_pet_obj.state(curr_time=curr_time, next_time=next_time, day_plan=day_plan, cur_state=cur_state,
-                                   friend_cur_state=friend_pet_state_txtbox)
+    res_text = glob_pet_obj.state(curr_time=curr_time, next_time=next_time, day_plan=day_plan, cur_state=cur_state,
+                                  friend_cur_state=friend_pet_state_txtbox)
 
-    pet_mood = get_state_value("心情", cur_state)
-    pet_satiety = get_state_value("饱腹感", cur_state)
-    pet_thought = get_state_value("思考", cur_state)
-    pet_state = get_state_value("状态", cur_state)
-    next_plan = get_state_value("下一步计划", cur_state)
-    pet_local = get_state_value("位置", cur_state)
+    pet_mood = parse_res_text(res_text, "心情")
+    pet_satiety = parse_res_text(res_text, "饱腹感")
+    pet_thought = parse_res_text(res_text, "思考")
+    pet_cur_state = parse_res_text(res_text, "当前状态")
+    next_plan = parse_res_text(res_text, "下一步计划")
+    pet_local = parse_res_text(res_text, "位置")
+    pet_say2master = parse_res_text(res_text, "对主人说")
 
-    displace_state = f"【思考】{pet_thought}\n【状态】{pet_state}\n【下一步计划】{next_plan}"
-
-    # --------------------
-    # 留言(显示在推送信息栏)
-    # --------------------
-    leave_message = glob_pet_obj.leave_message(curr_time=curr_time, current_state=cur_state)
+    displace_state = f"【思考】{pet_thought}\n【状态】{pet_cur_state}\n【下一步计划】{next_plan}"
 
     # --------------------
     # 组装公告信息
     # --------------------
     if displace_info_txtbox is None or displace_info_txtbox == "":
-        public_screen_str = f"【{curr_time}】【思考】{pet_thought}【状态】{pet_state}【下一步计划】{next_plan}"
+        public_screen_str = f"【{curr_time}】【思考】{pet_thought}【状态】{pet_cur_state}【下一步计划】{next_plan}"
     else:
-        public_screen_str = f"{displace_info_txtbox}\n【{curr_time}】【思考】{pet_thought}【状态】{pet_state}【下一步计划】{next_plan}"
+        public_screen_str = f"{displace_info_txtbox}\n【{curr_time}】【思考】{pet_thought}【状态】{pet_cur_state}【下一步计划】{next_plan}"
 
-    return pet_satiety, pet_mood, pet_local, displace_state, next_plan, leave_message, day_plan, curr_time, public_screen_str, cur_state, None
+    return pet_satiety, pet_mood, pet_local, displace_state, next_plan, pet_say2master, day_plan, curr_time, public_screen_str, cur_state, None
 
 
 def give_feed(curr_time: str, cur_state: str, feed_type: str, public_screen_txtbox: str = None):
@@ -202,9 +216,9 @@ with gr.Blocks() as demo:
         with gr.Column():
             with gr.Row():
                 pet_local_txtbox = gr.Textbox(lines=1, value=None, label="宠物位置", interactive=True)
-                friend_pet_state_txtbox = gr.Textbox(lines=1, value=None, placeholder="输入朋友宠物当前的状态(宠物会感知到它的状态做出反应)",
-                                                     label="朋友宠物状态",
-                                                     interactive=True)
+                friend_pet_state_txtbox = gr.Dropdown(value=None, choices=friend_state_list,
+                                                      placeholder="输入朋友宠物当前的状态(宠物会感知到它的状态做出反应)", label="朋友宠物状态",
+                                                      interactive=True)
                 pet_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物当前状态", interactive=True,
                                               visible=False)
                 pet_hidden_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物隐藏的当前状态", interactive=True,
