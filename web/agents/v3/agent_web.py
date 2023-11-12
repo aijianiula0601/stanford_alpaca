@@ -80,8 +80,8 @@ def get_state_value(key, cur_state):
             return line.replace(f"{key}:", "").replace(f"{key}：", "").strip()
 
 
-def get_state(curr_time: str, cur_state: str, day_plan: str = None,
-              displace_info_txtbox: str = None, friend_pet_state_txtbox: str = None):
+def get_state(curr_time: str, pet_satiety_txtbox: str, cur_state: str, day_plan: str = None,
+              displace_info_txtbox: str = None, friend_pet_state_txtbox: str = None, journey_rad: str = None):
     """
     获取宠物的状态
     """
@@ -95,13 +95,14 @@ def get_state(curr_time: str, cur_state: str, day_plan: str = None,
     # 宠物接下来的计划
     # --------------------
     if day_plan is None or day_plan == '':
-        day_plan = glob_pet_obj.day_plan()
+        day_plan = glob_pet_obj.day_plan(journey_rad)
 
     # --------------------
     # 状态
     # --------------------
     res_text = glob_pet_obj.state(curr_time=curr_time, next_time=next_time, day_plan=day_plan, cur_state=cur_state,
-                                  friend_cur_state=friend_pet_state_txtbox)
+                                  friend_cur_state=friend_pet_state_txtbox, journey_rad=journey_rad,
+                                  cur_satiety=pet_satiety_txtbox)
 
     pet_mood = parse_res_text(res_text, "心情")
     pet_satiety = parse_res_text(res_text, "饱腹感")
@@ -204,7 +205,8 @@ with gr.Blocks() as demo:
         with gr.Row():
             pet_select_dpd = gr.Dropdown(value=default_pet_name, choices=all_pet_names, label="领养你的宠物",
                                          interactive=True)
-            journey_rad = gr.Radio(choices=["出门旅行", "无旅行计划"], label="旅行选择", value="无旅行计划", interactive=True)
+            journey_rad = gr.Radio(choices=["出门旅行", "无旅行计划"], label="旅行选择", value="无旅行计划",
+                                   interactive=True)
             # current_time_txtbox = gr.Dropdown(value=time.strftime("%H:00:00", time.localtime()), choices=time_list,label="选择当前时间",interactive=True)
             current_time_txtbox = gr.Dropdown(value=time_list[7], choices=time_list, label="选择当前时间",
                                               interactive=True)
@@ -218,7 +220,8 @@ with gr.Blocks() as demo:
             with gr.Row():
                 pet_local_txtbox = gr.Textbox(lines=1, value=None, label="宠物位置", interactive=True)
                 friend_pet_state_txtbox = gr.Dropdown(value=None, choices=friend_state_list,
-                                                      placeholder="输入朋友宠物当前的状态(宠物会感知到它的状态做出反应)", label="朋友宠物状态",
+                                                      placeholder="输入朋友宠物当前的状态(宠物会感知到它的状态做出反应)",
+                                                      label="朋友宠物状态",
                                                       interactive=True)
                 pet_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物当前状态", interactive=True,
                                               visible=False)
@@ -226,7 +229,7 @@ with gr.Blocks() as demo:
                                                      visible=False)
             with gr.Row():
                 announcement_info_txtbox = gr.Textbox(lines=1, value=None, label="推送信息", interactive=False)
-                journey_info_txtbox = gr.Textbox(lines=1, value='还没出发', label="旅行信息", interactive=False)
+                # journey_info_txtbox = gr.Textbox(lines=1, value='还没出发', label="旅行信息", interactive=False)
 
             public_screen_txtbox = gr.Textbox(lines=2, value=None, label="公告信息", max_lines=4, interactive=False)
 
@@ -236,6 +239,8 @@ with gr.Blocks() as demo:
                                          interactive=False, visible=False)
 
         with gr.Row():
+            pet_state_btn = gr.Button("刷新状态(推进1小时)")
+
             with gr.Column():
                 stroke_type_dpd = gr.Radio(stroke_type_list, label="抚摸部位", interactive=True,
                                            value=stroke_type_list[0])
@@ -247,8 +252,6 @@ with gr.Blocks() as demo:
                                          label="选择投喂的食物")
 
                 give_feed_btn = gr.Button("投喂")
-
-        pet_state_btn = gr.Button("刷新状态(推进1小时)")
 
     next_plan_txtbox = gr.Textbox(lines=2, value=None, label="下一步计划", visible=False)
 
@@ -262,8 +265,8 @@ with gr.Blocks() as demo:
                                    current_time_txtbox, stroke_type_dpd, feed_type_dpd, public_screen_txtbox])
     # 刷新一小时
     pet_state_btn.click(get_state,
-                        inputs=[current_time_txtbox, pet_hidden_state_txtbox,
-                                pet_day_plan_txtbox, public_screen_txtbox, friend_pet_state_txtbox],
+                        inputs=[current_time_txtbox, pet_satiety_txtbox, pet_hidden_state_txtbox,
+                                pet_day_plan_txtbox, public_screen_txtbox, friend_pet_state_txtbox, journey_rad],
                         outputs=[pet_satiety_txtbox, pet_mood_txtbox, pet_local_txtbox, pet_state_txtbox,
                                  next_plan_txtbox, announcement_info_txtbox, pet_day_plan_txtbox,
                                  current_time_txtbox, public_screen_txtbox, pet_hidden_state_txtbox,
