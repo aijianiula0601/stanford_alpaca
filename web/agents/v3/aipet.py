@@ -125,9 +125,11 @@ class PersonPet(AiPet):
     def __init__(self, name: str, gpt_version: str = 'gpt3.5'):
         self.name = name
         self.friend_name = None
-
-        self.memory_list = []
         self.engine_name = set_gpt_env(gpt_version)
+        # 每天总结记忆
+        self.data_summary_memory_list = []
+        # 一天中所有状态的记忆
+        self.day_state_memory_list = []
 
     def get_name(self):
         return self.name
@@ -149,11 +151,25 @@ class PersonPet(AiPet):
 
         return disc_str
 
-    def add_memory(self, observation: str):
+    def summary_day_state(self):
         """
-        添加记忆事件
+        总结一天所有的状态
         """
-        self.memory_list.append(observation)
+
+        assert len(self.day_state_memory_list) > 0, "day_state_memory 必须大于1！"
+        all_states = '\n'.join(self.day_state_memory_list)
+        prompt = config.day_state_summary_prompt.format_map(
+            {'role_name': self.name,
+             'role_description': self.pet_info(),
+             'all_states': all_states,
+             })
+        print("-" * 100)
+        print(f"day plan prompt:\n{prompt}")
+        print("-" * 100)
+        message_list = [{"role": "user", "content": prompt}]
+        # 总结完后，情况
+        self.day_state_memory_list.clear()
+        return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
 
     def day_plan(self, journey_rad: str):
         """
@@ -182,7 +198,7 @@ class PersonPet(AiPet):
         取回记忆
         """
         m_list = []
-        for m in self.memory_list[:top_k_m]:
+        for m in self.data_summary_memory_list[:top_k_m]:
             m_list.append(m)
         return '\n'.join(m_list)
 

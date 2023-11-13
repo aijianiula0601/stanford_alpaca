@@ -122,6 +122,18 @@ def get_state(curr_time: str, pet_satiety_txtbox: str, cur_state: str, day_plan:
     else:
         public_screen_str = f"{displace_info_txtbox}\n【{curr_time}】【状态】{pet_cur_state}【思考】{pet_thought}【下一步计划】{next_plan}"
 
+    # --------------------
+    # 存入状态记忆
+    # --------------------
+    state_memory = f"时间:{curr_time}\t{pet_cur_state}"
+    glob_pet_obj.day_state_memory_list.append(state_memory)
+
+    # --------------------
+    # 对一天所有状态进行总结
+    # --------------------
+    # 需要确定什么情况下
+    # summary_day_state = glob_pet_obj.summary_day_state()
+
     return pet_satiety, pet_mood, pet_local, displace_state, next_plan, pet_say2master, day_plan, curr_time, public_screen_str, cur_state, None
 
 
