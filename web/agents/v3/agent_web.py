@@ -112,15 +112,15 @@ def get_state(curr_time: str, pet_satiety_txtbox: str, cur_state: str, day_plan:
     pet_local = parse_res_text(res_text, "位置")
     pet_say2master = parse_res_text(res_text, "对主人说")
 
-    displace_state = f"【思考】{pet_thought}\n【状态】{pet_cur_state}\n【下一步计划】{next_plan}"
+    displace_state = f"【状态】{pet_cur_state}\n【思考】{pet_thought}\n【下一步计划】{next_plan}"
 
     # --------------------
     # 组装公告信息
     # --------------------
     if displace_info_txtbox is None or displace_info_txtbox == "":
-        public_screen_str = f"【{curr_time}】【思考】{pet_thought}【状态】{pet_cur_state}【下一步计划】{next_plan}"
+        public_screen_str = f"【{curr_time}】【状态】{pet_cur_state}【思考】{pet_thought}【下一步计划】{next_plan}"
     else:
-        public_screen_str = f"{displace_info_txtbox}\n【{curr_time}】【思考】{pet_thought}【状态】{pet_cur_state}【下一步计划】{next_plan}"
+        public_screen_str = f"{displace_info_txtbox}\n【{curr_time}】【状态】{pet_cur_state}【思考】{pet_thought}【下一步计划】{next_plan}"
 
     return pet_satiety, pet_mood, pet_local, displace_state, next_plan, pet_say2master, day_plan, curr_time, public_screen_str, cur_state, None
 
@@ -144,7 +144,7 @@ def give_feed(curr_time: str, cur_state: str, feed_type: str, public_screen_txtb
     pet_thought = get_state_value("思考", cur_state)
     pet_state = get_state_value("状态", cur_state)
 
-    displace_state = f"【回应主人】{to_user_msg}\n【思考】{pet_thought}\n【状态】{pet_state}\n【下一步计划】{next_plan}"
+    displace_state = f"【回应主人】{to_user_msg}\n【状态】{pet_state}\n【思考】{pet_thought}\n【下一步计划】{next_plan}"
 
     # --------------------
     # 组装公告信息
@@ -193,7 +193,7 @@ def stroke_pet(curr_time: str, cur_state: str, stroke_type: str, pet_satiety: st
     else:
         public_screen_str = f"{displace_info_txtbox}\n【{curr_time}】【抚摸】{stroke_type}【回应主人】{per_res}"
 
-    displace_state = f"【回应主人】{per_res}\n【思考】{pet_thought}\n【状态】{pet_state}\n【下一步计划】{next_plan}"
+    displace_state = f"【回应主人】{per_res}\n【状态】{pet_state}\n【思考】{pet_thought}\n【下一步计划】{next_plan}"
 
     return displace_state, public_screen_str, pet_mood, pet_satiety
 
@@ -220,7 +220,6 @@ with gr.Blocks() as demo:
             with gr.Row():
                 pet_local_txtbox = gr.Textbox(lines=1, value=None, label="宠物位置", interactive=True)
                 friend_pet_state_txtbox = gr.Dropdown(value=None, choices=friend_state_list,
-                                                      placeholder="输入朋友宠物当前的状态(宠物会感知到它的状态做出反应)",
                                                       label="朋友宠物状态",
                                                       interactive=True)
                 pet_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物当前状态", interactive=True,
