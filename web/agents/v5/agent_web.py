@@ -4,12 +4,13 @@ import gradio as gr
 import config
 import random
 from aipet import PersonPet
+from openai_image_demo import prompt2img
 
 all_pet_names = list(config.pets_dic.keys())
 
 # 初始化用户示例
 default_pet_name = all_pet_names[0]
-glob_pet_obj: PersonPet = PersonPet(default_pet_name, gpt_version='gpt4')
+glob_pet_obj: PersonPet = PersonPet(default_pet_name)
 
 feed_type_list = ["萝卜", "草", "芒果", "香蕉", "水", "大蒜", "啤酒", "巧克力"]
 stroke_type_list = ["头部", "肚子", "脚", "手", "背部", "鼻子"]
@@ -66,7 +67,7 @@ def select_pet(pet_name, gpt_version):
     选择宠物
     """
     global glob_pet_obj
-    glob_pet_obj = PersonPet(name=pet_name, gpt_version=gpt_version)
+    glob_pet_obj = PersonPet(name=pet_name)
     return get_pet_info_str(pet_name), None, None, None, None, None, None, None, time.strftime("%H:00:00",
                                                                                                time.localtime()), \
            stroke_type_list[0], \
@@ -139,14 +140,10 @@ def get_state(curr_time: str, pet_satiety_txtbox: str, cur_state: str, day_plan:
     # --------------------
     # 显示图片
     # --------------------
-    try:
-        journey_img = parse_res_text(res_text, "图片路径").replace('"', '')
-        if 'none' in journey_img.lower():
-            journey_img = None
-    except Exception as e:
-        journey_img = None
 
-    return pet_satiety, pet_mood, pet_local, displace_state, next_plan, pet_say2master, day_plan, curr_time, public_screen_str, cur_state, None, journey_img, sample_destination
+    journey_img_url = prompt2img(prompt="兔子宠物来到滇池，湖面湛蓝，四周空阔。远处山林茂密，郁郁葱葱。气氛宁静美好。")
+
+    return pet_satiety, pet_mood, pet_local, displace_state, next_plan, pet_say2master, day_plan, curr_time, public_screen_str, cur_state, None, journey_img_url, sample_destination
 
 
 def give_feed(curr_time: str, cur_state: str, feed_type: str, public_screen_txtbox: str = None):
@@ -307,4 +304,4 @@ with gr.Blocks() as demo:
                      outputs=[pet_state_txtbox, public_screen_txtbox, pet_mood_txtbox,
                               pet_satiety_txtbox])
 
-demo.queue().launch(server_name="0.0.0.0", server_port=8704)
+demo.queue().launch(server_name="0.0.0.0", server_port=8705)

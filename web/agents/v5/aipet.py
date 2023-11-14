@@ -1,47 +1,24 @@
-import openai
+from openai import OpenAI
 
 from abc import ABCMeta, abstractmethod
 import config
 import random
 
 
-def get_gpt_result(engine_name: str, message_list: list) -> str:
-    response = openai.ChatCompletion.create(
-        engine=engine_name,
-        messages=message_list,
-        temperature=0.7,
-        max_tokens=800,
-        top_p=0.95,
-        frequency_penalty=0,
-        presence_penalty=0,
-        stop=None)
-    res_text = response['choices'][0]['message']['content']
+def get_gpt_result(engine_name: str = 'gpt-4', message_list: list = []) -> str:
+    api_key = "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"
+    client = OpenAI(api_key=api_key)
+
+    response = client.chat.completions.create(
+        model=engine_name,
+        messages=message_list
+    )
+
+    res_text = response.choices[0].message.content
     print("=" * 100)
     print(f"response_text:\n{res_text}")
     print("=" * 100 + "\n\n")
     return res_text
-
-
-def set_gpt_env(gpt_version: str = 3.5):
-    """设置gpt接口类型，3.5还是4"""
-    if gpt_version == "gpt3.5":
-        openai.api_type = "azure"
-        openai.api_base = "https://bigo-chatgpt.openai.azure.com/"
-        openai.api_version = "2023-03-15-preview"
-        openai.api_key = "0ea6b47ac9e3423cab22106d4db65d9d"
-        engine_name = "bigo-gpt35"
-        print(f"set gpt engine_name to:{engine_name}")
-    elif gpt_version == 'gpt4':
-        openai.api_type = "azure"
-        openai.api_base = "https://gpt4-test-cj-0803.openai.azure.com/"
-        openai.api_version = "2023-03-15-preview"
-        openai.api_key = "bca8eef9f9c04c7bb1e573b4353e71ae"
-        engine_name = "gpt4-16k"
-        print(f"set gpt engine_name to:{engine_name}")
-    else:
-        raise EnvironmentError("must be set the gpt environment")
-
-    return engine_name
 
 
 class PetWorld:
@@ -123,10 +100,10 @@ class PersonPet(AiPet):
     ai宠物实例
     """
 
-    def __init__(self, name: str, gpt_version: str = 'gpt3.5'):
+    def __init__(self, name: str, gpt_version: str = 'gpt-4'):
         self.name = name
         self.friend_name = None
-        self.engine_name = set_gpt_env(gpt_version)
+        self.engine_name = gpt_version
         # 每天总结记忆
         self.data_summary_memory_list = []
         # 一天中所有状态的记忆
