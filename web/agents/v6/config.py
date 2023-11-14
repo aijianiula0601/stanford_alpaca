@@ -56,10 +56,10 @@ mood_list = "[开心,悲伤,愤怒,害怕,惊讶,厌恶,好奇]"
 cat_actor_dic = {
     "抬手": "imgs/cat/lifting_paw__cat_left.gif",
     "低头": "imgs/cat/lowering_head__cat_right.gif",
-    "缩脚": "imgs/cat/lifting_paw__cat_left.gif",
-    "摸头": "imgs/cat/lifting_paw__cat_left.gif",
-    "抖动肚子": "imgs/cat/lifting_paw__cat_left.gif",
-    "打喷嚏": "imgs/cat/lifting_paw__cat_left.gif",
+    "缩脚": "imgs/cat/pulling_back_feet__cat_left.gif",
+    "摸头": "imgs/cat/rubbing_head__cat_right.gif",
+    "抖动肚子": "imgs/cat/shake_belly__cat_left.gif",
+    "打喷嚏": "imgs/cat/sneezing__cat_left.gif",
 }
 
 pets_dic = {
@@ -279,7 +279,7 @@ stroke_prompt = pet_world_str + (
     "{all_place}\n\n"
 
     "主人抚摸你时候，你的一些动作和对应的图片路径:\n"
-    "{stroke_type2img_path}"
+    "{stroke_type2img_path}\n\n"
 
 
     "当前时间是: {curr_time}\n\n"
@@ -289,6 +289,13 @@ stroke_prompt = pet_world_str + (
     "有时候如果你在忙可以请主人不要打扰，可以适当拒绝。\n"
     "可能你某个部位不喜欢人家摸，可以表达不喜欢主人摸这个部位。\n"
     "如果你当前的状态不开心，当主人模你后，可以寻求主人的安慰。\n\n"
+
+    "可以按照下面方式做出相关的动作：\n"
+    "-抚摸你手，可以做出打抬手动作。\n"
+    "-抚摸你肚子，可以做出抖动肚子的动作。\n"
+    "-抚摸你脚，可以做出缩回脚的动作。\n"
+    "-抚摸你头，可以做出低头的动作。\n"
+    "-抚摸你鼻子，可以做出打喷嚏动作。\n\n"
 
     "输出格式如下：\n"
     "回应主人: (根据你当前的状态，输出你回复主人的话语或动作，字符不超过30)\n"

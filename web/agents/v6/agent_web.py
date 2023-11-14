@@ -238,7 +238,6 @@ def stroke_pet(curr_time: str, cur_state: str, stroke_type: str, pet_satiety: st
 
 with gr.Blocks() as demo:
     gr.Markdown("# AI宠物聊天demo")
-    pet_state_btn = gr.Button("刷新状态(推进1小时)")
     with gr.Column():
         with gr.Row():
             pet_select_dpd = gr.Dropdown(value=default_pet_name, choices=all_pet_names, label="领养你的宠物",
@@ -249,6 +248,8 @@ with gr.Blocks() as demo:
             pet_img = gr.Image(type="filepath", label="宠物形象", height=150, width=150,
                                value=list(config.cat_actor_dic.values())[0],
                                interactive=False)
+            journey_img = gr.Image(type="filepath", label='旅行图片', value=None, height=150, width=150,
+                                   interactive=False)
 
         with gr.Row():
             current_time_txtbox = gr.Dropdown(value=time_list[7], choices=time_list, label="选择当前时间",
@@ -267,7 +268,8 @@ with gr.Blocks() as demo:
                                                       interactive=True)
                 pet_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物当前状态", interactive=True,
                                               visible=False)
-                pet_hidden_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物隐藏的当前状态", interactive=True,
+                pet_hidden_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物隐藏的当前状态",
+                                                     interactive=True,
                                                      visible=False)
             with gr.Row():
                 announcement_info_txtbox = gr.Textbox(lines=1, value=None, label="推送信息", interactive=False)
@@ -281,6 +283,8 @@ with gr.Blocks() as demo:
                                          interactive=False, visible=False)
 
         with gr.Row():
+            pet_state_btn = gr.Button("刷新状态(推进1小时)")
+
             with gr.Column():
                 stroke_type_dpd = gr.Radio(stroke_type_list, label="抚摸部位", interactive=True,
                                            value=stroke_type_list[0])
@@ -292,7 +296,6 @@ with gr.Blocks() as demo:
                                          label="选择投喂的食物")
 
                 give_feed_btn = gr.Button("投喂")
-            journey_img = gr.Image(type="filepath", label='旅行图片', value=None, interactive=False)
 
     next_plan_txtbox = gr.Textbox(lines=2, value=None, label="下一步计划", visible=False)
     pet_day_plan_txtbox = gr.Textbox(lines=2, value=None, label="宠物的行程计划", interactive=True, visible=False)
