@@ -209,7 +209,7 @@ def stroke_pet(curr_time: str, cur_state: str, stroke_type: str, pet_satiety: st
 
     per_res = get_state_value("回应主人", cur_state)
     pet_mood = get_state_value("心情", cur_state)
-    pet_img_path = get_state_value("图片路径", cur_state)
+    pet_img_path = get_state_value("图片路径", cur_state).replace('"', '')
     if not os.path.exists(pet_img_path):
         print(f"----宠物图片路径:{pet_img_path}")
         pet_img_path = None
