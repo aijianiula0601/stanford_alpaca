@@ -231,7 +231,6 @@ with gr.Blocks() as demo:
                                          interactive=True)
             journey_rad = gr.Radio(choices=["出门旅行", "无旅行计划"], label="旅行选择", value="出门旅行",
                                    interactive=True)
-            # current_time_txtbox = gr.Dropdown(value=time.strftime("%H:00:00", time.localtime()), choices=time_list,label="选择当前时间",interactive=True)
             current_time_txtbox = gr.Dropdown(value=time_list[7], choices=time_list, label="选择当前时间",
                                               interactive=True)
             gpt_select_dpd = gr.Dropdown(value='gpt4', choices=['gpt3.5', 'gpt4'], label="gpt引擎选择",
@@ -244,7 +243,7 @@ with gr.Blocks() as demo:
             with gr.Row():
                 pet_local_txtbox = gr.Textbox(lines=1, value=None, label="宠物位置", interactive=True)
                 friend_pet_state_txtbox = gr.Dropdown(value=None, choices=friend_state_list,
-                                                      label="朋友(宠物主人)状态",
+                                                      label="朋友(合养宠物主人)状态",
                                                       interactive=True)
                 pet_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物当前状态", interactive=True,
                                               visible=False)
@@ -252,7 +251,6 @@ with gr.Blocks() as demo:
                                                      visible=False)
             with gr.Row():
                 announcement_info_txtbox = gr.Textbox(lines=1, value=None, label="推送信息", interactive=False)
-                # journey_info_txtbox = gr.Textbox(lines=1, value='还没出发', label="旅行信息", interactive=False)
 
             public_screen_txtbox = gr.Textbox(lines=2, value=None, label="公告信息", max_lines=4, interactive=False)
             destination = gr.Textbox(lines=1, value=None, label="选择旅游的地方", interactive=False, visible=False)
@@ -284,8 +282,7 @@ with gr.Blocks() as demo:
     # 重新选择宠物
     pet_select_dpd.change(select_pet, inputs=[pet_select_dpd, gpt_select_dpd],
                           outputs=[pet_info_txtbox, pet_satiety_txtbox, pet_mood_txtbox, pet_local_txtbox,
-                                   announcement_info_txtbox,
-                                   pet_day_plan_txtbox, pet_state_txtbox, next_plan_txtbox,
+                                   announcement_info_txtbox, pet_day_plan_txtbox, pet_state_txtbox, next_plan_txtbox,
                                    current_time_txtbox, stroke_type_dpd, feed_type_dpd, public_screen_txtbox])
     # 刷新一小时
     pet_state_btn.click(get_state,
