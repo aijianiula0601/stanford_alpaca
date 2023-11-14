@@ -2,6 +2,7 @@ import openai
 
 from abc import ABCMeta, abstractmethod
 import config
+import random
 
 
 def get_gpt_result(engine_name: str, message_list: list) -> str:
@@ -171,7 +172,7 @@ class PersonPet(AiPet):
         self.day_state_memory_list.clear()
         return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
 
-    def day_plan(self, journey_rad: str):
+    def day_plan(self, journey_rad: str, destination: str = None, attraction_places: str = None):
         """
         规划一天的行程
         """
@@ -179,6 +180,8 @@ class PersonPet(AiPet):
             prompt = config.journey_day_plan_prompt.format_map(
                 {'role_name': self.name,
                  'role_description': self.pet_info(),
+                 'destination': destination,
+                 'destination_places': attraction_places,
                  })
         else:
             prompt = config.day_plan_prompt.format_map(
@@ -204,17 +207,23 @@ class PersonPet(AiPet):
 
     def state(self, curr_time: str, next_time: str, day_plan: str, cur_state: str, cur_satiety: str,
               friend_cur_state: str = None,
-              journey_rad: str = None):
+              journey_rad: str = None, destination: str = None):
         """
         获取宠物当前状态：心情、饱腹感、思考，当前在干什么
         """
 
         if journey_rad == "出门旅行":
+            destination_places_and_description = '\n'.join([f"{p}:{config.attraction_description_dic[p]}" for p in
+                                                            config.attraction_dic[destination]])
+            place2img = '\n'.join([f"{p}:{config.attraction_path_dic[p]}" for p in config.attraction_dic[destination]])
+
             prompt = config.journey_state_prompt.format_map(
                 {'role_name': self.name, 'role_description': self.pet_info(), 'all_place': PETWORLD_OBJ.place_str,
                  'curr_time': curr_time, 'day_plan': day_plan, 'cur_state': cur_state,
                  'next_time': next_time, 'friend_name': self.friend_name, 'friend_cur_state': friend_cur_state,
-                 'journey_rad': journey_rad, 'cur_satiety': cur_satiety
+                 'journey_rad': journey_rad, 'cur_satiety': cur_satiety,
+                 'destination_places_and_description': destination_places_and_description, 'destination': destination,
+                 'place2img': place2img
                  })
         else:
             prompt = config.state_prompt.format_map(
@@ -225,6 +234,20 @@ class PersonPet(AiPet):
                  })
         print("-" * 100)
         print(f"state prompt:\n{prompt}")
+        print("-" * 100)
+        message_list = [{"role": "user", "content": prompt}]
+        return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
+
+    def judge_journey_place(self, curr_time: str, next_time: str, current_state: str, feed_type: str):
+        """
+        判断旅行位置
+        """
+        prompt = config.give_feed_prompt.format_map(
+            {'role_name': self.name, 'role_description': self.pet_info(), 'curr_time': curr_time,
+             'current_state': current_state, 'feed_type': feed_type, 'next_time': next_time
+             })
+        print("-" * 100)
+        print(f"give_feed prompt:\n{prompt}")
         print("-" * 100)
         message_list = [{"role": "user", "content": prompt}]
         return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
@@ -261,3 +284,52 @@ class PersonPet(AiPet):
         if res.startswith(f"{self.name}:") or res.startswith(f"{self.name}："):
             return res.replace(f"{self.name}:", "").strip()
         return res
+
+    ##################
+    # 旅行
+    ##################
+
+    def place_decide(self, curr_time: str, current_state: str):
+
+        places = ' '.join([place for place in config.journey_places])
+        prompt = config.place_decide_prompt.format_map(
+            {'role_name': self.name, 'role_description': self.pet_info(), 'curr_time': curr_time,
+             'current_state': current_state, 'places': places
+             })
+        print("-" * 100)
+        print(f"give_feed prompt:\n{prompt}")
+        print("-" * 100)
+        message_list = [{"role": "user", "content": prompt}]
+        return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
+
+    def attraction_decide(self, place, curr_time: str, current_state: str):
+        for pla in config.journey_places:
+            if pla in place:
+                place = pla
+        attractions = ' '.join([attraction for attraction in config.attraction_dic[place]])
+        prompt = config.attraction_decide_prompt.format_map(
+            {'role_name': self.name, 'role_description': self.pet_info(), 'curr_time': curr_time,
+             'current_state': current_state, 'places': attractions
+             })
+        print("-" * 100)
+        print(f"give_feed prompt:\n{prompt}")
+        print("-" * 100)
+        message_list = [{"role": "user", "content": prompt}]
+        return get_gpt_result(engine_name=self.engine_name, message_list=message_list)
+
+    def attraction_travel(self, place, attraction, curr_time: str, current_state: str):
+
+        for att in config.attraction_dic[place]:
+            if att in attraction:
+                attraction = att
+        prompt = config.attraction_travel_prompt.format_map(
+            {'role_name': self.name, 'role_description': self.pet_info(), 'curr_time': curr_time,
+             'current_state': current_state, 'attraction': attraction,
+             'discreption': config.attraction_description_dic[attraction]
+             })
+        print("-" * 100)
+        print(f"give_feed prompt:\n{prompt}")
+        print("-" * 100)
+        message_list = [{"role": "user", "content": prompt}]
+        path = config.attraction_path_dic[attraction]
+        return get_gpt_result(engine_name=self.engine_name, message_list=message_list), path

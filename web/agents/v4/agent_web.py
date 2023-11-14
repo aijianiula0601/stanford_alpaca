@@ -2,7 +2,7 @@ import re
 import time
 import gradio as gr
 import config
-
+import random
 from aipet import PersonPet
 
 all_pet_names = list(config.pets_dic.keys())
@@ -18,9 +18,8 @@ time_list = ["00:00:00", "01:00:00", "02:00:00", "03:00:00", "04:00:00", "05:00:
              "17:00:00", "18:00:00", "19:00:00", "20:00:00", "21:00:00", "22:00:00", "23:00:00", "24:00:00"]
 
 friend_state_list = [
-    "我很饿，饿死了。",
-    "在家刷牙时候不小心牙刷捅到牙龈，嘴巴出血了。",
-    "我现在在院子玩耍，碰到一直松鼠，在追它的时候，摔倒受伤了。",
+    "已经隔了一天没来投喂了",
+    "已经隔很久没来逗宠物玩了",
 ]
 
 
@@ -81,7 +80,8 @@ def get_state_value(key, cur_state):
 
 
 def get_state(curr_time: str, pet_satiety_txtbox: str, cur_state: str, day_plan: str = None,
-              displace_info_txtbox: str = None, friend_pet_state_txtbox: str = None, journey_rad: str = None):
+              displace_info_txtbox: str = None, friend_pet_state_txtbox: str = None, journey_rad: str = None,
+              sample_destination=None):
     """
     获取宠物的状态
     """
@@ -95,14 +95,16 @@ def get_state(curr_time: str, pet_satiety_txtbox: str, cur_state: str, day_plan:
     # 宠物接下来的计划
     # --------------------
     if day_plan is None or day_plan == '':
-        day_plan = glob_pet_obj.day_plan(journey_rad)
+        sample_destination = random.sample(config.journey_places, k=1)[0]
+        attraction_places = ','.join(config.attraction_dic[sample_destination])
+        day_plan = glob_pet_obj.day_plan(journey_rad, sample_destination, attraction_places)
 
     # --------------------
     # 状态
     # --------------------
     res_text = glob_pet_obj.state(curr_time=curr_time, next_time=next_time, day_plan=day_plan, cur_state=cur_state,
                                   friend_cur_state=friend_pet_state_txtbox, journey_rad=journey_rad,
-                                  cur_satiety=pet_satiety_txtbox)
+                                  cur_satiety=pet_satiety_txtbox, destination=sample_destination)
 
     pet_mood = parse_res_text(res_text, "心情")
     pet_satiety = parse_res_text(res_text, "饱腹感")
@@ -125,8 +127,8 @@ def get_state(curr_time: str, pet_satiety_txtbox: str, cur_state: str, day_plan:
     # --------------------
     # 存入状态记忆
     # --------------------
-    state_memory = f"时间:{curr_time}\t{pet_cur_state}"
-    glob_pet_obj.day_state_memory_list.append(state_memory)
+    # state_memory = f"时间:{curr_time}\t{pet_cur_state}"
+    # glob_pet_obj.day_state_memory_list.append(state_memory)
 
     # --------------------
     # 对一天所有状态进行总结
@@ -134,7 +136,17 @@ def get_state(curr_time: str, pet_satiety_txtbox: str, cur_state: str, day_plan:
     # 需要确定什么情况下
     # summary_day_state = glob_pet_obj.summary_day_state()
 
-    return pet_satiety, pet_mood, pet_local, displace_state, next_plan, pet_say2master, day_plan, curr_time, public_screen_str, cur_state, None
+    # --------------------
+    # 显示图片
+    # --------------------
+    try:
+        journey_img = parse_res_text(res_text, "图片路径").replace('"', '')
+        if 'none' in journey_img.lower():
+            journey_img = None
+    except Exception as e:
+        journey_img = None
+
+    return pet_satiety, pet_mood, pet_local, displace_state, next_plan, pet_say2master, day_plan, curr_time, public_screen_str, cur_state, None, journey_img, sample_destination
 
 
 def give_feed(curr_time: str, cur_state: str, feed_type: str, public_screen_txtbox: str = None):
@@ -217,7 +229,7 @@ with gr.Blocks() as demo:
         with gr.Row():
             pet_select_dpd = gr.Dropdown(value=default_pet_name, choices=all_pet_names, label="领养你的宠物",
                                          interactive=True)
-            journey_rad = gr.Radio(choices=["出门旅行", "无旅行计划"], label="旅行选择", value="无旅行计划",
+            journey_rad = gr.Radio(choices=["出门旅行", "无旅行计划"], label="旅行选择", value="出门旅行",
                                    interactive=True)
             # current_time_txtbox = gr.Dropdown(value=time.strftime("%H:00:00", time.localtime()), choices=time_list,label="选择当前时间",interactive=True)
             current_time_txtbox = gr.Dropdown(value=time_list[7], choices=time_list, label="选择当前时间",
@@ -232,7 +244,7 @@ with gr.Blocks() as demo:
             with gr.Row():
                 pet_local_txtbox = gr.Textbox(lines=1, value=None, label="宠物位置", interactive=True)
                 friend_pet_state_txtbox = gr.Dropdown(value=None, choices=friend_state_list,
-                                                      label="朋友宠物状态",
+                                                      label="朋友(宠物主人)状态",
                                                       interactive=True)
                 pet_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物当前状态", interactive=True,
                                               visible=False)
@@ -243,6 +255,7 @@ with gr.Blocks() as demo:
                 # journey_info_txtbox = gr.Textbox(lines=1, value='还没出发', label="旅行信息", interactive=False)
 
             public_screen_txtbox = gr.Textbox(lines=2, value=None, label="公告信息", max_lines=4, interactive=False)
+            destination = gr.Textbox(lines=1, value=None, label="选择旅游的地方", interactive=False, visible=False)
 
         with gr.Row():
             pet_info_txtbox = gr.Textbox(lines=1, max_lines=4, value=get_pet_info_str(default_pet_name),
@@ -265,8 +278,8 @@ with gr.Blocks() as demo:
                 give_feed_btn = gr.Button("投喂")
 
     next_plan_txtbox = gr.Textbox(lines=2, value=None, label="下一步计划", visible=False)
-
     pet_day_plan_txtbox = gr.Textbox(lines=2, value=None, label="宠物的行程计划", interactive=True, visible=False)
+    journey_img = gr.Image(type="filepath", value=None, interactive=False)
 
     # 重新选择宠物
     pet_select_dpd.change(select_pet, inputs=[pet_select_dpd, gpt_select_dpd],
@@ -277,11 +290,12 @@ with gr.Blocks() as demo:
     # 刷新一小时
     pet_state_btn.click(get_state,
                         inputs=[current_time_txtbox, pet_satiety_txtbox, pet_hidden_state_txtbox,
-                                pet_day_plan_txtbox, public_screen_txtbox, friend_pet_state_txtbox, journey_rad],
+                                pet_day_plan_txtbox, public_screen_txtbox, friend_pet_state_txtbox, journey_rad,
+                                destination],
                         outputs=[pet_satiety_txtbox, pet_mood_txtbox, pet_local_txtbox, pet_state_txtbox,
                                  next_plan_txtbox, announcement_info_txtbox, pet_day_plan_txtbox,
                                  current_time_txtbox, public_screen_txtbox, pet_hidden_state_txtbox,
-                                 friend_pet_state_txtbox])
+                                 friend_pet_state_txtbox, journey_img, destination])
 
     # 投喂
     give_feed_btn.click(give_feed,
@@ -296,4 +310,4 @@ with gr.Blocks() as demo:
                      outputs=[pet_state_txtbox, public_screen_txtbox, pet_mood_txtbox,
                               pet_satiety_txtbox])
 
-demo.queue().launch(server_name="0.0.0.0", server_port=8703)
+demo.queue().launch(server_name="0.0.0.0", server_port=8704)
