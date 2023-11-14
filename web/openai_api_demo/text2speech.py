@@ -6,7 +6,8 @@ import openai
 # -----------------------------------------------------------------------------
 
 
-openai.api_key = "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"
+# openai.api_key = "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"
+api_key = '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'
 
 
 def text2speech(prompt, save_file_path):

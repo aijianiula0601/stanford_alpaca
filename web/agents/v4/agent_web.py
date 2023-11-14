@@ -3,6 +3,7 @@ import time
 import gradio as gr
 import config
 import random
+import os
 from aipet import PersonPet
 
 all_pet_names = list(config.pets_dic.keys())
@@ -208,6 +209,9 @@ def stroke_pet(curr_time: str, cur_state: str, stroke_type: str, pet_satiety: st
 
     per_res = get_state_value("回应主人", cur_state)
     pet_mood = get_state_value("心情", cur_state)
+    pet_img_path = get_state_value("图片路径", cur_state)
+    if not os.path.exists(pet_img_path):
+        pet_img_path = None
 
     # --------------------
     # 组装公告信息
@@ -219,18 +223,24 @@ def stroke_pet(curr_time: str, cur_state: str, stroke_type: str, pet_satiety: st
 
     displace_state = f"【回应主人】{per_res}\n【状态】{pet_state}\n【思考】{pet_thought}\n【下一步计划】{next_plan}"
 
-    return displace_state, public_screen_str, pet_mood, pet_satiety
+    return displace_state, public_screen_str, pet_mood, pet_satiety, pet_img_path
 
 
 with gr.Blocks() as demo:
-    with gr.Row():
-        gr.Markdown("# AI宠物聊天demo")
+    gr.Markdown("# AI宠物聊天demo")
+    pet_state_btn = gr.Button("刷新状态(推进1小时)")
     with gr.Column():
         with gr.Row():
             pet_select_dpd = gr.Dropdown(value=default_pet_name, choices=all_pet_names, label="领养你的宠物",
                                          interactive=True)
             journey_rad = gr.Radio(choices=["出门旅行", "无旅行计划"], label="旅行选择", value="出门旅行",
                                    interactive=True)
+
+            pet_img = gr.Image(type="filepath", label="宠物形象", height=150, width=150,
+                               value=list(config.cat_actor_dic.values())[0],
+                               interactive=False)
+
+        with gr.Row():
             current_time_txtbox = gr.Dropdown(value=time_list[7], choices=time_list, label="选择当前时间",
                                               interactive=True)
             gpt_select_dpd = gr.Dropdown(value='gpt4', choices=['gpt3.5', 'gpt4'], label="gpt引擎选择",
@@ -261,8 +271,6 @@ with gr.Blocks() as demo:
                                          interactive=False, visible=False)
 
         with gr.Row():
-            pet_state_btn = gr.Button("刷新状态(推进1小时)")
-
             with gr.Column():
                 stroke_type_dpd = gr.Radio(stroke_type_list, label="抚摸部位", interactive=True,
                                            value=stroke_type_list[0])
@@ -274,10 +282,10 @@ with gr.Blocks() as demo:
                                          label="选择投喂的食物")
 
                 give_feed_btn = gr.Button("投喂")
+            journey_img = gr.Image(type="filepath", label='旅行图片', value=None, interactive=False)
 
     next_plan_txtbox = gr.Textbox(lines=2, value=None, label="下一步计划", visible=False)
     pet_day_plan_txtbox = gr.Textbox(lines=2, value=None, label="宠物的行程计划", interactive=True, visible=False)
-    journey_img = gr.Image(type="filepath", value=None, interactive=False)
 
     # 重新选择宠物
     pet_select_dpd.change(select_pet, inputs=[pet_select_dpd, gpt_select_dpd],
@@ -305,6 +313,6 @@ with gr.Blocks() as demo:
                      inputs=[current_time_txtbox, pet_state_txtbox, stroke_type_dpd, pet_satiety_txtbox,
                              public_screen_txtbox, pet_day_plan_txtbox],
                      outputs=[pet_state_txtbox, public_screen_txtbox, pet_mood_txtbox,
-                              pet_satiety_txtbox])
+                              pet_satiety_txtbox, pet_img])
 
 demo.queue().launch(server_name="0.0.0.0", server_port=8704)

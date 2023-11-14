@@ -270,9 +270,14 @@ class PersonPet(AiPet):
         """
         主人抚摸
         """
+
+        stroke_type2img_path = "\n".join([f"{k}: {config.cat_actor_dic[k]}" for k in config.cat_actor_dic.keys()])
+        all_actors = ",".join(list(config.cat_actor_dic.keys()))
+
         prompt = config.stroke_prompt.format_map(
             {'role_name': self.name, 'role_description': self.pet_info(), 'curr_time': curr_time,
-             'all_place': PETWORLD_OBJ.place_str,
+             'all_place': PETWORLD_OBJ.place_str, 'stroke_type2img_path': stroke_type2img_path,
+             'all_actors': all_actors,
              'current_state': current_state, "stroke_type": stroke_type, 'next_time': next_time, 'day_plan': day_plan,
              })
         print("-" * 100)

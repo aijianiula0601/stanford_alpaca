@@ -6,8 +6,8 @@ import random
 
 
 def get_gpt_result(engine_name: str = 'gpt-4', message_list: list = []) -> str:
-    api_key = "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"
-    client = OpenAI(api_key=api_key)
+    api_key = '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'
+    client = OpenAI(api_key=api_key, organization='org-vZinLD7D6tNWUWeWJJtAUyzD')
 
     response = client.chat.completions.create(
         model=engine_name,
