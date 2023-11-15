@@ -124,7 +124,7 @@ def get_state(curr_time: str, pet_satiety_txtbox: str, cur_state: str, day_plan:
     if journey_rad:
         if pet_generate_pic is not None and '生成景点图片' in pet_generate_pic:
             if 'None' not in pet_pic_prompt:
-                prompt = '你是一只兔子宠物，你现在面对的场景是：\n' + pet_pic_prompt
+                prompt = '你现在面对的场景是：\n' + pet_pic_prompt
         else:
             prompt = None
 
