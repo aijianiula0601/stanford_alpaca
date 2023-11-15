@@ -3,10 +3,10 @@ from openai import OpenAI
 from abc import ABCMeta, abstractmethod
 import config
 import random
+from openai_image_demo import api_key
 
 
 def get_gpt_result(engine_name: str = 'gpt-4', message_list: list = []) -> str:
-    api_key = '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'
     client = OpenAI(api_key=api_key, organization='org-vZinLD7D6tNWUWeWJJtAUyzD')
 
     response = client.chat.completions.create(

@@ -129,3 +129,5 @@ dmypy.json
 
 .DS_Store
 .idea
+/web/agents/v6/imgs/cat/
+/web/agents/v4/imgs/cat/
