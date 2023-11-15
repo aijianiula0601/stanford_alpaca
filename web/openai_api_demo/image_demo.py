@@ -5,7 +5,7 @@ from openai import OpenAI
 # -----------------------------------------------------------------------------
 
 
-api_key = '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'
+api_key = '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'
 
 client = OpenAI(api_key=api_key, organization='org-vZinLD7D6tNWUWeWJJtAUyzD')
 
@@ -22,5 +22,5 @@ def prompt2img(prompt):
 
 
 if __name__ == '__main__':
-    img_url = prompt2img(prompt="夕阳下，以小女孩，白皮肤，做在海滩上。")
+    img_url = prompt2img(prompt="生成动漫风格图像，夕阳下，以小女孩，白皮肤，做在海滩上。")
     print(img_url)

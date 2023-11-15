@@ -7,13 +7,15 @@ import os
 from aipet import PersonPet
 from openai_image_demo import prompt2img
 
+os.environ['GRADIO_TEMP_DIR'] = "./tmp"
+
 all_pet_names = list(config.pets_dic.keys())
 
 # 初始化用户示例
 default_pet_name = all_pet_names[0]
 glob_pet_obj: PersonPet = PersonPet(default_pet_name)
 
-feed_type_list = ["萝卜", "草", "芒果", "香蕉", "水", "大蒜", "啤酒", "巧克力"]
+feed_type_list = ["鱼", "萝卜", "草", "芒果", "香蕉", "水", "大蒜", "啤酒", "巧克力"]
 stroke_type_list = ["头部", "肚子", "脚", "手", "背部", "鼻子"]
 time_list = ["00:00:00", "01:00:00", "02:00:00", "03:00:00", "04:00:00", "05:00:00", "06:00:00", "07:00:00", "08:00:00",
              "09:00:00", "10:00:00", "11:00:00", "12:00:00", "13:00:00", "14:00:00", "15:00:00", "16:00:00",
@@ -124,7 +126,8 @@ def get_state(curr_time: str, pet_satiety_txtbox: str, cur_state: str, day_plan:
     if journey_rad:
         if pet_generate_pic is not None and '生成景点图片' in pet_generate_pic:
             if 'None' not in pet_pic_prompt:
-                prompt = '你现在面对的场景是：\n' + pet_pic_prompt
+                prompt = "生成唯美动漫风格的图片，稍微抽象一点:\n" + pet_pic_prompt
+                print('+++++++++++++++++++++++++++++++++++++++\n' + prompt)
         else:
             prompt = None
 
@@ -154,6 +157,7 @@ def get_state(curr_time: str, pet_satiety_txtbox: str, cur_state: str, day_plan:
     journey_img_url = None
     if prompt is not None:
         journey_img_url = prompt2img(prompt=prompt)
+        print('+++++++++++++++++++++++++++++++++++++++\n' + journey_img_url)
     else:
         journey_img_url = None
 
@@ -178,6 +182,12 @@ def give_feed(curr_time: str, cur_state: str, feed_type: str, public_screen_txtb
     pet_local = get_state_value("位置", cur_state)
     pet_thought = get_state_value("思考", cur_state)
     pet_state = get_state_value("状态", cur_state)
+    pet_enjoy = get_state_value("喜欢程度", cur_state)
+
+    if '不喜欢' in pet_enjoy:
+        img_path = 'imgs/cat/unhappy_eat.gif'
+    else:
+        img_path = 'imgs/cat/happy_eat.gif'
 
     displace_state = f"【回应主人】{to_user_msg}\n【状态】{pet_state}\n【思考】{pet_thought}\n【下一步计划】{next_plan}"
 
@@ -194,7 +204,7 @@ def give_feed(curr_time: str, cur_state: str, feed_type: str, public_screen_txtb
     # --------------------
     hidden_state = f"饱腹感：{pet_satiety}\n心情：{pet_mood}\n思考：{pet_thought}\n状态：{pet_state}\n下一步计划：{next_plan}"
 
-    return pet_satiety, pet_mood, displace_state, pet_local, next_plan, public_screen_str, hidden_state
+    return pet_satiety, pet_mood, displace_state, pet_local, next_plan, public_screen_str, hidden_state, img_path
 
 
 def stroke_pet(curr_time: str, cur_state: str, stroke_type: str, pet_satiety: str, displace_info_txtbox: str,
@@ -319,7 +329,8 @@ with gr.Blocks() as demo:
     give_feed_btn.click(give_feed,
                         inputs=[current_time_txtbox, pet_hidden_state_txtbox, feed_type_dpd, public_screen_txtbox],
                         outputs=[pet_satiety_txtbox, pet_mood_txtbox, pet_state_txtbox,
-                                 pet_local_txtbox, next_plan_txtbox, public_screen_txtbox, pet_hidden_state_txtbox])
+                                 pet_local_txtbox, next_plan_txtbox, public_screen_txtbox, pet_hidden_state_txtbox,
+                                 pet_img])
 
     # 主人抚摸
     stroke_btn.click(stroke_pet,
