@@ -168,6 +168,12 @@ def give_feed(curr_time: str, cur_state: str, feed_type: str, public_screen_txtb
     pet_local = get_state_value("位置", cur_state)
     pet_thought = get_state_value("思考", cur_state)
     pet_state = get_state_value("状态", cur_state)
+    pet_enjoy = get_state_value("喜欢程度", cur_state)
+
+    if '不喜欢' in pet_enjoy:
+        img_path = 'imgs/cat/unhappy_eat.gif'
+    else:
+        img_path = 'imgs/cat/happy_eat.gif'
 
     displace_state = f"【回应主人】{to_user_msg}\n【状态】{pet_state}\n【思考】{pet_thought}\n【下一步计划】{next_plan}"
 
@@ -184,7 +190,7 @@ def give_feed(curr_time: str, cur_state: str, feed_type: str, public_screen_txtb
     # --------------------
     hidden_state = f"饱腹感：{pet_satiety}\n心情：{pet_mood}\n思考：{pet_thought}\n状态：{pet_state}\n下一步计划：{next_plan}"
 
-    return pet_satiety, pet_mood, displace_state, pet_local, next_plan, public_screen_str, hidden_state
+    return pet_satiety, pet_mood, displace_state, pet_local, next_plan, public_screen_str, hidden_state, img_path
 
 
 def stroke_pet(curr_time: str, cur_state: str, stroke_type: str, pet_satiety: str, displace_info_txtbox: str,
@@ -309,7 +315,8 @@ with gr.Blocks() as demo:
     give_feed_btn.click(give_feed,
                         inputs=[current_time_txtbox, pet_hidden_state_txtbox, feed_type_dpd, public_screen_txtbox],
                         outputs=[pet_satiety_txtbox, pet_mood_txtbox, pet_state_txtbox,
-                                 pet_local_txtbox, next_plan_txtbox, public_screen_txtbox, pet_hidden_state_txtbox])
+                                 pet_local_txtbox, next_plan_txtbox, public_screen_txtbox, pet_hidden_state_txtbox,
+                                 pet_img])
 
     # 主人抚摸
     stroke_btn.click(stroke_pet,
