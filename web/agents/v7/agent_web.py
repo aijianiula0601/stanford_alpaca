@@ -129,16 +129,10 @@ def get_state(curr_time: str, pet_satiety_txtbox: str, cur_state: str, day_plan:
     # 显示图片
     # --------------------
     save_journey_img_p = None
-    if journey_rad == "出门旅行":
-        if pet_generate_pic is not None and '生成景点图片' in pet_generate_pic:
-            if 'None' not in pet_pic_prompt:
-                prompt = "生成唯美动漫风格的图片，并且将一直可爱的猫代入场景中，稍微抽象一点:\n" + pet_pic_prompt
-                prompt = "将下列句子翻译为英文，只返回英文：\n" + prompt
-                message_list = [{"role": "user", "content": prompt}]
-                journey_prompt = get_gpt_result(message_list=message_list)
-                print('+++++++++++++++++++++++++++++++++++++++\n' + prompt)
-                save_journey_img_p = '/tmp/journey.png'
-                get_journey_img(prompt=journey_prompt, save_img_p=save_journey_img_p)
+    if journey_rad == "出门旅行" and pet_generate_pic is not None and '生成景点图片' in pet_generate_pic:
+        if 'None' not in pet_pic_prompt:
+            save_journey_img_p = '/tmp/journey.png'
+            get_journey_img(prompt=pet_pic_prompt, save_img_p=save_journey_img_p)
 
     # --------------------
     # 组装公告信息
