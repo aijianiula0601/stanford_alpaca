@@ -19,9 +19,9 @@ glob_pet_obj: PersonPet = PersonPet(default_pet_name, gpt_version="gpt4")
 
 feed_type_list = ["鱼", "萝卜", "草", "芒果", "香蕉", "水", "大蒜", "啤酒", "巧克力"]
 stroke_type_list = ["头部", "肚子", "脚", "手", "背部", "鼻子"]
-time_list = ["00:00:00", "02:00:00", "04:00:00", "06:00:00", "08:00:00",
-             "10:00:00", "12:00:00", "14:00:00", "16:00:00",
-             "18:00:00", "20:00:00", "22:00:00", "24:00:00"]
+time_list = ["00:00:00", "01:00:00", "02:00:00", "03:00:00", "04:00:00", "05:00:00", "06:00:00", "07:00:00", "08:00:00",
+             "09:00:00", "10:00:00", "11:00:00", "12:00:00", "13:00:00", "14:00:00", "15:00:00", "16:00:00",
+             "17:00:00", "18:00:00", "19:00:00", "20:00:00", "21:00:00", "22:00:00", "23:00:00", "24:00:00"]
 
 friend_state_list = [
     "已经隔了一天没来投喂了",
@@ -243,7 +243,7 @@ with gr.Blocks() as demo:
                                    interactive=False)
 
         with gr.Row():
-            current_time_txtbox = gr.Dropdown(value=time_list[4], choices=time_list, label="选择当前时间",
+            current_time_txtbox = gr.Dropdown(value=time_list[7], choices=time_list, label="选择当前时间",
                                               interactive=True)
             gpt_select_dpd = gr.Dropdown(value='gpt4', choices=['gpt3.5', 'gpt4'], label="gpt引擎选择",
                                          interactive=True, visible=False)
@@ -274,7 +274,7 @@ with gr.Blocks() as demo:
                                          interactive=False, visible=False)
 
         with gr.Row():
-            pet_state_btn = gr.Button("刷新状态(推进2小时)")
+            pet_state_btn = gr.Button("刷新状态(推进1小时)")
 
             with gr.Column():
                 stroke_type_dpd = gr.Radio(stroke_type_list, label="抚摸部位", interactive=True,
