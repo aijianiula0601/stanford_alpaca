@@ -6,9 +6,6 @@ api.util_set_model(model)
 
 
 def get_journey_img(prompt: str, save_img_p: str):
-    api = webuiapi.WebUIApi(host='202.168.100.176', port=17324)
-    model = "hellocartoonfilm_V13.safetensors [3ae7884eba]"
-    api.util_set_model(model)
     lora = ' <lora:pet-000006:1>'
     prompt += lora
 

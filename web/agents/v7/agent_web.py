@@ -9,15 +9,13 @@ from aipet import PersonPet
 from new_img_demo import get_journey_img
 from aipet import get_gpt_result
 
-os.environ['GRADIO_TEMP_DIR'] = "./tmp"
-
 all_pet_names = list(config.pets_dic.keys())
 
 # 初始化用户示例
 default_pet_name = all_pet_names[0]
 glob_pet_obj: PersonPet = PersonPet(default_pet_name, gpt_version="gpt4")
 
-feed_type_list = ["鱼", "萝卜", "草", "芒果", "香蕉", "水", "大蒜", "啤酒", "巧克力"]
+feed_type_list = ["鱼", "萝卜", "草", "芒果", "水", "大蒜", "啤酒", "巧克力"]
 stroke_type_list = ["头部", "肚子", "脚", "手", "背部", "鼻子"]
 time_list = ["00:00:00", "01:00:00", "02:00:00", "03:00:00", "04:00:00", "05:00:00", "06:00:00", "07:00:00", "08:00:00",
              "09:00:00", "10:00:00", "11:00:00", "12:00:00", "13:00:00", "14:00:00", "15:00:00", "16:00:00",
@@ -125,9 +123,11 @@ def get_state(curr_time: str, pet_satiety_txtbox: str, cur_state: str, day_plan:
     # 组装公告信息
     # --------------------
     if displace_info_txtbox is None or displace_info_txtbox == "":
-        public_screen_str = f"【{curr_time}】【状态】{pet_cur_state}【思考】{pet_thought}【下一步计划】{next_plan}"
+        # public_screen_str = f"【{curr_time}】【状态】{pet_cur_state}【思考】{pet_thought}【下一步计划】{next_plan}"
+        public_screen_str = f"【{curr_time}】【状态】{pet_cur_state}【下一步计划】{next_plan}"
     else:
-        public_screen_str = f"{displace_info_txtbox}\n【{curr_time}】【状态】{pet_cur_state}【思考】{pet_thought}【下一步计划】{next_plan}"
+        # public_screen_str = f"{displace_info_txtbox}\n【{curr_time}】【状态】{pet_cur_state}【思考】{pet_thought}【下一步计划】{next_plan}"
+        public_screen_str = f"{displace_info_txtbox}\n【{curr_time}】【状态】{pet_cur_state}【下一步计划】{next_plan}"
 
     return list(config.cat_actor_dic.values())[
                0], pet_satiety, pet_mood, pet_local, displace_state, next_plan, pet_say2master, day_plan, curr_time, public_screen_str, cur_state, None, save_journey_img_p, sample_destination
@@ -158,7 +158,8 @@ def give_feed(curr_time: str, cur_state: str, feed_type: str, public_screen_txtb
     else:
         img_path = 'imgs/cat/happy_eat.gif'
 
-    displace_state = f"【回应主人】{to_user_msg}\n【状态】{pet_state}\n【思考】{pet_thought}\n【下一步计划】{next_plan}"
+    # displace_state = f"【回应主人】{to_user_msg}\n【状态】{pet_state}\n【思考】{pet_thought}\n【下一步计划】{next_plan}"
+    displace_state = f"【回应主人】{to_user_msg}\n【状态】{pet_state}\n【下一步计划】{next_plan}"
 
     # --------------------
     # 组装公告信息
@@ -210,7 +211,8 @@ def stroke_pet(curr_time: str, cur_state: str, stroke_type: str, pet_satiety: st
     else:
         public_screen_str = f"{displace_info_txtbox}\n【{curr_time}】【抚摸】{stroke_type}【回应主人】{per_res}"
 
-    displace_state = f"【回应主人】{per_res}\n【状态】{pet_state}\n【思考】{pet_thought}\n【下一步计划】{next_plan}"
+    # displace_state = f"【回应主人】{per_res}\n【状态】{pet_state}\n【思考】{pet_thought}\n【下一步计划】{next_plan}"
+    displace_state = f"【回应主人】{per_res}\n【状态】{pet_state}\n【下一步计划】{next_plan}"
 
     return displace_state, public_screen_str, pet_mood, pet_satiety, pet_img_path
 
@@ -240,50 +242,21 @@ with gr.Blocks() as demo:
     with gr.Column():
         with gr.Row():
             pet_select_dpd = gr.Dropdown(value=default_pet_name, choices=all_pet_names, label="领养你的宠物",
-                                         interactive=True)
-            journey_rad = gr.Radio(choices=["出门旅行", "无旅行计划"], label="旅行选择", value="出门旅行",
-                                   interactive=True)
-
-            pet_img = gr.Image(type="filepath", label="宠物形象", height=150, width=150,
-                               value=list(config.cat_actor_dic.values())[0],
-                               interactive=False)
-            journey_img = gr.Image(type="filepath", label='旅行图片', value=None, height=150, width=150,
-                                   interactive=False)
-
-        with gr.Row():
-            current_time_txtbox = gr.Dropdown(value=time_list[7], choices=time_list, label="选择当前时间",
-                                              interactive=True)
-            gpt_select_dpd = gr.Dropdown(value='gpt4', choices=['gpt3.5', 'gpt4'], label="gpt引擎选择",
                                          interactive=True, visible=False)
 
-            pet_satiety_txtbox = gr.Textbox(lines=1, value='70', label="宠物饱腹感", interactive=True)
-            pet_mood_txtbox = gr.Textbox(lines=1, value=None, label="宠物心情", interactive=True)
+            pet_img = gr.Image(type="filepath", label="宠物形象", height=300, width=300,
+                               value=list(config.cat_actor_dic.values())[0],
+                               interactive=False)
+            journey_img = gr.Image(type="filepath", label='旅行图片', value=None, height=300, width=300,
+                                   interactive=False)
 
-        with gr.Column():
-            with gr.Row():
-                pet_local_txtbox = gr.Textbox(lines=1, value=None, label="宠物位置", interactive=True)
-                friend_pet_state_txtbox = gr.Dropdown(value=None, choices=friend_state_list,
-                                                      label="朋友(合养宠物主人)状态",
-                                                      interactive=True)
-                pet_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物当前状态", interactive=True,
-                                              visible=False)
-                pet_hidden_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物隐藏的当前状态",
-                                                     interactive=True,
-                                                     visible=False)
-            with gr.Row():
-                announcement_info_txtbox = gr.Textbox(lines=1, value=None, label="推送信息", interactive=False)
+        announcement_info_txtbox = gr.Textbox(lines=1, value=None, label="小组件推送", interactive=False, autofocus=True)
+        public_screen_txtbox = gr.Textbox(lines=4, value=None, label="公告信息", max_lines=6, interactive=False)
+        destination = gr.Textbox(lines=1, value=None, label="选择旅游的地方", interactive=False, visible=False)
 
-            public_screen_txtbox = gr.Textbox(lines=2, value=None, label="公告信息", max_lines=4, interactive=False)
-            destination = gr.Textbox(lines=1, value=None, label="选择旅游的地方", interactive=False, visible=False)
-
+        friend_pet_state_txtbox = gr.Dropdown(value=None, choices=friend_state_list, label="社交-朋友(合养宠物主人)状态",
+                                              interactive=True)
         with gr.Row():
-            pet_info_txtbox = gr.Textbox(lines=1, max_lines=4, value=get_pet_info_str(default_pet_name),
-                                         label="宠物信息",
-                                         interactive=False, visible=False)
-
-        with gr.Row():
-            pet_state_btn = gr.Button("刷新状态(推进1小时)")
-
             with gr.Column():
                 stroke_type_dpd = gr.Radio(stroke_type_list, label="抚摸部位", interactive=True,
                                            value=stroke_type_list[0])
@@ -296,6 +269,32 @@ with gr.Blocks() as demo:
 
                 give_feed_btn = gr.Button("投喂")
 
+
+        with gr.Row():
+            pet_local_txtbox = gr.Textbox(lines=1, value=None, label="宠物位置", interactive=True)
+
+            pet_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物当前状态", interactive=True,
+                                          visible=False)
+            pet_hidden_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物隐藏的当前状态",
+                                                 interactive=True,
+                                                 visible=False)
+
+        with gr.Row():
+            pet_satiety_txtbox = gr.Textbox(lines=1, value='70', label="宠物饱腹感", interactive=True)
+            pet_mood_txtbox = gr.Textbox(lines=1, value=None, label="宠物心情", interactive=True)
+            journey_rad = gr.Radio(choices=["出门旅行", "无旅行计划"], label="旅行选择", value="出门旅行",
+                                   interactive=True)
+            current_time_txtbox = gr.Dropdown(value=time_list[7], choices=time_list, label="选择当前时间",
+                                              interactive=True)
+            gpt_select_dpd = gr.Dropdown(value='gpt4', choices=['gpt3.5', 'gpt4'], label="gpt引擎选择",
+                                         interactive=True, visible=False)
+
+        with gr.Row():
+            pet_info_txtbox = gr.Textbox(lines=1, max_lines=4, value=get_pet_info_str(default_pet_name),
+                                         label="宠物信息",
+                                         interactive=False, visible=False)
+
+        pet_state_btn = gr.Button("活动推进")
     next_plan_txtbox = gr.Textbox(lines=2, value=None, label="下一步计划", visible=False)
     pet_day_plan_txtbox = gr.Textbox(lines=2, value=None, label="宠物的行程计划", interactive=True, visible=False)
 
