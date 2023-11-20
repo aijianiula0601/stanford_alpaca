@@ -210,7 +210,7 @@ class PersonPet(AiPet):
 
     def state(self, curr_time: str, next_time: str, day_plan: str, cur_state: str, cur_satiety: str,
               friend_cur_state: str = None,
-              journey_rad: str = None, destination: str = None):
+              journey_rad: str = None, destination: str = None, friend_master_name: str = "jack"):
         """
         获取宠物当前状态：心情、饱腹感、思考，当前在干什么
         """
@@ -222,17 +222,17 @@ class PersonPet(AiPet):
 
             prompt = config.journey_state_prompt.format_map(
                 {'role_name': self.name, 'role_description': self.pet_info(), 'all_place': PETWORLD_OBJ.place_str,
-                 'curr_time': curr_time, 'day_plan': day_plan, 'cur_state': cur_state,
-                 'next_time': next_time, 'journey_rad': journey_rad, 'cur_satiety': cur_satiety,
+                 'curr_time': curr_time, 'day_plan': day_plan, 'cur_state': cur_state, 'next_time': next_time,
+                 'journey_rad': journey_rad, 'cur_satiety': cur_satiety, 'friend_cur_state': friend_cur_state,
                  'destination_places_and_description': destination_places_and_description, 'destination': destination,
-                 'destination_places': destination_places
+                 'destination_places': destination_places, 'friend_master_name': friend_master_name,
                  })
         else:
             prompt = config.state_prompt.format_map(
                 {'role_name': self.name, 'role_description': self.pet_info(), 'all_place': PETWORLD_OBJ.place_str,
                  'curr_time': curr_time, 'day_plan': day_plan, 'cur_state': cur_state,
                  'next_time': next_time, 'friend_name': self.friend_name, 'friend_cur_state': friend_cur_state,
-                 'journey_rad': journey_rad, 'cur_satiety': cur_satiety,
+                 'journey_rad': journey_rad, 'cur_satiety': cur_satiety, 'friend_master_name': friend_master_name
                  })
         print("-" * 100)
         print(f"state prompt:\n{prompt}")

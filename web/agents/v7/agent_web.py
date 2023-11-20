@@ -67,18 +67,6 @@ def get_place_info_str():
     return place_list_str
 
 
-def select_pet(pet_name, gpt_version):
-    """
-    选择宠物
-    """
-    global glob_pet_obj
-    glob_pet_obj = PersonPet(name=pet_name, gpt_version=gpt_version)
-    return get_pet_info_str(pet_name), None, None, None, None, None, None, None, time.strftime("%H:00:00",
-                                                                                               time.localtime()), \
-           stroke_type_list[0], \
-           feed_type_list[0], None
-
-
 def get_state_value(key, cur_state):
     for line in cur_state.split("\n"):
         if str(line).startswith(key) or str(line).startswith(f"{key}："):
@@ -129,10 +117,9 @@ def get_state(curr_time: str, pet_satiety_txtbox: str, cur_state: str, day_plan:
     # 显示图片
     # --------------------
     save_journey_img_p = None
-    if journey_rad == "出门旅行" and pet_generate_pic is not None and '生成景点图片' in pet_generate_pic:
-        if 'None' not in pet_pic_prompt:
-            save_journey_img_p = '/tmp/journey.png'
-            get_journey_img(prompt=pet_pic_prompt, save_img_p=save_journey_img_p)
+    if journey_rad == "出门旅行" and '生成景点图片' in pet_generate_pic and 'none' not in pet_pic_prompt.lower():
+        save_journey_img_p = '/tmp/journey.png'
+        get_journey_img(prompt=pet_pic_prompt, save_img_p=save_journey_img_p)
 
     # --------------------
     # 组装公告信息
@@ -142,7 +129,8 @@ def get_state(curr_time: str, pet_satiety_txtbox: str, cur_state: str, day_plan:
     else:
         public_screen_str = f"{displace_info_txtbox}\n【{curr_time}】【状态】{pet_cur_state}【思考】{pet_thought}【下一步计划】{next_plan}"
 
-    return pet_satiety, pet_mood, pet_local, displace_state, next_plan, pet_say2master, day_plan, curr_time, public_screen_str, cur_state, None, save_journey_img_p, sample_destination
+    return list(config.cat_actor_dic.values())[
+               0], pet_satiety, pet_mood, pet_local, displace_state, next_plan, pet_say2master, day_plan, curr_time, public_screen_str, cur_state, None, save_journey_img_p, sample_destination
 
 
 def give_feed(curr_time: str, cur_state: str, feed_type: str, public_screen_txtbox: str = None):
@@ -227,6 +215,26 @@ def stroke_pet(curr_time: str, cur_state: str, stroke_type: str, pet_satiety: st
     return displace_state, public_screen_str, pet_mood, pet_satiety, pet_img_path
 
 
+def clear_f():
+    """
+    重置
+    """
+    return default_pet_name, list(config.cat_actor_dic.values())[0], None, time_list[
+        7], '70', None, None, None, None, None, None, None, None, get_pet_info_str(default_pet_name), stroke_type_list[
+               0], feed_type_list[-1], None, None
+
+
+def select_pet(pet_name, gpt_version):
+    """
+    选择宠物
+    """
+    global glob_pet_obj
+    glob_pet_obj = PersonPet(name=pet_name, gpt_version=gpt_version)
+    return list(config.cat_actor_dic.values())[0], None, time_list[
+        7], '70', None, None, None, None, None, None, None, None, get_pet_info_str(pet_name), stroke_type_list[
+               0], feed_type_list[-1], None, None
+
+
 with gr.Blocks() as demo:
     gr.Markdown("# AI宠物聊天demo")
     with gr.Column():
@@ -293,15 +301,17 @@ with gr.Blocks() as demo:
 
     # 重新选择宠物
     pet_select_dpd.change(select_pet, inputs=[pet_select_dpd, gpt_select_dpd],
-                          outputs=[pet_info_txtbox, pet_satiety_txtbox, pet_mood_txtbox, pet_local_txtbox,
-                                   announcement_info_txtbox, pet_day_plan_txtbox, pet_state_txtbox, next_plan_txtbox,
-                                   current_time_txtbox, stroke_type_dpd, feed_type_dpd, public_screen_txtbox])
+                          outputs=[pet_img, journey_img, current_time_txtbox, pet_satiety_txtbox,
+                                   pet_mood_txtbox, pet_local_txtbox, friend_pet_state_txtbox, pet_state_txtbox,
+                                   pet_hidden_state_txtbox, announcement_info_txtbox, public_screen_txtbox,
+                                   destination, pet_info_txtbox, stroke_type_dpd, feed_type_dpd, next_plan_txtbox,
+                                   pet_day_plan_txtbox])
     # 刷新一小时
     pet_state_btn.click(get_state,
                         inputs=[current_time_txtbox, pet_satiety_txtbox, pet_hidden_state_txtbox,
                                 pet_day_plan_txtbox, public_screen_txtbox, friend_pet_state_txtbox, journey_rad,
                                 destination],
-                        outputs=[pet_satiety_txtbox, pet_mood_txtbox, pet_local_txtbox, pet_state_txtbox,
+                        outputs=[pet_img, pet_satiety_txtbox, pet_mood_txtbox, pet_local_txtbox, pet_state_txtbox,
                                  next_plan_txtbox, announcement_info_txtbox, pet_day_plan_txtbox,
                                  current_time_txtbox, public_screen_txtbox, pet_hidden_state_txtbox,
                                  friend_pet_state_txtbox, journey_img, destination])
@@ -319,5 +329,12 @@ with gr.Blocks() as demo:
                              public_screen_txtbox, pet_day_plan_txtbox],
                      outputs=[pet_state_txtbox, public_screen_txtbox, pet_mood_txtbox,
                               pet_satiety_txtbox, pet_img])
+
+    # 清空
+    journey_rad.change(clear_f, outputs=[pet_select_dpd, pet_img, journey_img, current_time_txtbox, pet_satiety_txtbox,
+                                         pet_mood_txtbox, pet_local_txtbox, friend_pet_state_txtbox, pet_state_txtbox,
+                                         pet_hidden_state_txtbox, announcement_info_txtbox, public_screen_txtbox,
+                                         destination, pet_info_txtbox, stroke_type_dpd, feed_type_dpd, next_plan_txtbox,
+                                         pet_day_plan_txtbox])
 
 demo.queue().launch(server_name="0.0.0.0", server_port=8707)
