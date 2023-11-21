@@ -174,7 +174,7 @@ def give_feed(curr_time: str, cur_state: str, feed_type: str, public_screen_txtb
     # --------------------
     hidden_state = f"饱腹感：{pet_satiety}\n心情：{pet_mood}\n思考：{pet_thought}\n状态：{pet_state}\n下一步计划：{next_plan}"
 
-    return pet_satiety, pet_mood, displace_state, pet_local, next_plan, public_screen_str, hidden_state, img_path
+    return pet_satiety, pet_mood, displace_state, pet_local, next_plan, public_screen_str, hidden_state, img_path, None
 
 
 def stroke_pet(curr_time: str, cur_state: str, stroke_type: str, pet_satiety: str, displace_info_txtbox: str,
@@ -214,7 +214,7 @@ def stroke_pet(curr_time: str, cur_state: str, stroke_type: str, pet_satiety: st
     # displace_state = f"【回应主人】{per_res}\n【状态】{pet_state}\n【思考】{pet_thought}\n【下一步计划】{next_plan}"
     displace_state = f"【回应主人】{per_res}\n【状态】{pet_state}\n【下一步计划】{next_plan}"
 
-    return displace_state, public_screen_str, pet_mood, pet_satiety, pet_img_path
+    return displace_state, public_screen_str, pet_mood, pet_satiety, pet_img_path, None
 
 
 def clear_f():
@@ -250,7 +250,7 @@ with gr.Blocks() as demo:
             journey_img = gr.Image(type="filepath", label='旅行图片', value=None, height=300, width=300,
                                    interactive=False)
 
-        announcement_info_txtbox = gr.Textbox(lines=1, value=None, label="小组件推送", interactive=False, autofocus=True)
+        push_info_txtbox = gr.Textbox(lines=1, value=None, label="小组件推送", interactive=False, autofocus=True)
         public_screen_txtbox = gr.Textbox(lines=4, value=None, label="公告信息", max_lines=6, interactive=False)
         destination = gr.Textbox(lines=1, value=None, label="选择旅游的地方", interactive=False, visible=False)
 
@@ -269,10 +269,10 @@ with gr.Blocks() as demo:
 
             give_feed_btn = gr.Button("投喂")
 
-        pet_state_btn = gr.Button("活动推进")
+        pet_state_btn = gr.Button("活动推进", size="lg")
 
         with gr.Row():
-            pet_local_txtbox = gr.Textbox(lines=1, value=None, label="宠物位置", interactive=True)
+            pet_local_txtbox = gr.Textbox(lines=1, value=None, label="宠物位置", interactive=True, visible=False)
 
             pet_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物当前状态", interactive=True,
                                           visible=False)
@@ -281,12 +281,12 @@ with gr.Blocks() as demo:
                                                  visible=False)
 
         with gr.Row():
-            pet_satiety_txtbox = gr.Textbox(lines=1, value='70', label="宠物饱腹感", interactive=True)
-            pet_mood_txtbox = gr.Textbox(lines=1, value=None, label="宠物心情", interactive=True)
-            journey_rad = gr.Radio(choices=["出门旅行", "无旅行计划"], label="旅行选择", value="出门旅行",
-                                   interactive=True)
+            pet_satiety_txtbox = gr.Textbox(lines=1, value='70', label="宠物饱腹感", interactive=True, visible=False)
+            pet_mood_txtbox = gr.Textbox(lines=1, value=None, label="宠物心情", interactive=True, visible=False)
+            journey_rad = gr.Radio(choices=["出门旅行", "无旅行计划"], label="是否旅行", value="出门旅行",
+                                   interactive=True, visible=False)
             current_time_txtbox = gr.Dropdown(value=time_list[7], choices=time_list, label="选择当前时间",
-                                              interactive=True)
+                                              interactive=True, visible=False)
             gpt_select_dpd = gr.Dropdown(value='gpt4', choices=['gpt3.5', 'gpt4'], label="gpt引擎选择",
                                          interactive=True, visible=False)
 
@@ -302,7 +302,7 @@ with gr.Blocks() as demo:
     pet_select_dpd.change(select_pet, inputs=[pet_select_dpd, gpt_select_dpd],
                           outputs=[pet_img, journey_img, current_time_txtbox, pet_satiety_txtbox,
                                    pet_mood_txtbox, pet_local_txtbox, friend_pet_state_txtbox, pet_state_txtbox,
-                                   pet_hidden_state_txtbox, announcement_info_txtbox, public_screen_txtbox,
+                                   pet_hidden_state_txtbox, push_info_txtbox, public_screen_txtbox,
                                    destination, pet_info_txtbox, stroke_type_dpd, feed_type_dpd, next_plan_txtbox,
                                    pet_day_plan_txtbox])
     # 刷新一小时
@@ -311,7 +311,7 @@ with gr.Blocks() as demo:
                                 pet_day_plan_txtbox, public_screen_txtbox, friend_pet_state_txtbox, journey_rad,
                                 destination],
                         outputs=[pet_img, pet_satiety_txtbox, pet_mood_txtbox, pet_local_txtbox, pet_state_txtbox,
-                                 next_plan_txtbox, announcement_info_txtbox, pet_day_plan_txtbox,
+                                 next_plan_txtbox, push_info_txtbox, pet_day_plan_txtbox,
                                  current_time_txtbox, public_screen_txtbox, pet_hidden_state_txtbox,
                                  friend_pet_state_txtbox, journey_img, destination])
 
@@ -320,20 +320,20 @@ with gr.Blocks() as demo:
                         inputs=[current_time_txtbox, pet_hidden_state_txtbox, feed_type_dpd, public_screen_txtbox],
                         outputs=[pet_satiety_txtbox, pet_mood_txtbox, pet_state_txtbox,
                                  pet_local_txtbox, next_plan_txtbox, public_screen_txtbox, pet_hidden_state_txtbox,
-                                 pet_img])
+                                 pet_img, push_info_txtbox])
 
     # 主人抚摸
     stroke_btn.click(stroke_pet,
                      inputs=[current_time_txtbox, pet_state_txtbox, stroke_type_dpd, pet_satiety_txtbox,
                              public_screen_txtbox, pet_day_plan_txtbox],
                      outputs=[pet_state_txtbox, public_screen_txtbox, pet_mood_txtbox,
-                              pet_satiety_txtbox, pet_img])
+                              pet_satiety_txtbox, pet_img, push_info_txtbox])
 
     # 清空
     journey_rad.change(clear_f, outputs=[pet_select_dpd, pet_img, journey_img, current_time_txtbox, pet_satiety_txtbox,
                                          pet_mood_txtbox, pet_local_txtbox, friend_pet_state_txtbox, pet_state_txtbox,
-                                         pet_hidden_state_txtbox, announcement_info_txtbox, public_screen_txtbox,
+                                         pet_hidden_state_txtbox, push_info_txtbox, public_screen_txtbox,
                                          destination, pet_info_txtbox, stroke_type_dpd, feed_type_dpd, next_plan_txtbox,
                                          pet_day_plan_txtbox])
 
-demo.queue().launch(server_name="0.0.0.0", server_port=8707)
+demo.queue().launch(server_name="0.0.0.0", server_port=8708)
