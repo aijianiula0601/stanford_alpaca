@@ -34,6 +34,6 @@ if __name__ == '__main__':
     # 2.prompt中加入 "A cute cartoon cat "采用有猫在图片中，如果生成的图片有猫在图片，加入这个prompt
     # -----------------------------
 
-    prompt = "On the highway as night falls, an Asian girl elegantly rides a motorcycle with a green front and black body, swiftly speeding along. In the gentle moonlight, her profile creates a picturesque scene with a beautiful and realistic touch. She wears a blue top, and a gentle breeze makes her long hair dance in the air. The snug gray pants accentuate her slender legs, and a black helmet adorns her head, giving her an air of mystery and determination. The entire scene is filled with the tranquility of the night, with only her and the motorcycle racing on the road, sketching a captivating and vibrant picture."
+    prompt = "A cute cartoon cat Egyptian pyramids"
     sp = '1.png'
     get_journey_img(prompt, sp)

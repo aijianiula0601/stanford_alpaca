@@ -210,12 +210,14 @@ class PersonPet(AiPet):
 
     def state(self, curr_time: str, next_time: str, day_plan: str, cur_state: str, cur_satiety: str,
               friend_cur_state: str = None,
-              journey_rad: str = None, destination: str = None, friend_master_name: str = "jack"):
+              journey_rad: str = None, destination: str = None, friend_master_name: str = "jack",
+              pet_picture_keyword: str = None):
         """
         获取宠物当前状态：心情、饱腹感、思考，当前在干什么
         """
 
         if journey_rad == "出门旅行":
+            assert pet_picture_keyword is not None, "pet_picture_keyword must be no None!"
             destination_places_and_description = '\n'.join([f"{p}:{config.attraction_description_dic[p]}" for p in
                                                             config.attraction_dic[destination]])
             destination_places = '\n'.join([p for p in config.attraction_dic[destination]])
@@ -226,6 +228,7 @@ class PersonPet(AiPet):
                  'journey_rad': journey_rad, 'cur_satiety': cur_satiety, 'friend_cur_state': friend_cur_state,
                  'destination_places_and_description': destination_places_and_description, 'destination': destination,
                  'destination_places': destination_places, 'friend_master_name': friend_master_name,
+                 'pet_picture_keyword': pet_picture_keyword,
                  })
         else:
             prompt = config.state_prompt.format_map(

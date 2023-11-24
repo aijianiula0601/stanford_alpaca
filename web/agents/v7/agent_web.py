@@ -26,6 +26,11 @@ friend_state_list = [
     "已经隔很久没来逗宠物玩了",
 ]
 
+pet_pic_keywords_list = [
+    "A cute cartoon cat",
+    "a small bunny toy",
+]
+
 
 def parse_res_text(res_text: str, key: str):
     pattern = r'"{0}"\s*:\s*("[^"]*"|[^",]*)'.format(key)
@@ -73,7 +78,7 @@ def get_state_value(key, cur_state):
 
 def get_state(curr_time: str, pet_satiety_txtbox: str, cur_state: str, day_plan: str = None,
               displace_info_txtbox: str = None, friend_pet_state_txtbox: str = None, journey_rad: str = None,
-              sample_destination=None):
+              sample_destination=None, pet_picture_keyword=None):
     """
     获取宠物的状态
     """
@@ -96,7 +101,8 @@ def get_state(curr_time: str, pet_satiety_txtbox: str, cur_state: str, day_plan:
     # --------------------
     res_text = glob_pet_obj.state(curr_time=curr_time, next_time=next_time, day_plan=day_plan, cur_state=cur_state,
                                   friend_cur_state=friend_pet_state_txtbox, journey_rad=journey_rad,
-                                  cur_satiety=pet_satiety_txtbox, destination=sample_destination)
+                                  cur_satiety=pet_satiety_txtbox, destination=sample_destination,
+                                  pet_picture_keyword=pet_picture_keyword)
 
     pet_mood = parse_res_text(res_text, "心情")
     pet_satiety = parse_res_text(res_text, "饱腹感")
@@ -117,7 +123,7 @@ def get_state(curr_time: str, pet_satiety_txtbox: str, cur_state: str, day_plan:
     save_journey_img_p = None
     if journey_rad == "出门旅行" and '生成景点图片' in pet_generate_pic and 'none' not in pet_pic_prompt.lower():
         save_journey_img_p = '/tmp/journey.png'
-        get_journey_img(prompt=pet_pic_prompt, save_img_p=save_journey_img_p)
+        get_journey_img(prompt=pet_pic_prompt, save_img_p=save_journey_img_p, pet_keyword=pet_picture_keyword)
 
     # --------------------
     # 组装公告信息
@@ -192,7 +198,7 @@ def stroke_pet(curr_time: str, cur_state: str, stroke_type: str, pet_satiety: st
 
     next_plan = get_here_state_value("【下一步计划】", cur_state)
     pet_state = get_here_state_value("【状态】", cur_state)
-    pet_thought = get_here_state_value("【思考】", cur_state)
+    # pet_thought = get_here_state_value("【思考】", cur_state)
 
     cur_state = glob_pet_obj.stroke(curr_time=curr_time, current_state=cur_state, stroke_type=stroke_type,
                                     next_time=next_time, day_plan=day_plan)
@@ -269,9 +275,10 @@ with gr.Blocks() as demo:
 
                 give_feed_btn = gr.Button("投喂")
 
-
         with gr.Row():
             pet_local_txtbox = gr.Textbox(lines=1, value=None, label="宠物位置", interactive=True)
+            pet_picture_keyword_dpd = gr.Dropdown(value=pet_pic_keywords_list[-1], choices=pet_pic_keywords_list,
+                                                  label="用于生成图片，宠物的关键字", interactive=True)
 
             pet_state_txtbox = gr.Textbox(lines=2, value=None, label="宠物当前状态", interactive=True,
                                           visible=False)
@@ -309,7 +316,7 @@ with gr.Blocks() as demo:
     pet_state_btn.click(get_state,
                         inputs=[current_time_txtbox, pet_satiety_txtbox, pet_hidden_state_txtbox,
                                 pet_day_plan_txtbox, public_screen_txtbox, friend_pet_state_txtbox, journey_rad,
-                                destination],
+                                destination, pet_picture_keyword_dpd],
                         outputs=[pet_img, pet_satiety_txtbox, pet_mood_txtbox, pet_local_txtbox, pet_state_txtbox,
                                  next_plan_txtbox, announcement_info_txtbox, pet_day_plan_txtbox,
                                  current_time_txtbox, public_screen_txtbox, pet_hidden_state_txtbox,

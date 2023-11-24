@@ -2,12 +2,17 @@ import webuiapi
 
 api = webuiapi.WebUIApi(host='202.168.100.176', port=17324)
 model = "hellocartoonfilm_V13.safetensors [3ae7884eba]"
+
+pet_lora_dic = {
+    "A cute cartoon cat": ' <lora:pet-000006:1>',  # 猫 的lora模型  关键字：A cute cartoon cat
+    "a small bunny toy": " happy<lora:pet_20231123_1:1>"  # 兔子 的lora模型  关键字：a small bunny toy
+}
+
 api.util_set_model(model)
 
 
-def get_journey_img(prompt: str, save_img_p: str):
-    lora = ' <lora:pet-000006:1>'
-    prompt += lora
+def get_journey_img(prompt: str, save_img_p: str, pet_keyword: str):
+    prompt += pet_lora_dic[pet_keyword]
 
     sd_key_args = {
         "height": 512,
@@ -31,9 +36,10 @@ if __name__ == '__main__':
     # -----------------------------
     # 说明：
     # 1.prompt用英文描述效果最佳，最好用英文
-    # 2.prompt中加入 "A cute cartoon cat "采用有猫在图片中，如果生成的图片有猫在图片，加入这个prompt
+    # 2.如果是猫：prompt中加入 "A cute cartoon cat" 采用有猫在图片中，如果生成的图片有猫在图片，加入这个prompt
+    # 3.如果是兔子：prompt中加入 "a small bunny toy" 采用有兔子在图片中，如果生成的图片有猫在图片，加入这个prompt
     # -----------------------------
 
-    prompt = "On the highway as night falls, an Asian girl elegantly rides a motorcycle with a green front and black body, swiftly speeding along. In the gentle moonlight, her profile creates a picturesque scene with a beautiful and realistic touch. She wears a blue top, and a gentle breeze makes her long hair dance in the air. The snug gray pants accentuate her slender legs, and a black helmet adorns her head, giving her an air of mystery and determination. The entire scene is filled with the tranquility of the night, with only her and the motorcycle racing on the road, sketching a captivating and vibrant picture."
+    prompt = 'A cute cartoon cat, (the background is the Egyptian pyramids:1.2)'
     sp = '1.png'
-    get_journey_img(prompt, sp)
+    get_journey_img(prompt, sp, pet_keyword="A cute cartoon cat")
