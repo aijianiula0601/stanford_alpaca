@@ -43,8 +43,8 @@ fi
 ##----------------------
 ## train
 ##----------------------
-#CUDA_VISIBLE_DEVICES=0,1,2,3 \
-torchrun --nproc_per_node=8 --master_port=${your_random_port} test_models/vicuna-7b/train_mask_control_in_data.py \
+CUDA_VISIBLE_DEVICES=4,5,6,7 \
+torchrun --nproc_per_node=4 --master_port=${your_random_port} test_models/vicuna-7b/train_mask_control_in_data.py \
     --model_name_or_path "${llama_ckpt_and_tokenizer}" \
     --data_path ${data_json} \
     --cache_dir ${cache_dir} \
