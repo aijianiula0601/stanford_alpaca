@@ -67,12 +67,14 @@ def parse_chat_state(text: str):
 
 
 def keywords_matching(keyword_list, current_user_question):
-    words_list_of_current_user_question = [x.strip('\'",.-()*&^%$#@!~+_-=').lower() for x in current_user_question.strip().split()]
+    words_list_of_current_user_question = [x.strip('\'",.-()*&^%$#@!~+_-=').lower() for x in
+                                           current_user_question.strip().split()]
     res = False
     for keyword in keyword_list:
         if keyword in words_list_of_current_user_question:
             res = True
     return res
+
 
 def edit_distance_of_sentence(a, b):
     # 该函数只计算插入和替换错误，不计算删除错误。
@@ -82,26 +84,26 @@ def edit_distance_of_sentence(a, b):
     a = [x.strip(',.?!\'"') for x in a.lower().strip().split()]
     b = [x.strip(',.?!\'"') for x in b.lower().strip().split()]
 
-    m,n = len(a)+1,len(b)+1
-    d = [[0]*n for i in range(m)]
+    m, n = len(a) + 1, len(b) + 1
+    d = [[0] * n for i in range(m)]
 
-    d[0][0]=0
-    for i in range(1,m):
-        d[i][0] = d[i-1][0] + 1
-    for j in range(1,n):
-        d[0][j] = d[0][j-1]+1
+    d[0][0] = 0
+    for i in range(1, m):
+        d[i][0] = d[i - 1][0] + 1
+    for j in range(1, n):
+        d[0][j] = d[0][j - 1] + 1
 
     temp = 0
-    for i in range(1,m):
-        for j in range(1,n):
-            if a[i-1]==b[j-1]:
+    for i in range(1, m):
+        for j in range(1, n):
+            if a[i - 1] == b[j - 1]:
                 temp = 0
             else:
                 temp = 1
-            
-            d[i][j]=min(d[i-1][j],d[i][j-1]+1,d[i-1][j-1]+temp)
-    logging.debug("edit_distance_of_sentence: ", d[m-1][n-1])
-    return d[m-1][n-1]
+
+            d[i][j] = min(d[i - 1][j], d[i][j - 1] + 1, d[i - 1][j - 1] + temp)
+    logging.debug("edit_distance_of_sentence: ", d[m - 1][n - 1])
+    return d[m - 1][n - 1]
 
 
 def parse_memory_dict(text, memory_dict):
@@ -116,7 +118,7 @@ def parse_memory_dict(text, memory_dict):
         else:
             memory_dict[key] = "unknown"
     return memory_dict
-    
+
 
 def is_exposed_AI_check(text):
     # 待完善更多case
@@ -124,6 +126,7 @@ def is_exposed_AI_check(text):
         return True
     else:
         return False
+
 
 class StateMachine:
     def __init__(self) -> None:
@@ -134,14 +137,12 @@ class StateMachine:
         self.state_count_whatsapp = 0
         self.day = 1
 
-
     def __str__(self) -> str:
         res = ("round: {}\n"
-        "current_state: {}\n"
-        "day: {}\n"
-        ).format(self.round_num, self.current_state, self.day)
+               "current_state: {}\n"
+               "day: {}\n"
+               ).format(self.round_num, self.current_state, self.day)
         return res
-
 
     def update_day(self, pre_day_summary: str):
         self.current_state = "greeting"
@@ -151,15 +152,15 @@ class StateMachine:
         self.day += 1
         self.pre_day_summary = pre_day_summary
 
-
-    def get_prompt(self, persona: dict, recent_status: str, last_summary: str, latest_history: str, current_user_question: str,
-                    user_intention: str, pic_topics: str, current_time: str):
+    def get_prompt(self, persona: dict, recent_status: str, last_summary: str, latest_history: str,
+                   current_user_question: str,
+                   user_intention: str, pic_topics: str, current_time: str):
         if self.current_state == 'greeting':
             format_map_dic = {
-            'name': persona['name'],
-            'residence': persona['residence'],
-            'latest_history': latest_history,
-            'current_user_question': current_user_question,
+                'name': persona['name'],
+                'residence': persona['residence'],
+                'latest_history': latest_history,
+                'current_user_question': current_user_question,
             }
             if self.day == 1:
                 prompt = config.STATE_PROMPT_DICT["greeting_first"].format_map(format_map_dic)
@@ -211,8 +212,8 @@ class StateMachine:
             prompt = config.STATE_PROMPT_DICT["sex"].format_map(format_map_dic)
         elif self.current_state == 'whatsapp':
             format_map_dic = {
-            'latest_history': latest_history,
-            'current_user_question': current_user_question,
+                'latest_history': latest_history,
+                'current_user_question': current_user_question,
             }
             prompt = config.STATE_PROMPT_DICT["whatsapp"].format_map(format_map_dic)
         # elif self.current_state == 'picture':
@@ -241,22 +242,25 @@ class StateMachine:
         #     prompt = config.STATE_PROMPT_DICT["fake"].format_map(format_map_dic)
         return prompt
 
-
     def set_state(self, target_state):
         self.current_state = target_state
-
 
     def analysis_state(self, round_num, chat_state, current_user_question):
         self.pre_state = self.current_state
         self.round_num = round_num
 
-        if self.round_num <= 5 and keywords_matching(['whatsapp', 'video', 'whtsssp', 'whatssp', 'watshap', 'vidio', 'whatapp', 'vc', 'number', 'xc'], current_user_question):
+        if self.round_num <= 5 and keywords_matching(
+                ['whatsapp', 'video', 'whtsssp', 'whatssp', 'watshap', 'vidio', 'whatapp', 'vc', 'number', 'xc'],
+                current_user_question):
             self.current_state = 'whatsapp'
             self.end_greeting_flag = True
-        elif self.round_num <= 5 and keywords_matching(['horny', 'hot', 'sex', '18+', 'fuck', 'jerk', 'jerking', 'masturbate', 'masturbating'], current_user_question):
+        elif self.round_num <= 5 and keywords_matching(
+                ['horny', 'hot', 'sex', '18+', 'fuck', 'jerk', 'jerking', 'masturbate', 'masturbating'],
+                current_user_question):
             self.current_state = 'sex'
             self.end_greeting_flag = True
-        elif self.round_num <= 5 and keywords_matching(['pic', 'pics', 'picture', 'pictures', 'photo', 'selfie'], current_user_question):
+        elif self.round_num <= 5 and keywords_matching(['pic', 'pics', 'picture', 'pictures', 'photo', 'selfie'],
+                                                       current_user_question):
             self.current_state = 'picture'
             self.end_greeting_flag = True
         elif self.pre_state == 'sex':
@@ -270,7 +274,7 @@ class StateMachine:
         elif round_num <= 5 and self.end_greeting_flag == False:
             self.current_state = "greeting"
         else:
-        # 其余情况让gpt去判断是哪一种状态
+            # 其余情况让gpt去判断是哪一种状态
             if chat_state in ["normal", "telling", "whatsapp", "sex", "love", "picture"]:
                 self.current_state = chat_state
             else:
@@ -288,17 +292,16 @@ class ChainOfThoughtChat:
         self.history_with_pic = []
         self.init_pic_dict()
         self.memory_dict = {
-                            "user_name": "unknown",
-                            "user_location": "unknown",
-                            "user_hobbies": "unknown",
-                            "user_occupation": "unknown",
-                            "last_summary": "unknown",
-                           }
+            "user_name": "unknown",
+            "user_location": "unknown",
+            "user_hobbies": "unknown",
+            "user_occupation": "unknown",
+            "last_summary": "unknown",
+        }
         self.send_topic = []
 
     def get_round(self):
         return len(self.history)
-
 
     def init_pic_dict(self):
         self.pic_dict = {}
@@ -312,7 +315,6 @@ class ChainOfThoughtChat:
                         self.pic_dict[t] = []
                     self.pic_dict[t].append(pic)
         self.pic_topics = list(topics_set)
-        
 
     def init_greeting_text(self, greeting_text):
         self.history.append([None, f"{self.role_name}: {greeting_text}"])
@@ -320,7 +322,8 @@ class ChainOfThoughtChat:
 
     def chat_history_insert_pic(self):
         last_response = self.history_with_pic[-1][1]
-        if edit_distance_of_sentence(last_response, 'Sure, here is my photo, which is about') <= 3 or 'selfie' in last_response:
+        if edit_distance_of_sentence(last_response,
+                                     'Sure, here is my photo, which is about') <= 3 or 'selfie' in last_response:
             topic_key = 'selfie'
             for t in self.pic_topics:
                 if t in last_response:
@@ -334,11 +337,10 @@ class ChainOfThoughtChat:
                 self.history[-1][1] += selected_pic['discription']
                 self.history_with_pic.append([None, f"{self.role_name}: {selected_pic['discription']}"])
                 self.send_topic.append(topic_key)
-                
 
         last_answer_text = self.history_with_pic[-1][1].split(': ', 1)[1]
         last_answer_text = last_answer_text.replace('.', '.`').replace('!', '!`').replace('?', '?`')
-        
+
         last_answer_text_list = [x.replace('`', '') for x in last_answer_text.split('`', 1) if x]
         self.history_with_pic[-1][1] = f"{self.role_name}: {last_answer_text_list[0]}"
         if len(last_answer_text_list) > 1:
@@ -347,7 +349,7 @@ class ChainOfThoughtChat:
 
     def update_state(self, role_name, greeting_text):
         self.state = StateMachine()
-        importlib.reload(config) # 重新加载config仅仅是为了测试方便，这行代码在聊天逻辑上没有作用
+        importlib.reload(config)  # 重新加载config仅仅是为了测试方便，这行代码在聊天逻辑上没有作用
         self.persona = config.PERSONA_DICT[role_name]
         self.history = [[None, f"{self.role_name}: {greeting_text}"]]
         self.history_with_pic = [[None, f"{self.role_name}: {greeting_text}"]]
@@ -389,7 +391,7 @@ class ChainOfThoughtChat:
             'residence': self.persona['residence'],
             'hobbies': self.persona['hobbies'],
         }
-        
+
         prompt = config.PROMPT_DIC['state_generator'].format_map(format_map_dic)
 
         message_list = [{"role": 'user', 'content': prompt}]
@@ -406,7 +408,6 @@ class ChainOfThoughtChat:
 
         return res
 
-
     def question_response(self, round_num: int, latest_history: str, current_user_question: str, chat_state: str,
                           chat_topic: str, user_intention: str, role_robot: str, current_time: str):
         """结合gpt分析出的状态和之前状态，确定当前状态"""
@@ -414,7 +415,7 @@ class ChainOfThoughtChat:
         if self.state.current_state == 'picture' and chat_topic == '':
             chat_topic = 'selfie'
             chat_state = 'picture'
-        
+
         if chat_topic not in self.send_topic and chat_topic in self.pic_topics:
             res = "Here is my photo, which is about {}.".format(chat_topic)
             self.state.round_num = round_num
@@ -432,8 +433,10 @@ class ChainOfThoughtChat:
                 logging.info("=" * 100)
                 self.state.set_state('normal')
 
-        prompt = self.state.get_prompt(self.persona, self.recent_status, self.memory_dict['last_summary'], latest_history, current_user_question,
-                          user_intention, ", ".join(self.pic_topics), current_time)
+        prompt = self.state.get_prompt(self.persona, self.recent_status, self.memory_dict['last_summary'],
+                                       latest_history, current_user_question,
+                                       user_intention, ", ".join(self.pic_topics), current_time)
+
         # 如果用户没有任何输入，将问是否在线之类的话语，模拟线上用户长时间不回复，gpt主动发信息。
         if current_user_question is None or current_user_question == '':
             current_user_question = 'None'
@@ -458,11 +461,10 @@ class ChainOfThoughtChat:
         role_robot = role_robot.split("(")[0]
         res = res if not res.startswith(f"{role_robot}:") else res[len(f"{role_robot}:"):]
         res = res.rstrip(':)').rstrip(';)').split('#')[0]
-        
+
         return res, str(self.state)
 
-
-    def intention_status_analysis(self, chat_history: str, user_question: str, pic_topics: str):        
+    def intention_status_analysis(self, chat_history: str, user_question: str, pic_topics: str):
         # """用户提问的意图的状态分析"""
         format_map_dic = {
             'chat_history': chat_history,
@@ -513,7 +515,6 @@ class ChainOfThoughtChat:
         self.memory_dict = parse_memory_dict(res_text, self.memory_dict)
 
         return json.dumps(self.memory_dict, indent=2)
-
 
     def history_summary_day(self, chat_history: str):
         """
