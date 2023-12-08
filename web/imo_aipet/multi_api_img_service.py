@@ -55,10 +55,10 @@ inited_api_list = [init_models(t[0], t[1]) for t in ip_port_list]
 # -------------------------------------------------
 
 pet_lora_dic = {
-    "a cartoon bear": "<lora:pets-bear-20231204:",
+    # "a cartoon bear": "<lora:pets-bear-20231204:",
     "a cartoon blueberry_cat": "<lora:pets-blueberry_cat-20231204:",
-    "a cartoon pumpkin_cat": "<lora:pets-pumpkin_cat-20231204:",
-    "a cartoon rabbit": "<lora:pets-rabbit-20231204:",
+    # "a cartoon pumpkin_cat": "<lora:pets-pumpkin_cat-20231204:",
+    # "a cartoon rabbit": "<lora:pets-rabbit-20231204:",
     "a cartoon unicorn": "<lora:pets-unicon-20231204:",
 }
 

@@ -19,9 +19,6 @@ def gen_country_images(args):
     file_cou_dir = os.path.join(save_dir, f"{country}")
 
     os.system(f"mkdir -p {file_cou_dir}")
-    arrived_path = os.path.join(file_cou_dir, "place_arrived.txt")
-    with open(arrived_path, 'a') as f:
-        f.write(place_arrived + '\n')
     for _ in range(num_places):
         try:
             res_text = person_pet.journey_plan_gen(sample_destination=country, place_arrived=place_arrived)
@@ -59,10 +56,6 @@ def gen_country_images(args):
         except Exception as e:
             print(e)
             pass
-
-    with open(os.path.join(save_dir, f"{country}", 'places.txt', 'w')) as f:
-        f.write(place_arrived)
-
     return 1
 
 
