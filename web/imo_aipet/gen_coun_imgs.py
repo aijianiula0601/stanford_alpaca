@@ -141,7 +141,8 @@ if __name__ == '__main__':
                 pic_prompt = gen_dict[ti][1]
                 # 特殊关键词换为我们宠物的关键词
                 pic_prompt = pic_prompt.lower().replace(SPECIAL_KEY_WORD, pet_lora_key_word[pet_name])
-                pts_cl.append((time_save_dir, pet_name, pic_prompt, pic_description, bath_size))
+                if not os.path.exists(time_save_dir):
+                    pts_cl.append((time_save_dir, pet_name, pic_prompt, pic_description, bath_size))
 
     random.shuffle(pts_cl)
     # ----------------------------
