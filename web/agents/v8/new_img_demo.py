@@ -1,10 +1,24 @@
 import webuiapi
+import random
 
-# api = webuiapi.WebUIApi(host='202.168.100.176', port=23006)
-api = webuiapi.WebUIApi(host='202.168.100.178', port=2001)
-# model = 'hellocartoonfilm_V13.safetensors [3ae7884eba]'
-model = 'hellocartoonfilm_V13.safetensors [3ae7884eba]'
-api.util_set_model(model)
+
+def init_models(host, port):
+    api = webuiapi.WebUIApi(host=host, port=port)
+    model = 'hellocartoonfilm_V13.safetensors [3ae7884eba]'
+    api.util_set_model(model)
+    return api
+
+
+ip_port_list = [
+    ('202.168.100.176', 17601),
+    ('202.168.100.176', 17602),
+    ('202.168.100.176', 17603),
+    ('202.168.100.176', 17604),
+    ('202.168.100.176', 17605),
+    ('202.168.100.176', 17606),
+    ('202.168.100.176', 17607),
+]
+inited_api_list = [init_models(t[0], t[1]) for t in ip_port_list]
 
 
 def get_journey_img(prompt: str, save_img_p: str):
@@ -22,7 +36,7 @@ def get_journey_img(prompt: str, save_img_p: str):
         "seed": -1
     }
 
-    image = api.txt2img(**sd_key_args, ).images[0]
+    image = random.sample(inited_api_list, k=1)[0].txt2img(**sd_key_args, ).images[0]
     print(image)
     image.save(save_img_p)
     print(f"save img to:{save_img_p}")

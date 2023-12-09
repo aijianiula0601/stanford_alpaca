@@ -140,9 +140,11 @@ if __name__ == '__main__':
     # ----------------------------
     args_list = []
     num_div = math.ceil(len(pts_cl) / n_job)
+    api_i = 0
     for i in range(0, len(pts_cl), num_div):
-        assert i < len(inited_api_list), f"error i:{i}"
-        args_list.append((inited_api_list[i], pts_cl[i:i + num_div]))
+        assert api_i < len(inited_api_list), f"error api_i:{api_i}"
+        args_list.append((inited_api_list[api_i], pts_cl[i:i + num_div]))
+        api_i += 1
 
     results = Parallel(n_jobs=n_job, backend="multiprocessing")(delayed(jour_img_gen)(pts) for pts in tqdm(args_list))
     for _ in results:
