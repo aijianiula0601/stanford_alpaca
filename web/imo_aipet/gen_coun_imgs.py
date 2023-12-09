@@ -41,11 +41,11 @@ inited_api_list = [init_models(t[0], t[1]) for t in ip_port_list]
 
 # 宠物对应的lora
 pet_lora_dic = {
-    "bear": "<lora:pets-bear-20231204:0.6>",
-    "blueberry_cat": "<lora:pets-blueberry_cat-20231204:0.6>",
-    "pumpkin_cat": "<lora:pets-pumpkin_cat-20231204:0.6>",
-    "rabbit": "<lora:pets-rabbit-20231204:0.6>",
-    "unicorn": "<lora:pets-unicorn-20231207:1>",
+    "bear": "<lora:pets-bear-20231204-512:0.6>",
+    "blueberry_cat": "<lora:pets-blueberry_cat-20231204-512:0.6>",
+    "pumpkin_cat": "<lora:pets-pumpkin_cat-20231204-512:0.6>",
+    "rabbit": "<lora:pets-rabbit-20231204-512:0.6>",
+    "unicorn": "<lora:pets-unicorn-20231207-512:1>",
 }
 
 # 宠物对应的关键词
@@ -86,9 +86,10 @@ def get_journey_img(prompt: str, pic_description: str, save_img_dir: str, pet_ke
             img_p = f"{save_img_dir}/{i}.png"
             image[i].save(img_p)
 
-        text_path = os.path.join(save_img_dir, "description.txt")
-        with open(text_path, "w") as f:
+        with open(os.path.join(save_img_dir, "description.txt"), "w") as f:
             f.write(pic_description.strip('"'))
+        with open(os.path.join(save_img_dir, "prompt.txt"), "w") as f:
+            f.write(prompt.strip('"'))
 
 
 def jour_img_gen(pts: list):
@@ -101,7 +102,7 @@ def jour_img_gen(pts: list):
 
 
 if __name__ == '__main__':
-    bath_size = 2
+    bath_size = 4
     n_job = len(ip_port_list)
     SPECIAL_KEY_WORD = "a cartoon character"
     countries = config.journey_places
