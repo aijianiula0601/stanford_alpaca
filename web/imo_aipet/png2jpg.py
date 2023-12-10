@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 from PIL import Image
 from joblib import Parallel, delayed
@@ -6,14 +7,14 @@ from tqdm import tqdm
 
 
 def png2jpg(args):
-    img_path, description_path, save_path = args
-    save_dir = Path(save_path).parent
+    img_path, org_description, save_path = args
+    save_dir = str(Path(save_path).parent)
     if not os.path.exists(save_dir):
-        os.makedirs(save_dir)
+        os.system(f"mkdir -p {save_dir}")
 
     description_f = f"{save_dir}/description.txt"
     if not os.path.exists(description_f):
-        os.system(f"cp -rf {description_path} {description_f}")
+        os.system(f"cp -rf {org_description} {description_f}")
 
     img = Image.open(img_path)
     img.save(save_path, quality=95)
