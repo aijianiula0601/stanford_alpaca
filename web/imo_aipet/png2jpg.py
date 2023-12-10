@@ -9,15 +9,15 @@ from tqdm import tqdm
 def png2jpg(args):
     img_path, org_description, save_path = args
     save_dir = str(Path(save_path).parent)
-    if not os.path.exists(save_dir):
-        os.system(f"mkdir -p {save_dir}")
-
     description_f = f"{save_dir}/description.txt"
     if not os.path.exists(description_f):
-        os.system(f"cp -rf {org_description} {description_f}")
+        os.system(f"mkdir -p {save_dir} && cp -rf {org_description} {description_f}")
 
-    img = Image.open(img_path)
-    img.save(save_path, quality=95)
+    try:
+        img = Image.open(img_path)
+        img.save(save_path, quality=95)
+    except Exception as e:
+        print(f"错误信息:{e}，无法转换:{img_path}")
 
 
 if __name__ == '__main__':
