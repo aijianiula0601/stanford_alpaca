@@ -6,6 +6,7 @@ import config
 import json
 import math
 import random
+import time
 
 
 # -------------------------------------------------
@@ -21,11 +22,11 @@ def init_models(host, port):
 
 ip_port_list = [
     # ('202.168.100.176', 17601),
-    ('202.168.100.176', 17602),
-    ('202.168.100.176', 17603),
-    ('202.168.100.176', 17604),
-    ('202.168.100.176', 17605),
-    ('202.168.100.176', 17606),
+    # ('202.168.100.176', 17602),
+    # ('202.168.100.176', 17603),
+    # ('202.168.100.176', 17604),
+    # ('202.168.100.176', 17605),
+    # ('202.168.100.176', 17606),
     ('202.168.100.178', 2000),
     ('202.168.100.178', 2001),
     ('202.168.100.178', 2002),
@@ -114,11 +115,19 @@ if __name__ == '__main__':
     SPECIAL_KEY_WORD = "a cartoon character"
     countries = config.journey_places
 
-    base_dir="/mnt/cephfs/hjh/train_record/images/dataset/imo_aipet"
+    base_dir = "/mnt/cephfs/hjh/train_record/images/dataset/imo_aipet"
     # 已经生成了prompt和文字的保存目录
     description_prompt_dir = f'{base_dir}/gen_prompts'
     # 生成图片的保存目录
     img_save_dir = f'{base_dir}/journey_imgs'
+
+    # 保存此次生成的日记
+    log_text_file = f"{base_dir}/journey_imgs_log.txt"
+    time_str = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+    log_f = open(log_text_file, 'a', buffering=1)
+    log_f.write("-" * 100 + "\n")
+    log_f.write(f"time:{time_str}\n")
+    log_f.write("-" * 100 + "\n")
 
     # ----------------------------
     # 获取文案、图片prompt数据列表
@@ -144,6 +153,7 @@ if __name__ == '__main__':
                 # 特殊关键词换为我们宠物的关键词
                 pic_prompt = pic_prompt.lower().replace(SPECIAL_KEY_WORD, pet_lora_key_word[pet_name])
                 if not os.path.exists(time_save_dir):
+                    log_f.write(f"【{time_str}】{time_save_dir}\n")
                     pts_cl.append((time_save_dir, pet_name, pic_prompt, pic_description, bath_size))
 
     random.shuffle(pts_cl)
