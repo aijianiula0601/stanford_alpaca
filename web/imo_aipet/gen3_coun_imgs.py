@@ -8,6 +8,8 @@ import math
 import random
 import time
 
+from general_functions import replace_character_prompt
+
 
 # -------------------------------------------------
 # 初始化服务
@@ -22,11 +24,11 @@ def init_models(host, port):
 
 ip_port_list = [
     # ('202.168.100.176', 17601),
-    # ('202.168.100.176', 17602),
-    # ('202.168.100.176', 17603),
-    # ('202.168.100.176', 17604),
-    # ('202.168.100.176', 17605),
-    # ('202.168.100.176', 17606),
+    ('202.168.100.176', 17602),
+    ('202.168.100.176', 17603),
+    ('202.168.100.176', 17604),
+    ('202.168.100.176', 17605),
+    ('202.168.100.176', 17606),
     ('202.168.100.178', 2000),
     ('202.168.100.178', 2001),
     ('202.168.100.178', 2002),
@@ -112,7 +114,6 @@ def jour_img_gen(pts: list):
 if __name__ == '__main__':
     bath_size = 4
     n_job = len(ip_port_list)
-    SPECIAL_KEY_WORD = "a cartoon character"
     countries = config.journey_places
 
     base_dir = "/mnt/cephfs/hjh/train_record/images/dataset/imo_aipet"
@@ -149,10 +150,12 @@ if __name__ == '__main__':
             for ti in gen_dict.keys():
                 time_save_dir = f"{img_save_dir}/{pet_name}/{con}/{jour_place}/{ti}".replace(" ", "_")
                 pic_description = gen_dict[ti][0]
-                pic_prompt = gen_dict[ti][1]
+                org_pic_prompt = gen_dict[ti][1]
                 # 特殊关键词换为我们宠物的关键词
-                pic_prompt = pic_prompt.lower().replace(SPECIAL_KEY_WORD, pet_lora_key_word[pet_name])
-                if not os.path.exists(time_save_dir):
+                pic_prompt = replace_character_prompt(org_prompt=org_pic_prompt.lower(),
+                                                      pet_kw=pet_lora_key_word[pet_name])
+                assert pic_prompt is not None, f"prompt replace error, dir:{time_save_dir}, prompt: {org_pic_prompt}"
+                if not os.path.exists(time_save_dir) and pic_prompt is not None:
                     log_f.write(f"【{time_str}】{time_save_dir}\n")
                     pts_cl.append((time_save_dir, pet_name, pic_prompt, pic_description, bath_size))
 

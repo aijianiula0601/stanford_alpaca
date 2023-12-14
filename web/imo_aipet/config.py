@@ -35,6 +35,7 @@ journey_plan_gen_prompt = pet_world_str + (
 img_prompt = (
     "将下列场景的主人公换成 “cartoon character”，用英文输出相关图像生成的prompt:\n"
     "{jour_disc}"
+    "注意，所有主人公必须的含有“cartoon character”关键字，忽略语意或者语法错误，必须含有“cartoon character”"
 )
 """
 关键词，去掉人物感想、比喻等无用内容，并用英文输出。\n"

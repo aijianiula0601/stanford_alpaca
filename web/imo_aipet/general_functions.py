@@ -39,3 +39,14 @@ def parse_res_text(res_text: str, key: str):
             return value
         else:
             return None
+
+
+SPECIAL_KEY_WORD_list = ["a cartoon character", "cartoon character"]
+
+
+def replace_character_prompt(org_prompt,pet_kw):
+    for skw in SPECIAL_KEY_WORD_list:
+        if skw in org_prompt:
+            pic_prompt = org_prompt.replace(skw, pet_kw)
+            return pic_prompt
+    return None
