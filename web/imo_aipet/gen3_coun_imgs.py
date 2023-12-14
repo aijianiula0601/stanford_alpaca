@@ -113,10 +113,12 @@ if __name__ == '__main__':
     n_job = len(ip_port_list)
     SPECIAL_KEY_WORD = "a cartoon character"
     countries = config.journey_places
+
+    base_dir="/mnt/cephfs/hjh/train_record/images/dataset/imo_aipet"
     # 已经生成了prompt和文字的保存目录
-    description_prompt_dir = '/data/Agents/gen_img_new/save/gen_save'
+    description_prompt_dir = f'{base_dir}/gen_prompts'
     # 生成图片的保存目录
-    img_save_dir = '/mnt/cephfs/hjh/train_record/images/dataset/imo_aipet/journey_imgs'
+    img_save_dir = f'{base_dir}/journey_imgs'
 
     # ----------------------------
     # 获取文案、图片prompt数据列表

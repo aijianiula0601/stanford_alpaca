@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 from tqdm import tqdm
 
+# 把生成图片中的文案全部复制出来
+
 org_dir = "/mnt/cephfs/hjh/train_record/images/dataset/imo_aipet/journey_imgs2jpg"
 
 save_dir = "/mnt/cephfs/hjh/train_record/images/dataset/imo_aipet/journey_imgs2jpg_description"

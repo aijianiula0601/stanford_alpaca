@@ -1,21 +1,27 @@
 import openai
-from openai import OpenAI
 import re
+import openai
 
-def get_gpt_result(engine_name: str = 'gpt-4', message_list: list = [], api_key='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') -> str:
-    api_key = api_key
-    client = OpenAI(api_key=api_key, organization='org-vZinLD7D6tNWUWeWJJtAUyzD')
+openai.api_type = "azure"
+openai.api_base = "https://gpt4-test-cj-0803.openai.azure.com/"
+openai.api_version = "2023-03-15-preview"
+openai.api_key = 'bca8eef9f9c04c7bb1e573b4353e71ae'
 
-    response = client.chat.completions.create(
-        model='gpt-4',
-        messages=message_list
-    )
+
+def get_gpt_result(message_list: list) -> str:
+    response = openai.ChatCompletion.create(
+        engine="gpt4-16k",
+        messages=message_list,
+        temperature=0.7,
+        max_tokens=800,
+        top_p=0.95,
+        frequency_penalty=0,
+        presence_penalty=0,
+        stop=None)
 
     res_text = response.choices[0].message.content
-    print("=" * 100)
-    print(f"response_text:\n{res_text}")
-    print("=" * 100 + "\n\n")
     return res_text
+
 
 def parse_res_text(res_text: str, key: str):
     pattern = r'"{0}"\s*:\s*("[^"]*"|[^",]*)'.format(key)

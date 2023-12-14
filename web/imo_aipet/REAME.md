@@ -9,14 +9,14 @@
 
 - 生成所有国家的景点
 
-    python gen_coun_places.py
+    python gen1_coun_places.py
 
 - 生成文案和图片的prompt
 
-    python gen_coun_prompt.py
+    python gen2_coun_prompt.py
 
 - 生成图片
 
-    python gen_coun_imgs.py
+    python gen3_coun_imgs.py
 
     
