@@ -1,13 +1,13 @@
 from pathlib import Path
 import openai
+import os
 
 # -----------------------------------------------------------------------------
 # 调用方式参考：https://platform.openai.com/docs/api-reference?lang=python
 # -----------------------------------------------------------------------------
 
 
-openai.api_key = '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'
-
+openai.api_key = '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'
 
 
 def text2speech(prompt, save_file_path, voice_type: str = 'alloy'):
@@ -23,8 +23,11 @@ def text2speech(prompt, save_file_path, voice_type: str = 'alloy'):
 if __name__ == '__main__':
     voice_type_list = ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
 
+    base_dir = "/Users/jiahong/Downloads/openai_audios_demo"
+    os.system(f"mkdir -p {base_dir}")
+
     for voice_type in voice_type_list:
-        speech_file_path = f"/Users/jiahong/Downloads/speech_{voice_type}.mp3"
-        prompt = '哎呀，以前看小说漫画得等啊等，作者花了好几个月、几年的时间才创作出来。'
+        speech_file_path = f"{base_dir}/speech_{voice_type}.mp3"
+        prompt = "It's a nice day. Do you have any plans for today?"
         text2speech(prompt, speech_file_path, voice_type)
         print(f"save to:{speech_file_path}")
