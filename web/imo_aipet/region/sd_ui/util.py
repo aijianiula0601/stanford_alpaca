@@ -36,7 +36,6 @@ def png2jpg(img_path, save_path):
 
 
 pet_actions_list = ['Raise one hand',
-                    'look back',
                     'standing',
                     'look up to the sky',
                     'running',

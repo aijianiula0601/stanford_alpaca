@@ -92,8 +92,9 @@ if __name__ == '__main__':
     batch_size = 1
 
     # url = "http://202.168.100.176:17602"
-    # url = init_api(host="http://202.168.100.176", port="17602")
-    url = init_api(host="http://202.168.100.178", port="2002")
+    # url = init_api(host="http://202.168.100.176", port="17601")
+    # url = init_api(host="http://202.168.100.178", port="2002")
+    url = init_api(host="http://202.168.100.178", port="2003")
     generate_imgs, payload, _ = get_single_pets_img(scene_prompt, pet_name, location_list[0], lora_model, url,
                                                     lora_weight,
                                                     steps,
