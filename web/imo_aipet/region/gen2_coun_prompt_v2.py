@@ -77,9 +77,10 @@ def save_gen_img_prompt(pts):
     save_path, country, jour_place = pts
     file_path = os.path.join(save_path, "gen_dict.json")
     if not os.path.exists(file_path):
+        if not os.path.exists(save_path):
+            os.makedirs(save_path)
         pts = country, jour_place
         gen_dict = gen_image_prompt(pts)
-        os.makedirs(save_path)
         with open(file_path, "w") as f:
             json.dump(gen_dict, f)
 
