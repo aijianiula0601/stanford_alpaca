@@ -73,14 +73,14 @@ def get_journey_img(scene_prompt: str, pet_name: str, pic_description: str, save
 
     # 目录已经存在的话，不用生成
     if not os.path.exists(save_img_dir):
-        image = get_single_pets_img(scene_prompt,
-                                    pet_name,
-                                    location=location,
-                                    lora_model=lora_model,
-                                    url=url,
-                                    lora_weight=lora_weight,
-                                    steps=steps,
-                                    batch_size=batch_size)
+        image, payload, url = get_single_pets_img(scene_prompt,
+                                                  pet_name,
+                                                  location=location,
+                                                  lora_model=lora_model,
+                                                  url=url,
+                                                  lora_weight=lora_weight,
+                                                  steps=steps,
+                                                  batch_size=batch_size)
 
         for i in range(batch_size):
             if not os.path.exists(save_img_dir):
@@ -92,6 +92,10 @@ def get_journey_img(scene_prompt: str, pet_name: str, pic_description: str, save
             f.write(pic_description.strip('"'))
         with open(os.path.join(save_img_dir, "prompt.txt"), "w") as f:
             f.write(scene_prompt.strip('"'))
+        with open(os.path.join(save_img_dir, "url.txt"), "w") as f:
+            f.write(url)
+        payload_json_f = os.path.join(save_img_dir, "payload.json")
+        json.dump(payload, open(payload_json_f, 'w'))
 
 
 def jour_img_gen(pts: list):
@@ -110,7 +114,7 @@ if __name__ == '__main__':
     # 已经生成了prompt和文字的保存目录
     description_prompt_dir = f'{base_dir}/gen_prompts'
     # 生成图片的保存目录
-    img_save_dir = f'{base_dir}/journey_imgs_20231218_region_v1'
+    img_save_dir = f'{base_dir}/journey_imgs_20231218_region_test'
 
     # 保存此次生成的日记
     log_text_file = f"{img_save_dir}_log.txt"

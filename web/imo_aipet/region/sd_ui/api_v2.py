@@ -40,12 +40,16 @@ def get_single_pets_img(scene_prompt, pet_name, location, lora_model, url: str, 
     pets_prompt = f'a cartoon {pet_name}, {pet_actor}'
 
     param_mapping = {'left': {'prompt': f'{common_prompt} ADDCOMM\n{scene_prompt} ADDROW\n{pets_prompt} ADDCOL',
-                              'Regional_matrix': "1,1;1,1,1", 'lora_mask': encode_image(f'{pdj}/assert/left_bottom.png')},
+                              'Regional_matrix': "1,1;1,1,1",
+                              'lora_mask': encode_image(f'{pdj}/assert/left_bottom.png')},
                      'right': {'prompt': f'{common_prompt} ADDCOMM\n{scene_prompt} ADDROW\nADDCOL\n{pets_prompt}',
-                               'Regional_matrix': "1,1;1,1,1", 'lora_mask': encode_image(f'{pdj}/assert/right_bottom.png')}
+                               'Regional_matrix': "1,1;1,1,1",
+                               'lora_mask': encode_image(f'{pdj}/assert/right_bottom.png')}
                      }
 
     param = param_mapping[location]
+
+    seed_int = random.randint(1, 100000)
 
     payload = {
         "prompt": param['prompt'],
@@ -55,7 +59,7 @@ def get_single_pets_img(scene_prompt, pet_name, location, lora_model, url: str, 
         "steps": steps,
         "cfg": 7,
         "sampler_index": "DPM++ 2M Karras",
-        "seed": -1,
+        "seed": seed_int,
         "batch_size": batch_size,
         "enable_hr": True,
         "hr_scale": 1,
@@ -75,20 +79,21 @@ def get_single_pets_img(scene_prompt, pet_name, location, lora_model, url: str, 
     res = response.json()
 
     generate_imgs = [decode_image(img) for img in res['images'][:batch_size]]
-    return generate_imgs
+    return generate_imgs, payload, url
 
 
 if __name__ == '__main__':
-    pet_name = 'rabbit'
+    pet_name = 'blueberry_cat'
     location_list = ['right', 'left']
-    scene_prompt = "Saudi Arabia King World National Park, Evening at a tranquil park with dim lights and the sound of insects under a night sky."
-    lora_model = 'pets-rabbit-20231204-512'
+    scene_prompt = "Evening in Alphacidy with warm flickering lights and a gentle night breeze."
+    lora_model = 'pets-blueberry_cat-20231204-512'
     lora_weight = 1.0
     steps = 20
-    batch_size = 4
+    batch_size = 1
 
     # url = "http://202.168.100.176:17602"
-    url = init_api(host="http://202.168.100.176", port="17602")
+    # url = init_api(host="http://202.168.100.176", port="17602")
+    url = init_api(host="http://202.168.100.178", port="2002")
     generate_imgs = get_single_pets_img(scene_prompt, pet_name, location_list[0], lora_model, url, lora_weight, steps,
                                         batch_size)
 
