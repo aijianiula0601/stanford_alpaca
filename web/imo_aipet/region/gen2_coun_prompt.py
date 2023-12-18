@@ -20,12 +20,12 @@ def journey_plan_gen(jour_coun, jour_place):
     return get_gpt_result(message_list=message_list)
 
 
-def get_image_prompt(prompt: str):
+def get_image_prompt(prompt: str, coun: str, jour: str):
     # --------------------------------------
     # 生成旅游内容（早中晚英文prompt）
     # --------------------------------------
-    prompt = config.img_prompt_region.format_map(
-        {'jour_disc': prompt})
+    prompt = config.img_prompt.format_map(
+        {'jour_disc': prompt, 'coun': coun, 'jour': jour}, )
     # print("-" * 100)
     # print(f"get_image_prompt:\n{prompt}")
     # print("-" * 100)
@@ -54,7 +54,8 @@ def gen_image_prompt(pts):
 
     for jour in ['morning', 'afternoon', 'evening']:
         jour_prompt = jour_dic[jour].strip('"')
-        jour_prompt_eng = get_image_prompt(prompt=f'现在是{jour}。' + jour_prompt.strip('"'))
+        jour_prompt_eng = get_image_prompt(prompt=f'现在是{jour}。' + jour_prompt.strip('"'),
+                                           coun=country, jour=jour_place)
 
         # 第一个值：中文的文案， 第二个：生成图片的英文prompt
         gen_dict[jour] = (jour_prompt.strip('"'), jour_prompt_eng.strip('"'))
@@ -68,16 +69,19 @@ def save_gen_img_prompt(pts):
     # save_dir:生成的状态和图片prompt的存储路径，country jour_place：国家和地区,
     # 将生成的内容保存到对应国家和地区的文档里
     # --------------------------------------
+    """
     save_dir, country, jour_place = pts
     pts = country, jour_place
-    gen_dict = gen_image_prompt(pts)
+    gen_dict = gen_image_prompt(pts)"""
 
-    if not os.path.exists(save_dir):
-        os.makedirs(save_dir)
-
-    file_path = os.path.join(save_dir, "gen_dict.json")
-    with open(file_path, "w") as f:
-        json.dump(gen_dict, f)
+    save_path, country, jour_place = pts
+    file_path = os.path.join(save_path, "gen_dict.json")
+    if not os.path.exists(file_path):
+        pts = country, jour_place
+        gen_dict = gen_image_prompt(pts)
+        os.makedirs(save_path)
+        with open(file_path, "w") as f:
+            json.dump(gen_dict, f)
 
 
 if __name__ == '__main__':

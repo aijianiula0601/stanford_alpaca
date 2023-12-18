@@ -114,7 +114,7 @@ if __name__ == '__main__':
     # 已经生成了prompt和文字的保存目录
     description_prompt_dir = f'{base_dir}/gen_prompts'
     # 生成图片的保存目录
-    img_save_dir = f'{base_dir}/journey_imgs_20231218_region_test'
+    img_save_dir = f'{base_dir}/journey_imgs_20231218_region_v1'
 
     # 保存此次生成的日记
     log_text_file = f"{img_save_dir}_log.txt"

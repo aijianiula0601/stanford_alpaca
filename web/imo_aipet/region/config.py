@@ -34,19 +34,15 @@ journey_plan_gen_prompt = pet_world_str + (
     "现在输出一个的JSON对象，包括的key为：早上的旅行内容、下午的旅行内容、晚上的旅行内容"
 )
 
-img_prompt = (
-    "将下列场景的主人公换成 “cartoon character”，用英文输出相关图像生成的prompt:\n"
-    "{jour_disc}"
-    "注意，所有主人公必须的含有“cartoon character”关键字，忽略语意或者语法错误，必须含有“cartoon character”"
-)
-
 # --------------------------
 # 分区prompt
 # --------------------------
-img_prompt_region = (
-    "给定场景，去掉场景中的角色信息，只描述场景内容。用英文输出相关图像生成的prompt:\n"
-    "{jour_disc}\n"
-    "注意，用英文生成的prompt要尽量简洁，不超过35个单词，并且抹去各种形式的和人的相关内容。"
+img_prompt = (
+    "给定场景、国家、景点，去掉场景中的角色信息，只描述场景内容。用英文输出相关图像生成的prompt:\n"
+    "国家：{coun}\n"
+    "景点：{jour}\n"
+    "场景：{jour_disc}\n"
+    "注意，用英文生成的prompt要带有国家和景点。内容尽量简洁，不超过35个单词，并且抹去各种形式的和人的相关内容。"
 )
 
 replace_state_prompt = (

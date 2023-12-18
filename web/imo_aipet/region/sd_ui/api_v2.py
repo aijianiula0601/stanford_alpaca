@@ -85,7 +85,7 @@ def get_single_pets_img(scene_prompt, pet_name, location, lora_model, url: str, 
 if __name__ == '__main__':
     pet_name = 'blueberry_cat'
     location_list = ['right', 'left']
-    scene_prompt = "Evening in Alphacidy with warm flickering lights and a gentle night breeze."
+    scene_prompt = "Morning sunlight illuminating the white domes of the Sheikh Zayed Grand Mosque in Abu Dhabi, UAE."
     lora_model = 'pets-blueberry_cat-20231204-512'
     lora_weight = 1.0
     steps = 20
@@ -94,8 +94,12 @@ if __name__ == '__main__':
     # url = "http://202.168.100.176:17602"
     # url = init_api(host="http://202.168.100.176", port="17602")
     url = init_api(host="http://202.168.100.178", port="2002")
-    generate_imgs = get_single_pets_img(scene_prompt, pet_name, location_list[0], lora_model, url, lora_weight, steps,
-                                        batch_size)
+    generate_imgs, payload, _ = get_single_pets_img(scene_prompt, pet_name, location_list[0], lora_model, url,
+                                                    lora_weight,
+                                                    steps,
+                                                    batch_size)
+
+    print("-----prompt:", payload['prompt'])
 
     for i in range(batch_size):
         img = generate_imgs[i]
