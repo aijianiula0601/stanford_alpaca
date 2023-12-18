@@ -9,20 +9,22 @@ import random
 import time
 
 from general_functions import replace_character_prompt
+from sd_ui.api_v2 import get_single_pets_img, init_api
 
+
+# -------------------------------------------------
+# 采用分区的方式来调用
+# -------------------------------------------------
 
 # -------------------------------------------------
 # 初始化服务
 # -------------------------------------------------
 
 def init_models(host, port):
-    api = webuiapi.WebUIApi(host=host, port=port)
-    model = 'hellocartoonfilm_V13.safetensors [3ae7884eba]'
-    api.util_set_model(model)
-    return api
+    return init_api(host, port)
 
 
-ip_port_list = [
+ip_api_list = [
     # ('202.168.100.176', 17601),
     ('202.168.100.176', 17602),
     ('202.168.100.176', 17603),
@@ -47,49 +49,35 @@ ip_port_list = [
     # ('202.168.100.178', 2015),
 ]
 
-inited_api_list = [init_models(t[0], t[1]) for t in ip_port_list]
+inited_api_list = [init_models(t[0], t[1]) for t in ip_api_list]
 
-# 宠物对应的lora
+# 宠物对应的lora, （宠物关键词，lora名字，lora权重）
 pet_lora_dic = {
-    "bear": "<lora:pets-bear-20231204-512:0.6>",
-    "blueberry_cat": "<lora:pets-blueberry_cat-20231204-512:0.6>",
-    "pumpkin_cat": "<lora:pets-pumpkin_cat-20231204-512:0.6>",
-    "rabbit": "<lora:pets-rabbit-20231204-512:0.6>",
-    "unicorn": "<lora:pets-unicorn-20231207-512:1>",
-}
-
-# 宠物对应的关键词
-pet_lora_key_word = {
-    "bear": "a cartoon bear",
-    "blueberry_cat": "a cartoon blueberry_cat",
-    "pumpkin_cat": "a cartoon pumpkin_cat",
-    "rabbit": "a cartoon rabbit",
-    "unicorn": "A cartoon unicorn",
+    "bear": ("pets-bear-20231204-512", 1),
+    "blueberry_cat": ("pets-blueberry_cat-20231204-512", 1),
+    "pumpkin_cat": ("pets-pumpkin_cat-20231204-512", 1),
+    "rabbit": ("pets-rabbit-20231204-512", 1),
+    "unicorn": ("pets-unicorn-20231207-512", 1),
 }
 
 
-def get_journey_img(prompt: str, pic_description: str, save_img_dir: str, pet_keyword: str, api: webuiapi.WebUIApi,
-                    batch_size=1):
-    prompt += pet_lora_dic[pet_keyword]
+def get_journey_img(scene_prompt: str, pet_name: str, pic_description: str, save_img_dir: str, url: str, batch_size=1):
+    location = random.sample(['right', 'left'], k=1)[0]
+    lora_model = pet_lora_dic[pet_name][0]
+    lora_weight = pet_lora_dic[pet_name][1]
+    steps = 30
+
     # 目录已经存在的话，不用生成
     if not os.path.exists(save_img_dir):
-        sd_key_args = {
-            "height": 512,
-            "width": 512,
-            "steps": 20,
-            "enable_hr": True,
-            "denoising_strength": 0.2,
-            "hr_upscaler": "R-ESRGAN 4x+",
-            "hr_resize_x": 900,
-            "hr_resize_y": 900,
-            "cfg_scale": 7.0,
-            "sampler_name": "DPM++ 2M Karras",
-            "restore_faces": False,
-            "prompt": prompt,
-            "seed": -1,
-            "batch_size": batch_size
-        }
-        image = api.txt2img(**sd_key_args, ).images
+        image = get_single_pets_img(scene_prompt,
+                                    pet_name,
+                                    location=location,
+                                    lora_model=lora_model,
+                                    url=url,
+                                    lora_weight=lora_weight,
+                                    steps=steps,
+                                    batch_size=batch_size)
+
         for i in range(batch_size):
             if not os.path.exists(save_img_dir):
                 os.makedirs(save_img_dir)
@@ -99,31 +87,29 @@ def get_journey_img(prompt: str, pic_description: str, save_img_dir: str, pet_ke
         with open(os.path.join(save_img_dir, "description.txt"), "w") as f:
             f.write(pic_description.strip('"'))
         with open(os.path.join(save_img_dir, "prompt.txt"), "w") as f:
-            f.write(prompt.strip('"'))
+            f.write(scene_prompt.strip('"'))
 
 
 def jour_img_gen(pts: list):
-    api, pts_list = pts
+    url, pts_list = pts
     for pt in tqdm(pts_list):
-        jour_save_dir, pet_name, prompt, pic_description, batch_size = pt
-        get_journey_img(prompt=prompt, pic_description=pic_description, save_img_dir=jour_save_dir,
-                        pet_keyword=pet_name, api=api,
-                        batch_size=batch_size)
+        scene_prompt, pet_name, pic_description, save_img_dir, batch_size = pt
+        get_journey_img(scene_prompt, pet_name, pic_description, save_img_dir, url, batch_size)
 
 
 if __name__ == '__main__':
     bath_size = 4
-    n_job = len(ip_port_list)
+    n_job = len(ip_api_list)
     countries = config.journey_places
 
-    base_dir = "/mnt/cephfs/hjh/train_record/images/dataset/imo_aipet"
+    base_dir = "/mnt/cephfs/hjh/train_record/images/dataset/imo_aipet/region"
     # 已经生成了prompt和文字的保存目录
     description_prompt_dir = f'{base_dir}/gen_prompts'
     # 生成图片的保存目录
-    img_save_dir = f'{base_dir}/journey_imgs'
+    img_save_dir = f'{base_dir}/journey_imgs_20231218'
 
     # 保存此次生成的日记
-    log_text_file = f"{base_dir}/journey_imgs_log.txt"
+    log_text_file = f"{img_save_dir}_log.txt"
     time_str = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
     log_f = open(log_text_file, 'a', buffering=1)
     log_f.write("-" * 100 + "\n")
@@ -150,14 +136,11 @@ if __name__ == '__main__':
             for ti in gen_dict.keys():
                 time_save_dir = f"{img_save_dir}/{pet_name}/{con}/{jour_place}/{ti}".replace(" ", "_")
                 pic_description = gen_dict[ti][0]
-                org_pic_prompt = gen_dict[ti][1]
-                # 特殊关键词换为我们宠物的关键词
-                pic_prompt = replace_character_prompt(org_prompt=org_pic_prompt.lower(),
-                                                      pet_kw=pet_lora_key_word[pet_name])
-                assert pic_prompt is not None, f"prompt replace error, dir:{time_save_dir}, prompt: {org_pic_prompt}"
-                if not os.path.exists(time_save_dir) and pic_prompt is not None:
+                pic_scene_prompt = gen_dict[ti][1]
+                assert pic_scene_prompt is not None, f"prompt replace error, dir:{time_save_dir}, prompt: {pic_scene_prompt}"
+                if not os.path.exists(time_save_dir) and pic_scene_prompt is not None:
                     log_f.write(f"【{time_str}】{time_save_dir}\n")
-                    pts_cl.append((time_save_dir, pet_name, pic_prompt, pic_description, bath_size))
+                    pts_cl.append((pic_scene_prompt, pet_name, pic_description, time_save_dir, bath_size))
 
     random.shuffle(pts_cl)
     # ----------------------------

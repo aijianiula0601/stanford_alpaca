@@ -33,3 +33,20 @@ def image_grid(imgs, rows, cols):
 def png2jpg(img_path, save_path):
     img = Image.open(img_path)
     img.save(save_path, quality=95)
+
+
+pet_actions_list = ['Raise one hand',
+                    'look back',
+                    'standing',
+                    'look up to the sky',
+                    'running',
+                    'Cover face with hands',
+                    'Raise both hands',
+                    'Cover mouth',
+                    'dancing',
+                    'Sideways to left',
+                    'sitting',
+                    'Sideways to right',
+                    'walk',
+                    'Hands on hips, lift one leg',
+                    'Tilt head']
