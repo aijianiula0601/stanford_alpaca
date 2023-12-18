@@ -14,6 +14,12 @@
 # ------------------------------------------------------------------
 import requests
 import random
+import os
+import sys
+
+pdj = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(pdj)
+
 from util import decode_image, encode_image, pet_actions_list
 
 
@@ -34,9 +40,9 @@ def get_single_pets_img(scene_prompt, pet_name, location, lora_model, url: str, 
     pets_prompt = f'a cartoon {pet_name}, {pet_actor}'
 
     param_mapping = {'left': {'prompt': f'{common_prompt} ADDCOMM\n{scene_prompt} ADDROW\n{pets_prompt} ADDCOL',
-                              'Regional_matrix': "1,1;1,1,1", 'lora_mask': encode_image('assert/left_bottom.png')},
+                              'Regional_matrix': "1,1;1,1,1", 'lora_mask': encode_image(f'{pdj}/assert/left_bottom.png')},
                      'right': {'prompt': f'{common_prompt} ADDCOMM\n{scene_prompt} ADDROW\nADDCOL\n{pets_prompt}',
-                               'Regional_matrix': "1,1;1,1,1", 'lora_mask': encode_image('assert/right_bottom.png')}
+                               'Regional_matrix': "1,1;1,1,1", 'lora_mask': encode_image(f'{pdj}/assert/right_bottom.png')}
                      }
 
     param = param_mapping[location]
@@ -75,10 +81,10 @@ def get_single_pets_img(scene_prompt, pet_name, location, lora_model, url: str, 
 if __name__ == '__main__':
     pet_name = 'rabbit'
     location_list = ['right', 'left']
-    scene_prompt = 'Early morning sun casting a golden glow on the Meridian Gate of the Forbidden City.'
+    scene_prompt = "Saudi Arabia King World National Park, Evening at a tranquil park with dim lights and the sound of insects under a night sky."
     lora_model = 'pets-rabbit-20231204-512'
     lora_weight = 1.0
-    steps = 30
+    steps = 20
     batch_size = 4
 
     # url = "http://202.168.100.176:17602"

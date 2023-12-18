@@ -1,4 +1,5 @@
 import os
+import sys
 from tqdm import tqdm
 from joblib import Parallel, delayed
 import webuiapi
@@ -8,7 +9,10 @@ import math
 import random
 import time
 
-from general_functions import replace_character_prompt
+pdj = os.path.dirname(os.path.abspath(__file__))
+print('pdj：', pdj)
+sys.path.append(pdj)
+
 from sd_ui.api_v2 import get_single_pets_img, init_api
 
 
@@ -25,12 +29,12 @@ def init_models(host, port):
 
 
 ip_api_list = [
-    # ('202.168.100.176', 17601),
+    ('202.168.100.176', 17601),
     ('202.168.100.176', 17602),
     ('202.168.100.176', 17603),
     ('202.168.100.176', 17604),
     ('202.168.100.176', 17605),
-    ('202.168.100.176', 17606),
+    # ('202.168.100.176', 17606),
     ('202.168.100.178', 2000),
     ('202.168.100.178', 2001),
     ('202.168.100.178', 2002),
@@ -49,7 +53,7 @@ ip_api_list = [
     # ('202.168.100.178', 2015),
 ]
 
-inited_api_list = [init_models(t[0], t[1]) for t in ip_api_list]
+inited_api_list = [init_models("http://" + t[0], t[1]) for t in ip_api_list]
 
 # 宠物对应的lora, （宠物关键词，lora名字，lora权重）
 pet_lora_dic = {
@@ -65,7 +69,7 @@ def get_journey_img(scene_prompt: str, pet_name: str, pic_description: str, save
     location = random.sample(['right', 'left'], k=1)[0]
     lora_model = pet_lora_dic[pet_name][0]
     lora_weight = pet_lora_dic[pet_name][1]
-    steps = 30
+    steps = 20
 
     # 目录已经存在的话，不用生成
     if not os.path.exists(save_img_dir):
@@ -81,8 +85,8 @@ def get_journey_img(scene_prompt: str, pet_name: str, pic_description: str, save
         for i in range(batch_size):
             if not os.path.exists(save_img_dir):
                 os.makedirs(save_img_dir)
-            img_p = f"{save_img_dir}/{i}.png"
-            image[i].save(img_p)
+            img_p = f"{save_img_dir}/{i}.jpg"
+            image[i].save(img_p, quality=95)
 
         with open(os.path.join(save_img_dir, "description.txt"), "w") as f:
             f.write(pic_description.strip('"'))
@@ -100,13 +104,13 @@ def jour_img_gen(pts: list):
 if __name__ == '__main__':
     bath_size = 4
     n_job = len(ip_api_list)
-    countries = config.journey_places
+    countries = config.journey_places_v1
 
     base_dir = "/mnt/cephfs/hjh/train_record/images/dataset/imo_aipet/region"
     # 已经生成了prompt和文字的保存目录
     description_prompt_dir = f'{base_dir}/gen_prompts'
     # 生成图片的保存目录
-    img_save_dir = f'{base_dir}/journey_imgs_20231218'
+    img_save_dir = f'{base_dir}/journey_imgs_20231218_region_v1'
 
     # 保存此次生成的日记
     log_text_file = f"{img_save_dir}_log.txt"
@@ -121,11 +125,15 @@ if __name__ == '__main__':
     # ----------------------------
     prompt_qua = []
     for coun in countries:
-        for place in os.listdir(os.path.join(description_prompt_dir, coun)):
-            with open(os.path.join(description_prompt_dir, coun, place, 'gen_dict.json'), 'r') as f:
-                gen_dict = json.load(f)
-                # 国家、景点、gen_dic
-                prompt_qua.append((coun, place, gen_dict))
+        coun_dir = os.path.join(description_prompt_dir, coun)
+        if os.path.exists(coun_dir):
+            for place in os.listdir(coun_dir):
+                with open(os.path.join(description_prompt_dir, coun, place, 'gen_dict.json'), 'r') as f:
+                    gen_dict = json.load(f)
+                    # 国家、景点、gen_dic
+                    prompt_qua.append((coun, place, gen_dict))
+        else:
+            print(f"directory not exist:{coun_dir}")
 
     # ----------------------------
     # 获取多进程的参数
