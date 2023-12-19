@@ -6,6 +6,7 @@ import json
 from general_functions import get_gpt_result, parse_res_text
 import sys
 
+
 def journey_plan_gen(jour_coun, jour_place):
     # --------------------------------------
     # 生成旅游内容（早中晚中文prompt）
@@ -74,12 +75,13 @@ def save_gen_img_prompt(pts):
     pts = country, jour_place
     gen_dict = gen_image_prompt(pts)"""
 
-    save_path, country, jour_place = pts
-    file_path = os.path.join(save_path, "gen_dict.json")
+    save_dir, country, jour_place = pts
+    file_path = os.path.join(save_dir, "gen_dict.json")
     if not os.path.exists(file_path):
         pts = country, jour_place
         gen_dict = gen_image_prompt(pts)
-        os.makedirs(save_path)
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
         with open(file_path, "w") as f:
             json.dump(gen_dict, f)
 
