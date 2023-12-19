@@ -10,7 +10,6 @@ import random
 import time
 
 pdj = os.path.dirname(os.path.abspath(__file__))
-print('pdj：', pdj)
 sys.path.append(pdj)
 
 from sd_ui.api_v2 import get_single_pets_img, init_api
@@ -108,13 +107,12 @@ def jour_img_gen(pts: list):
 if __name__ == '__main__':
     bath_size = 4
     n_job = len(ip_api_list)
-    countries = config.journey_places_v1
+    countries = config.journey_places
 
-    base_dir = "/mnt/cephfs/hjh/train_record/images/dataset/imo_aipet/region"
     # 已经生成了prompt和文字的保存目录
-    description_prompt_dir = f'{base_dir}/gen_prompts'
+    description_prompt_dir = sys.argv[1]
     # 生成图片的保存目录
-    img_save_dir = f'{base_dir}/journey_imgs_20231218_region_v1'
+    img_save_dir = sys.argv[2]
 
     # 保存此次生成的日记
     log_text_file = f"{img_save_dir}_log.txt"

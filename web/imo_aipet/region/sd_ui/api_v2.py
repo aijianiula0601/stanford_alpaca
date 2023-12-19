@@ -39,11 +39,25 @@ def get_single_pets_img(scene_prompt, pet_name, location, lora_model, url: str, 
     pet_actor = random.sample(pet_actions_list, k=1)[0]
     pets_prompt = f'a cartoon {pet_name}, {pet_actor}'
 
-    param_mapping = {'left': {'prompt': f'{common_prompt} ADDCOMM\n{scene_prompt} ADDROW\n{pets_prompt} ADDCOL',
-                              'Regional_matrix': "1,1;1,1,1",
+    # ---------------
+    # v1
+    # ---------------
+    # param_mapping = {'left': {'prompt': f'{common_prompt} ADDCOMM\n{scene_prompt} ADDROW\n{pets_prompt} ADDCOL',
+    #                           'Regional_matrix': "1,1;1,1,1",
+    #                           'lora_mask': encode_image(f'{pdj}/assert/left_bottom.png')},
+    #                  'right': {'prompt': f'{common_prompt} ADDCOMM\n{scene_prompt} ADDROW\nADDCOL\n{pets_prompt}',
+    #                            'Regional_matrix': "1,1;1,1,1",
+    #                            'lora_mask': encode_image(f'{pdj}/assert/right_bottom.png')}
+    #                  }
+
+    # ---------------
+    # v2
+    # ---------------
+    param_mapping = {'left': {'prompt': f'{scene_prompt} ADDROW\n{pets_prompt} ADDCOL\n{scene_prompt}',
+                              'Regional_matrix': "3,1;2,2,3",
                               'lora_mask': encode_image(f'{pdj}/assert/left_bottom.png')},
-                     'right': {'prompt': f'{common_prompt} ADDCOMM\n{scene_prompt} ADDROW\nADDCOL\n{pets_prompt}',
-                               'Regional_matrix': "1,1;1,1,1",
+                     'right': {'prompt': f'{scene_prompt} ADDROW\n{scene_prompt}ADDCOL\n{pets_prompt}',
+                               'Regional_matrix': "3,1;2,3,2",
                                'lora_mask': encode_image(f'{pdj}/assert/right_bottom.png')}
                      }
 
@@ -67,7 +81,8 @@ def get_single_pets_img(scene_prompt, pet_name, location, lora_model, url: str, 
         "alwayson_scripts": {
             "Regional Prompter": {
                 "args": [True, False, "Matrix", "Columns", "Mask", "Prompt", param['Regional_matrix'], "0.2", False,
-                         True, False, "Attention"]
+                         # True, False, "Attention"] #v1
+                         False, False, "Attention"]  # v2
             },
             "LoRA models Masks for generating": {
                 "args": [True, lora_model, lora_weight, "", 0, "", 0, param['lora_mask']]

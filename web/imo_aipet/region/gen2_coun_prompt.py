@@ -4,7 +4,7 @@ from joblib import Parallel, delayed
 import config
 import json
 from general_functions import get_gpt_result, parse_res_text
-
+import sys
 
 def journey_plan_gen(jour_coun, jour_place):
     # --------------------------------------
@@ -88,9 +88,8 @@ if __name__ == '__main__':
 
     countries = config.journey_places
 
-    base_dir = "/mnt/cephfs/hjh/train_record/images/dataset/imo_aipet/region"
-    places_save_dir = f'{base_dir}/country_places'
-    gen_save_dir = f'{base_dir}/gen_prompts'
+    places_save_dir = sys.argv[1]
+    gen_save_dir = sys.argv[2]
 
     # 将所有国家和地区景点组成一个pair
     con_place_pair = []

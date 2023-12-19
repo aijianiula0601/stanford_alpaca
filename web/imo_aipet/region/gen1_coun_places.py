@@ -4,6 +4,7 @@ from joblib import Parallel, delayed
 import re
 import config
 import openai
+import sys
 
 openai.api_type = "azure"
 openai.api_base = "https://gpt4-test-cj-0803.openai.azure.com/"
@@ -82,7 +83,7 @@ if __name__ == '__main__':
     # ---------------------------------------------
     pts_cl = []
     places_num = 20
-    save_dir = '/mnt/cephfs/hjh/train_record/images/dataset/imo_aipet/region/country_places'
+    save_dir = sys.argv[1]
     for i in range(len(countries)):
         places_save_path = os.path.join(save_dir, f"{countries[i]}.txt")
         if not os.path.exists(places_save_path):
