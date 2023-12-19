@@ -28,13 +28,14 @@ echo "#----------------------------------------"
 
 description_prompt_dir="${save_dir}/gen_prompts"
 python -u gen2_coun_prompt.py ${country_places_dir} ${description_prompt_dir}
-echo "description_prompt done! save to ${description_prompt_dir}"
 
 echo "#----------------------------------------"
 echo "# 3.生成图片"
 echo "#----------------------------------------"
 imgs_dir="${save_dir}/journey_imgs"
 python -u gen3_coun_imgs.py ${description_prompt_dir} ${imgs_dir}
-echo "images done! save to ${imgs_dir}"
+
+
+echo "done!"
 
 
