@@ -107,7 +107,8 @@ if __name__ == '__main__':
     print("读取description.txt文件中...")
     for org_f in Path(img_dir).rglob("description.txt"):
         file = str(org_f)
-        if not Path(file).parent.joinpath("new_description.txt").exists() or not Path(file).parent.joinpath("new_description_en.txt").exists():
+        if not Path(file).parent.joinpath("new_description.txt").exists() or not Path(file).parent.joinpath(
+                "new_description_en.txt").exists():
             with open(file, 'r') as f:
                 state = f.readline()
             splits = file.split('/')
