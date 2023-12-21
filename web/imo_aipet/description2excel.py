@@ -21,7 +21,9 @@ description_data_list = []
 
 f_list = [f for f in Path(data_dir).rglob("new_description.txt")]
 
-sample_f_list = random.sample(f_list, k=1000)
+# 采样
+sample_n = min([1000, len(f_list)])
+sample_f_list = random.sample(f_list, k=sample_n)
 
 for org_f in tqdm(sample_f_list):
     desc_f = str(org_f)
