@@ -4,6 +4,7 @@ from joblib import Parallel, delayed
 import config
 from pathlib import Path
 import openai
+import random
 
 openai.api_type = "azure"
 openai.api_base = "https://bigo-chatgpt-9.openai.azure.com/"
@@ -22,14 +23,17 @@ def get_gpt_result(message_list):
         temperature=0.6,
         messages=message_list
     )
-    return response['choices'][0]['message']['content']
+    return response['choices'][0]['message']['content'].strip('"').strip('“').strip('”')
 
 
 def gen_new_state(pet, jour_coun, jour_place, state):
     # --------------------------------------
     # 根据已有信息，生成新的旅游内容
     # --------------------------------------
-    prompt = config.replace_state_prompt.format_map(
+
+    replace_state_prompt_list = [config.replace_state_prompt1, config.replace_state_prompt2]
+
+    prompt = random.sample(replace_state_prompt_list, k=1)[0].format_map(
         {'pet': pet, 'jour_place': jour_place, 'jour_coun': jour_coun, 'state': state,
          })
     # print("-" * 100)
@@ -64,15 +68,18 @@ def save_gen_new_state(pts):
 
 if __name__ == '__main__':
     countries = config.journey_places
+
+    base_dir = "/mnt/cephfs/hjh/train_record/images/dataset/imo_aipet/region/20231219"
     # 原prompt总路径
-    img_dir = '/mnt/cephfs/hjh/train_record/images/dataset/imo_aipet/journey_imgs2jpg'
+    img_dir = f'{base_dir}/journey_imgs'
     # 新路径
-    gen_save_dir = '/mnt/cephfs/hjh/train_record/images/dataset/imo_aipet/journey_imgs2jpg_description'
+    gen_save_dir = img_dir
 
     # 从文件路径读取所有需要的相关参数，状态描述，并得到新的生成路径生成以及添加api key
     pts_cl = []
     print("读取description.txt文件中...")
-    for file in tqdm([str(f) for f in Path(img_dir).rglob("description.txt")]):
+    for org_f in Path(img_dir).rglob("description.txt"):
+        file = str(org_f)
         if not Path(file).parent.joinpath("new_description.txt").exists():
             with open(file, 'r') as f:
                 state = f.readline()
@@ -82,7 +89,7 @@ if __name__ == '__main__':
             pts_cl.append((save_dir, pet, coun, place, state))
 
     print("进行中...")
-    results = Parallel(n_jobs=10, backend="multiprocessing")(
+    results = Parallel(n_jobs=20, backend="multiprocessing")(
         delayed(save_gen_new_state)(pts) for pts in tqdm(pts_cl))
 
     for _ in results:

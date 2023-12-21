@@ -27,7 +27,7 @@ echo "# 2.生成文案和图片prompt"
 echo "#----------------------------------------"
 
 description_prompt_dir="${save_dir}/gen_prompts"
-python -u gen2_coun_prompt.py ${country_places_dir} ${description_prompt_dir}
+#python -u gen2_coun_prompt.py ${country_places_dir} ${description_prompt_dir}
 
 echo "#----------------------------------------"
 echo "# 3.生成图片"
