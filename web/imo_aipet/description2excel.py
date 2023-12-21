@@ -16,7 +16,9 @@ for col, column in enumerate(["图片路径", "中文文案", "英文文案"]):
 # -------------------
 # 数据
 # -------------------
-data_dir = "/mnt/cephfs/hjh/train_record/images/dataset/imo_aipet/region/20231219/journey_imgs"
+
+base_dir = "/mnt/cephfs/hjh/train_record/images/dataset/imo_aipet/region/"
+data_dir = f"{base_dir}/20231219/journey_imgs"
 description_data_list = []
 
 f_list = [f for f in Path(data_dir).rglob("new_description.txt")]
@@ -28,7 +30,7 @@ sample_f_list = random.sample(f_list, k=sample_n)
 for org_f in tqdm(sample_f_list):
     desc_f = str(org_f)
     desc_en_f = desc_f.replace(".txt", "_en.txt")
-    f_path = str(org_f.parent).replace(data_dir, "")
+    f_path = str(org_f.parent).replace(base_dir, '')
 
     if os.path.exists(desc_f) and os.path.exists(desc_en_f):
         desc_txt = open(desc_f, 'r').read()

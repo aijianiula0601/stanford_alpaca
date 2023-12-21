@@ -37,7 +37,8 @@ def get_single_pets_img(scene_prompt, pet_name, location, lora_model, url: str, 
                         batch_size=4):
     common_prompt = 'masterpiece, best quality, no person'
     pet_actor = random.sample(pet_actions_list, k=1)[0]
-    pets_prompt = f'a cartoon {pet_name}, {pet_actor}'
+    # pets_prompt = f'a cartoon {pet_name}, {pet_actor}' #20231219
+    pets_prompt = f'a cartoon {pet_name}'  # 20231220
 
     # ---------------
     # v1

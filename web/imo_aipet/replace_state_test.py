@@ -1,8 +1,6 @@
 from replace_state import *
 
 
-
-
 def gen_new_state_my(pet, jour_coun, jour_place, state):
     # --------------------------------------
     # 根据已有信息，生成新的旅游内容
@@ -21,9 +19,9 @@ def gen_new_state_my(pet, jour_coun, jour_place, state):
 
 
 if __name__ == '__main__':
-    desc = "夜幕下的加尔各答灯火辉煌，街边小吃的香气四溢，人群熙熙攘攘。"
+    desc = "早晨的阳光洒在楚格峰上，我在清新的空气中嬉戏，欣赏着远处连绵的阿尔卑斯山脉。"
 
-    res = gen_new_state_my(pet="pumpkin_cat", jour_place="加尔各答风景区", jour_coun="印度", state=desc)
+    res = gen_new_state_my(pet="pumpkin_cat", jour_coun="瑞士", jour_place="楚格峰", state=desc)
 
     print(res)
 
