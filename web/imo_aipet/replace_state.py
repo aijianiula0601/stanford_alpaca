@@ -43,6 +43,15 @@ def gen_new_state(pet, jour_coun, jour_place, state):
     return get_gpt_result(message_list)
 
 
+def gen_new_state_en(description_cn):
+    # --------------------------------------
+    # 把中文文案翻译为英文
+    # --------------------------------------
+    prompt = config.cn2en_prompt.format_map({'cn_description': description_cn})
+    message_list = [{"role": "user", "content": prompt}]
+    return get_gpt_result(message_list)
+
+
 def save_gen_new_state(pts):
     # --------------------------------------
     # 一体化的生成旅行内容、中英文描述的函数
@@ -51,9 +60,11 @@ def save_gen_new_state(pts):
     # --------------------------------------
     save_dir, pet, jour_coun, jour_place, state = pts
 
+    # ----------------
+    # 中文
+    # ----------------
     file_path = os.path.join(save_dir, "new_description.txt")
     if not os.path.exists(file_path):
-
         try:
             new_state = gen_new_state(pet, jour_coun, jour_place, state)
 
@@ -64,6 +75,22 @@ def save_gen_new_state(pts):
                 f.write(new_state)
         except Exception as e:
             print(e, f"error new file:{file_path}")
+
+    # ----------------
+    # 英文
+    # ----------------
+    file_path_en = os.path.join(save_dir, "new_description_en.txt")
+    if not os.path.exists(file_path_en):
+        try:
+            with open(file_path, 'r') as f:
+                description_cn = f.readline()
+            new_state_en = gen_new_state_en(description_cn=description_cn)
+            if not os.path.exists(save_dir):
+                os.makedirs(save_dir)
+            with open(file_path_en, "w") as f:
+                f.write(new_state_en)
+        except Exception as e:
+            print(e, f"error new file:{file_path_en}")
 
 
 if __name__ == '__main__':
@@ -80,7 +107,7 @@ if __name__ == '__main__':
     print("读取description.txt文件中...")
     for org_f in Path(img_dir).rglob("description.txt"):
         file = str(org_f)
-        if not Path(file).parent.joinpath("new_description.txt").exists():
+        if not Path(file).parent.joinpath("new_description.txt").exists() or not Path(file).parent.joinpath("new_description_en.txt").exists():
             with open(file, 'r') as f:
                 state = f.readline()
             splits = file.split('/')
@@ -89,7 +116,7 @@ if __name__ == '__main__':
             pts_cl.append((save_dir, pet, coun, place, state))
 
     print("进行中...")
-    results = Parallel(n_jobs=20, backend="multiprocessing")(
+    results = Parallel(n_jobs=10, backend="multiprocessing")(
         delayed(save_gen_new_state)(pts) for pts in tqdm(pts_cl))
 
     for _ in results:
