@@ -7,11 +7,9 @@ import openai
 import random
 
 openai.api_type = "azure"
-openai.api_base = "https://bigo-chatgpt-9.openai.azure.com/"
+openai.api_base = "https://gpt4-test-cj-0803.openai.azure.com/"
 openai.api_version = "2023-03-15-preview"
-# key1: 19ea901e8e10475da1bb0537abf8e5a4
-# key2: 548e5c0c2aff453e932948927a27bde6
-openai.api_key = "19ea901e8e10475da1bb0537abf8e5a4"
+openai.api_key = 'bca8eef9f9c04c7bb1e573b4353e71ae'
 
 
 def get_gpt_result(message_list):
@@ -19,7 +17,7 @@ def get_gpt_result(message_list):
     微软的openai账号
     """
     response = openai.ChatCompletion.create(
-        engine='gpt-35-turbo',
+        engine="gpt4-16k",
         temperature=0.6,
         messages=message_list
     )
