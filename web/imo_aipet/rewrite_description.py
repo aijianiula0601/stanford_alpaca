@@ -94,7 +94,7 @@ def save_gen_new_state(pts):
 if __name__ == '__main__':
     countries = config.journey_places
 
-    base_dir = "/mnt/cephfs/hjh/train_record/images/dataset/imo_aipet/region/20231219"
+    base_dir = "/mnt/cephfs/hjh/train_record/images/dataset/imo_aipet/region/20231220"
     # 原prompt总路径
     img_dir = f'{base_dir}/journey_imgs'
     # 新路径
