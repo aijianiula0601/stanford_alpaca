@@ -115,7 +115,7 @@ if __name__ == '__main__':
             pts_cl.append((save_dir, pet, coun, place, state))
 
     print("进行中...")
-    results = Parallel(n_jobs=3, backend="multiprocessing")(
+    results = Parallel(n_jobs=1, backend="multiprocessing")(
         delayed(save_gen_new_state)(pts) for pts in tqdm(pts_cl))
 
     for _ in results:

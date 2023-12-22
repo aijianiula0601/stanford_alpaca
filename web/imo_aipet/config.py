@@ -87,3 +87,8 @@ cn2en_prompt = (
     "{cn_description}\n"
     "把上面的中文翻译为英文，主人这个单词统一翻译为Master，Master一定要大写开头，输出的英文单词不要超过25个。"
 )
+
+place2en_prompt = (
+    "{place_name}\n"
+    "上面的中文翻译为英文，只输出它的英文，不要输出其他无关的内容。"
+)
