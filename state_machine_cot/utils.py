@@ -59,10 +59,86 @@ def get_prompt_from_md(md_file: str, map_dic: dict):
 
 
 if __name__ == '__main__':
-    md_file = "prompts/states/greeting_first.md"
-    map_dic = {"role_name": "sara", "residence": "china", "latest_history": None, "current_user_question": "hi, what's your name?"}
+    # -------------------------------------
+    # check whatapp.md
+    # -------------------------------------
+    md_file = "prompts/states/whatapp.md"
+    map_dic = {
+        "current_user_question": "Are you single?"
+    }
     prompt = get_prompt_from_md(md_file, map_dic)
-    # print(prompt)
     message_list = [{"role": 'user', 'content': prompt}]
     re_text = get_gpt35_response(message_list)
+    print("-" * 100)
+    print(prompt)
+    print("-" * 100)
     print("re_text:", re_text)
+    # -------------------------------------
+    # check telling.md
+    # -------------------------------------
+    # md_file = "prompts/states/telling.md"
+    # map_dic = {
+    #     "role_name": "sara",
+    #     "latest_history": None,
+    #     "your_experience": "Today in the hospital to take care of a group of celebrities, now exhausted, like a rest ah.",
+    #     "current_user_question": "Are you single?"
+    # }
+    # prompt = get_prompt_from_md(md_file, map_dic)
+    # message_list = [{"role": 'user', 'content': prompt}]
+    # re_text = get_gpt35_response(message_list)
+    # print("-" * 100)
+    # print(len(prompt))
+    # print("-" * 100)
+    # print("re_text:", re_text)
+    # -----------------------------
+
+    # # -------------------------------------
+    # # check end.md
+    # # -------------------------------------
+    # md_file = "prompts/states/end.md"
+    # map_dic = {
+    #     "role_name": "sara",
+    #     "latest_history": None,
+    #     "current_user_question": "Are you single?"
+    # }
+    # prompt = get_prompt_from_md(md_file, map_dic)
+    # message_list = [{"role": 'user', 'content': prompt}]
+    # re_text = get_gpt35_response(message_list)
+    # print("-" * 100)
+    # print(len(prompt))
+    # print("-" * 100)
+    # print("re_text:", re_text)
+    # # -------------------------------------
+    # check greeting_first.md
+    # -------------------------------------
+    # md_file = "prompts/states/normal.md"
+    # map_dic = {
+    #     "role_name": "sara",
+    #     "occupation": "Physician assistant",
+    #     "residence": "china",
+    #     "hobbies": "Swimming",
+    #     "latest_history": None,
+    #     "user_intention": None,
+    #     "current_user_question": "hi, how is going?"
+    # }
+    # prompt = get_prompt_from_md(md_file, map_dic)
+    # message_list = [{"role": 'user', 'content': prompt}]
+    # re_text = get_gpt35_response(message_list)
+    # print("-" * 100)
+    # print(prompt)
+    # print("-" * 100)
+    # print("re_text:", re_text)
+    # -------------------------------------
+    # check greeting_first.md
+    # -------------------------------------
+    # md_file = "prompts/states/greeting_first.md"
+    # map_dic = {
+    #     "role_name": "sara",
+    #     "residence": "china",
+    #     "latest_history": None,
+    #     "current_user_question": "hi, what's your name?"
+    # }
+    # prompt = get_prompt_from_md(md_file, map_dic)
+    # message_list = [{"role": 'user', 'content': prompt}]
+    # re_text = get_gpt35_response(message_list)
+    # print("re_text:", re_text)
