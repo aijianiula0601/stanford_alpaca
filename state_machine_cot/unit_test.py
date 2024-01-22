@@ -32,21 +32,21 @@ def test_sex():
     user_intention = None
     current_user_question = "hi, i want to sex with you."
 
-    res_text = get_prompt_from_sex(role_name=role_name,
-                                   occupation=occupation,
-                                   residence=residence,
-                                   hobbies=hobbies,
-                                   last_summary=last_summary,
-                                   latest_history=latest_history,
-                                   user_intention=user_intention,
-                                   current_user_question=current_user_question)
+    res_text = get_result_from_prompt_sex(role_name=role_name,
+                                          occupation=occupation,
+                                          residence=residence,
+                                          hobbies=hobbies,
+                                          last_summary=last_summary,
+                                          latest_history=latest_history,
+                                          user_intention=user_intention,
+                                          current_user_question=current_user_question)
 
     print("res_text:\n", res_text)
 
 
 def test_whatapp():
     current_user_question = "give me you whatapp number."
-    res_text = get_prompt_from_whatapp(current_user_question=current_user_question)
+    res_text = get_result_from_prompt_whatapp(current_user_question=current_user_question)
 
     print("res_text:\n", res_text)
 
@@ -57,7 +57,7 @@ def test_greeting_first_day():
     latest_history = None
     current_user_question = "hi"
 
-    res_text = get_prompt_from_greeting_first_day(role_name=role_name, residence=residence, latest_history=latest_history, current_user_question=current_user_question)
+    res_text = get_result_from_prompt_greeting_first_day(role_name=role_name, residence=residence, latest_history=latest_history, current_user_question=current_user_question)
     print("res_text:\n", res_text)
 
 
@@ -66,7 +66,7 @@ def test_greeting_second_day():
     residence = "china"
     yesterday_day_summary = None
     current_user_question = "hi"
-    res_text = get_prompt_from_greeting_second_day(role_name=role_name, residence=residence, yesterday_day_summary=yesterday_day_summary, current_user_question=current_user_question)
+    res_text = get_result_from_prompt_greeting_second_day(role_name=role_name, residence=residence, yesterday_day_summary=yesterday_day_summary, current_user_question=current_user_question)
     print("res_text:\n", res_text)
 
 
@@ -82,7 +82,7 @@ def test_live():
         "rosa: Oh, Beijing! That's so cool!\n"
     )
     current_user_question = "yeah"
-    res_text = get_prompt_from_live(role_name=role_name, latest_history=latest_history, current_user_question=current_user_question)
+    res_text = get_result_from_prompt_from_live(role_name=role_name, latest_history=latest_history, current_user_question=current_user_question)
     print("res_text:\n", res_text)
 
 
@@ -100,7 +100,7 @@ def test_chat_analysis():
     pic_topics = "selfie,travel",
     story_topics = "occupation,bad_experience_of_today,movie,sports,first_traveling_experience,football_and_dad,childhood,reconcile_with_mom,love_experience,current_relationship_status",
     current_user_question = "yeah"
-    res_text = get_prompt_from_chat_analysis(role_name=role_name, latest_history=latest_history, pic_topics=pic_topics, story_topics=story_topics, current_user_question=current_user_question)
+    res_text = get_result_from_prompt_chat_analysis(role_name=role_name, latest_history=latest_history, pic_topics=pic_topics, story_topics=story_topics, current_user_question=current_user_question)
     print("res_text:\n", res_text)
 
 
@@ -114,7 +114,7 @@ def test_history_summary():
         "user:beijing\n"
         "rosa: Oh, Beijing! That's so cool!\n"
     )
-    res_text = get_prompt_from_history_summary(latest_history=latest_history)
+    res_text = get_result_from_prompt_history_summary(latest_history=latest_history)
     print("res_text:\n", res_text)
 
 
@@ -128,7 +128,7 @@ def test_history_summary_day():
         "user:beijing\n"
         "rosa: Oh, Beijing! That's so cool!\n"
     )
-    res_text = get_prompt_from_history_summary_day(latest_history=latest_history)
+    res_text = get_result_from_prompt_history_summary_day(latest_history=latest_history)
     print("res_text:\n", res_text)
 
 

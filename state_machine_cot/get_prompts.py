@@ -52,14 +52,14 @@ def get_prompt_result(prompt_file: str, map_dic: dict, gpt_version: str = "gpt35
     return get_gpt35_response(message_list)
 
 
-def get_prompt_from_sex(role_name: str,
-                        occupation: str,
-                        residence: str,
-                        hobbies: str,
-                        last_summary: str,
-                        latest_history: str,
-                        user_intention: str,
-                        current_user_question: str):
+def get_result_from_prompt_sex(role_name: str,
+                               occupation: str,
+                               residence: str,
+                               hobbies: str,
+                               last_summary: str,
+                               latest_history: str,
+                               user_intention: str,
+                               current_user_question: str):
     map_dic = {
         "role_name": role_name,
         "occupation": occupation,
@@ -74,7 +74,7 @@ def get_prompt_from_sex(role_name: str,
     return get_prompt_result(prompt_file=md_file, map_dic=map_dic)
 
 
-def get_prompt_from_whatapp(current_user_question: str):
+def get_result_from_prompt_whatapp(current_user_question: str):
     map_dic = {
         "current_user_question": current_user_question
     }
@@ -82,10 +82,10 @@ def get_prompt_from_whatapp(current_user_question: str):
     return get_prompt_result(prompt_file=md_file, map_dic=map_dic)
 
 
-def get_prompt_from_greeting_first_day(role_name: str,
-                                       residence: str,
-                                       latest_history: str,
-                                       current_user_question: str):
+def get_result_from_prompt_greeting_first_day(role_name: str,
+                                              residence: str,
+                                              latest_history: str,
+                                              current_user_question: str):
     map_dic = {
         "role_name": role_name,
         "residence": residence,
@@ -96,9 +96,9 @@ def get_prompt_from_greeting_first_day(role_name: str,
     return get_prompt_result(prompt_file=md_file, map_dic=map_dic)
 
 
-def get_prompt_from_live(role_name: str,
-                         latest_history: str,
-                         current_user_question: str):
+def get_result_from_prompt_from_live(role_name: str,
+                                     latest_history: str,
+                                     current_user_question: str):
     map_dic = {
         "role_name": role_name,
         "latest_history": latest_history,
@@ -108,10 +108,10 @@ def get_prompt_from_live(role_name: str,
     return get_prompt_result(prompt_file=md_file, map_dic=map_dic)
 
 
-def get_prompt_from_greeting_second_day(role_name: str,
-                                        residence: str,
-                                        yesterday_day_summary: str,
-                                        current_user_question: str):
+def get_result_from_prompt_greeting_second_day(role_name: str,
+                                               residence: str,
+                                               yesterday_day_summary: str,
+                                               current_user_question: str):
     map_dic = {
         "role_name": role_name,
         "residence": residence,
@@ -122,11 +122,11 @@ def get_prompt_from_greeting_second_day(role_name: str,
     return get_prompt_result(prompt_file=md_file, map_dic=map_dic)
 
 
-def get_prompt_from_chat_analysis(role_name: str,
-                                  latest_history: str,
-                                  pic_topics: str,
-                                  story_topics: str,
-                                  current_user_question: str):
+def get_result_from_prompt_chat_analysis(role_name: str,
+                                         latest_history: str,
+                                         pic_topics: str,
+                                         story_topics: str,
+                                         current_user_question: str):
     map_dic = {
         "role_name": role_name,
         "latest_history": latest_history,
@@ -138,7 +138,7 @@ def get_prompt_from_chat_analysis(role_name: str,
     return get_prompt_result(prompt_file=md_file, map_dic=map_dic)
 
 
-def get_prompt_from_history_summary(latest_history: str):
+def get_result_from_prompt_history_summary(latest_history: str):
     map_dic = {
         "latest_history": latest_history,
     }
@@ -146,7 +146,7 @@ def get_prompt_from_history_summary(latest_history: str):
     return get_prompt_result(prompt_file=md_file, map_dic=map_dic)
 
 
-def get_prompt_from_history_summary_day(latest_history: str):
+def get_result_from_prompt_history_summary_day(latest_history: str):
     map_dic = {
         "latest_history": latest_history,
     }
