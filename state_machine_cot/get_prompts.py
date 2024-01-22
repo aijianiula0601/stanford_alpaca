@@ -3,16 +3,12 @@ import sys
 from pathlib import Path
 from utils import get_gpt35_response, get_gpt4_response
 
-pjd_file = os.path.dirname(os.path.abspath(__file__))
-print(f"pdf_file:{pjd_file}")
-sys.path.append(pjd_file)
-
 prompt_file_dic = {
-    'greeting_first_day': 'states/greeting_first_day.md',
-    'whatapp': 'states/whatapp.md',
-    'en': 'states/end.md',
-    'normal': 'states/normal.md',
-    'telling': 'states/telling.md'
+    'greeting_first_day': 'prompts/states/greeting_first_day.md',
+    'whatapp': 'prompts/states/whatapp.md',
+    'en': 'prompts/states/end.md',
+    'normal': 'prompts/states/normal.md',
+    'telling': 'prompts/states/telling.md'
 }
 
 
@@ -52,8 +48,11 @@ def prompt_test(prompt_file: str, map_dic: dict):
 
 
 if __name__ == '__main__':
-    print_prompt_file_dic()
+    # print_prompt_file_dic()
 
+    # ------------------------
+    # whatapp
+    # ------------------------
     map_dic = {
         "current_user_question": "Are you single?"
     }
