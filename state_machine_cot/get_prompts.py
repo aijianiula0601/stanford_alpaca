@@ -34,12 +34,17 @@ def get_prompt_from_md(md_file: str, map_dic: dict):
         md_file: 保存prompt的md文件路径
         map_dic: prompt中需要插入的字符串，格式:{'a': '~', 'b': '~'}
     """
-    return ''.join(open(md_file, 'r', encoding='utf-8').readlines()).format_map(map_dic)
+    return ''.join(open(md_file, 'r', encoding='utf-8').readlines()).format_map(map_dic).strip()
 
 
 def get_prompt_result(prompt_file: str, map_dic: dict, gpt_version: str = "gpt35"):
     prompt = get_prompt_from_md(prompt_file, map_dic)
     message_list = [{"role": 'user', 'content': prompt}]
+
+    print("-" * 100)
+    print("【prompt】:\n")
+    print(prompt)
+    print("-" * 100)
 
     if gpt_version == "gpt4":
         return get_gpt4_response(message_list)
@@ -91,6 +96,18 @@ def get_prompt_from_greeting_first_day(role_name: str,
     return get_prompt_result(prompt_file=md_file, map_dic=map_dic)
 
 
+def get_prompt_from_live(role_name: str,
+                         latest_history: str,
+                         current_user_question: str):
+    map_dic = {
+        "role_name": role_name,
+        "latest_history": latest_history,
+        "current_user_question": current_user_question
+    }
+    md_file = "prompts/states/live.md"
+    return get_prompt_result(prompt_file=md_file, map_dic=map_dic)
+
+
 def get_prompt_from_greeting_second_day(role_name: str,
                                         residence: str,
                                         yesterday_day_summary: str,
@@ -118,6 +135,22 @@ def get_prompt_from_chat_analysis(role_name: str,
         "current_user_response": current_user_question
     }
     md_file = "prompts/chat_analysis.md"
+    return get_prompt_result(prompt_file=md_file, map_dic=map_dic)
+
+
+def get_prompt_from_history_summary(latest_history: str):
+    map_dic = {
+        "latest_history": latest_history,
+    }
+    md_file = "prompts/history_summary.md"
+    return get_prompt_result(prompt_file=md_file, map_dic=map_dic)
+
+
+def get_prompt_from_history_summary_day(latest_history: str):
+    map_dic = {
+        "latest_history": latest_history,
+    }
+    md_file = "prompts/history_summary_day.md"
     return get_prompt_result(prompt_file=md_file, map_dic=map_dic)
 
 

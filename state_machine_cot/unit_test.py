@@ -17,74 +17,120 @@ def test_end():
         "latest_history": None,
         "current_user_question": "hi, are you single?"
     }
+
     md_file = "prompts/states/end.md"
     prompt_test(prompt_file=md_file, map_dic=map_dic)
 
 
 def test_sex():
-    map_dic = {
-        "role_name": "sara",
-        "occupation": "Physician assistant",
-        "residence": "china",
-        "hobbies": "Swimming",
-        "last_summary": None,
-        "latest_history": None,
-        "user_intention": None,
-        "current_user_question": "hi, i want to sex with you."
-    }
-    md_file = "prompts/states/sex.md"
-    prompt_test(prompt_file=md_file, map_dic=map_dic)
+    role_name = "sara"
+    occupation = "Physician assistant"
+    residence = "china"
+    hobbies = "Swimming"
+    last_summary = None
+    latest_history = None
+    user_intention = None
+    current_user_question = "hi, i want to sex with you."
+
+    res_text = get_prompt_from_sex(role_name=role_name,
+                                   occupation=occupation,
+                                   residence=residence,
+                                   hobbies=hobbies,
+                                   last_summary=last_summary,
+                                   latest_history=latest_history,
+                                   user_intention=user_intention,
+                                   current_user_question=current_user_question)
+
+    print("res_text:\n", res_text)
 
 
 def test_whatapp():
-    map_dic = {
-        "current_user_question": "Are you single?"
-    }
-    md_file = "prompts/states/whatapp.md"
-    prompt_test(prompt_file=md_file, map_dic=map_dic)
+    current_user_question = "give me you whatapp number."
+    res_text = get_prompt_from_whatapp(current_user_question=current_user_question)
+
+    print("res_text:\n", res_text)
 
 
 def test_greeting_first_day():
-    map_dic = {
-        "role_name": "sara",
-        "residence": "china",
-        "latest_history": None,
-        "current_user_question": "hi"
-    }
-    md_file = "prompts/states/greeting_first_day.md"
-    prompt_test(prompt_file=md_file, map_dic=map_dic)
+    role_name = "sara"
+    residence = "china"
+    latest_history = None
+    current_user_question = "hi"
+
+    res_text = get_prompt_from_greeting_first_day(role_name=role_name, residence=residence, latest_history=latest_history, current_user_question=current_user_question)
+    print("res_text:\n", res_text)
 
 
 def test_greeting_second_day():
-    map_dic = {
-        "role_name": "sara",
-        "residence": "china",
-        "yesterday_day_summary": None,
-        "current_user_question": "hi"
-    }
-    md_file = "prompts/states/greeting_first_day.md"
-    prompt_test(prompt_file=md_file, map_dic=map_dic)
+    role_name = "sara"
+    residence = "china"
+    yesterday_day_summary = None
+    current_user_question = "hi"
+    res_text = get_prompt_from_greeting_second_day(role_name=role_name, residence=residence, yesterday_day_summary=yesterday_day_summary, current_user_question=current_user_question)
+    print("res_text:\n", res_text)
+
+
+def test_live():
+    role_name = "rosa"
+    latest_history = (
+        "rosa: hello, I'm so bored.\n"
+        "user:good\n"
+        "rosa: Saw your profile, wanna be friends? Where are you from ?\n"
+        "user:heaven\n"
+        "rosa: Oh, come on! Where are you really from ?\n"
+        "user:beijing\n"
+        "rosa: Oh, Beijing! That's so cool!\n"
+    )
+    current_user_question = "yeah"
+    res_text = get_prompt_from_live(role_name=role_name, latest_history=latest_history, current_user_question=current_user_question)
+    print("res_text:\n", res_text)
 
 
 def test_chat_analysis():
-    map_dic = {
-        "role_name": "rosa",
-        "latest_history": (
-            "rosa: hello, I'm so bored.\n"
-            "user:good\n"
-            "rosa: Saw your profile, wanna be friends? Where are you from ?\n"
-            "user:heaven\n"
-            "rosa: Oh, come on! Where are you really from ?\n"
-            "user:beijing\n"
-            "rosa: Oh, Beijing! That's so cool!\n"
-        ),
-        "pic_topics": "selfie,travel",
-        "story_topics": "occupation,bad_experience_of_today,movie,sports,first_traveling_experience,football_and_dad,childhood,reconcile_with_mom,love_experience,current_relationship_status",
-        "current_user_response": "yeah"
-    }
-    md_file = "prompts/chat_analysis.md"
-    prompt_test(prompt_file=md_file, map_dic=map_dic)
+    role_name = "rosa"
+    latest_history = (
+        "rosa: hello, I'm so bored.\n"
+        "user:good\n"
+        "rosa: Saw your profile, wanna be friends? Where are you from ?\n"
+        "user:heaven\n"
+        "rosa: Oh, come on! Where are you really from ?\n"
+        "user:beijing\n"
+        "rosa: Oh, Beijing! That's so cool!\n"
+    )
+    pic_topics = "selfie,travel",
+    story_topics = "occupation,bad_experience_of_today,movie,sports,first_traveling_experience,football_and_dad,childhood,reconcile_with_mom,love_experience,current_relationship_status",
+    current_user_question = "yeah"
+    res_text = get_prompt_from_chat_analysis(role_name=role_name, latest_history=latest_history, pic_topics=pic_topics, story_topics=story_topics, current_user_question=current_user_question)
+    print("res_text:\n", res_text)
+
+
+def test_history_summary():
+    latest_history = (
+        "rosa: hello, I'm so bored.\n"
+        "user:good\n"
+        "rosa: Saw your profile, wanna be friends? Where are you from ?\n"
+        "user:heaven\n"
+        "rosa: Oh, come on! Where are you really from ?\n"
+        "user:beijing\n"
+        "rosa: Oh, Beijing! That's so cool!\n"
+    )
+    res_text = get_prompt_from_history_summary(latest_history=latest_history)
+    print("res_text:\n", res_text)
+
+
+def test_history_summary_day():
+    latest_history = (
+        "rosa: hello, I'm so bored.\n"
+        "user:good\n"
+        "rosa: Saw your profile, wanna be friends? Where are you from ?\n"
+        "user:heaven\n"
+        "rosa: Oh, come on! Where are you really from ?\n"
+        "user:beijing\n"
+        "rosa: Oh, Beijing! That's so cool!\n"
+    )
+    res_text = get_prompt_from_history_summary_day(latest_history=latest_history)
+    print("res_text:\n", res_text)
 
 
 if __name__ == '__main__':
-    test_end()
+    test_live()
