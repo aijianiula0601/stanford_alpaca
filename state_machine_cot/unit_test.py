@@ -11,6 +11,16 @@ def prompt_test(prompt_file: str, map_dic: dict):
     print("re_text:\n", re_text)
 
 
+def test_end():
+    map_dic = {
+        "role_name": "sara",
+        "latest_history": None,
+        "current_user_question": "hi, are you single?"
+    }
+    md_file = "prompts/states/end.md"
+    prompt_test(prompt_file=md_file, map_dic=map_dic)
+
+
 def test_sex():
     map_dic = {
         "role_name": "sara",
@@ -77,4 +87,4 @@ def test_chat_analysis():
 
 
 if __name__ == '__main__':
-    test_chat_analysis()
+    test_end()

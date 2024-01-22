@@ -37,75 +37,88 @@ def get_prompt_from_md(md_file: str, map_dic: dict):
     return ''.join(open(md_file, 'r', encoding='utf-8').readlines()).format_map(map_dic)
 
 
-def get_prompt_result(prompt_file: str, map_dic: dict):
+def get_prompt_result(prompt_file: str, map_dic: dict, gpt_version: str = "gpt35"):
     prompt = get_prompt_from_md(prompt_file, map_dic)
     message_list = [{"role": 'user', 'content': prompt}]
+
+    if gpt_version == "gpt4":
+        return get_gpt4_response(message_list)
+
     return get_gpt35_response(message_list)
 
 
-def test_sex():
+def get_prompt_from_sex(role_name: str,
+                        occupation: str,
+                        residence: str,
+                        hobbies: str,
+                        last_summary: str,
+                        latest_history: str,
+                        user_intention: str,
+                        current_user_question: str):
     map_dic = {
-        "role_name": "sara",
-        "occupation": "Physician assistant",
-        "residence": "china",
-        "hobbies": "Swimming",
-        "last_summary": None,
-        "latest_history": None,
-        "user_intention": None,
-        "current_user_question": "hi, i want to sex with you."
+        "role_name": role_name,
+        "occupation": occupation,
+        "residence": residence,
+        "hobbies": hobbies,
+        "last_summary": last_summary,
+        "latest_history": latest_history,
+        "user_intention": user_intention,
+        "current_user_question": current_user_question
     }
     md_file = "prompts/states/sex.md"
-    get_prompt_result(prompt_file=md_file, map_dic=map_dic)
+    return get_prompt_result(prompt_file=md_file, map_dic=map_dic)
 
 
-def test_whatapp():
+def get_prompt_from_whatapp(current_user_question: str):
     map_dic = {
-        "current_user_question": "Are you single?"
+        "current_user_question": current_user_question
     }
     md_file = "prompts/states/whatapp.md"
-    get_prompt_result(prompt_file=md_file, map_dic=map_dic)
+    return get_prompt_result(prompt_file=md_file, map_dic=map_dic)
 
 
-def test_greeting_first_day():
+def get_prompt_from_greeting_first_day(role_name: str,
+                                       residence: str,
+                                       latest_history: str,
+                                       current_user_question: str):
     map_dic = {
-        "role_name": "sara",
-        "residence": "china",
-        "latest_history": None,
-        "current_user_question": "hi"
+        "role_name": role_name,
+        "residence": residence,
+        "latest_history": latest_history,
+        "current_user_question": current_user_question
     }
     md_file = "prompts/states/greeting_first_day.md"
-    get_prompt_result(prompt_file=md_file, map_dic=map_dic)
+    return get_prompt_result(prompt_file=md_file, map_dic=map_dic)
 
 
-def test_greeting_second_day():
+def get_prompt_from_greeting_second_day(role_name: str,
+                                        residence: str,
+                                        yesterday_day_summary: str,
+                                        current_user_question: str):
     map_dic = {
-        "role_name": "sara",
-        "residence": "china",
-        "yesterday_day_summary": None,
-        "current_user_question": "hi"
+        "role_name": role_name,
+        "residence": residence,
+        "yesterday_day_summary": yesterday_day_summary,
+        "current_user_question": current_user_question
     }
     md_file = "prompts/states/greeting_first_day.md"
-    get_prompt_result(prompt_file=md_file, map_dic=map_dic)
+    return get_prompt_result(prompt_file=md_file, map_dic=map_dic)
 
 
-def test_chat_analysis():
+def get_prompt_from_chat_analysis(role_name: str,
+                                  latest_history: str,
+                                  pic_topics: str,
+                                  story_topics: str,
+                                  current_user_question: str):
     map_dic = {
-        "role_name": "rosa",
-        "latest_history": (
-            "rosa: hello, I'm so bored.\n"
-            "user:good\n"
-            "rosa: Saw your profile, wanna be friends? Where are you from ?\n"
-            "user:heaven\n"
-            "rosa: Oh, come on! Where are you really from ?\n"
-            "user:beijing\n"
-            "rosa: Oh, Beijing! That's so cool!\n"
-        ),
-        "pic_topics": "selfie,travel",
-        "story_topics": "occupation,bad_experience_of_today,movie,sports,first_traveling_experience,football_and_dad,childhood,reconcile_with_mom,love_experience,current_relationship_status",
-        "current_user_response": "yeah"
+        "role_name": role_name,
+        "latest_history": latest_history,
+        "pic_topics": pic_topics,
+        "story_topics": story_topics,
+        "current_user_response": current_user_question
     }
     md_file = "prompts/chat_analysis.md"
-    get_prompt_result(prompt_file=md_file, map_dic=map_dic)
+    return get_prompt_result(prompt_file=md_file, map_dic=map_dic)
 
 
 if __name__ == '__main__':
