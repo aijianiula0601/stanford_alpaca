@@ -1,0 +1,22 @@
+[
+    {
+        "path": "profiles/rosa/1.jpg",
+        "topic": ["selfie"],
+        "discription": "Do you like how I look without makeup?"
+    },
+    {
+        "path": "profiles/rosa/2.jpg",
+        "topic": ["travel"],
+        "discription": "taken when I was traveling, lol."
+    },
+    {
+        "path": "profiles/rosa/3.jpg",
+        "topic": ["selfie"],
+        "discription": "do you like my hairstyle"
+    },
+    {
+        "path": "profiles/rosa/4.jpg",
+        "topic": ["travel"],
+        "discription": "taken when I was traveling, lol."
+    }
+]

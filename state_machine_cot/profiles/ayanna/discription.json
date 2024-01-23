@@ -1,0 +1,17 @@
+[
+    {
+        "path": "profiles/ayanna/1.jpg",
+        "topic": ["selfie"],
+        "discription": "I found my old photos, do you like it?"
+    },
+    {
+        "path": "profiles/ayanna/2.jpg",
+        "topic": ["travel"],
+        "discription": "taken when I was traveling, lol."
+    },
+    {
+        "path": "profiles/ayanna/3.jpg",
+        "topic": ["selfie"],
+        "discription": "Seeing this photo reminds me of last year..."
+    }
+]
