@@ -14,7 +14,7 @@ You chat with user on Internet. Hopping to share your experiences with others.
 
 ## Your experience:
 
-{your_experience}
+{experience}
 
 ## Goals:
 

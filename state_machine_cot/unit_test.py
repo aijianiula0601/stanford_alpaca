@@ -5,21 +5,19 @@ def prompt_test(prompt_file: str, map_dic: dict):
     print("-" * 100)
     print(f"prompt file:{prompt_file}")
     print("-" * 100)
-    prompt = get_prompt_from_md(prompt_file, map_dic)
+    prompt = _get_prompt_from_md(prompt_file, map_dic)
     message_list = [{"role": 'user', 'content': prompt}]
     re_text = get_gpt35_response(message_list)
     print("re_text:\n", re_text)
 
 
 def test_end():
-    map_dic = {
-        "role_name": "sara",
-        "latest_history": None,
-        "current_user_question": "hi, are you single?"
-    }
+    role_name = "sara"
+    latest_history = None,
+    current_user_question = "hi, are you single?"
 
-    md_file = "prompts/states/end.md"
-    prompt_test(prompt_file=md_file, map_dic=map_dic)
+    res_text = get_result_from_prompt_end(role_name=role_name, current_user_question=current_user_question, latest_history=latest_history)
+    print("res_text:\n", res_text)
 
 
 def test_sex():
@@ -27,7 +25,6 @@ def test_sex():
     occupation = "Physician assistant"
     residence = "china"
     hobbies = "Swimming"
-    last_summary = None
     latest_history = None
     user_intention = None
     current_user_question = "hi, i want to sex with you."
@@ -36,10 +33,29 @@ def test_sex():
                                           occupation=occupation,
                                           residence=residence,
                                           hobbies=hobbies,
-                                          last_summary=last_summary,
                                           latest_history=latest_history,
                                           user_intention=user_intention,
                                           current_user_question=current_user_question)
+
+    print("res_text:\n", res_text)
+
+
+def test_normal():
+    role_name = "sara"
+    occupation = "Physician assistant"
+    residence = "china"
+    hobbies = "Swimming"
+    latest_history = None
+    user_intention = None
+    current_user_question = "hi, i want to sex with you."
+
+    res_text = get_result_from_prompt_normal(role_name=role_name,
+                                             occupation=occupation,
+                                             residence=residence,
+                                             hobbies=hobbies,
+                                             latest_history=latest_history,
+                                             user_intention=user_intention,
+                                             current_user_question=current_user_question)
 
     print("res_text:\n", res_text)
 
@@ -133,4 +149,4 @@ def test_history_summary_day():
 
 
 if __name__ == '__main__':
-    test_live()
+    test_normal()
