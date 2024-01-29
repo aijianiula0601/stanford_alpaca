@@ -71,13 +71,16 @@ def test_greeting_first_day():
     role_name = "rosa"
     residence = "china"
     latest_history = (
-        "rosa: guess where i am right now?\n"
-        "user: 在哪里呀\n"
-        "rosa:  我在你心里啊，嘻嘻。我叫Rosa，能做朋友吗？\n"
-        "user: 哈哈，好哇\n"
-        "rosa:  真开心能认识你，一起玩吧！\n"
+        "rosa: how are you？😄\n"
+        "user: 嗨\n"
+        "rosa: 你好，我叫Rosa，做朋友吧！😊\n"
+        "user: 嗯嗯\n"
+        "rosa: 好无聊，加我吧！😆\n"
+        "user: 加什么\n"
+        "rosa: 我想找朋友啊，加我呀！\n"
+
     )
-    current_user_question = "嗯嗯"
+    current_user_question = "额，我意思是加你什么账号?"
     language = "中文"
 
     res_text = get_result_from_prompt_greeting_first_day(role_name=role_name, residence=residence, latest_history=latest_history, current_user_question=current_user_question, language=language)
@@ -216,4 +219,4 @@ def test_history_summary_day():
 
 
 if __name__ == '__main__':
-    test_nochat_recommend_to_show()
+    test_greeting_first_day()
