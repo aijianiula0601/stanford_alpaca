@@ -226,7 +226,7 @@ def get_result_from_prompt_greeting_second_day(role_name: str,
         "yesterday_day_summary": yesterday_day_summary,
         "current_user_question": current_user_question
     }
-    md_file = "prompts/states/greeting_first_day.md"
+    md_file = "prompts/states/greeting_second_day.md"
     return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
 
 

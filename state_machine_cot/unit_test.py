@@ -90,7 +90,7 @@ def test_greeting_first_day():
 def test_greeting_second_day():
     role_name = "sara"
     residence = "china"
-    yesterday_day_summary = None
+    yesterday_day_summary = "Yesterday, user discussed travel and hobbies with rosa. user likes swimming and rosa likes yoga. user has been to China's Forbidden City to travel, the most memorable is met in the Forbidden City star Lu Han."
     current_user_question = "hi"
     res_text = get_result_from_prompt_greeting_second_day(role_name=role_name, residence=residence, yesterday_day_summary=yesterday_day_summary, current_user_question=current_user_question)
     print("【res_text】:\n", res_text)
@@ -219,4 +219,4 @@ def test_history_summary_day():
 
 
 if __name__ == '__main__':
-    test_greeting_first_day()
+    test_greeting_second_day()
