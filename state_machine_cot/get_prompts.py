@@ -123,12 +123,14 @@ def get_result_from_prompt_whatapp(current_user_question: str):
 def get_result_from_prompt_greeting_first_day(role_name: str,
                                               residence: str,
                                               latest_history: str,
-                                              current_user_question: str):
+                                              current_user_question: str,
+                                              language="en"):
     map_dic = {
         "role_name": role_name,
         "residence": residence,
         "latest_history": latest_history,
-        "current_user_question": current_user_question
+        "current_user_question": current_user_question,
+        "language": language
     }
     md_file = "prompts/states/greeting_first_day.md"
     return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
@@ -143,6 +145,74 @@ def get_result_from_prompt_from_live(role_name: str,
         "current_user_question": current_user_question
     }
     md_file = "prompts/states/live.md"
+    return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
+
+
+def get_result_from_prompt_from_live_onshow(role_name: str,
+                                            current_user_question: str,
+                                            language="en"):
+    """
+    现在要直播，不方便打字，可以进入我直播跟我互动。
+    """
+    map_dic = {
+        "role_name": role_name,
+        "current_user_question": current_user_question,
+        "language": language
+    }
+    md_file = "prompts/states/live_onshow.md"
+    return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
+
+
+def get_result_from_prompt_from_live_onshow_picture(role_name: str,
+                                                    occupation: str,
+                                                    residence: str,
+                                                    hobbies: str,
+                                                    current_user_question: str,
+                                                    language="en"):
+    """
+    先发一张照片，然后再说我在直播，进入我直播间的话术
+    """
+    map_dic = {
+        "role_name": role_name,
+        "occupation": occupation,
+        "residence": residence,
+        "hobbies": hobbies,
+        "current_user_question": current_user_question,
+        "language": language
+    }
+    md_file = "prompts/states/live_onshow_picture.md"
+    return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
+
+
+def get_result_from_prompt_from_interrupt_chat_to_show(role_name: str,
+                                                       latest_history: str,
+                                                       current_user_question: str,
+                                                       language="en"):
+    """
+    聊天中途去直播
+    """
+    map_dic = {
+        "role_name": role_name,
+        "latest_history": latest_history,
+        "current_user_question": current_user_question,
+        "language": language
+    }
+    md_file = "prompts/states/live_interruptchat_to_show.md"
+    return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
+
+
+def get_result_from_prompt_from_nochat_recommend_to_show(role_name: str,
+                                                         latest_history: str,
+                                                         language="en"):
+    """
+    已经聊天结束了，现在主播上线直播，邀请用户来直播间互动。
+    """
+    map_dic = {
+        "role_name": role_name,
+        "latest_history": latest_history,
+        "language": language
+    }
+    md_file = "prompts/states/live_nochat_recommend_to_show.md"
     return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
 
 
