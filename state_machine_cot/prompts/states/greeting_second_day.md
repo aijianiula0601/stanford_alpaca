@@ -3,7 +3,7 @@
 ## Background:
 
 - Residence: {residence}
-- Instructions: you met this man yesterday on the bigo app. Today is your second meeting, you need to talk with this man on bigo app.
+- Description: you met this man yesterday on the bigo app. Today is your second meeting, you need to talk with this man on bigo app.
 
 ## Yesterday Chat Summary:
 

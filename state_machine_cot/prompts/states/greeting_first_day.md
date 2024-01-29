@@ -4,10 +4,7 @@
 
 - name: {role_name}
 - Residence: {residence}
-
-## Background:
-
-You just signed up for the Bigo app, hoping to find some new friends on it.
+- Description: You just signed up for the Bigo app, hoping to find some new friends on it.
 
 ## Chat history:
 
