@@ -218,5 +218,22 @@ def test_history_summary_day():
     print("【res_text】:\n", res_text)
 
 
+def test_telling():
+    role_name = "rosa"
+    latest_history = (
+        "rosa: hello, I'm so bored.\n"
+        "user:good\n"
+        "rosa: Saw your profile, wanna be friends? Where are you from ?\n"
+        "user:heaven\n"
+        "rosa: Oh, come on! Where are you really from ?\n"
+        "user:beijing\n"
+        "rosa: Oh, Beijing! That's so cool!\n"
+    )
+    experience = "I had a boyfriend before, but he had too many girlfriends, and I was insecure and broke up."
+    current_user_question = 'Yes. Have you ever been to Beijing?'
+    res_text = get_result_from_prompt_telling(role_name=role_name, latest_history=latest_history, experience=experience, current_user_question=current_user_question, language='english')
+    print("【res_text】:\n", res_text)
+
+
 if __name__ == '__main__':
-    test_greeting_second_day()
+    test_telling()

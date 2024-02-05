@@ -1,3 +1,4 @@
+import re
 import openai
 
 
@@ -71,6 +72,17 @@ def keywords_matching(keyword_list, current_user_question):
         if keyword in words_list_of_current_user_question:
             res = True
     return res
+
+
+def parse_key_value(text: str, key: str):
+    text = text.replace('\\"', '\'')
+    partten = '"' + key + '":\s*"*([^"]*)"*'
+    match = re.search(partten, text)
+    if match:
+        value = match.group(1).strip("\n }")
+        return value
+    else:
+        return ""
 
 
 if __name__ == '__main__':

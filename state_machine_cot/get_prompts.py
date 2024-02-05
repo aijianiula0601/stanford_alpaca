@@ -102,11 +102,13 @@ def get_result_from_prompt_end(role_name: str, current_user_question: str, lates
     return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
 
 
-def get_result_from_prompt_telling(current_user_question: str, latest_history: str, experience: str):
+def get_result_from_prompt_telling(role_name: str, current_user_question: str, latest_history: str, experience: str, language: str = 'english'):
     map_dic = {
+        "role_name": role_name,
         "latest_history": latest_history,
         "experience": experience,
-        "current_user_question": current_user_question
+        "current_user_question": current_user_question,
+        "language": language
     }
     md_file = "prompts/states/telling.md"
     return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
@@ -116,7 +118,7 @@ def get_result_from_prompt_whatapp(current_user_question: str):
     map_dic = {
         "current_user_question": current_user_question
     }
-    md_file = "prompts/states/whatapp.md"
+    md_file = "prompts/states/whatsapp.md"
     return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
 
 
