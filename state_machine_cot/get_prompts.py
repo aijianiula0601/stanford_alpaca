@@ -4,12 +4,39 @@ from pathlib import Path
 from utils import get_gpt35_response, get_gpt4_response
 
 prompt_file_dic = {
+    'chat_analysis': 'prompts/chat_analysis.md',
+    'history_summary': 'prompts/history_summary.md',
+    'history_summary_day': 'prompts/history_summary_day.md',
+    'chat_analysis_simple': 'prompts/chat_analysis_simple.md',
+    'live': 'prompts/states/live.md',
+    'picture_whatsapp': 'prompts/states/picture_whatsapp.md',
+    'live_interruptchat_to_show': 'prompts/states/live_interruptchat_to_show.md',
+    'normal_with_analysis': 'prompts/states/normal_with_analysis.md',
     'greeting_first_day': 'prompts/states/greeting_first_day.md',
-    'whatapp': 'prompts/states/whatapp.md',
+    'live_onshow': 'prompts/states/live_onshow.md',
+    'live_onshow_picture': 'prompts/states/live_onshow_picture.md',
     'en': 'prompts/states/end.md',
+    'greeting_second_day': 'prompts/states/greeting_second_day.md',
     'normal': 'prompts/states/normal.md',
-    'telling': 'prompts/states/telling.md'
+    'live_nochat_recommend_to_show': 'prompts/states/live_nochat_recommend_to_show.md',
+    'telling': 'prompts/states/telling.md',
+    'sex': 'prompts/states/sex.md'
 }
+
+
+def get_prompt_result(prompt_file: str, map_dic: dict, gpt_version: str = "gpt35"):
+    prompt = _get_prompt_from_md(prompt_file, map_dic)
+    message_list = [{"role": 'user', 'content': prompt}]
+
+    print("-" * 100)
+    print("【prompt】:\n")
+    print(prompt)
+    print("-" * 100)
+
+    if gpt_version == "gpt4":
+        return get_gpt4_response(message_list)
+
+    return get_gpt35_response(message_list)
 
 
 def _print_prompt_file_dic():
@@ -37,241 +64,14 @@ def _get_prompt_from_md(md_file: str, map_dic: dict):
     return ''.join(open(md_file, 'r', encoding='utf-8').readlines()).format_map(map_dic).strip()
 
 
-def _get_prompt_result(prompt_file: str, map_dic: dict, gpt_version: str = "gpt35"):
-    prompt = _get_prompt_from_md(prompt_file, map_dic)
-    message_list = [{"role": 'user', 'content': prompt}]
-
-    print("-" * 100)
-    print("【prompt】:\n")
-    print(prompt)
-    print("-" * 100)
-
-    if gpt_version == "gpt4":
-        return get_gpt4_response(message_list)
-
-    return get_gpt35_response(message_list)
-
-
-def get_result_from_prompt_sex(role_name: str,
-                               occupation: str,
-                               residence: str,
-                               hobbies: str,
-                               latest_history: str,
-                               user_intention: str,
-                               current_user_question: str):
-    map_dic = {
-        "role_name": role_name,
-        "occupation": occupation,
-        "residence": residence,
-        "hobbies": hobbies,
-        "latest_history": latest_history,
-        "user_intention": user_intention,
-        "current_user_question": current_user_question
-    }
-    md_file = "prompts/states/sex.md"
-    return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
-
-
-def get_result_from_prompt_normal(role_name: str,
-                                  occupation: str,
-                                  residence: str,
-                                  hobbies: str,
-                                  latest_history: str,
-                                  user_intention: str,
-                                  current_user_question: str):
-    map_dic = {
-        "role_name": role_name,
-        "occupation": occupation,
-        "residence": residence,
-        "hobbies": hobbies,
-        "latest_history": latest_history,
-        "user_intention": user_intention,
-        "current_user_question": current_user_question
-    }
-    md_file = "prompts/states/normal.md"
-    return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
-
-
-def get_result_from_prompt_end(role_name: str, current_user_question: str, latest_history: str):
-    map_dic = {
-        "role_name": latest_history,
-        "latest_history": latest_history,
-        "current_user_question": current_user_question
-    }
-    md_file = "prompts/states/end.md"
-    return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
-
-
-def get_result_from_prompt_telling(role_name: str, current_user_question: str, latest_history: str, experience: str, language: str = 'english'):
-    map_dic = {
-        "role_name": role_name,
-        "latest_history": latest_history,
-        "experience": experience,
-        "current_user_question": current_user_question,
-        "language": language
-    }
-    md_file = "prompts/states/telling.md"
-    return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
-
-
-def get_result_from_prompt_whatapp(current_user_question: str):
-    map_dic = {
-        "current_user_question": current_user_question
-    }
-    md_file = "prompts/states/picture_whatsapp.md"
-    return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
-
-
-def get_result_from_prompt_greeting_first_day(role_name: str,
-                                              residence: str,
-                                              latest_history: str,
-                                              current_user_question: str,
-                                              language="en"):
-    map_dic = {
-        "role_name": role_name,
-        "residence": residence,
-        "latest_history": latest_history,
-        "current_user_question": current_user_question,
-        "language": language
-    }
-    md_file = "prompts/states/greeting_first_day.md"
-    return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
-
-
-def get_result_from_prompt_from_live(role_name: str,
-                                     latest_history: str,
-                                     current_user_question: str):
-    map_dic = {
-        "role_name": role_name,
-        "latest_history": latest_history,
-        "current_user_question": current_user_question
-    }
-    md_file = "prompts/states/live.md"
-    return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
-
-
-def get_result_from_prompt_from_live_onshow(role_name: str,
-                                            current_user_question: str,
-                                            language="en"):
+def get_prompt_from_state(state: str, map_dic: dict):
     """
-    现在要直播，不方便打字，可以进入我直播跟我互动。
+    根据prompt_file获取prompt内容
+    Parameters:
+        state: 状态
+        map_dic: prompt中需要插入的字符串，格式:{'a': '~', 'b': '~'}
     """
-    map_dic = {
-        "role_name": role_name,
-        "current_user_question": current_user_question,
-        "language": language
-    }
-    md_file = "prompts/states/live_onshow.md"
-    return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
-
-
-def get_result_from_prompt_from_live_onshow_picture(role_name: str,
-                                                    occupation: str,
-                                                    residence: str,
-                                                    hobbies: str,
-                                                    current_user_question: str,
-                                                    language="en"):
-    """
-    先发一张照片，然后再说我在直播，进入我直播间的话术
-    """
-    map_dic = {
-        "role_name": role_name,
-        "occupation": occupation,
-        "residence": residence,
-        "hobbies": hobbies,
-        "current_user_question": current_user_question,
-        "language": language
-    }
-    md_file = "prompts/states/live_onshow_picture.md"
-    return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
-
-
-def get_result_from_prompt_from_interrupt_chat_to_show(role_name: str,
-                                                       latest_history: str,
-                                                       current_user_question: str,
-                                                       language="en"):
-    """
-    聊天中途去直播
-    """
-    map_dic = {
-        "role_name": role_name,
-        "latest_history": latest_history,
-        "current_user_question": current_user_question,
-        "language": language
-    }
-    md_file = "prompts/states/live_interruptchat_to_show.md"
-    return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
-
-
-def get_result_from_prompt_from_nochat_recommend_to_show(role_name: str,
-                                                         latest_history: str,
-                                                         language="en"):
-    """
-    已经聊天结束了，现在主播上线直播，邀请用户来直播间互动。
-    """
-    map_dic = {
-        "role_name": role_name,
-        "latest_history": latest_history,
-        "language": language
-    }
-    md_file = "prompts/states/live_nochat_recommend_to_show.md"
-    return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
-
-
-def get_result_from_prompt_greeting_second_day(role_name: str,
-                                               residence: str,
-                                               yesterday_day_summary: str,
-                                               current_user_question: str):
-    map_dic = {
-        "role_name": role_name,
-        "residence": residence,
-        "yesterday_day_summary": yesterday_day_summary,
-        "current_user_question": current_user_question
-    }
-    md_file = "prompts/states/greeting_second_day.md"
-    return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
-
-
-def get_result_from_prompt_chat_analysis(role_name: str,
-                                         latest_history: str,
-                                         pic_topics: str,
-                                         story_topics: str,
-                                         current_user_question: str):
-    map_dic = {
-        "role_name": role_name,
-        "latest_history": latest_history,
-        "pic_topics": pic_topics,
-        "story_topics": story_topics,
-        "current_user_response": current_user_question
-    }
-    md_file = "prompts/chat_analysis.md"
-    return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
-
-
-def get_result_from_prompt_history_summary(latest_history: str):
-    map_dic = {
-        "latest_history": latest_history,
-    }
-    md_file = "prompts/history_summary.md"
-    return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
-
-
-def get_result_from_prompt_history_summary_day(latest_history: str):
-    map_dic = {
-        "latest_history": latest_history,
-    }
-    md_file = "prompts/history_summary_day.md"
-    return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
-
-
-def get_result_from_prompt_chat_analysis_simple(latest_history: str, current_user_question: str, language: str):
-    map_dic = {
-        "latest_history": latest_history,
-        "current_user_response": current_user_question,
-        "language": language,
-    }
-    md_file = "prompts/chat_analysis_simple.md"
-    return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
+    return ''.join(open(f"prompts/states/{state}.md", 'r', encoding='utf-8').readlines()).format_map(map_dic).strip()
 
 
 if __name__ == '__main__':
