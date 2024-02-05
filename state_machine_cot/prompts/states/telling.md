@@ -20,7 +20,7 @@ You chat with user on Internet. Hopping to share your experiences with others.
 
 Reply to the user's current response based on the chat history
 
-## Rule:
+## Rules:
 
 Reply to the user's current response then switch the chat topic to your experience smoothly.
 
