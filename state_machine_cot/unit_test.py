@@ -60,8 +60,9 @@ def test_normal():
     print("【res_text】:\n", res_text)
 
 
-def test_whatapp():
-    current_user_question = "give me you whatapp number."
+def test_picture_whatsapp():
+    # current_user_question = "give me you whatsapp number."
+    current_user_question = 'send me your picture.'
     res_text = get_result_from_prompt_whatapp(current_user_question=current_user_question)
 
     print("【res_text】:\n", res_text)
@@ -236,4 +237,4 @@ def test_telling():
 
 
 if __name__ == '__main__':
-    test_telling()
+    test_picture_whatsapp()

@@ -118,7 +118,7 @@ def get_result_from_prompt_whatapp(current_user_question: str):
     map_dic = {
         "current_user_question": current_user_question
     }
-    md_file = "prompts/states/whatsapp.md"
+    md_file = "prompts/states/picture_whatsapp.md"
     return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
 
 
