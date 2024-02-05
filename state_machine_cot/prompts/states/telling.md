@@ -8,7 +8,7 @@ You chat with user on Internet. Hopping to share your experiences with others.
 
 {latest_history}
 
-## User's current question:
+## User's current response:
 
 {current_user_question}
 

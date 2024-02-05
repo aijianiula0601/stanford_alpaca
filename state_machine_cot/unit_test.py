@@ -222,19 +222,19 @@ def test_history_summary_day():
 def test_telling():
     role_name = "rosa"
     latest_history = (
-        "rosa: hello, I'm so bored.\n"
-        "user:good\n"
-        "rosa: Saw your profile, wanna be friends? Where are you from ?\n"
-        "user:heaven\n"
-        "rosa: Oh, come on! Where are you really from ?\n"
-        "user:beijing\n"
-        "rosa: Oh, Beijing! That's so cool!\n"
+        "rosa: are you single?\n"
+        "user: hi\n"
+        "rosa:  Hi there! Wanna be friends? Where you from?\n"
+        "user: china\n"
+        "rosa: Cool! Me too, which city?\n"
+        "user: guangzhou\n"
+        "rosa:  Oh, Guangzhou! That's so cool!\n"
     )
-    experience = "I had a boyfriend before, but he had too many girlfriends, and I was insecure and broke up."
-    current_user_question = 'Yes. Have you ever been to Beijing?'
+    experience = 'rosa has been very tired from work recently and is not in a good mood. She hopes to have someone to chat with'
+    current_user_question = 'yes'
     res_text = get_result_from_prompt_telling(role_name=role_name, latest_history=latest_history, experience=experience, current_user_question=current_user_question, language='english')
     print("【res_text】:\n", res_text)
 
 
 if __name__ == '__main__':
-    test_picture_whatsapp()
+    test_telling()
