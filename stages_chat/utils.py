@@ -2,7 +2,7 @@ import re
 import openai
 
 
-def get_gpt4_response(message_list: list):
+def _get_gpt4_response(message_list: list):
     """
     采用gpt4获取结果
 
@@ -30,7 +30,7 @@ def get_gpt4_response(message_list: list):
     return response['choices'][0]['message']['content']
 
 
-def get_gpt35_response(message_list: list):
+def _get_gpt35_response(message_list: list):
     """
     采用gpt35获取结果
     message_list:  [
@@ -53,6 +53,27 @@ def get_gpt35_response(message_list: list):
     )
 
     return response['choices'][0]['message']['content']
+
+
+def get_gpt_response(message_list: list, gpt_version="gpt3.5"):
+    """
+    获取gpt答案
+    message_list:  [
+        {"role": "system","content": "~"},
+        {"role": "user", "content": "~"}
+
+    ]
+    gpt_version: gpt3.5 or gpt4
+    """
+    if gpt_version == 'gpt3.5':
+        res_text = _get_gpt35_response(message_list)
+    elif gpt_version == "gpt4":
+        res_text = _get_gpt4_response(message_list)
+
+    else:
+        raise KeyError(f"gpt_version:{gpt_version} error!")
+
+    return res_text
 
 
 def get_prompt_from_md(md_file: str, map_dic: dict):
@@ -83,6 +104,14 @@ def parse_key_value(text: str, key: str):
         return value
     else:
         return ""
+
+
+def response_post_process(response_text: str):
+    """
+    gpt回复的问题后处理
+    """
+
+    return response_text.lstrip(".").strip().strip("rosa").strip(":").strip()
 
 
 if __name__ == '__main__':

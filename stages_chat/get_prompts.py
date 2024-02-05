@@ -1,26 +1,15 @@
 import os
 import sys
 from pathlib import Path
-from utils import get_gpt35_response, get_gpt4_response
+from utils import get_gpt_response
 
 prompt_file_dic = {
     'chat_analysis': 'prompts/chat_analysis.md',
     'history_summary': 'prompts/history_summary.md',
     'history_summary_day': 'prompts/history_summary_day.md',
     'chat_analysis_simple': 'prompts/chat_analysis_simple.md',
-    'live': 'prompts/states/live.md',
-    'picture_whatsapp': 'prompts/states/picture_whatsapp.md',
-    'live_interruptchat_to_show': 'prompts/states/live_interruptchat_to_show.md',
-    'normal_with_analysis': 'prompts/states/normal_with_analysis.md',
-    'greeting_first_day': 'prompts/states/greeting_first_day.md',
-    'live_onshow': 'prompts/states/live_onshow.md',
-    'live_onshow_picture': 'prompts/states/live_onshow_picture.md',
-    'en': 'prompts/states/end.md',
-    'greeting_second_day': 'prompts/states/greeting_second_day.md',
-    'normal': 'prompts/states/normal.md',
-    'live_nochat_recommend_to_show': 'prompts/states/live_nochat_recommend_to_show.md',
-    'telling': 'prompts/states/telling.md',
-    'sex': 'prompts/states/sex.md'
+    'stage1_greeting': 'prompts/states/stage1_greeting.md',
+    'stage2_know_each_other': 'prompts/states/stage2_know_each_other.md'
 }
 
 
@@ -33,10 +22,7 @@ def get_prompt_result(prompt_file: str, map_dic: dict, gpt_version: str = "gpt35
     print(prompt)
     print("-" * 100)
 
-    if gpt_version == "gpt4":
-        return get_gpt4_response(message_list)
-
-    return get_gpt35_response(message_list)
+    return get_gpt_response(message_list, gpt_version)
 
 
 def _print_prompt_file_dic():
