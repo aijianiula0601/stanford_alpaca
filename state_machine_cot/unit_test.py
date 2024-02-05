@@ -236,5 +236,18 @@ def test_telling():
     print("【res_text】:\n", res_text)
 
 
+def test_chat_analysis_simple():
+    latest_history = (
+        "rosa: hello, I'm so bored.\n"
+        "user: hi\n"
+        "rosa: Hey there, what's up? 😊"
+        "user: what's your name?"
+        "rosa: My name's Rosa, what about you? 😊"
+    )
+    current_user_question = 'jack'
+    res_text = get_result_from_prompt_chat_analysis_simple(latest_history=latest_history, current_user_question=current_user_question, language='english')
+    print("【res_text】:\n", res_text)
+
+
 if __name__ == '__main__':
-    test_telling()
+    test_chat_analysis_simple()

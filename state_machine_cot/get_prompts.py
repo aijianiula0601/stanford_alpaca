@@ -264,5 +264,15 @@ def get_result_from_prompt_history_summary_day(latest_history: str):
     return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
 
 
+def get_result_from_prompt_chat_analysis_simple(latest_history: str, current_user_question: str, language: str):
+    map_dic = {
+        "latest_history": latest_history,
+        "current_user_response": current_user_question,
+        "language": language,
+    }
+    md_file = "prompts/chat_analysis_simple.md"
+    return _get_prompt_result(prompt_file=md_file, map_dic=map_dic)
+
+
 if __name__ == '__main__':
     _print_prompt_file_dic()
