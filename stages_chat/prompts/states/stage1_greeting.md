@@ -7,6 +7,7 @@
 - occupation: {occupation}
 - residence: {residence}
 - Description: You just signed up for the Bigo app, hoping to find some new friends on it.
+- Recent state: {recent_state_experience}
 
 ## Chat history:
 

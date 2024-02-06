@@ -3,14 +3,10 @@ import sys
 from pathlib import Path
 from utils import get_gpt_response
 
-prompt_file_dic = {
-    'chat_analysis': 'prompts/chat_analysis.md',
-    'history_summary': 'prompts/history_summary.md',
-    'history_summary_day': 'prompts/history_summary_day.md',
-    'chat_analysis_simple': 'prompts/chat_analysis_simple.md',
-    'stage1_greeting': 'prompts/states/stage1_greeting.md',
-    'stage2_know_each_other': 'prompts/states/stage2_know_each_other.md'
-}
+prompt_file_dic = {'chat_analysis': 'prompts/chat_analysis.md',
+                   'role_experience': 'prompts/role_experience.md',
+                   'stage1_greeting': 'prompts/states/stage1_greeting.md',
+                   'stage2_know_each_other': 'prompts/states/stage2_know_each_other.md'}
 
 
 def get_prompt_result(prompt_file: str, map_dic: dict, gpt_version: str = "gpt35"):

@@ -21,6 +21,6 @@ map_dic = {
 }
 
 if __name__ == '__main__':
-    gpt_res = get_prompt_result(prompt_file=prompt_file_dic['stage2_know_each_other'], map_dic=map_dic, gpt_version="gpt3.5")
+    gpt_res = get_prompt_result(prompt_file=prompt_file_dic['role_experience'], map_dic=map_dic, gpt_version="gpt3.5")
 
     print(gpt_res)
