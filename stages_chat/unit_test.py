@@ -23,7 +23,7 @@ map_dic = {
     ),
     # "current_user_response": "yeah",
     # "current_user_response": "yeah, send me you Twitter number.",
-    "current_user_response": "yeah, send me your pic",
+    "current_user_response": "what's your name?",
     "language": "english",
     "recent_state_experience": "Rosa had a great experience last week when a patient she had been treating for weeks finally recovered and was discharged from the hospital.",
     "a_month_ago_experience": "A month ago, Rosa had a bad experience when she lost her phone and all her important contacts and work files were gone.",
@@ -33,5 +33,4 @@ map_dic = {
 
 if __name__ == '__main__':
     gpt_res = get_prompt_result(prompt_file=prompt_file_dic['chat_analysis'], map_dic=map_dic, gpt_version="gpt3.5")
-
     print(gpt_res)
