@@ -13,14 +13,14 @@
   这个阶段是互相了解阶段，问对方来自哪里、名字等
 
     - prompt内部会做whatsapp/picture判断
-    - 为防止gpt3.5判断有误，根据内部分析结果，如果为true，讲采用gpt4二次分析
+    - 为防止gpt3.5判断有误，根据内部分析结果，如果为true，将采用gpt4二次分析
 
 - 10<i<=20: stage3_familiar.md
 
   这个阶段，互相了解得差不多了，聊得内容更多，比如各自的童年经历等
 
-  - prompt内部会做whatsapp/picture判断
-  - 为防止gpt3.5判断有误，根据内部分析结果，如果为true，讲采用gpt4二次分析
+    - prompt内部会做whatsapp/picture判断
+    - 为防止gpt3.5判断有误，根据内部分析结果，如果为true，将采用gpt4二次分析
 
 - i>20: stage4_hot.md
 

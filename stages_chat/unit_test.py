@@ -13,13 +13,11 @@ map_dic = {
     "residence": "china",
     "hobbies": "Swimming",
     "latest_history": (
-        "rosa: hello, I'm so bored.\n"
-        "user:good\n"
-        "rosa: Saw your profile, wanna be friends? Where are you from ?\n"
-        "user:heaven\n"
-        "rosa: Oh, come on! Where are you really from ?\n"
-        "user:beijing\n"
-        "rosa: Oh, Beijing! That's so cool!\n"
+        "rosa: hey, how are you?\n"
+        "user: hi\n"
+        "rosa: Hey, what's up? Anything interesting happened lately?\n"
+        "user: no\n"
+        "rosa: Same here. Did you do anything fun this weekend?\n"
     ),
     # "current_user_response": "yeah",
     # "current_user_response": "yeah, send me you Twitter number.",
@@ -32,5 +30,5 @@ map_dic = {
 }
 
 if __name__ == '__main__':
-    gpt_res = get_prompt_result(prompt_file=prompt_file_dic['chat_analysis'], map_dic=map_dic, gpt_version="gpt3.5")
+    gpt_res = get_prompt_result(prompt_file=prompt_file_dic['stage2_know_each_other'], map_dic=map_dic, gpt_version="gpt3.5")
     print(gpt_res)

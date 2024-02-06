@@ -40,11 +40,11 @@ Output a json object that contains the following keys:
 
 - if_ask_social_software_account:
 
-  Is user's current response asking for whatsapp, instagram, Facebook or Twitter accounts? Output true or false
+  If user's current response is asking for whatsapp, instagram, Facebook or Twitter accounts; otherwise, the output is false
 
 - if_ask_personal_photo
 
-  Is user's current response asking for private photos? Output true or false
+  If user's current response is asking for private photos, output true; otherwise, the output is false
 
 - reply:
 

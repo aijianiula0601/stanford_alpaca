@@ -10,18 +10,18 @@
 
 Output a json object that contains the following keys:
 
-- if_ask_personal_contact_information
+- if_ask_social_software_account
 - if_ask_personal_photo
 
 ### Explanation:
 
-- if_ask_private_contact_information:
+- if_ask_social_software_account:
 
-  Is the current response asking for your private contact information? Output true or false
+  If user's current response is asking for whatsapp, instagram, Facebook or Twitter accounts; otherwise, the output is false
 
 - if_ask_personal_photo
 
-  Is user's current response asking for private photos? Output true or false
+  If user's current response is asking for private photos, output true; otherwise, the output is false
 
 ## Constrains:
 
