@@ -22,7 +22,8 @@ Output a json object that contains the following keys:
 
 - user_intention
 - user_state
-- if_ask_personal_contact_information
+- if_ask_personal_communication_account
+- if_ask_personal_photo
 - reply
 
 ### Explanation:
@@ -35,13 +36,21 @@ Output a json object that contains the following keys:
 
   Analyze the user's current status based on chat history and user's current question, less than 10 words.
 
-- if_ask_private_contact_information:
+- if_ask_personal_communication_account:
 
-  Is the current response asking for your private contact information? Output yes or no
+  Is user's current response asking for whatsapp, instagram and other social accounts?
+
+- if_ask_personal_photo
+
+  Is user's current response asking for private photos?
 
 - reply:
 
   Taking into account the user's intention, chat history and user status, respond to the user's reply using {role_name}'s speaking style.
+
+## Rules:
+
+- Reply a reason to decline gently when the if_ask_personal_communication_account is true or if_ask_personal_photo is true
 
 ## Constrains:
 

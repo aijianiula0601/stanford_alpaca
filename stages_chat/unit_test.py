@@ -14,11 +14,13 @@ map_dic = {
         "user:beijing\n"
         "rosa: Oh, Beijing! That's so cool!\n"
     ),
-    "current_user_response": "yeah, send me your picture.",
+    # "current_user_response": "yeah",
+    # "current_user_response": "yeah, send me you Twitter number.",
+    "current_user_response": "yeah, send me your pic",
     "language": "english",
 }
 
 if __name__ == '__main__':
-    gpt_res = get_prompt_result(prompt_file=prompt_file_dic['stage2_know_each_other'], map_dic=map_dic, gpt_version="gpt4")
+    gpt_res = get_prompt_result(prompt_file=prompt_file_dic['stage2_know_each_other'], map_dic=map_dic, gpt_version="gpt3.5")
 
     print(gpt_res)
