@@ -10,23 +10,18 @@
 
 Output a json object that contains the following keys:
 
-- user_intention
-- user_state
 - if_ask_personal_contact_information
+- if_ask_personal_photo
 
 ### Explanation:
 
-- user_intention:
-
-  Based on the chat history, analyze the user's intention for the current problem, less than 10 words.
-
-- user_state:
-
-  Analyze the user's current status based on chat history and user's current question, less than 10 words.
-
 - if_ask_private_contact_information:
 
-  Is the current response asking for your private contact information? Output yes or no
+  Is the current response asking for your private contact information? Output true or false
+
+- if_ask_personal_photo
+
+  Is user's current response asking for private photos? Output true or false
 
 ## Constrains:
 

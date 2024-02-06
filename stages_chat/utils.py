@@ -20,7 +20,7 @@ def _get_gpt4_response(message_list: list):
     response = openai.ChatCompletion.create(
         engine="gpt4-16k",
         messages=message_list,
-        temperature=0.9,
+        temperature=0.7,
         max_tokens=800,
         top_p=0.95,
         frequency_penalty=0,
@@ -48,7 +48,7 @@ def _get_gpt35_response(message_list: list):
 
     response = openai.ChatCompletion.create(
         engine='gpt-35-turbo',
-        temperature=0.9,
+        temperature=0.7,
         messages=message_list
     )
 

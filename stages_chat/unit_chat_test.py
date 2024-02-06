@@ -1,5 +1,5 @@
 import json
-
+import random
 from utils import get_gpt_response, parse_key_value, response_post_process
 
 role_name = "rosa"
@@ -8,7 +8,14 @@ residence = "china"
 hobbies = "Swimming"
 language = "english"
 
-chat_history_list = []
+greeting_file = "data/greeting.json"
+
+greeting_data_list = json.load(open(greeting_file, 'r', encoding='utf-8'))['first_day']
+fist_greeting_sentence = random.sample(greeting_data_list, k=1)[0]
+chat_history_list = [f"{role_name}: {fist_greeting_sentence}"]
+
+print(f"{role_name}: {fist_greeting_sentence}")
+
 turn_i = 0
 while True:
     current_user_response = input("user：")
@@ -18,14 +25,7 @@ while True:
     print("turn_i:", turn_i)
     print("=" * 5)
 
-    if turn_i <= 4:
-        prompt_md_file = 'prompts/states/stage1_greeting.md'
-        print(f"======md_file:{prompt_md_file}")
-    elif turn_i > 4:
-        prompt_md_file = 'prompts/states/stage2_know_each_other.md'
-        print(f"======md_file:{prompt_md_file}")
-    else:
-        raise FileNotFoundError
+    prompt_md_file = 'prompts/states/stage2_know_each_other.md'
 
     prompt = ''.join(open(prompt_md_file, 'r', encoding='utf-8').readlines())
     prompt = prompt.format_map({
@@ -35,7 +35,8 @@ while True:
         'residence': residence,
         'hobbies': hobbies,
         'current_user_response': current_user_response,
-        'language': language
+        'language': language,
+        'recent_state_experience': 'Rosa had a great experience last week when a patient she had been treating for weeks finally recovered and was discharged from the hospital.'
     })
     print("-" * 100)
     print(prompt)
@@ -46,10 +47,8 @@ while True:
     print(gpt_result)
     print("-" * 100)
 
-    if turn_i <= 4:
-        bot_answer = gpt_result
-    else:
-        bot_answer = parse_key_value(text=gpt_result, key='reply')
+    bot_answer = gpt_result
 
-    bot_answer = response_post_process(bot_answer)
+    # bot_answer = response_post_process(bot_answer)
+    bot_answer = parse_key_value(text=gpt_result, key='reply')
     chat_history_list.append(f"user: {current_user_response}\n{role_name}: {bot_answer}")
