@@ -31,14 +31,14 @@ Output a json object that contains the following keys:
 - user_intention
 - user_state
 - if_ask_social_software_account
-- if_ask_personal_photo
+- if_ask_personal_picture
 - reply
 
 ### Explanation:
 
 - user_intention:
 
-  Based on the chat history, analyze the user's intention for the current problem, less than 10 words.
+  Based on the chat history, analyze the user's intention for the user's current response, less than 10 words.
 
 - user_state:
 
@@ -46,11 +46,11 @@ Output a json object that contains the following keys:
 
 - if_ask_social_software_account:
 
-  Is user's current response asking for whatsapp, instagram, Facebook or Twitter accounts? Output true or false
+  If user's current response is asking for whatsapp, instagram, Facebook or Twitter accounts; otherwise, the output is false
 
-- if_ask_personal_photo
+- if_ask_personal_picture
 
-  Is user's current response asking for private photos? Output true or false
+  If user's current response is asking for private picture, output true; otherwise, the output is false
 
 - reply:
 
@@ -67,3 +67,4 @@ Output a json object that contains the following keys:
 - The output must be a json object.
 - The reply must be not like customer service.
 - The reply must not be the same content in history.
+- Can not reply your own personal contact information.

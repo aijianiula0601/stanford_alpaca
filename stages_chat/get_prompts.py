@@ -4,9 +4,13 @@ from pathlib import Path
 from utils import get_gpt_response
 
 prompt_file_dic = {'chat_analysis': 'prompts/chat_analysis.md',
+                   'history_summary': 'prompts/history_summary.md',
                    'role_experience': 'prompts/role_experience.md',
+                   'stage3_familiar': 'prompts/states/stage3_familiar.md',
+                   'branch_sex': 'prompts/states/branch_sex.md',
                    'stage1_greeting': 'prompts/states/stage1_greeting.md',
-                   'stage2_know_each_other': 'prompts/states/stage2_know_each_other.md'}
+                   'stage2_know_each_other': 'prompts/states/stage2_know_each_other.md',
+                   'stage4_hot': 'prompts/states/stage4_hot.md'}
 
 
 def get_prompt_result(prompt_file: str, map_dic: dict, gpt_version: str = "gpt35"):
