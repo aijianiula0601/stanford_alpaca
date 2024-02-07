@@ -1,6 +1,6 @@
 import json
 import random
-from get_prompts import prompt_file_dic, get_prompt_result
+from stages_chat.prompts.get_prompts import prompt_file_dic, get_prompt_result
 
 greeting_file = "data/greeting.json"
 

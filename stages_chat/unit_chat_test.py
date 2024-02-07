@@ -25,7 +25,7 @@ while True:
     print("turn_i:", turn_i)
     print("=" * 5)
 
-    prompt_md_file = 'prompts/states/stage2_know_each_other.md'
+    prompt_md_file = 'prompts/stages/stage2_know_each_other.md'
 
     prompt = ''.join(open(prompt_md_file, 'r', encoding='utf-8').readlines())
     prompt = prompt.format_map({

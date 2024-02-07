@@ -1,8 +1,8 @@
 import json
 import copy
 
-from utils import get_gpt_response, response_post_process, parse_key_value
-from get_prompts import get_prompt_result, prompt_file_dic
+from utils import response_post_process, parse_key_value
+from stages_chat.prompts.get_prompts import get_prompt_result, prompt_file_dic
 
 # 人设信息json文件
 role_json_file = "data/roles.json"
@@ -94,6 +94,38 @@ class AiChat:
         # ---------------
         if 18 < round_i < 20:
             return self._stage4_chat(latest_history_str, current_user_response, language)
+
+    def _branch_change(self, gpt_res: str):
+        """
+        分支转换控制
+        Args:
+            gpt_res: gpt的返回结果，格式为：
+             {
+                  "user_intention": "Curious about appearance",
+                  "user_state": "Open to chatting",
+                  "if_ask_social_software_account": false,
+                  "if_ask_personal_picture": true,
+                  "reply": "Why do you want to see my photo?"
+             }
+
+        Returns:
+
+        """
+
+        if_ask_social_software_account = parse_key_value(gpt_res, 'if_ask_social_software_account')
+        if_ask_personal_picture = parse_key_value(gpt_res, 'if_ask_personal_picture')
+
+        # ------------------
+        # 识别出要社交账号
+        # ------------------
+        if 'yes' in if_ask_social_software_account.lower() or 'true' in if_ask_social_software_account.lower():
+            print()
+
+        # ------------------
+        # 是吧出要照片
+        # ------------------
+        if 'yes' in if_ask_personal_picture.lower() or 'true' in if_ask_personal_picture.lower():
+            print()
 
     def _branch_chat(self, branch_name, latest_history_str: str, current_user_response: str, language: str = 'english'):
         """

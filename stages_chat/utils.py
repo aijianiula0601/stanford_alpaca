@@ -116,7 +116,7 @@ if __name__ == '__main__':
     # -------------------------------------
     # check whatapp.md
     # -------------------------------------
-    md_file = "prompts/states/whatapp.md"
+    md_file = "prompts/stages/whatapp.md"
     map_dic = {
         "current_user_question": "Are you single?"
     }

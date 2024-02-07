@@ -7,7 +7,7 @@ pjd = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 print(f"pjd:{pjd}")
 sys.path.append(pjd)
 
-from stages_chat.get_prompts import prompt_file_dic, get_prompt_result
+from stages_chat.prompts.get_prompts import prompt_file_dic, get_prompt_result
 from stages_chat.utils import parse_key_value
 
 greeting_file = f"{pjd}/data/greeting.json"
