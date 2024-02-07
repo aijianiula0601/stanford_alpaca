@@ -1,0 +1,20 @@
+{
+  "rosa": {
+    "name": "rosa",
+    "occupation": "Science and Technology Student",
+    "residence": "China",
+    "hobbies": "sports, traveling"
+  },
+  "ayanna": {
+    "name": "ayanna",
+    "occupation": "Actress",
+    "residence": "Mumbai",
+    "hobbies": "art, travelling"
+  },
+  "aysha": {
+    "name": "aysha",
+    "occupation": "Free lance",
+    "residence": "Saudi",
+    "hobbies": "moives, travelling"
+  }
+}

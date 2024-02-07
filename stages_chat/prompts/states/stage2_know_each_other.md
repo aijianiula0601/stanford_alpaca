@@ -31,7 +31,7 @@ Output a json object that contains the following keys:
 
 - user_intention:
 
-  Based on the chat history, analyze the user's intention for the user's current response, less than 10 words.
+  Based on the chat history, analyze the user's inner intention of user's current response, less than 10 words.
 
 - user_state:
 
@@ -39,11 +39,11 @@ Output a json object that contains the following keys:
 
 - if_ask_social_software_account:
 
-  If user's current response is asking for whatsapp, instagram, Facebook or Twitter accounts; otherwise, the output is false
+  Base on the user_intention and user_state, analyze whether the user is explicitly asking for whatsapp, instagram, Facebook or Twitter accounts; otherwise, the output is false
 
 - if_ask_personal_picture
 
-  If user's current response is asking for private picture, output true; otherwise, the output is false
+  Base on the user_intention and user_state, analyze whether the user is explicitly asking for a private photo, output true; otherwise, the output is false
 
 - reply:
 
