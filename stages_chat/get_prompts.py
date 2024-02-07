@@ -10,7 +10,9 @@ prompt_file_dic = {'chat_analysis': 'prompts/chat_analysis.md',
                    'branch_sex': 'prompts/states/branch_sex.md',
                    'stage1_greeting': 'prompts/states/stage1_greeting.md',
                    'stage2_know_each_other': 'prompts/states/stage2_know_each_other.md',
-                   'stage4_hot': 'prompts/states/stage4_hot.md'}
+                   'stage4_hot': 'prompts/states/stage4_hot.md',
+                   'branch_friend_live': 'prompts/states/branch_friend_live.md',
+                   }
 
 
 def get_prompt_result(prompt_file: str, map_dic: dict, gpt_version: str = "gpt35"):
