@@ -13,7 +13,7 @@ from aichat import PersonalInfo, AiChat
 
 def get_history_str(history: list):
     if len(history) <= 0:
-        return ''
+        return None
     history_list = []
     for qa in history:
         for q_a in qa:
@@ -65,7 +65,9 @@ def chat_f(history_list: list, user_question, role_robot, user_language):
     history_list[-1][-1] = f"user: {user_question}"
 
     summary_history_str, latest_history_str = get_latest_history(history_list, limit_turn_n=5)
-    ai_chat_obj.previous_chat_summary = summary_history_str
+
+    if summary_history_str:
+        ai_chat_obj.previous_chat_summary = ai_chat_obj.summary_history(summary_history_str)
 
     print(f"---round_i:{len(history_list)}")
     gpt_res, robot_answer = ai_chat_obj.stages_chat(round_i=len(history_list),
@@ -79,7 +81,10 @@ def chat_f(history_list: list, user_question, role_robot, user_language):
 
 def clear_all():
     print("---clear all!!!")
-    return [None] * 5
+    sample_greeting_sentence = random.sample(greeting_data_list, k=1)[0]
+    chat_bot = [[f"{role_robot_dd.value}: {sample_greeting_sentence}", None]]
+
+    return [chat_bot] + [None] * 3
 
 
 with gr.Blocks() as demo:

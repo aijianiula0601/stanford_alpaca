@@ -101,9 +101,9 @@ class AiChat:
         if 18 < round_i < 20:
             return self._stage4_chat(latest_history_str, current_user_response, language)
 
-    def _live_stream_guide(self, language: str, **kwargs):
+    def _live_stream_guide(self, **kwargs):
         """
-        朋友引流(其中的引流方式需要修改这里的函数内容)
+        朋友引流(这个函数的引流方式可以修改，如修改为：大小号引流、主播分身引流)
         @param kwargs:
                 latest_history_str: 最新的聊天历史，格式如下：
                     rosa: you busy?
@@ -112,7 +112,7 @@ class AiChat:
                 current_user_response: 当前用户的回复
                 ...
         """
-        return self._branch_chat(branch_name='branch_friend_live', language=language, **kwargs)
+        return self._branch_chat(branch_name='branch_friend_live', **kwargs)
 
     def _branch_change(self, gpt_res: str, **kwargs):
         """
@@ -179,19 +179,18 @@ class AiChat:
                                          photo_content=picture_dic["picture_content"])
             # 2.转到直播间
             elif self.ask_picture_change_to == 'live':
-                return self._live_stream_guide(language=kwargs['language'])
+                return self._live_stream_guide(**kwargs)
             # 3.委婉拒绝
             else:
                 return user_reply
 
         return user_reply
 
-    def _branch_chat(self, branch_name, language: str = 'english', **kwargs):
+    def _branch_chat(self, branch_name, **kwargs):
         """
         进入各个分支的聊天
         Args:
             branch_name: 分支名字： sex, friend_live，...
-            language: 采用什么语言回复
 
             kwargs:
                 latest_history_str: 最新的聊天历史，格式如下：
@@ -213,7 +212,6 @@ class AiChat:
         """
 
         map_dic = copy.deepcopy(self.role_data_dic)
-        map_dic['language'] = language
         for k in kwargs:
             map_dic[k] = kwargs[k]
 
@@ -275,8 +273,8 @@ class AiChat:
         gpt_res = get_prompt_result(prompt_file=prompt_file_dic['stage2_know_each_other'], map_dic=map_dic,
                                     gpt_version=self.gpt_version)
 
-        return gpt_res, self._branch_change(gpt_res,
-                                            latest_history_str=latest_history_str,
+        return gpt_res, self._branch_change(gpt_res=gpt_res,
+                                            latest_history=latest_history_str,
                                             current_user_response=current_user_response,
                                             language=language)
 
@@ -309,8 +307,8 @@ class AiChat:
 
         gpt_res = get_prompt_result(prompt_file=prompt_file_dic['stage3_familiar'], map_dic=map_dic,
                                     gpt_version=self.gpt_version)
-        return gpt_res, self._branch_change(gpt_res,
-                                            latest_history_str=latest_history_str,
+        return gpt_res, self._branch_change(gpt_res=gpt_res,
+                                            latest_history=latest_history_str,
                                             current_user_response=current_user_response,
                                             language=language)
 
@@ -344,7 +342,22 @@ class AiChat:
         gpt_res = get_prompt_result(prompt_file=prompt_file_dic['stage4_hot'], map_dic=map_dic,
                                     gpt_version=self.gpt_version)
 
-        return gpt_res, self._branch_change(gpt_res,
-                                            latest_history_str=latest_history_str,
+        return gpt_res, self._branch_change(gpt_res=gpt_res,
+                                            latest_history=latest_history_str,
                                             current_user_response=current_user_response,
                                             language=language)
+
+    def summary_history(self, history_chat: str, previous_chat_history_summary_content: str):
+        """
+        @param history_chat: 聊天历史，字符串方式拼接起来
+        @param previous_chat_history_summary_content: 之前已经总结的聊天历史内容
+        @return: str
+        """
+        map_dic = {
+            'history_chat': history_chat,
+            'previous_chat_history_summary_content': previous_chat_history_summary_content,
+        }
+        res_text = get_prompt_result(prompt_file=prompt_file_dic['history_summary'],
+                                     map_dic=map_dic,
+                                     gpt_version=self.gpt_version)
+        return res_text
