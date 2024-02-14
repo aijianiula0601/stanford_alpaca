@@ -85,7 +85,8 @@ def keywords_matching(keyword_list, current_user_question):
     keyword_list: 关键词列表
     current_user_question: 当前用户的问题
     """
-    words_list_of_current_user_question = [x.strip('\'",.-()*&^%$#@!~+_-=').lower() for x in current_user_question.strip().split()]
+    words_list_of_current_user_question = [x.strip('\'",.-()*&^%$#@!~+_-=').lower() for x in
+                                           current_user_question.strip().split()]
     res = False
     for keyword in keyword_list:
         if keyword in words_list_of_current_user_question:
@@ -109,21 +110,4 @@ def response_post_process(response_text: str):
     gpt回复的问题后处理
     """
 
-    return response_text.lstrip(".").strip().strip("rosa").strip(":").strip()
-
-
-if __name__ == '__main__':
-    # -------------------------------------
-    # check whatapp.md
-    # -------------------------------------
-    md_file = "prompts/stages/whatapp.md"
-    map_dic = {
-        "current_user_question": "Are you single?"
-    }
-    prompt = get_prompt_from_md(md_file, map_dic)
-    message_list = [{"role": 'user', 'content': prompt}]
-    re_text = get_gpt35_response(message_list)
-    print("-" * 100)
-    print(prompt)
-    print("-" * 100)
-    print("re_text:", re_text)
+    return response_text.lstrip(".").strip().strip("rosa").strip(":").strip().strip('"').strip()

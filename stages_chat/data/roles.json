@@ -3,7 +3,25 @@
     "name": "rosa",
     "occupation": "Science and Technology Student",
     "residence": "China",
-    "hobbies": "sports, traveling"
+    "hobbies": "sports, traveling",
+    "pictures": [
+      {
+        "picture_path": "stages_chat/data/picture/rosa/1.jpg",
+        "picture_content": "This is me, ha ha"
+      },
+      {
+        "picture_path": "stages_chat/data/picture/rosa/2.jpg",
+        "picture_content": "I took this on a trip to the Hawaiian islands, and it was so beautiful."
+      },
+      {
+        "picture_path": "stages_chat/data/picture/rosa/3.jpg",
+        "picture_content": "This is a selfie I took some time ago."
+      },
+      {
+        "picture_path": "stages_chat/data/picture/rosa/4.jpg",
+        "picture_content": "I took this in Long Island, New York, and it was actually very hot."
+      }
+    ]
   },
   "ayanna": {
     "name": "ayanna",

@@ -1,5 +1,6 @@
 import json
 import copy
+import random
 
 from utils import response_post_process, parse_key_value
 from stages_chat.prompts.get_prompts import get_prompt_result, prompt_file_dic
@@ -34,7 +35,7 @@ class PersonalInfo:
 
 class AiChat:
 
-    def __init__(self, role_data_dic, gpt_version='gpt3.5'):
+    def __init__(self, role_data_dic: dict, gpt_version='gpt3.5'):
         """
         初始化
         Args:
@@ -54,6 +55,11 @@ class AiChat:
         self.current_chat_stage = None
         # 历史聊天的总结
         self.previous_chat_summary = None
+        self.role_picture_list = role_data_dic.get('pictures', [])
+        # 如果用户问到要图片，转换到：直播间(live)、直接发图片(picture)
+        self.ask_picture_change_to = "live"
+        # 如果用户问到whatsapp等社交账号，转换到：直播间(live)、委婉拒绝
+        self.ask_social_account_change_to = "live"
 
     def stages_chat(self, round_i: int, latest_history_str: str, current_user_response: str, language: str = 'english'):
         """
@@ -95,11 +101,24 @@ class AiChat:
         if 18 < round_i < 20:
             return self._stage4_chat(latest_history_str, current_user_response, language)
 
-    def _branch_change(self, gpt_res: str):
+    def _live_stream_guide(self, language: str, **kwargs):
+        """
+        朋友引流(其中的引流方式需要修改这里的函数内容)
+        @param kwargs:
+                latest_history_str: 最新的聊天历史，格式如下：
+                    rosa: you busy?
+                    user: no
+                    rosa: Cool, what do you want to know?
+                current_user_response: 当前用户的回复
+                ...
+        """
+        return self._branch_chat(branch_name='branch_friend_live', language=language, **kwargs)
+
+    def _branch_change(self, gpt_res: str, **kwargs):
         """
         分支转换控制
         Args:
-            gpt_res: gpt的返回结果，格式为：
+             gpt_res: gpt的返回结果，格式为：
              {
                   "user_intention": "Curious about appearance",
                   "user_state": "Open to chatting",
@@ -107,37 +126,78 @@ class AiChat:
                   "if_ask_personal_picture": true,
                   "reply": "Why do you want to see my photo?"
              }
-
-        Returns:
-
+             kwargs:
+                latest_history_str: 最新的聊天历史，格式如下：
+                    rosa: you busy?
+                    user: no
+                    rosa: Cool, what do you want to know?
+                current_user_response: 当前用户的回复
         """
 
         if_ask_social_software_account = parse_key_value(gpt_res, 'if_ask_social_software_account')
         if_ask_personal_picture = parse_key_value(gpt_res, 'if_ask_personal_picture')
+        user_reply = parse_key_value(gpt_res, 'reply')
 
         # ------------------
         # 识别出要社交账号
         # ------------------
         if 'yes' in if_ask_social_software_account.lower() or 'true' in if_ask_social_software_account.lower():
-            print()
+            """
+            可以切换到如下分支：
+            1. 引导到直播间
+            2. 委婉拒绝
+            """
+            # 1. 引导到直播间
+            if self.ask_social_account_change_to == 'live':
+                return self._live_stream_guide(language=kwargs['language'])
+            # 2. 委婉拒绝
+            else:
+                return user_reply
 
         # ------------------
-        # 是吧出要照片
+        # 识别出要照片
         # ------------------
         if 'yes' in if_ask_personal_picture.lower() or 'true' in if_ask_personal_picture.lower():
-            print()
+            """
+            可以切换到如下分支：
+            1. 发送照片
+            2. 引导到直播间
+                - 朋友身份引流
+                - 大小号引流
+                - 主播分身引流
+            3. 委婉拒绝
+            """
 
-    def _branch_chat(self, branch_name, latest_history_str: str, current_user_response: str, language: str = 'english'):
+            # 1.发送照片
+            if self.ask_picture_change_to == 'picture' and len(self.role_picture_list) > 0:
+                pic_i = random.sample(range(0, len(self.role_picture_list)), k=1)[0]
+                picture_dic = self.role_picture_list[pic_i]  # 获取照片dic
+                del self.role_picture_list[pic_i]  # 删除已经发送的照片
+                return self._branch_chat(branch_name='branch_picture',
+                                         language=kwargs['language'],
+                                         current_user_response=user_reply,
+                                         photo_content=picture_dic["picture_content"])
+            # 2.转到直播间
+            elif self.ask_picture_change_to == 'live':
+                return self._live_stream_guide(language=kwargs['language'])
+            # 3.委婉拒绝
+            else:
+                return user_reply
+
+    def _branch_chat(self, branch_name, language: str = 'english', **kwargs):
         """
         进入各个分支的聊天
         Args:
             branch_name: 分支名字： sex, friend_live，...
-            latest_history_str: 最新的聊天历史，格式如下：
-                rosa: you busy?
-                user: no
-                rosa: Cool, what do you want to know?
-            current_user_response: 当前用户的回复
             language: 采用什么语言回复
+
+            kwargs:
+                latest_history_str: 最新的聊天历史，格式如下：
+                    rosa: you busy?
+                    user: no
+                    rosa: Cool, what do you want to know?
+                current_user_response: 当前用户的回复
+                ...
 
         Returns:
             返回json实例，分析用户意图，状态等信息，回复格式如下：
@@ -151,12 +211,13 @@ class AiChat:
         """
 
         map_dic = copy.deepcopy(self.role_data_dic)
-        map_dic['latest_history'] = latest_history_str
-        map_dic['current_user_response'] = current_user_response
-        map_dic['previous_chat_summary'] = self.previous_chat_summary
         map_dic['language'] = language
+        for k in kwargs:
+            map_dic[k] = kwargs[k]
 
-        role_answer = get_prompt_result(prompt_file=prompt_file_dic[branch_name], map_dic=map_dic, gpt_version=self.gpt_version)
+        role_answer = get_prompt_result(prompt_file=prompt_file_dic[branch_name],
+                                        map_dic=map_dic,
+                                        gpt_version=self.gpt_version)
         return response_post_process(role_answer)
 
     def _stage1_chat(self, latest_history_str: str, current_user_response: str, language: str = 'english'):
@@ -179,7 +240,8 @@ class AiChat:
         map_dic['current_user_response'] = current_user_response
         map_dic['language'] = language
 
-        role_answer = get_prompt_result(prompt_file=prompt_file_dic['stage1_greeting'], map_dic=map_dic, gpt_version=self.gpt_version)
+        role_answer = get_prompt_result(prompt_file=prompt_file_dic['stage1_greeting'], map_dic=map_dic,
+                                        gpt_version=self.gpt_version)
         return response_post_process(role_answer)
 
     def _stage2_chat(self, latest_history_str: str, current_user_response: str, language: str = 'english'):
@@ -208,12 +270,13 @@ class AiChat:
         map_dic['current_user_response'] = current_user_response
         map_dic['language'] = language
 
-        gpt_res = get_prompt_result(prompt_file=prompt_file_dic['stage2_know_each_other'], map_dic=map_dic, gpt_version=self.gpt_version)
-        if_ask_social_software_account = parse_key_value(gpt_res, 'if_ask_social_software_account')
-        if_ask_personal_picture = parse_key_value(gpt_res, 'if_ask_personal_picture')
-        reply = parse_key_value(gpt_res, 'reply')
+        gpt_res = get_prompt_result(prompt_file=prompt_file_dic['stage2_know_each_other'], map_dic=map_dic,
+                                    gpt_version=self.gpt_version)
 
-        return if_ask_social_software_account, if_ask_personal_picture, reply
+        return self._branch_change(gpt_res,
+                                   latest_history_str=latest_history_str,
+                                   current_user_response=current_user_response,
+                                   language=language)
 
     def _stage3_chat(self, latest_history_str: str, current_user_response: str, language: str = 'english'):
         """
@@ -242,12 +305,12 @@ class AiChat:
         map_dic['previous_chat_summary'] = self.previous_chat_summary
         map_dic['language'] = language
 
-        gpt_res = get_prompt_result(prompt_file=prompt_file_dic['stage3_familiar'], map_dic=map_dic, gpt_version=self.gpt_version)
-        if_ask_social_software_account = parse_key_value(gpt_res, 'if_ask_social_software_account')
-        if_ask_personal_picture = parse_key_value(gpt_res, 'if_ask_personal_picture')
-        reply = parse_key_value(gpt_res, 'reply')
-
-        return if_ask_social_software_account, if_ask_personal_picture, reply
+        gpt_res = get_prompt_result(prompt_file=prompt_file_dic['stage3_familiar'], map_dic=map_dic,
+                                    gpt_version=self.gpt_version)
+        return self._branch_change(gpt_res,
+                                   latest_history_str=latest_history_str,
+                                   current_user_response=current_user_response,
+                                   language=language)
 
     def _stage4_chat(self, latest_history_str: str, current_user_response: str, language: str = 'english'):
         """
@@ -276,9 +339,10 @@ class AiChat:
         map_dic['previous_chat_summary'] = self.previous_chat_summary
         map_dic['language'] = language
 
-        gpt_res = get_prompt_result(prompt_file=prompt_file_dic['stage4_hot'], map_dic=map_dic, gpt_version=self.gpt_version)
-        if_ask_social_software_account = parse_key_value(gpt_res, 'if_ask_social_software_account')
-        if_ask_personal_picture = parse_key_value(gpt_res, 'if_ask_personal_picture')
-        reply = parse_key_value(gpt_res, 'reply')
+        gpt_res = get_prompt_result(prompt_file=prompt_file_dic['stage4_hot'], map_dic=map_dic,
+                                    gpt_version=self.gpt_version)
 
-        return if_ask_social_software_account, if_ask_personal_picture, reply
+        return self._branch_change(gpt_res,
+                                   latest_history_str=latest_history_str,
+                                   current_user_response=current_user_response,
+                                   language=language)
