@@ -184,6 +184,8 @@ class AiChat:
             else:
                 return user_reply
 
+        return user_reply
+
     def _branch_chat(self, branch_name, language: str = 'english', **kwargs):
         """
         进入各个分支的聊天
@@ -242,7 +244,7 @@ class AiChat:
 
         role_answer = get_prompt_result(prompt_file=prompt_file_dic['stage1_greeting'], map_dic=map_dic,
                                         gpt_version=self.gpt_version)
-        return response_post_process(role_answer)
+        return None, response_post_process(role_answer)
 
     def _stage2_chat(self, latest_history_str: str, current_user_response: str, language: str = 'english'):
         """
@@ -273,10 +275,10 @@ class AiChat:
         gpt_res = get_prompt_result(prompt_file=prompt_file_dic['stage2_know_each_other'], map_dic=map_dic,
                                     gpt_version=self.gpt_version)
 
-        return self._branch_change(gpt_res,
-                                   latest_history_str=latest_history_str,
-                                   current_user_response=current_user_response,
-                                   language=language)
+        return gpt_res, self._branch_change(gpt_res,
+                                            latest_history_str=latest_history_str,
+                                            current_user_response=current_user_response,
+                                            language=language)
 
     def _stage3_chat(self, latest_history_str: str, current_user_response: str, language: str = 'english'):
         """
@@ -307,10 +309,10 @@ class AiChat:
 
         gpt_res = get_prompt_result(prompt_file=prompt_file_dic['stage3_familiar'], map_dic=map_dic,
                                     gpt_version=self.gpt_version)
-        return self._branch_change(gpt_res,
-                                   latest_history_str=latest_history_str,
-                                   current_user_response=current_user_response,
-                                   language=language)
+        return gpt_res, self._branch_change(gpt_res,
+                                            latest_history_str=latest_history_str,
+                                            current_user_response=current_user_response,
+                                            language=language)
 
     def _stage4_chat(self, latest_history_str: str, current_user_response: str, language: str = 'english'):
         """
@@ -342,7 +344,7 @@ class AiChat:
         gpt_res = get_prompt_result(prompt_file=prompt_file_dic['stage4_hot'], map_dic=map_dic,
                                     gpt_version=self.gpt_version)
 
-        return self._branch_change(gpt_res,
-                                   latest_history_str=latest_history_str,
-                                   current_user_response=current_user_response,
-                                   language=language)
+        return gpt_res, self._branch_change(gpt_res,
+                                            latest_history_str=latest_history_str,
+                                            current_user_response=current_user_response,
+                                            language=language)

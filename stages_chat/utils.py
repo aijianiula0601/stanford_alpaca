@@ -71,6 +71,8 @@ def get_gpt_response(message_list: list, gpt_version="gpt3.5"):
     else:
         raise KeyError(f"gpt_version:{gpt_version} error!")
 
+    print("---gpt result: ", res_text)
+
     return res_text
 
 

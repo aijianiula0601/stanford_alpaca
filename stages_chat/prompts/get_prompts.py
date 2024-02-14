@@ -52,6 +52,7 @@ def _get_prompt_from_md(md_file: str, map_dic: dict):
         md_file: 保存prompt的md文件路径
         map_dic: prompt中需要插入的字符串，格式:{'a': '~', 'b': '~'}
     """
+    print("----md_file:", md_file)
     return ''.join(open(md_file, 'r', encoding='utf-8').readlines()).format_map(map_dic).strip()
 
 
