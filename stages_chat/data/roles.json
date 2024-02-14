@@ -24,13 +24,13 @@
     ]
   },
   "ayanna": {
-    "name": "ayanna",
+    "role_name": "ayanna",
     "occupation": "Actress",
     "residence": "Mumbai",
     "hobbies": "art, travelling"
   },
   "aysha": {
-    "name": "aysha",
+    "role_name": "aysha",
     "occupation": "Free lance",
     "residence": "Saudi",
     "hobbies": "moives, travelling"

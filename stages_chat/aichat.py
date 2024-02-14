@@ -50,9 +50,8 @@ class AiChat:
         """
 
         self.role_data_dic = role_data_dic
+        self.role_name = role_data_dic['role_name']
         self.gpt_version = gpt_version
-        # 当前聊天阶段记录：stage1、stage2、stage3、stage4
-        self.current_chat_stage = None
         # 历史聊天的总结
         self.previous_chat_summary = None
         self.role_picture_list = role_data_dic.get('pictures', [])
@@ -61,21 +60,25 @@ class AiChat:
         # 如果用户问到whatsapp等社交账号，转换到：直播间(live)、委婉拒绝
         self.ask_social_account_change_to = "live"
 
-    def stages_chat(self, round_i: int, latest_history_str: str, current_user_response: str, language: str = 'english'):
+    def stages_chat(self, round_i: int, living_on: bool, latest_history_str: str, current_user_response: str, language: str = 'english'):
         """
-        整个聊天的pipeline
-        Args:
-            round_i: 目前是第几轮的聊天
-            latest_history_str: 最新的聊天历史，格式如下：
-                rosa: you busy?
-                user: no
-                rosa: Cool, what do you want to know?
-            current_user_response: 当前用户的回复
-            language: 采用什么语言回复
-
-        Returns:
-
+        分阶段的聊天
+        @param round_i: 轮次
+        @param living_on: 是否在播
+        @param latest_history_str: 聊天历史
+        @param current_user_response: 当前用户的提问
+        @param language: 采用什么语言回复
+        @return: gpt的回复
         """
+
+        # ---------------
+        # 提前处理特殊情况
+        # ---------------
+        priority_process_reply = self._priority_process(anchor_virtual_id_living=living_on,
+                                                        language=language,
+                                                        current_user_response=current_user_response)
+        if priority_process_reply:
+            return None, priority_process_reply
 
         # ---------------
         # stage1
@@ -98,8 +101,23 @@ class AiChat:
         # ---------------
         # stage4
         # ---------------
-        if 18 < round_i < 20:
+        if round_i > 18:
             return self._stage4_chat(latest_history_str, current_user_response, language)
+
+    def _priority_process(self, **kwargs):
+        """
+        优先处理模块
+        @param kwargs:
+            anchor_virtual_id_living: True or False
+        @return:
+        """
+
+        # 如果主播分身处于直播状态
+        if kwargs['anchor_virtual_id_living']:
+            return self._branch_chat(branch_name='branch_anchor_virtual_id_live', **kwargs)
+
+        else:
+            return None
 
     def _live_stream_guide(self, **kwargs):
         """
