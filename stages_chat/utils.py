@@ -113,3 +113,50 @@ def response_post_process(response_text: str):
     """
 
     return response_text.lstrip(".").strip().strip("rosa").strip(":").strip().strip('"').strip()
+
+
+# -----------------
+# 辅助函数
+# -----------------
+
+def get_history_str(history: list, limit_turn_n: int = None):
+    """
+    把history变为字符长
+    @param history: list类型，格式为:[['role_name: ~', 'user: ~'],...]
+    @param limit_turn_n: 限定多少轮
+    @return: str
+    """
+    if len(history) <= 0:
+        return None
+    history_list = []
+    for qa in history[:limit_turn_n]:
+        for q_a in qa:
+            if q_a is not None:
+                history_list.append(q_a)
+    return '\n'.join(history_list)
+
+
+def get_latest_history(history: list, limit_turn_n: int):
+    """
+    当聊天轮次大于一定次数后，对聊天轮次进行拆分，一部分用作gpt总结用，一部分作为历史聊天记录
+    @param history: list类型，格式为:[['role_name: ~', 'user: ~'],...]
+    @param limit_turn_n: 限定多少轮作为历史聊天记录
+    @return:
+        str: 用于gpt历史总结用, 用get_history_str拼接为字符串的形式
+        list：用于作为历史聊天记录用, list形式
+    """
+    to_summary_history = []
+    new_summary_flag = False
+    if len(history) % limit_turn_n == 0 and len(history) // limit_turn_n > 1:
+        if len(history) >= limit_turn_n * 2:
+            new_summary_flag = True
+            # 给过去做总结的历史
+            to_summary_history = history[:-limit_turn_n][-limit_turn_n:]
+
+    if new_summary_flag:
+        latest_history = history[-limit_turn_n:]
+    else:
+        cur_turn_n = limit_turn_n + len(history) % limit_turn_n
+        latest_history = history[-cur_turn_n:]
+
+    return get_history_str(to_summary_history), latest_history

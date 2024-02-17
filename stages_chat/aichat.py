@@ -2,7 +2,7 @@ import json
 import copy
 import random
 
-from utils import response_post_process, parse_key_value
+import utils
 from stages_chat.prompts.get_prompts import get_prompt_result, prompt_file_dic
 
 # 人设信息json文件
@@ -60,12 +60,12 @@ class AiChat:
         # 如果用户问到whatsapp等社交账号，转换到：直播间(live)、委婉拒绝
         self.ask_social_account_change_to = "live"
 
-    def stages_chat(self, round_i: int, living_on: bool, latest_history_str: str, current_user_response: str, language: str = 'english'):
+    def stages_chat(self, round_i: int, living_on: bool, latest_history: list, current_user_response: str, language: str = 'english'):
         """
         分阶段的聊天
         @param round_i: 轮次
         @param living_on: 是否在播
-        @param latest_history_str: 聊天历史
+        @param latest_history: 聊天历史
         @param current_user_response: 当前用户的提问
         @param language: 采用什么语言回复
         @return: gpt的回复
@@ -76,6 +76,7 @@ class AiChat:
         # ---------------
         priority_process_reply = self._priority_process(anchor_virtual_id_living=living_on,
                                                         language=language,
+                                                        latest_history=latest_history,
                                                         current_user_response=current_user_response)
         if priority_process_reply:
             return None, priority_process_reply
@@ -84,25 +85,25 @@ class AiChat:
         # stage1
         # ---------------
         if round_i <= 5:
-            return self._stage1_chat(latest_history_str, current_user_response, language)
+            return self._stage1_chat(latest_history, current_user_response, language)
 
         # ---------------
         # stage2
         # ---------------
         if 5 < round_i < 12:
-            return self._stage2_chat(latest_history_str, current_user_response, language)
+            return self._stage2_chat(latest_history, current_user_response, language)
 
         # ---------------
         # stage3
         # ---------------
         if 12 < round_i < 18:
-            return self._stage3_chat(latest_history_str, current_user_response, language)
+            return self._stage3_chat(latest_history, current_user_response, language)
 
         # ---------------
         # stage4
         # ---------------
         if round_i > 18:
-            return self._stage4_chat(latest_history_str, current_user_response, language)
+            return self._stage4_chat(latest_history, current_user_response, language)
 
     def _priority_process(self, **kwargs):
         """
@@ -112,18 +113,28 @@ class AiChat:
         @return:
         """
 
+        # ------------------------
         # 如果主播分身处于直播状态
+        # ------------------------
         if kwargs['anchor_virtual_id_living']:
             return self._branch_chat(branch_name='branch_anchor_virtual_id_live', **kwargs)
-
-        else:
-            return None
+        # ------------------------
+        # 判断是否询问社交账号、图片
+        # ------------------------
+        map_dic = {
+            'latest_history': utils.get_history_str(kwargs['latest_history'], limit_turn_n=3),
+            'current_user_response': kwargs['current_user_response'],
+        }
+        gpt_res = get_prompt_result(prompt_file=prompt_file_dic['chat_analysis'],
+                                    map_dic=map_dic,
+                                    gpt_version=self.gpt_version)
+        return self._branch_change(gpt_res, **kwargs)
 
     def _live_stream_guide(self, **kwargs):
         """
         朋友引流(这个函数的引流方式可以修改，如修改为：大小号引流、主播分身引流)
         @param kwargs:
-                latest_history_str: 最新的聊天历史，格式如下：
+                latest_history: 最新的聊天历史，格式如下：
                     rosa: you busy?
                     user: no
                     rosa: Cool, what do you want to know?
@@ -145,16 +156,16 @@ class AiChat:
                   "reply": "Why do you want to see my photo?"
              }
              kwargs:
-                latest_history_str: 最新的聊天历史，格式如下：
+                latest_history: 最新的聊天历史，格式如下：
                     rosa: you busy?
                     user: no
                     rosa: Cool, what do you want to know?
                 current_user_response: 当前用户的回复
         """
 
-        if_ask_social_software_account = parse_key_value(gpt_res, 'if_ask_social_software_account')
-        if_ask_personal_picture = parse_key_value(gpt_res, 'if_ask_personal_picture')
-        user_reply = parse_key_value(gpt_res, 'reply')
+        if_ask_social_software_account = utils.parse_key_value(gpt_res, 'if_ask_social_software_account')
+        if_ask_personal_picture = utils.parse_key_value(gpt_res, 'if_ask_personal_picture')
+        user_reply = utils.parse_key_value(gpt_res, 'reply')
 
         # ------------------
         # 识别出要社交账号
@@ -167,7 +178,7 @@ class AiChat:
             """
             # 1. 引导到直播间
             if self.ask_social_account_change_to == 'live':
-                return self._live_stream_guide(language=kwargs['language'])
+                return self._live_stream_guide(**kwargs)
             # 2. 委婉拒绝
             else:
                 return user_reply
@@ -211,7 +222,7 @@ class AiChat:
             branch_name: 分支名字： sex, friend_live，...
 
             kwargs:
-                latest_history_str: 最新的聊天历史，格式如下：
+                latest_history: 最新的聊天历史，格式如下：
                     rosa: you busy?
                     user: no
                     rosa: Cool, what do you want to know?
@@ -233,16 +244,18 @@ class AiChat:
         for k in kwargs:
             map_dic[k] = kwargs[k]
 
+        map_dic['latest_history'] = utils.get_history_str(map_dic['latest_history'])
+
         role_answer = get_prompt_result(prompt_file=prompt_file_dic[branch_name],
                                         map_dic=map_dic,
                                         gpt_version=self.gpt_version)
-        return response_post_process(role_answer)
+        return utils.response_post_process(role_answer)
 
-    def _stage1_chat(self, latest_history_str: str, current_user_response: str, language: str = 'english'):
+    def _stage1_chat(self, latest_history: list, current_user_response: str, language: str = 'english'):
         """
         阶段1聊天，聊天轮次小于5
         Args:
-            latest_history_str: 最新的聊天历史，格式如下：
+            latest_history: 最新的聊天历史，格式如下：
                 rosa: you busy?
                 user: no
                 rosa: Cool, what do you want to know?
@@ -254,19 +267,19 @@ class AiChat:
         """
 
         map_dic = copy.deepcopy(self.role_data_dic)
-        map_dic['latest_history'] = latest_history_str
+        map_dic['latest_history'] = utils.get_history_str(latest_history)
         map_dic['current_user_response'] = current_user_response
         map_dic['language'] = language
 
         role_answer = get_prompt_result(prompt_file=prompt_file_dic['stage1_greeting'], map_dic=map_dic,
                                         gpt_version=self.gpt_version)
-        return None, response_post_process(role_answer)
+        return None, utils.response_post_process(role_answer)
 
-    def _stage2_chat(self, latest_history_str: str, current_user_response: str, language: str = 'english'):
+    def _stage2_chat(self, latest_history: list, current_user_response: str, language: str = 'english'):
         """
         阶段2聊天，5 < 聊天轮次 < 10
         Args:
-            latest_history_str: 最新的聊天历史，格式如下：
+            latest_history: 最新的聊天历史，格式如下：
                 rosa: you busy?
                 user: no
                 rosa: Cool, what do you want to know?
@@ -284,23 +297,24 @@ class AiChat:
             }
         """
         map_dic = copy.deepcopy(self.role_data_dic)
-        map_dic['latest_history'] = latest_history_str
+        map_dic['latest_history'] = utils.get_history_str(latest_history)
         map_dic['current_user_response'] = current_user_response
         map_dic['language'] = language
 
-        gpt_res = get_prompt_result(prompt_file=prompt_file_dic['stage2_know_each_other'], map_dic=map_dic,
+        gpt_res = get_prompt_result(prompt_file=prompt_file_dic['stage2_know_each_other'],
+                                    map_dic=map_dic,
                                     gpt_version=self.gpt_version)
 
         return gpt_res, self._branch_change(gpt_res=gpt_res,
-                                            latest_history=latest_history_str,
+                                            latest_history=latest_history,
                                             current_user_response=current_user_response,
                                             language=language)
 
-    def _stage3_chat(self, latest_history_str: str, current_user_response: str, language: str = 'english'):
+    def _stage3_chat(self, latest_history: list, current_user_response: str, language: str = 'english'):
         """
         阶段2聊天，10 < 轮次 < 15
         Args:
-            latest_history_str: 最新的聊天历史，格式如下：
+            latest_history: 最新的聊天历史，格式如下：
                 rosa: you busy?
                 user: no
                 rosa: Cool, what do you want to know?
@@ -318,7 +332,7 @@ class AiChat:
             }
         """
         map_dic = copy.deepcopy(self.role_data_dic)
-        map_dic['latest_history'] = latest_history_str
+        map_dic['latest_history'] = utils.get_history_str(latest_history)
         map_dic['current_user_response'] = current_user_response
         map_dic['previous_chat_summary'] = self.previous_chat_summary
         map_dic['language'] = language
@@ -326,15 +340,15 @@ class AiChat:
         gpt_res = get_prompt_result(prompt_file=prompt_file_dic['stage3_familiar'], map_dic=map_dic,
                                     gpt_version=self.gpt_version)
         return gpt_res, self._branch_change(gpt_res=gpt_res,
-                                            latest_history=latest_history_str,
+                                            latest_history=latest_history,
                                             current_user_response=current_user_response,
                                             language=language)
 
-    def _stage4_chat(self, latest_history_str: str, current_user_response: str, language: str = 'english'):
+    def _stage4_chat(self, latest_history: list, current_user_response: str, language: str = 'english'):
         """
         阶段2聊天，15 < 轮次
         Args:
-            latest_history_str: 最新的聊天历史，格式如下：
+            latest_history: 最新的聊天历史，格式如下：
                 rosa: you busy?
                 user: no
                 rosa: Cool, what do you want to know?
@@ -352,7 +366,7 @@ class AiChat:
             }
         """
         map_dic = copy.deepcopy(self.role_data_dic)
-        map_dic['latest_history'] = latest_history_str
+        map_dic['latest_history'] = utils.get_history_str(latest_history)
         map_dic['current_user_response'] = current_user_response
         map_dic['previous_chat_summary'] = self.previous_chat_summary
         map_dic['language'] = language
@@ -361,7 +375,7 @@ class AiChat:
                                     gpt_version=self.gpt_version)
 
         return gpt_res, self._branch_change(gpt_res=gpt_res,
-                                            latest_history=latest_history_str,
+                                            latest_history=latest_history,
                                             current_user_response=current_user_response,
                                             language=language)
 

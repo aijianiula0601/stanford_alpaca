@@ -12,11 +12,11 @@ map_dic = {
     "occupation": "Physician assistant",
     "residence": "china",
     "hobbies": "Swimming",
-    "latest_history": """
-rosa: you busy?
-user: no
-rosa: Cool, what do you want to know?
-    """,
+    "latest_history": [
+        "rosa: you busy?",
+        "user: no",
+        "rosa: Cool, what do you want to know?"
+    ],
     "current_user_response": "yeah, send me your photo",
     # "current_user_response": "yeah, send me you whatsapp number.",
     # "previous_chat_summary": "Jack and Rosa introduce themselves and find out they are both from China, but don't have much to talk about.",
@@ -27,10 +27,9 @@ rosa: Cool, what do you want to know?
     "childhood_experience": "As a child, Rosa had a great experience when she won a drawing competition in school and her artwork was displayed in the school's exhibition.",
     "love_experience": "Rosa had a bad love experience in her early twenties when her long-term boyfriend cheated on her with her best friend, leading to their breakup and the end of their friendship.",
     # "photo_content": "I took this in Long Island, New York, and it was actually very hot.",
-    "photo_content":"I took this on a trip to the Hawaiian islands, and it was so beautiful.",
+    "photo_content": "I took this on a trip to the Hawaiian islands, and it was so beautiful.",
 }
 
 if __name__ == '__main__':
-    gpt_res = get_prompt_result(prompt_file=prompt_file_dic['stage2_know_each_other'], map_dic=map_dic,
+    gpt_res = get_prompt_result(prompt_file=prompt_file_dic['stage1_greeting'], map_dic=map_dic,
                                 gpt_version="gpt3.5")
-    print(gpt_res)
