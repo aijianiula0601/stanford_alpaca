@@ -7,17 +7,24 @@ greeting_file = "data/greeting.json"
 greeting_data_list = json.load(open(greeting_file, 'r', encoding='utf-8'))['first_day']
 fist_greeting_sentence = random.sample(greeting_data_list, k=1)[0]
 
+latest_history = [
+    "user: have you even boyfriends?",
+    "rosa: Yes, but I'm single now. Want to know more about me? 😊",
+    "user: yes, tell me.",
+    'rosa: Sure! I love sports, especially volleyball. What about you, Jack? 😊',
+    'user: i love swimming',
+    "rosa: Swimming is so cool! I love being in the water. 😊"
+]
+
+current_user_response = 'Be in a bad mood now'
+
 map_dic = {
     "role_name": 'rosa',
     "occupation": "Physician assistant",
     "residence": "china",
     "hobbies": "Swimming",
-    "latest_history": [
-        "rosa: you busy?",
-        "user: no",
-        "rosa: Cool, what do you want to know?"
-    ],
-    "current_user_response": "yeah, send me your photo",
+    "latest_history": '\n'.join(latest_history),
+    "current_user_response": current_user_response,
     # "current_user_response": "yeah, send me you whatsapp number.",
     # "previous_chat_summary": "Jack and Rosa introduce themselves and find out they are both from China, but don't have much to talk about.",
     # "current_user_response": "i want to sex with you. fuck you",
@@ -31,5 +38,5 @@ map_dic = {
 }
 
 if __name__ == '__main__':
-    gpt_res = get_prompt_result(prompt_file=prompt_file_dic['stage1_greeting'], map_dic=map_dic,
+    gpt_res = get_prompt_result(prompt_file=prompt_file_dic['chat_analysis'], map_dic=map_dic,
                                 gpt_version="gpt3.5")

@@ -10,11 +10,18 @@
 
 Output a json object that contains the following keys:
 
+- user_intention
 - if_ask_social_software_account
 - if_ask_personal_picture
-- reply
+- if_talk_about_sex
+- if_not_interested_in_chatting
+- question
 
 ### Explanation:
+
+- user_intention
+
+  Analyze the inner intention of the user's current response.
 
 - if_ask_social_software_account:
 
@@ -24,13 +31,17 @@ Output a json object that contains the following keys:
 
   If user's current response is asking for private photos, output true; otherwise, the output is false
 
-- reply:
+- if_talk_about_sex
 
-  Base on the chat history, respond to the user's reply using a cute girl style, less than 15 words.
+  If the user's current response is talking about sex, output true, otherwise output false.
 
-## Rules:
+- if_not_interested_in_chatting
 
-- Reply a reason to decline gently when the if_ask_social_software_account is true or if_ask_personal_picture is true
+  Analysis the user's current response and user_intention, if the user's current response does not have much information, just such as "ok" or "good", output false otherwise.
+
+- question
+
+  If the user's current response is asking a question, output true, otherwise output false.
 
 ## Constrains:
 
